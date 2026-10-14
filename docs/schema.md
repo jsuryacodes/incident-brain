@@ -99,13 +99,15 @@ CREATE INDEX FOR (i:Incident) ON (i.started_at)
 CREATE INDEX FOR (i:Incident) ON (i.status)
 CREATE INDEX FOR (p:Person) ON (p.status)
 CREATE INDEX FOR (n:Node) ON (n.origin)   // repeat per label that can be agent-written
-// Full-text (Ask the Brain)
-CALL db.idx.fulltext.createNodeIndex('Doc', 'title', 'text')
-CALL db.idx.fulltext.createNodeIndex('Ticket', 'title', 'text')
-CALL db.idx.fulltext.createNodeIndex('ChatThread', 'title', 'text')
-CALL db.idx.fulltext.createNodeIndex('Decision', 'title', 'rationale')
-CALL db.idx.fulltext.createNodeIndex('Incident', 'title', 'summary')
-CALL db.idx.fulltext.createNodeIndex('Runbook', 'title', 'steps')
+// Full-text (Ask the Brain). NOTE: this FalkorDB version rejects the older
+// CALL db.idx.fulltext.createNodeIndex(...) form; use CREATE FULLTEXT INDEX.
+// Query with: CALL db.idx.fulltext.queryNodes('Doc', $q) YIELD node, score
+CREATE FULLTEXT INDEX FOR (n:Doc) ON (n.title, n.text)
+CREATE FULLTEXT INDEX FOR (n:Ticket) ON (n.title, n.text)
+CREATE FULLTEXT INDEX FOR (n:ChatThread) ON (n.title, n.text)
+CREATE FULLTEXT INDEX FOR (n:Decision) ON (n.title, n.rationale)
+CREATE FULLTEXT INDEX FOR (n:Incident) ON (n.title, n.summary)
+CREATE FULLTEXT INDEX FOR (n:Runbook) ON (n.title, n.steps)
 ```
 Unique constraints on `id` are a nice-to-have if FalkorDB's `GRAPH.CONSTRAINT CREATE` works cleanly.
 
@@ -159,4 +161,5 @@ CALL algo.pageRank('Service', 'DEPENDS_ON') YIELD node, score RETURN node.name, 
 ```
 
 ## Changelog
+- v1.0.1 (15 Oct 2026): §6 full-text syntax corrected to CREATE FULLTEXT INDEX (no model change).
 - v1 (15 Oct 2026): locked. Added `origin` on all nodes, `FOR_TICKET` (Deploy → Ticket) and `WRITTEN_IN` (agent node → Session) to the step-1 proposal.
