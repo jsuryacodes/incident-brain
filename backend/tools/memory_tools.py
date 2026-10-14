@@ -13,10 +13,11 @@ import hashlib
 import re
 import time
 
-from backend.tools.receipt import Recorder, clip, excerpt_error
+from backend.tools.receipt import Recorder, clip, excerpt_error, norm
 from seed.schema import PREFIX_TO_LABEL
 
 SOURCE_LABELS = ("Doc", "Ticket", "ChatThread", "Incident")
+OPERATOR_MARK = "Resolution (operator): "  # the only quotable part of an agent-written incident (resolve pass)
 NEW = "origin = 'agent', {0}.created_at = $now"  # used as ON CREATE SET x.<NEW>
 
 
@@ -62,6 +63,12 @@ def _sources(rec, sources):
             return f"source {nid!r} must be a doc:, tkt:, chat: or inc: id"
         if err := rec.check(nid, lab) or excerpt_error(rec.graph, nid, s.get("excerpt")):
             return err
+        if lab == "Incident":  # an agent can't quote what it wrote itself: only the operator's words count
+            origin, summary = rec.graph.ro_query("MATCH (i:Incident {id:$id}) RETURN i.origin, i.summary", {"id": nid}).result_set[0]
+            if origin == "agent" and (OPERATOR_MARK not in (summary or "")
+                                      or norm(s["excerpt"]) not in norm(summary.split(OPERATOR_MARK, 1)[1])):
+                return (f"{nid} was written by an agent; only the operator's resolution words "
+                        f"(after '{OPERATOR_MARK.strip()}') can be quoted from it")
     return None
 
 
@@ -224,8 +231,8 @@ def record_fact(ctx, statement, about_ids, confidence, sources):
             return rec.error(err)
     if err := _session(rec, ctx) or _sources(rec, sources):
         return rec.error(err)
-    if conf is None or not str(statement or "").strip():
-        return rec.error("confidence must be 0..1 and statement non-empty")
+    if conf is None or not isinstance(statement, str) or not statement.strip():
+        return rec.error("confidence must be 0..1 and statement a non-empty string")
     now = int(time.time())
     fid = "fact:" + hashlib.sha1(statement.encode()).hexdigest()[:10]
     rec.w(f"MERGE (f:Fact {{id:$id}}) {_new('f')}, f.statement = $statement, f.confidence = $confidence",
@@ -303,6 +310,8 @@ def record_resolution(ctx, incident_id, summary, steps, performed_by_ids, source
     err, inc = _agent_incident(rec, incident_id)
     if err or (err := _session(rec, ctx)):
         return rec.error(err)
+    if inc["origin"] != "agent":
+        return rec.error(f"{incident_id} is a historical (seed) incident; only incidents opened by agents can be resolved")
     if not isinstance(performed_by_ids, list) or not performed_by_ids:
         return rec.error("performed_by_ids must be a non-empty list of person ids")
     for pid in performed_by_ids:
@@ -332,8 +341,11 @@ def link_similar(ctx, incident_id, other_id, score, reason):
     rec = Recorder(ctx, "link_similar", {"incident_id": incident_id, "other_id": other_id, "score": score, "reason": reason})
     lab = _label(other_id)
     sc = _num(score, 0, 1)
-    if err := rec.check(incident_id, "Incident"):
+    err, inc = _agent_incident(rec, incident_id)
+    if err or (err := _session(rec, ctx)):
         return rec.error(err)
+    if inc["origin"] != "agent":
+        return rec.error(f"{incident_id} is a historical (seed) incident; link FROM the incident you are working on")
     if lab not in ("Incident", "PublicPostmortem"):
         return rec.error(f"other_id must be an inc: or pm: id; got {other_id!r}")
     if err := rec.check(other_id, lab):
@@ -355,6 +367,8 @@ def write_runbook(ctx, service_id, title, steps, sources, supersedes_id=None):
         return rec.error(err)
     if not str(title or "").strip() or not _steps_text(steps):
         return rec.error("title and steps must be non-empty")
+    if not _slug(title):
+        return rec.error("title needs at least one letter or digit")
     version, rid = 1, f"rb:{_slug(title)}"
     if supersedes_id:
         if err := rec.check(supersedes_id, "Runbook"):

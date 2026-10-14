@@ -39,21 +39,27 @@ SUBMIT_REPORT = {
 }
 
 
-def schema_errors(report, schema):
-    """Light structural check: required keys, no unknown keys, simple min/max items. (No jsonschema dependency.)"""
-    errs = []
+def schema_errors(report, schema, path=""):
+    """Light structural check, recursive: required keys, no unknown keys, min/max items, and the same for nested
+    objects (inside anyOf too) and array items. (No jsonschema dependency.)"""
     if not isinstance(report, dict):
-        return ["report must be an object"]
-    props = schema["properties"]
-    errs += [f"missing field {k!r}" for k in schema.get("required", []) if k not in report]
-    errs += [f"unknown field {k!r}" for k in report if k not in props]
+        return [f"{path or 'report'} must be an object"]
+    errs, props = [], schema.get("properties", {})
+    errs += [f"missing field {path}{k!r}" for k in schema.get("required", []) if k not in report]
+    errs += [f"unknown field {path}{k!r}" for k in report if k not in props]
     for k, v in report.items():
         p = props.get(k, {})
-        if isinstance(v, list):
+        obj = next((o for o in [p] + p.get("anyOf", []) if o.get("type") == "object"), None)
+        if isinstance(v, dict) and obj:
+            errs += schema_errors(v, obj, f"{path}{k}.")
+        elif isinstance(v, list):
             if len(v) < p.get("minItems", 0):
-                errs.append(f"{k} needs at least {p['minItems']} items")
+                errs.append(f"{path}{k} needs at least {p['minItems']} items")
             if len(v) > p.get("maxItems", 10 ** 6):
-                errs.append(f"{k} allows at most {p['maxItems']} items")
+                errs.append(f"{path}{k} allows at most {p['maxItems']} items")
+            if (item := p.get("items", {})).get("type") == "object":
+                for i, x in enumerate(v):
+                    errs += schema_errors(x, item, f"{path}{k}[{i}].")
     return errs
 
 
@@ -65,7 +71,7 @@ def _quotes(obj):
     """(node_id, excerpt) pairs: any dict carrying an excerpt plus source_id / node_id."""
     out = []
     if isinstance(obj, dict):
-        if obj.get("excerpt") and (obj.get("source_id") or obj.get("node_id")):
+        if "excerpt" in obj:  # every excerpt is checked; one without a source id or text fails the check
             out.append((obj.get("source_id") or obj.get("node_id"), obj["excerpt"]))
         for v in obj.values():
             out += _quotes(v)

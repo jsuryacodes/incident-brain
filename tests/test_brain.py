@@ -69,10 +69,11 @@ def _fake(change):
     (lambda a: a["citations"].append({"node_id": "doc:made-up", "excerpt": "an excerpt that is long enough"}), "doc:made-up"),
     (lambda a: a["citations"][0].update(excerpt="RULES_CACHE_TTL can be anything you like"), "literal quote"),
     (lambda a: a.update(citations=[]), "cite at least one source"),
+    (lambda a: a.update(citations=[{"node_id": a["citations"][0]["node_id"]}]), "excerpt"),
 ])
 def test_grounding_rejects_fake_citations(fresh, change, needle):
     g = fresh("kestrel_pay_brain2")
     r = ask(g, "jaya", "Why must RULES_CACHE_TTL stay at 300 seconds?", llm=LLMClient(mode="mock", policy=_fake(change)))
     submits = [s for s in r["steps"] if s["tool"] == "submit_answer"]
     assert needle in submits[0]["result"]["error"]
-    assert r["grounding"]["ok"] is False
+    assert r["grounding"]["ok"] is False and r["status"] == "ungrounded" and r["answer"] is None

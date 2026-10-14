@@ -237,6 +237,9 @@ class Reseed(BaseModel):
 @app.post("/api/admin/reseed", dependencies=[Depends(require_code)])
 def reseed(body: Reseed):
     tenant_ok(body.tenant)
-    summary = load(body.tenant, reset=True, quiet=True)  # seed package chosen by seed.load.package_for
+    try:
+        summary = load(body.tenant, reset=True, quiet=True)  # seed package chosen by seed.load.package_for
+    except ValueError as e:  # no seed package for this tenant: refuse rather than load another company's data
+        raise HTTPException(400, str(e))
     return {"tenant": body.tenant, "nodes": sum(summary["nodes"].values()), "edges": sum(summary["edges"].values()),
             "now": summary["now"]}

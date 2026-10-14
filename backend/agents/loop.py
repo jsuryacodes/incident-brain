@@ -5,7 +5,8 @@ submit tool is accepted or max_steps LLM calls are used. Tool exceptions become 
 
 Grounding: `seen` holds every id that appeared in the initial message, the history or a tool result. Write tools may
 only touch seen ids, and a submit is checked by `validate` (ungrounded ids, non-literal excerpts). A rejected submit
-gets ONE retry; a second failure ends the run with grounding.ok = False.
+gets ONE retry; a second failure ends the run with status 'ungrounded' and NO report (the rejected one is kept in
+rejected_report for inspection), so nothing ungrounded is handed off, stored as an answer or served.
 """
 import json
 import time
@@ -54,6 +55,10 @@ def run_agent(agent, system, tools, initial_message, ctx, llm, *, max_steps=10, 
             continue
         results, done = [], False
         for u in uses:
+            if done:  # nothing runs after an accepted (or finally rejected) submit, not even writes in the same turn
+                results.append({"type": "tool_result", "tool_use_id": u["id"], "is_error": True,
+                                "content": json.dumps({"error": "skipped: the agent already submitted"})})
+                continue
             name, args, t0 = u["name"], u.get("input") or {}, time.time()
             spec = tools.get(name)
             receipt = {"tool": name, "args": args, "queries": [], "highlight": {"nodes": [], "edges": []}}
@@ -65,11 +70,16 @@ def run_agent(agent, system, tools, initial_message, ctx, llm, *, max_steps=10, 
                     rejected = 1
                     result = {"error": "rejected, not grounded: " + "; ".join(problems["errors"])
                               + ". Only cite ids that appeared in tool results and quote sources verbatim. Resubmit once."}
+                elif problems:  # second failure: end the run without a report
+                    done = True
+                    rec["status"], rec["rejected_report"], rec["submit_tool"] = "ungrounded", args, name
+                    rec["grounding"] = {"ok": False, "ungrounded_ids": problems.get("ungrounded_ids", []),
+                                        "errors": problems.get("errors", [])}
+                    result = {"error": "rejected again, not grounded: " + "; ".join(problems["errors"]) + ". Run ended."}
                 else:
                     done = True
                     rec["report"], rec["submit_tool"] = args, name
-                    rec["grounding"] = {"ok": not problems, "ungrounded_ids": (problems or {}).get("ungrounded_ids", []),
-                                        "errors": (problems or {}).get("errors", [])}
+                    rec["grounding"] = {"ok": True, "ungrounded_ids": [], "errors": []}
                     result = {"ok": True, "accepted": name}
                     receipt["highlight"]["nodes"] = sorted(ids_in(args) & seen)
             else:

@@ -14,7 +14,7 @@ from backend.agents.brain import ask
 from backend.db import allowed_tenants, get_graph
 from backend.llm import LLMClient
 from seed import scenario
-from seed.load import load
+from seed.load import load, package_for
 
 S1_ALERT = {"service_id": "svc:payments-api", "symptom": "5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes"}
 S2_ALERT = {"service_id": "svc:payouts-service", "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes"}
@@ -75,6 +75,8 @@ def story(graph="kestrel_pay", llm=None, quiet=False, compare_no_memory=False, o
     """The whole story. compare_no_memory: first run Session 2 on a fresh seed WITHOUT Session 1 (the contrast),
     then the normal story, so the summary box shows all three. quiet: print only session headers, handoffs and the
     summary box (verbose prints every step)."""
+    if package_for(graph) != "kestrel_pay":
+        raise ValueError(f"the demo story is Kestrel Pay's; {graph!r} would be seeded with another company's data")
     llm = llm or LLMClient()
     ev = handoffs_only if quiet else tracer(False)
     say = (lambda *a: None) if quiet else print

@@ -3,6 +3,16 @@
 Plain-language explanations of each piece of work, newest first. Each section: what it is, why it is built that way,
 and what to say if asked.
 
+## 06F: hardening
+**What:** an independent reviewer agent went through the code looking for leaks of the demo story into agent logic,
+unsafe queries, holes in grounding, missing write validation, tenant mix-ups, secrets and flaky tests.
+**What it found and we fixed:** an agent could overwrite the company's recorded history of an old incident; an agent
+could quote its own invented text as a "source"; a twice-rejected (ungrounded) answer was still passed on. Now
+history is read-only, only the operator's words in an agent-written incident are quotable, and an ungrounded answer
+ends the run with no answer at all. Tool descriptions no longer use the demo's ids as examples.
+**If asked "how do you know it's not overfit to the demo?":** the agent logic only reads tool results; the second
+company (Northwind) runs the same agents unchanged; story ids appear only in seed data, tests, evals and docs.
+
 ## 06E: README draft
 **What:** the submission README: what it is, how to run it in 3 minutes, how it's built, the graph model, which
 FalkorDB queries and algorithms carry the product, how memory works (with the before/after table), and one section per

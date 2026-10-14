@@ -66,7 +66,7 @@ RETURN s.id, s.name, s.tier, t.name
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
-**Arguments:** `{"service_id":{"type":"string","description":"Service id, e.g. 'svc:payments-api'. Use find_service if unsure."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
+**Arguments:** `{"service_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
 
 **LLM-facing description:** Which upstream services are hurt if this service fails (everything that transitively calls it). Returns each with tier, owning team and minimum hops, tier-1 first.
 
@@ -95,7 +95,7 @@ RETURN DISTINCT startNode(r).id, endNode(r).id, r.source
 
 **FalkorDB algorithm:** algo.SPpaths (shortest path per hit)
 
-**Arguments:** `{"service_id":{"type":"string","description":"Service id, e.g. 'svc:payments-api'. Use find_service if unsure."},"since_minutes":{"type":"integer","minimum":1,"description":"Look-back window in minutes."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
+**Arguments:** `{"service_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."},"since_minutes":{"type":"integer","minimum":1,"description":"Look-back window in minutes."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
 
 **LLM-facing description:** Likely cause of an alert: services DOWNSTREAM of the alerting service (things it calls) that were deployed recently. Returns hops, the dependency path with each edge's source (declared/learned), the deploy, who shipped it and its ticket.
 
@@ -126,7 +126,7 @@ RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN r
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
-**Arguments:** `{"service_id":{"type":"string","description":"Service id, e.g. 'svc:payments-api'. Use find_service if unsure."},"since_minutes":{"type":"integer","minimum":1,"description":"Look-back window in minutes."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
+**Arguments:** `{"service_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."},"since_minutes":{"type":"integer","minimum":1,"description":"Look-back window in minutes."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
 
 **LLM-facing description:** Noisy-neighbour check: services that are NOT downstream of this one but share a dependency with it and were deployed recently. Shows the shared service and both paths with edge sources; learned edges can reveal neighbours that declared edges miss.
 
@@ -161,7 +161,7 @@ LIMIT 60
 
 **FalkorDB algorithm:** algo.SPpaths
 
-**Arguments:** `{"from_id":{"type":"string","description":"Service id, e.g. 'svc:payments-api'. Use find_service if unsure."},"to_id":{"type":"string","description":"Service id, e.g. 'svc:payments-api'. Use find_service if unsure."}}` (required: from_id, to_id)
+**Arguments:** `{"from_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."},"to_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."}}` (required: from_id, to_id)
 
 **LLM-facing description:** Shortest DEPENDS_ON path between two services, trying caller->callee first, then callee->caller, then either way. Returns the nodes, the direction that matched and each hop's source (declared/learned).
 
@@ -183,7 +183,7 @@ RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN r
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
-**Arguments:** `{"service_id":{"type":"string","description":"Service id, e.g. 'svc:payments-api'. Use find_service if unsure."}}` (required: service_id)
+**Arguments:** `{"service_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."}}` (required: service_id)
 
 **LLM-facing description:** Who to page for a service. Returns the official maintainer (and whether they left), a bus_factor_risk flag, ranked active candidates with transparent signals (commits, recency, past incident resolutions) and the owning team as fallback.
 
@@ -224,7 +224,7 @@ RETURN t.id, t.name, collect(m.name)
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
-**Arguments:** `{"service_id":{"type":"string","description":"Service id, e.g. 'svc:payments-api'. Use find_service if unsure."}}` (required: service_id)
+**Arguments:** `{"service_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."}}` (required: service_id)
 
 **LLM-facing description:** Recorded decisions about a service: what was decided, why, who decided (and whether they left), and the exact quoted source (chat thread, doc or ticket) as the receipt.
 
@@ -250,7 +250,7 @@ ORDER BY d.decided_at DESC
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
-**Arguments:** `{"service_ids":{"type":"array","items":{"type":"string"},"minItems":1,"maxItems":10,"description":"Service ids, e.g. ['svc:risk-rules']."},"limit":{"type":"integer","minimum":1,"maximum":10}}` (required: service_ids)
+**Arguments:** `{"service_ids":{"type":"array","items":{"type":"string"},"minItems":1,"maxItems":10,"description":"Service ids, e.g. ['svc:<name>', 'svc:<other>']."},"limit":{"type":"integer","minimum":1,"maximum":10}}` (required: service_ids)
 
 **LLM-facing description:** Past incidents that touched any of the given services (affected them, or were caused by a deploy that changed them). Returns root cause, how it was resolved and by whom, sources, and SIMILAR_TO links, including incidents written by agents in earlier sessions.
 
@@ -370,7 +370,7 @@ ORDER BY x.updated_at
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
-**Arguments:** `{"node_id":{"type":"string","description":"Any node id, e.g. 'chat:risk-eng-config-load'."}}` (required: node_id)
+**Arguments:** `{"node_id":{"type":"string","description":"Any node id: '<prefix>:<name>', e.g. 'chat:<slug>', 'per:<name>'."}}` (required: node_id)
 
 **LLM-facing description:** Drill down into any node by id: its label, properties (long text shortened), counts of edges by type and up to 25 neighbours. Use to 'show the source' for an id returned by another tool.
 
@@ -396,7 +396,7 @@ LIMIT 300
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
-**Arguments:** `{"node_id":{"type":"string","description":"e.g. 'chat:risk-eng-config-load', 'doc:risk-rules-readme', 'rb:fraud-scoring-latency'."}}` (required: node_id)
+**Arguments:** `{"node_id":{"type":"string","description":"A 'doc:', 'tkt:', 'chat:', 'dec:', 'rb:' or 'inc:' id returned by another tool."}}` (required: node_id)
 
 **LLM-facing description:** Read the full text (up to 1,800 chars) of a doc, ticket, chat thread, decision, runbook or incident, with title, author (and whether they left), date and what it mentions/describes. node_details only shows 200 chars; use this to read a source and quote it verbatim.
 
@@ -427,7 +427,7 @@ MATCH (o:Runbook)-[:SUPERSEDES]->(n:Runbook {id:$id}) RETURN o.id
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
-**Arguments:** `{"incident_id":{"type":"string","description":"Incident id, e.g. 'inc:2026-032'."}}` (required: incident_id)
+**Arguments:** `{"incident_id":{"type":"string","description":"Incident id, 'inc:<year>-<nnn>'."}}` (required: incident_id)
 
 **LLM-facing description:** The shared state of an incident: status, severity, affected services, cause (deploy/service), root causes, facts learned in its sessions, handoff notes from earlier agents (in order), actions taken (pages, tickets, writes), similar incidents and the resolution.
 
@@ -495,7 +495,7 @@ RETURN r.id, r.summary, collect(p.id), collect(p.name)
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
-**Arguments:** `{"service_id":{"type":"string","description":"Service id, e.g. 'svc:payments-api'. Use find_service if unsure."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
+**Arguments:** `{"service_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
 
 **LLM-facing description:** Call FIRST on an alert: what earlier agent sessions learned about this service and its dependencies (DEPENDS_ON 1..3 hops). Returns learned dependencies (with the Fact, quoted source and session), agent-written facts, incidents agents resolved (cause, root cause, who fixed it and how, latest runbook steps) and `suspects`: services that memory points at, each with relation 'downstream' or 'shares_dependency'. Empty when nothing was learned yet.
 
@@ -554,7 +554,7 @@ RETURN DISTINCT i.id, latest.id, latest.title, latest.version, latest.steps
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
-**Arguments:** `{"root_cause_id":{"type":"string","description":"e.g. 'rc:bad-config-push'."},"incident_id":{"type":"string","description":"e.g. 'inc:2026-032'; uses its HAS_ROOT_CAUSE."},"limit":{"type":"integer","minimum":1,"maximum":10}}` (required: none)
+**Arguments:** `{"root_cause_id":{"type":"string","description":"'rc:<pattern>', e.g. from past_incidents' root_causes."},"incident_id":{"type":"string","description":"'inc:<year>-<nnn>'; uses its HAS_ROOT_CAUSE."},"limit":{"type":"integer","minimum":1,"maximum":10}}` (required: none)
 
 **LLM-facing description:** Real public postmortems from other companies (Cloudflare, AWS, GitHub, Slack, ...) that share a root cause with an incident or a root-cause id. Pass exactly one of incident_id or root_cause_id. Returns company, title, url, a short summary in our own words, the shared root causes and overlapping terms, best match first.
 

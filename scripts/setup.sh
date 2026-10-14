@@ -40,7 +40,7 @@ elif [ -n "$(docker ps -aq -f name=^falkordb$)" ]; then
   echo "starting the stopped container 'falkordb'"; docker start falkordb >/dev/null
 else
   echo "creating container 'falkordb' (FalkorDB on :6379, Browser on :3000)"
-  docker run -d --name falkordb -p 6379:6379 -p 3000:3000 falkordb/falkordb:latest >/dev/null
+  docker run -d --name falkordb -p 127.0.0.1:6379:6379 -p 127.0.0.1:3000:3000 falkordb/falkordb:latest >/dev/null
 fi
 for i in $(seq 1 30); do
   .venv/bin/python -c 'from falkordb import FalkorDB; FalkorDB(host="localhost", port=6379).connection.ping()' 2>/dev/null && break

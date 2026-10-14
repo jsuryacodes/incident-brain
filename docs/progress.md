@@ -10,9 +10,61 @@ Resume line: "Read docs/prompts/06-overnight.md and docs/progress.md and continu
 | C Public postmortems | DONE | 06C |
 | D Brain eval 5 → 15 | DONE | 06D |
 | E README draft | DONE | 06E |
-| F Hardening pass | todo | |
+| F Hardening pass | DONE | 06F |
 
-**Total live API spend: $0.00** (0 live calls, no key).
+**Total live API spend: $0.00** (0 live calls, no key). **All six parts DONE.** Tests: 105 passed ×3 in a fresh
+Python 3.12 venv; `seed.verify`: kestrel_pay 14/14, northwind_health 8/8; Brain eval 15/15 + 3/3.
+
+## Look at these first in the morning
+1. **The before/after box** below (`scripts/demo.sh --quiet`). Session 2's Investigator names the culprit on its 3rd tool call via `memory_recall`; without memory the cause isn't found.
+2. **`docs/postmortems.md`:** 21 real public postmortems with summaries written by the AI from each page. Read them; they are about real companies. No certificate-expiry entry (couldn't verify a primary page).
+3. **Two judgement calls to confirm** (06B): `memory_recall` returns only agent-written memory (so Session 1 recalls nothing), and "within 3 tool calls" is counted for the Investigator (Triage needs 5 calls first).
+4. **Security fixes from the review** (06F): agents could overwrite seeded history via `record_resolution` (high) and quote their own invented incident summaries; both are closed, with tests.
+5. **README draft:** paste the official track focus bullets into the three `TODO:` lines; add video/URL/screenshots.
+6. **Schema v1.2** (06D): two full-text indexes only (RootCause, PublicPostmortem). The doc's changelog says why.
+
+## Final before/after box (fresh reseed, mock, `scripts/demo.sh --quiet`)
+```
+  +------------------------+-----------------------------+----------------------------+----------------------+
+  |                        | Session 1                   | Session 2                  | Session 2, no memory |
+  +------------------------+-----------------------------+----------------------------+----------------------+
+  | alert                  | payments-api                | payouts-service            | payouts-service      |
+  | incident               | INC-2026-032                | INC-2026-033               | INC-2026-032         |
+  | cause                  | dep:risk-rules-v2.8.0       | dep:risk-rules-v2.8.1      | unknown              |
+  | confidence             | high                        | high                       | low                  |
+  | tool calls until cause | 14 total, 8 by investigator | 9 total, 3 by investigator | cause NOT found      |
+  | LLM calls until cause  | 8                           | 6                          | -                    |
+  | LLM calls total        | 12                          | 11                         | 10                   |
+  +------------------------+-----------------------------+----------------------------+----------------------+
+
+  Session 2, from memory: Seen before: INC-2026-032, fixed by Priya Nair (Priya rolled back RULES_CACHE_TTL to 300s;
+  config-service load recovered), see Runbook v2 step 2 (rb:fraud-scoring-latency-v2).
+```
+(The no-memory run is on its own fresh seed, which is why its incident key is also INC-2026-032.)
+
+## 06F — Hardening pass
+**Status:** DONE
+
+One independent reviewer agent (it hadn't seen the work) checked the 8 areas in the spec and ran `pytest -q` 3× (102/102 each time). It found 1 high and 6 medium issues. All are fixed, each with a test:
+- **High: seed history could be overwritten.** `record_resolution` didn't check origin, and `res:<id>` collides with the seed Resolution id, so a resolve on a historical incident would overwrite it. Now refused, like `update_incident`.
+- `link_similar` now requires an agent-opened incident and an active session (it could link seed→seed).
+- **Agents can't quote themselves:** an agent-written incident is quotable only after "Resolution (operator): " (the operator's words). Before, an agent could put any text into its incident summary and then cite it as a "verbatim source".
+- **Grounding:** a second failed submit used to be accepted with `grounding.ok=false` and still handed off or served. Now the run ends with `status: ungrounded` and **no report** (kept as `rejected_report`). Tool calls after a submit in the same turn are skipped. Nested schema fields are checked (e.g. `conflicting_decision.source_id`), and every `excerpt` is checked, including citations missing an id or text.
+- **Story ids removed from LLM-facing tool descriptions** (`registry.py`: `svc:<name>`, `inc:<year>-<nnn>` …) and from the Brain prompt's examples.
+- `package_for` raises for an unknown tenant instead of silently loading Kestrel Pay's data; `/api/admin/reseed` turns that into a 400; `demo story` refuses non-Kestrel graphs.
+- Low: `record_fact` with a non-string statement no longer crashes; `write_runbook` refuses a title with no letters; the seed loader raises instead of `assert`; FalkorDB ports are bound to 127.0.0.1 (compose + setup.sh); dead `llm_tool_specs()` removed; the test allowlist no longer includes the real `kestrel_pay` graph.
+
+**Not fixed (low; listed on purpose)**
+- `_Q_STOP` in the Brain mock has eval-flavoured words ("seconds", "stay", "left"). No ids, so not a leak; a live model doesn't use it.
+- Nothing checks that `people` / `contact.person_id` in a final answer are still active (who_to_call only returns active people, and paging someone who left is refused).
+- `page_person` / `open_ticket` accept a historical incident id (harmless, inconsistent).
+- `ToolContext()` defaults to `kestrel_pay` if a caller forgets the context; all real callers pass it.
+- `/api/sessions?user=` and `/api/sessions/{id}` don't check ownership (the UI replay needs them); Brain follow-ups do.
+- `seed.load` / `seed.scenario` / `seed.verify` CLIs connect directly (no allowlist): CLI-only.
+- `falkordb/falkordb:latest` is unpinned in docker-compose.
+- Two simultaneous pytest runs against one FalkorDB would collide on the fixed scratch graph names.
+
+**Final checks (fresh reseed):** kestrel_pay 14/14, northwind_health 8/8; `pytest -q` 105 passed ×3 in a fresh Python 3.12 venv (and in `.venv`); `scripts/demo.sh --quiet` box above; golden runs and `docs/cypher.md` regenerated.
 
 ## 06E — README draft
 **Status:** DONE (draft; `TODO:` placeholders for demo video, live URL, screenshots and the official track focus bullets)
@@ -123,7 +175,7 @@ Add `--live` to the first two (needs `ANTHROPIC_API_KEY` in `.env`) once you dec
 7. **Cost control is layered.** Default mock; one LLM wrapper (`backend/llm.py`) with `max_tokens`, prompt caching (system + last tool) and a per-run budget guard (`MAX_RUN_COST_USD`). The API serves live only with `live: true` plus a valid access code, a server key and room under a daily cap (Redis counter), and rate-limits per IP.
 8. **Expertise is computed, not stored.** "Who to call" ranks active people by commits + 25 × incident fixes. After Session 1 is resolved, Priya's score rises (48 → 73) because she now has another fix in the graph. The maintainer who left is flagged as a bus-factor risk.
 9. **Tenant isolation is structural.** One FalkorDB graph per company. A Kestrel Pay id doesn't exist in Northwind's graph, so tools can't reach it; the Brain on Northwind honestly answers "I don't know" about RULES_CACHE_TTL. The MCP server is pinned to one tenant per process.
-10. **Honest metrics.** Time to cause in mock: Session 1 = 7 LLM / 13 tool calls, Session 2 = 6 / 12. The saving is real but small (no need to re-read the chat: the learned Fact already cites it). The headline is that Session 2 finds the cause at all.
+10. **Honest metrics.** (Updated in 06B.) Investigator tool calls until cause: Session 1 = 8, Session 2 = 3 (memory recall, one verification, set cause); session-wide 14 vs 9. Without Session 1's memory, Session 2 doesn't find the cause at all.
 
 ## Known issues
 - **No live run has ever happened** (by instruction). Prompts are written for Haiku but untested against a real model; expect one round of prompt tuning on the first live run (see each milestone's "Live check" commands).

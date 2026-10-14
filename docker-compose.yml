@@ -3,7 +3,7 @@
 services:
   falkordb:
     image: falkordb/falkordb:latest
-    ports: ["6379:6379", "3000:3000"]
+    ports: ["127.0.0.1:6379:6379", "127.0.0.1:3000:3000"]  # no auth on FalkorDB: never publish it beyond localhost
     volumes: [falkordb-data:/var/lib/falkordb/data]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]

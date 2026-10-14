@@ -122,7 +122,8 @@ def write(g, nodes, edges):
     for n in nodes:
         by_label[n["label"]].append({k: v for k, v in n.items() if k != "label"})
     for label, rows in by_label.items():
-        assert label in schema.LABELS  # only checked names are ever interpolated
+        if label not in schema.LABELS:  # only checked names are ever interpolated (not an assert: -O strips those)
+            raise ValueError(f"unknown label {label!r}")
         for i in range(0, len(rows), BATCH):
             g.query(f"UNWIND $rows AS row MERGE (n:{label} {{id: row.id}}) SET n += row", {"rows": rows[i:i + BATCH]})
     groups = defaultdict(list)
@@ -130,7 +131,8 @@ def write(g, nodes, edges):
         groups[(a.split(":", 1)[0], t, b.split(":", 1)[0])].append({"from": a, "to": b, "props": props})
     for (pa, t, pb), rows in groups.items():
         la, lb = schema.PREFIX_TO_LABEL[pa], schema.PREFIX_TO_LABEL[pb]
-        assert t in schema.EDGE_RULES and (la, lb) in schema.EDGE_RULES[t]
+        if t not in schema.EDGE_RULES or (la, lb) not in schema.EDGE_RULES[t]:
+            raise ValueError(f"edge {la}-[:{t}]->{lb} is not in the schema")
         for i in range(0, len(rows), BATCH):
             g.query(f"UNWIND $rows AS row MATCH (a:{la} {{id: row.from}}), (b:{lb} {{id: row.to}}) "
                     f"MERGE (a)-[r:{t}]->(b) SET r += row.props", {"rows": rows[i:i + BATCH]})
@@ -138,10 +140,14 @@ def write(g, nodes, edges):
 
 def package_for(graph_name):
     """Seed package for a graph: its own name if seed/data/<name> exists, else the package sharing its first word
-    (kestrel_pay_test -> kestrel_pay, northwind_test -> northwind_health), else kestrel_pay."""
+    (kestrel_pay_test -> kestrel_pay, northwind_test -> northwind_health). Unknown -> ValueError (never another
+    company's data by default)."""
     data = os.path.join(os.path.dirname(__file__), "data")
     pkgs = sorted(d for d in os.listdir(data) if os.path.isdir(os.path.join(data, d)) and not d.startswith("_"))
-    return graph_name if graph_name in pkgs else next((p for p in pkgs if p.split("_")[0] == graph_name.split("_")[0]), "kestrel_pay")
+    pkg = graph_name if graph_name in pkgs else next((p for p in pkgs if p.split("_")[0] == graph_name.split("_")[0]), None)
+    if pkg is None:
+        raise ValueError(f"no seed package for graph {graph_name!r}; add seed/data/<name>/ (have: {pkgs})")
+    return pkg
 
 
 def load(graph_name, reset=True, now=None, data_package=None, quiet=False):

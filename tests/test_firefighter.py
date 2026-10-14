@@ -41,6 +41,7 @@ def test_2_grounding_rejects_invented_id(ctx):
     assert len(submits) == 2  # rejected once, resubmitted once
     assert "per:made-up" in submits[0]["result"]["error"]
     assert rec["grounding"]["ok"] is False and rec["grounding"]["ungrounded_ids"] == ["per:made-up"]
+    assert rec["status"] == "ungrounded" and rec["report"] is None  # never served or handed off
 
 
 def test_2b_grounding_rejects_non_literal_excerpt(ctx):
@@ -54,6 +55,19 @@ def test_2b_grounding_rejects_non_literal_excerpt(ctx):
     rec = run(ctx, LLMClient(mode="mock", policy=misquote))
     assert rec["grounding"]["ok"] is False
     assert any("literal quote" in e for e in rec["grounding"]["errors"])
+
+
+def test_2c_nested_fields_and_excerpts_are_required(ctx):
+    def strip(agent, system, tools, messages):
+        out = mock_policy.respond(agent, system, tools, messages)
+        for b in out:
+            if b["name"] == "submit_report" and b["input"]["conflicting_decision"]:
+                b["input"] = copy.deepcopy(b["input"])
+                del b["input"]["conflicting_decision"]["source_id"]  # would have skipped the excerpt check
+        return out
+    rec = run(ctx, LLMClient(mode="mock", policy=strip))
+    assert rec["status"] == "ungrounded"
+    assert any("conflicting_decision.'source_id'" in e for e in rec["grounding"]["errors"])
 
 
 def test_3_step_cap(ctx):

@@ -111,7 +111,12 @@ def test_open_ticket_and_flag_stale(mem):
 
 def test_resolution_similar_runbook(mem):
     g, w, inc, ses = mem["g"], mem["w"], mem["inc"]["id"], mem["ctx"].session_id
-    w("update_incident", incident_id=inc, summary="5xx on payments-api. Priya rolled back the TTL.")
+    w("update_incident", incident_id=inc, summary="5xx on payments-api. The cache TTL was rolled back.")
+    # an agent can't quote what it wrote itself, only the operator's words
+    bad = w("record_resolution", incident_id=inc, summary="x", steps=["x"], performed_by_ids=["per:priya-nair"],
+            sources=[{"node_id": inc, "excerpt": "The cache TTL was rolled back."}])
+    assert "operator" in bad.result["error"]
+    w("update_incident", incident_id=inc, summary="5xx on payments-api. Resolution (operator): Priya rolled back the TTL.")
     r = w("record_resolution", incident_id=inc, summary="rolled back the TTL", steps=["roll back"],
           performed_by_ids=["per:priya-nair"], sources=[{"node_id": inc, "excerpt": "Priya rolled back the TTL."}])
     written_ok(g, r, "Resolution", r.result["id"], ses)
@@ -126,6 +131,20 @@ def test_resolution_similar_runbook(mem):
     again = w("write_runbook", service_id="svc:fraud-scoring", title="t", steps=["s"],
               sources=[{"node_id": inc, "excerpt": "Priya rolled back the TTL."}], supersedes_id="rb:fraud-scoring-latency")
     assert "already superseded" in again.result["error"]
+
+
+def test_seed_history_cannot_be_rewritten(mem):
+    """Seed incidents are read-only for every write tool that changes an incident or links from it."""
+    w = mem["w"]
+    r = w("record_resolution", incident_id="inc:2025-031", summary="OVERWRITTEN", steps=["x"], performed_by_ids=["per:priya-nair"],
+          sources=[{"node_id": "inc:2025-031", "excerpt": "Rolled back the TTL to 300s and added cache warm-up."}])
+    assert "historical (seed)" in r.result["error"]
+    assert one(mem["g"], "MATCH (r:Resolution {id:'res:2025-031'}) RETURN r.summary") != [["OVERWRITTEN"]]
+    assert "historical (seed)" in w("link_similar", incident_id="inc:2025-031", other_id="inc:2026-012", score=0.5, reason="x").result["error"]
+    assert "error" in w("record_fact", statement=42, about_ids=[RR], confidence=0.5,
+                        sources=[{"node_id": CHAT, "excerpt": "risk-rules polls config-service"}]).result
+    assert "error" in w("write_runbook", service_id=RR, title="!!!", steps=["x"],
+                        sources=[{"node_id": CHAT, "excerpt": "risk-rules polls config-service"}]).result
 
 
 def test_writes_need_a_session_and_valid_labels(mem):

@@ -15,7 +15,7 @@ def _obj(props, required=()):
     return {"type": "object", "properties": props, "required": list(required), "additionalProperties": False}
 
 
-_SVC = {"type": "string", "description": "Service id, e.g. 'svc:payments-api'. Use find_service if unsure."}
+_SVC = {"type": "string", "description": "Service id, 'svc:<name>'. Use find_service if unsure."}
 _SINCE = {"type": "integer", "minimum": 1, "description": "Look-back window in minutes."}
 _HOPS = {"type": "integer", "minimum": 1, "maximum": 6, "description": "Max DEPENDS_ON hops."}
 
@@ -66,7 +66,7 @@ TOOLS = {
         fn=gt.past_incidents, track=[F, B, T],
         description="Past incidents that touched any of the given services (affected them, or were caused by a deploy that changed them). Returns root cause, how it was resolved and by whom, sources, and SIMILAR_TO links, including incidents written by agents in earlier sessions.",
         input_schema=_obj({"service_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 10,
-                                           "description": "Service ids, e.g. ['svc:risk-rules']."},
+                                           "description": "Service ids, e.g. ['svc:<name>', 'svc:<other>']."},
                            "limit": {"type": "integer", "minimum": 1, "maximum": 10}}, ["service_ids"]),
         cypher=[gt.Q_INC_AFFECTED, gt.Q_INC_DEPLOY, gt.Q_INC_DETAIL], algorithm=None,
         explanation="Two routes into an incident: AFFECTED (it hurt the service) and CAUSED_BY a Deploy that CHANGED the service (it came from there). Ranked by how many of the given services it touches, then recency. Detail query follows HAS_ROOT_CAUSE, RESOLVED_BY, PERFORMED_BY and SOURCED_FROM; SIMILAR_TO is read in both directions so links written by agents show up. Nothing filters on origin, so agent-written incidents are recalled too."),
@@ -94,19 +94,19 @@ TOOLS = {
     "node_details": dict(
         fn=gt.node_details, track=[F, B, T],
         description="Drill down into any node by id: its label, properties (long text shortened), counts of edges by type and up to 25 neighbours. Use to 'show the source' for an id returned by another tool.",
-        input_schema=_obj({"node_id": {"type": "string", "description": "Any node id, e.g. 'chat:risk-eng-config-load'."}}, ["node_id"]),
+        input_schema=_obj({"node_id": {"type": "string", "description": "Any node id: '<prefix>:<name>', e.g. 'chat:<slug>', 'per:<name>'."}}, ["node_id"]),
         cypher=[gt.Q_NODE, gt.Q_NEIGHBOURS], algorithm=None,
         explanation="Looks the node up by its prefixed id (the prefix selects the label, so the index on id is used) and lists one-hop neighbours with edge type and direction. Neighbours are taken round-robin across edge types so a node with many mentions still shows its maintainer, dependencies and owner."),
     "read_source": dict(
         fn=gt.read_source, track=[F, B],
         description="Read the full text (up to 1,800 chars) of a doc, ticket, chat thread, decision, runbook or incident, with title, author (and whether they left), date and what it mentions/describes. node_details only shows 200 chars; use this to read a source and quote it verbatim.",
-        input_schema=_obj({"node_id": {"type": "string", "description": "e.g. 'chat:risk-eng-config-load', 'doc:risk-rules-readme', 'rb:fraud-scoring-latency'."}}, ["node_id"]),
+        input_schema=_obj({"node_id": {"type": "string", "description": "A 'doc:', 'tkt:', 'chat:', 'dec:', 'rb:' or 'inc:' id returned by another tool."}}, ["node_id"]),
         cypher=[gt.Q_SOURCE, gt.Q_SOURCE_LINKS, gt.Q_SUPERSEDED_BY], algorithm=None,
         explanation="Looks the node up by its prefixed id and returns its main text field (text, rationale, steps or summary) with AUTHORED for the author and the outgoing MENTIONS / DESCRIBES / ABOUT / SUPERSEDES / SOURCED_FROM links. Agents need the full text because key chat lines sit deep in a thread, and every excerpt they write must be a literal quote of it."),
     "get_incident_state": dict(
         fn=gt.get_incident_state, track=[T],
         description="The shared state of an incident: status, severity, affected services, cause (deploy/service), root causes, facts learned in its sessions, handoff notes from earlier agents (in order), actions taken (pages, tickets, writes), similar incidents and the resolution.",
-        input_schema=_obj({"incident_id": {"type": "string", "description": "Incident id, e.g. 'inc:2026-032'."}}, ["incident_id"]),
+        input_schema=_obj({"incident_id": {"type": "string", "description": "Incident id, 'inc:<year>-<nnn>'."}}, ["incident_id"]),
         cypher=[gt.Q_STATE, gt.Q_STATE_AFFECTED, gt.Q_STATE_CAUSE, gt.Q_STATE_RC, gt.Q_STATE_FACTS, gt.Q_STATE_STEPS,
                 gt.Q_STATE_TICKETS, gt.Q_STATE_SIMILAR, gt.Q_STATE_RESOLUTION], algorithm=None,
         explanation="This is how agents hand off: each agent starts with an empty conversation and reads the incident's state from the graph. Sessions point at the incident (FOR_INCIDENT); their Steps (IN_SESSION) with action 'handoff' carry the notes, and Facts WRITTEN_IN those sessions are what the team learned. Nine small queries instead of one big one, because FalkorDB drops rows when a MATCH follows an aggregation."),
@@ -120,8 +120,8 @@ TOOLS = {
     "industry_matches": dict(
         fn=gt.industry_matches, track=[B, T, F],
         description="Real public postmortems from other companies (Cloudflare, AWS, GitHub, Slack, ...) that share a root cause with an incident or a root-cause id. Pass exactly one of incident_id or root_cause_id. Returns company, title, url, a short summary in our own words, the shared root causes and overlapping terms, best match first.",
-        input_schema=_obj({"root_cause_id": {"type": "string", "description": "e.g. 'rc:bad-config-push'."},
-                           "incident_id": {"type": "string", "description": "e.g. 'inc:2026-032'; uses its HAS_ROOT_CAUSE."},
+        input_schema=_obj({"root_cause_id": {"type": "string", "description": "'rc:<pattern>', e.g. from past_incidents' root_causes."},
+                           "incident_id": {"type": "string", "description": "'inc:<year>-<nnn>'; uses its HAS_ROOT_CAUSE."},
                            "limit": {"type": "integer", "minimum": 1, "maximum": 10}}),
         cypher=[gt.Q_IND_INCIDENT, gt.Q_IND_LINKED, gt.Q_IND_MATCHES], algorithm=None,
         explanation="The industry-pattern layer: every tenant graph holds the same ~20 PublicPostmortem nodes, each HAS_ROOT_CAUSE -> RootCause. Incident -[:HAS_ROOT_CAUSE]-> RootCause <-[:HAS_ROOT_CAUSE]- PublicPostmortem is a two-hop join, so 'has anyone else had this?' is a graph query, not a web search. Ranked by number of shared root causes, then words shared with the incident's title/symptom/summary, then recency. SIMILAR_TO edges an agent already wrote are flagged as already_linked."),
@@ -147,8 +147,3 @@ def call(name, args=None, ctx=None, table=None):
     if err:
         return ToolOutput({"error": err}, {"tool": name, "args": args, "queries": [], "highlight": {"nodes": [], "edges": []}})
     return table[name]["fn"](ctx, **args)
-
-
-def llm_tool_specs():
-    """Anthropic-style tool definitions (what step 4 sends to the model)."""
-    return [{"name": n, "description": t["description"], "input_schema": t["input_schema"]} for n, t in TOOLS.items()]
