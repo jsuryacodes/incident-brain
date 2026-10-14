@@ -3,6 +3,12 @@
 Plain-language explanations of each piece of work, newest first. Each section: what it is, why it is built that way,
 and what to say if asked.
 
+## 06E: README draft
+**What:** the submission README: what it is, how to run it in 3 minutes, how it's built, the graph model, which
+FalkorDB queries and algorithms carry the product, how memory works (with the before/after table), and one section per
+hackathon track. Plus `docs/live-mode.md`, which explains how spending is capped.
+**Still to fill in:** demo video, live URL, screenshots, and the official focus bullets for each track.
+
 ## 06D: the Brain eval (15 questions)
 **What:** a fixed exam for Ask the Brain: 15 questions that each test one kind of company question (why did we
 decide, who knows, who owns, what breaks, seen before, what did an agent session learn, industry pattern, follow-ups

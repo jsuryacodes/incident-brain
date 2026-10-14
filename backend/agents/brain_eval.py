@@ -7,6 +7,7 @@ what-breaks-if, seen-before, follow-up pronoun ("it"), what-did-session-N-learn,
 session (must be refused), follow-up from a NEW process (restart persistence), a question with no answer ("I don't
 know"). Follow-ups run in an earlier case's session; their subject must come from history stored in the graph.
 Q4 also expects 'missing_learned_dependency' once the story has taught the graph risk-rules -> config-service.
+The new-process case spawns a subprocess in mock mode only (a live run would bill it separately).
 Q10 asks about the latest team session that wrote a Fact; on a fresh seed there is none, so it asks about a session
 that doesn't exist and expects an honest "I don't know".
 """
@@ -118,9 +119,7 @@ def run_eval(tenant="kestrel_pay", llm=None, user="eval", quiet=False):
             except PermissionError:
                 r = {"refused": True}
             r.update(session_id=session, answer="(refused)", totals={"cost_usd": 0, "llm_calls": 0})
-        elif case.get("new_process"):
-            if llm.mode != "mock":
-                raise SystemExit("the new-process case runs in mock mode only")
+        elif case.get("new_process") and llm.mode == "mock":  # live: same process (history still comes from the graph)
             r = ask_in_new_process(tenant, user, q, session)
         else:
             r = ask(tenant, user, q, session, llm)

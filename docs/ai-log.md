@@ -67,3 +67,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-15 — 06D: Brain eval 5 → 15 (+3 Northwind)
 - Claude Code (Opus 5.5, unattended) grew `brain_eval.py` to 15 Kestrel + 3 Northwind questions (new grading: citations_any, answer_has, quote_has, dont_know, refused other user, subprocess follow-up), added Brain intents (blast, seen, session, industry), fixed the weak-hit fallback that answered unanswerable questions, schema v1.2 (two full-text indexes), prompt updated. Result 15/15 + 3/3.
 - Double-check: (1) the eval expects Omar Haddad as config-service owner (maintainer, 95 commits) and Maya Okoro for Northwind notifications: read from the seed, not assumed. (2) Schema v1.2 is index-only; I bumped the version per the overnight rules rather than asking. (3) The industry question relies on the root cause's *name* containing the words ("thundering herd", "retry storm").
+
+## 2026-10-15 — 06E: README draft
+- Claude Code (Opus 5.5, unattended) wrote the README draft, `docs/live-mode.md`, refreshed `docs/demo-checklist.md`, and let `brain_eval --live` run the restart case in-process.
+- Double-check: (1) paste the official track focus bullets into the three `TODO:` lines; I didn't have them. (2) The quickstart's `git clone` URL assumes the repo is public. (3) Every number in the README is from mock mode, and it says so.

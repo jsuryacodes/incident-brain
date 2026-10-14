@@ -9,10 +9,17 @@ Resume line: "Read docs/prompts/06-overnight.md and docs/progress.md and continu
 | B Memory-first recall | DONE | 06B |
 | C Public postmortems | DONE | 06C |
 | D Brain eval 5 → 15 | DONE | 06D |
-| E README draft | todo | |
+| E README draft | DONE | 06E |
 | F Hardening pass | todo | |
 
 **Total live API spend: $0.00** (0 live calls, no key).
+
+## 06E — README draft
+**Status:** DONE (draft; `TODO:` placeholders for demo video, live URL, screenshots and the official track focus bullets)
+
+**What was built:** `README.md`: pitch, 3-minute quickstart (`scripts/setup.sh`, `scripts/demo.sh --quiet`), architecture Mermaid (FalkorDB ↔ tools registry ↔ agent loop (RulePlanner | LLMPlanner) ↔ CLI / FastAPI / MCP), data model (link to `docs/schema.md` + a small diagram), the Cypher/algorithm table (variable-length paths, `algo.SPpaths`, `algo.pageRank`, `algo.betweenness`, full-text, single-query allocation), "How memory works" with the before/after table, one section per track, modes + cost caps, MCP, tenant isolation, repo map, AI-assistant disclosure. New `docs/live-mode.md` (mock vs live, the six cost layers, first live run commands). `docs/demo-checklist.md` numbers refreshed. `brain_eval --live` no longer aborts on the restart case (runs it in-process when live).
+
+**Decisions:** the hackathon's official per-track focus bullets are not in the repo, so each track section maps features to the themes we know ("tool selection via MCP", "high-concurrency reads/writes", "separate memory per tenant") and has a `TODO:` to paste the official bullets. No claims about live behaviour; the README says live mode has not been run.
 
 ## 06D — Ask the Brain eval: 5 → 15 (+3 Northwind)
 **Status:** DONE · **pass rate: Kestrel Pay 15/15 on a fresh seed and 15/15 after the story; Northwind Health 3/3** (mock).
