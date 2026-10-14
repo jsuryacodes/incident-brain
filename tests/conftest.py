@@ -7,7 +7,7 @@ from contextlib import contextmanager
 import pytest
 
 SCRATCH = ["kestrel_pay_mem", "kestrel_pay_story", "kestrel_pay_nomem", "kestrel_pay_conc", "kestrel_pay_api",
-           "kestrel_pay_brain", "kestrel_pay_brain2"]
+           "kestrel_pay_brain", "kestrel_pay_brain2", "kestrel_pay_iso", "northwind_test"]
 os.environ["TENANTS"] = ",".join(["kestrel_pay", "kestrel_pay_test"] + SCRATCH)  # read by backend.db at call time
 os.environ["LLM_MODE"] = "mock"  # tests are always mock
 
@@ -56,12 +56,13 @@ def learned_edge(graph, now):
 
 @pytest.fixture(scope="session")
 def fresh():
-    """fresh(name) -> name: (re)load the seed into a scratch graph; all are deleted at the end."""
+    """fresh(name) -> name: (re)load the seed (northwind_* graphs get Northwind Health) into a scratch graph; all are
+    deleted at the end."""
     made = []
 
-    def make(name):
+    def make(name, pkg=None):
         assert name in SCRATCH
-        load(name, reset=True, data_package="kestrel_pay", quiet=True)
+        load(name, reset=True, data_package=pkg or ("northwind_health" if name.startswith("northwind") else "kestrel_pay"), quiet=True)
         made.append(name)
         return name
     yield make

@@ -278,7 +278,7 @@ def triage(v):
 
 # ───────────── investigator ─────────────
 def investigator(v):
-    st, alert = _state(v), v.payload["alert"]
+    alert = v.payload["alert"]
     svc, inc = alert["service_id"], _state(v).get("id")
     recent, shared = v.last("recent_changes_downstream"), v.last("shared_dependency_changes")
     if recent is None:
@@ -591,7 +591,7 @@ def brain(v):
             cites = ([{"node_id": srcs[0]["id"], "excerpt": quote}] if quote else []) + [
                 {"node_id": d["id"], "excerpt": d["title"]} for d in decs]
             answer = (f"Start with the {srcs[0]['title']} ({srcs[0]['id']}). "
-                      + (f"Then the decisions behind the services you'll own: " + "; ".join(f"{d['title']} ({d['id']})" for d in decs) + "." if decs else "")
+                      + ("Then the decisions behind the services you'll own: " + "; ".join(f"{d['title']} ({d['id']})" for d in decs) + "." if decs else "")
                       + (f" Ask {', '.join(people)} when stuck." if people else ""))
         elif srcs:
             for s in srcs:
@@ -603,7 +603,7 @@ def brain(v):
                       + f"): {' '.join(re.split(r'(?<=[.!?])\s+', lead['text'])[:2])}"
                       + "".join(f" Source {c['node_id']}: \"{c['excerpt']}\"" for c in cites[1:2]))
     if not answer or not cites:
-        answer, cites, people = (f"I don't know: nothing in this company's graph answers that"
+        answer, cites, people = ("I don't know: nothing in this company's graph answers that"
                                  + (f" (searched for {', '.join(keys)})." if keys else ".")), [], []
     words = answer.split()
     answer = " ".join(words[:150])

@@ -10,7 +10,8 @@ from pathlib import Path
 from backend.agents.loop import BOLD, RST
 from backend.agents.firefighter import print_report
 from backend.agents.team import resolve_incident, run_team, tracer
-from backend.db import get_graph
+from backend.agents.brain import ask
+from backend.db import allowed_tenants, get_graph
 from backend.llm import LLMClient
 from seed import scenario
 from seed.load import load
@@ -51,13 +52,29 @@ def s2_learned_hit(rec):
     return None
 
 
-def story(graph="kestrel_pay", llm=None, quiet=False, compare_no_memory=False):
+ISOLATION_Q = "Why must RULES_CACHE_TTL stay at 300 seconds?"
+
+
+def switch_tenant(other, llm):
+    """Tenant isolation: the other company's graph has none of this memory and doesn't know the answer."""
+    g = get_graph(other)
+    before = g.ro_query("MATCH (n {origin:'agent'}) RETURN count(n)").result_set[0][0]
+    learned = g.ro_query("MATCH ()-[r:DEPENDS_ON {source:'learned'}]->() RETURN count(r)").result_set[0][0]
+    r = ask(other, "jaya", ISOLATION_Q, llm=llm)
+    return {"tenant": other, "agent_nodes_before": before, "learned_edges": learned, "question": ISOLATION_Q,
+            "answer": r["answer"], "citations": r["citations"]}
+
+
+def story(graph="kestrel_pay", llm=None, quiet=False, compare_no_memory=False, other="northwind_health"):
     llm = llm or LLMClient()
     ev = None if quiet else tracer(False)
     say = (lambda *a: None) if quiet else print
+    other = other if other in allowed_tenants() and other != graph else None
     if not quiet:
-        banner(f"1. Re-seed {graph}")
+        banner(f"1. Re-seed {graph}" + (f" and {other}" if other else ""))
     load(graph, reset=True, data_package="kestrel_pay", quiet=quiet)
+    if other:
+        load(other, reset=True, data_package="northwind_health", quiet=quiet)
     out = {}
     if not compare_no_memory:
         if not quiet:
@@ -77,6 +94,8 @@ def story(graph="kestrel_pay", llm=None, quiet=False, compare_no_memory=False):
         print_report(out["s2"]["report"])
     out.update(memory_summary(graph))
     out["s2_learned_hit"] = s2_learned_hit(out["s2"])
+    if other:
+        out["switch_tenant"] = switch_tenant(other, llm)
     if not quiet:
         print_summary(out, compare_no_memory)
     return out
@@ -116,6 +135,11 @@ def print_summary(out, compare_no_memory):
     print("\n  learned edges: " + (", ".join(f"{e['from']} -> {e['to']} ({e['fact']})" for e in out["learned_edges"]) or "none"))
     print("  agent-written nodes: " + (", ".join(f"{k}={v}" for k, v in out["agent_nodes"].items()) or "none"))
     print(f"\n  See the memory in the FalkorDB Browser (http://localhost:3000, graph '{s2['tenant']}'):\n    {BROWSER_CYPHER}")
+    if sw := out.get("switch_tenant"):
+        banner(f"7. Switch tenant: {sw['tenant']}")
+        print(f"  agent-written nodes in {sw['tenant']}: {sw['agent_nodes_before']}; learned edges: {sw['learned_edges']}")
+        print(f"  Brain on {sw['tenant']}: \"{sw['question']}\"\n    -> {sw['answer']}  (citations: {len(sw['citations'])})")
+        print("  Each company is its own FalkorDB graph, so memory learned at Kestrel Pay cannot leak into Northwind Health.")
 
 
 def main():

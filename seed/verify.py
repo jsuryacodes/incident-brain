@@ -24,7 +24,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--graph", required=True)
     ap.add_argument("--now", type=int, default=int(time.time()))
+    ap.add_argument("--data", help="which seed's checks to run (default: the graph name if known, else kestrel_pay)")
     args = ap.parse_args()
+    pkg = args.data or (args.graph if args.graph in ("kestrel_pay", "northwind_health") else "kestrel_pay")
     load_dotenv()
     g = FalkorDB(host=os.getenv("FALKORDB_HOST", "localhost"), port=int(os.getenv("FALKORDB_PORT", "6379"))).select_graph(args.graph)
     since = args.now - 2 * 3600
@@ -120,7 +122,29 @@ def main():
         missing = [w for w in want if w[2] not in have.get((w[0], w[1]), set())]
         return not missing, f"{len(want) - len(missing)}/{len(want)} expected indexes present; missing={missing}"
 
-    for i, (name, fn) in enumerate([
+    def n1():
+        got = dict(q("MATCH (n) RETURN labels(n)[0], count(n)"))
+        return got.get("Team") == 2 and got.get("Service") == 9 and got.get("Person") == 8 and 35 <= sum(got.values()) <= 50, f"{got}"
+
+    def n2():
+        r = q("MATCH (:Service {id:'svc:patient-portal'})-[:DEPENDS_ON*1..4]->(d:Service)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since "
+              "RETURN DISTINCT d.id, dep.id", {"since": since})
+        return r == [["svc:notifications", "dep:notifications-v3.2.0"]], f"recent downstream deploys of patient-portal={r}"
+
+    def n3():
+        r = q("MATCH (:Decision {id:'dec:sms-retry-cap'})-[:SOURCED_FROM]->(c:ChatThread) RETURN c.id")
+        m = q("MATCH (p:Person)-[:MAINTAINS]->(:Service {id:'svc:notifications'}) RETURN p.status")
+        return r == [["chat:platform-sms-retries"]] and m == [["left"]], f"decision source={r}; notifications maintainer={m}"
+
+    def n4():
+        kp = q("MATCH (n) WHERE n.text CONTAINS 'RULES_CACHE_TTL' OR n.id IN ['svc:risk-rules', 'per:priya-nair'] RETURN count(n)")[0][0]
+        return kp == 0, f"Kestrel Pay nodes/text found={kp}"
+
+    checks = [("Counts: 2 teams, 9 services, 8 people, ~40 nodes", n1), ("Provenance: ids/origin + literal excerpts", c2),
+              ("Planted story: only notifications changed recently downstream of patient-portal", n2),
+              ("Decision sourced from #platform chat; notifications maintainer has left", n3),
+              ("Isolation: nothing from Kestrel Pay in this graph", n4), ("No SIMILAR_TO edges and no agent-origin nodes", c11),
+              ("All expected indexes exist", c13)] if pkg == "northwind_health" else [
         ("Counts per label within ±30% (4 teams, 27 services)", c1),
         ("Provenance: ids/origin everywhere; every Decision+Resolution has a literal SOURCED_FROM excerpt", c2),
         ("Bus factor: risk-rules maintainer has left; Priya is top active contributor", c3),
@@ -133,8 +157,8 @@ def main():
         ("Decoy: email-sender deployed recently but is not downstream of payments-api", c10),
         ("No SIMILAR_TO edges and no agent-origin nodes", c11),
         ("Full-text search finds the config-load thread", c12),
-        ("All expected indexes exist", c13),
-    ], 1):
+        ("All expected indexes exist", c13)]
+    for i, (name, fn) in enumerate(checks, 1):
         check(i, name, fn)
 
     print(f"\n{sum(results)}/{len(results)} checks passed")

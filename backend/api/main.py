@@ -237,7 +237,6 @@ class Reseed(BaseModel):
 @app.post("/api/admin/reseed", dependencies=[Depends(require_code)])
 def reseed(body: Reseed):
     tenant_ok(body.tenant)
-    pkg = body.tenant if (ROOT / "seed" / "data" / body.tenant).is_dir() else "kestrel_pay"  # scratch/test graphs
-    summary = load(body.tenant, reset=True, data_package=pkg, quiet=True)
+    summary = load(body.tenant, reset=True, quiet=True)  # seed package chosen by seed.load.package_for
     return {"tenant": body.tenant, "nodes": sum(summary["nodes"].values()), "edges": sum(summary["edges"].values()),
             "now": summary["now"]}

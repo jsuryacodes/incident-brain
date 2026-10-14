@@ -117,12 +117,20 @@ def write(g, nodes, edges):
                     f"MERGE (a)-[r:{t}]->(b) SET r += row.props", {"rows": rows[i:i + BATCH]})
 
 
+def package_for(graph_name):
+    """Seed package for a graph: its own name if seed/data/<name> exists, else the package sharing its first word
+    (kestrel_pay_test -> kestrel_pay, northwind_test -> northwind_health), else kestrel_pay."""
+    data = os.path.join(os.path.dirname(__file__), "data")
+    pkgs = sorted(d for d in os.listdir(data) if os.path.isdir(os.path.join(data, d)) and not d.startswith("_"))
+    return graph_name if graph_name in pkgs else next((p for p in pkgs if p.split("_")[0] == graph_name.split("_")[0]), "kestrel_pay")
+
+
 def load(graph_name, reset=True, now=None, data_package=None, quiet=False):
     """Validate + load a tenant seed into `graph_name`. data_package defaults to graph_name (seed/data/<pkg>).
     Returns {"nodes": Counter, "edges": Counter, "now": int}. Raises ValueError listing every validation problem."""
     load_dotenv()
     t0 = time.time()
-    pkg = data_package or graph_name
+    pkg = data_package or package_for(graph_name)
     timeutil.set_now(now)  # BEFORE the data import: data computes times at import time
     for name in [m for m in sys.modules if m == f"seed.data.{pkg}" or m.startswith(f"seed.data.{pkg}.")]:
         del sys.modules[name]  # force re-evaluation so a new NOW takes effect when called twice in one process
