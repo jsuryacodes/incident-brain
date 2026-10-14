@@ -1,0 +1,31 @@
+# Local stack: FalkorDB (+ Browser on :3000) and the API on :8000.  docker compose up --build
+# Seed once it is up:  docker compose exec api python -m seed.load --graph kestrel_pay --reset
+services:
+  falkordb:
+    image: falkordb/falkordb:latest
+    ports: ["6379:6379", "3000:3000"]
+    volumes: [falkordb-data:/var/lib/falkordb/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+  api:
+    build: .
+    ports: ["8000:8000"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      FALKORDB_HOST: falkordb
+      FALKORDB_PORT: "6379"
+    depends_on:
+      falkordb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/health').status == 200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+volumes:
+  falkordb-data:

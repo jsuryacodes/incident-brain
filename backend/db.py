@@ -12,10 +12,19 @@ def allowed_tenants():
     return [t.strip() for t in os.getenv("TENANTS", "kestrel_pay").split(",") if t.strip()]
 
 
-def get_graph(tenant):
-    if tenant not in allowed_tenants():
-        raise ValueError(f"unknown tenant {tenant!r}; allowed: {allowed_tenants()}")
+def client():
     global _client
     if _client is None:
         _client = FalkorDB(host=os.getenv("FALKORDB_HOST", "localhost"), port=int(os.getenv("FALKORDB_PORT", "6379")))
-    return _client.select_graph(tenant)
+    return _client
+
+
+def redis():
+    """The raw Redis connection FalkorDB runs on (API counters)."""
+    return client().connection
+
+
+def get_graph(tenant):
+    if tenant not in allowed_tenants():
+        raise ValueError(f"unknown tenant {tenant!r}; allowed: {allowed_tenants()}")
+    return client().select_graph(tenant)

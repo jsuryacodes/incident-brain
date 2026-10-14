@@ -4,6 +4,8 @@ python -m backend.demo story [--graph kestrel_pay] [--live] [--quiet]
 python -m backend.demo story --compare-no-memory      # Session 2 on a fresh seed, WITHOUT Session 1
 """
 import argparse
+import json
+from pathlib import Path
 
 from backend.agents.loop import BOLD, RST
 from backend.agents.firefighter import print_report
@@ -17,6 +19,16 @@ S1_ALERT = {"service_id": "svc:payments-api", "symptom": "5xx rate 12% and p99 4
 S2_ALERT = {"service_id": "svc:payouts-service", "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes"}
 FIX = "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered"
 BROWSER_CYPHER = "MATCH (n {origin:'agent'})-[r]-(m) RETURN n,r,m"
+GOLDEN = Path(__file__).resolve().parents[1] / "runs" / "golden"
+
+
+def save_golden(out):
+    """Recorded runs for /api/replay (no LLM needed to show the demo)."""
+    GOLDEN.mkdir(parents=True, exist_ok=True)
+    for key, name in (("s1", "team-session1.json"), ("resolve", "resolve-session1.json"), ("s2", "team-session2.json")):
+        if key in out:
+            rec = {k: v for k, v in out[key].items() if k != "path"}
+            (GOLDEN / name).write_text(json.dumps(rec, indent=1, ensure_ascii=False, default=str))
 
 
 def banner(t):
@@ -114,8 +126,12 @@ def main():
     ap.add_argument("--model")
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--compare-no-memory", action="store_true")
+    ap.add_argument("--save-golden", action="store_true", help="write the runs to runs/golden/ for /api/replay")
     a = ap.parse_args()
-    story(a.graph, LLMClient(mode="live" if a.live else None, model=a.model), a.quiet, a.compare_no_memory)
+    out = story(a.graph, LLMClient(mode="live" if a.live else None, model=a.model), a.quiet, a.compare_no_memory)
+    if a.save_golden:
+        save_golden(out)
+        print(f"golden runs written to {GOLDEN}")
 
 
 if __name__ == "__main__":

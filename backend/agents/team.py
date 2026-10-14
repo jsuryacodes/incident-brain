@@ -93,6 +93,17 @@ def time_to_cause(steps):
     return None
 
 
+def step_events(step):
+    """The SSE events one step produces (shared by live runs and golden replays)."""
+    out = [("step", {k: step.get(k) for k in ("seq", "agent", "action", "tool", "args", "summary", "receipt", "ts", "ms")})]
+    if step["action"] in ("write", "page"):
+        out.append(("write", {"agent": step["agent"], "tool": step["tool"], "summary": step["summary"],
+                              "queries": step["receipt"]["queries"]}))
+    elif step["action"] == "handoff":
+        out.append(("handoff", {"agent": step["agent"], "note": step["summary"], "seq": step["seq"]}))
+    return out
+
+
 class Run:
     """Shared plumbing for a team run / resolve: session, live step log, events, totals."""
 
@@ -108,12 +119,8 @@ class Run:
     def on_step(self, step):
         self.log(step)
         self.steps.append(step)
-        self.emit("step", step)
-        if step["action"] in ("write", "page"):
-            self.emit("write", {"agent": step["agent"], "tool": step["tool"], "summary": step["summary"],
-                                "queries": step["receipt"]["queries"]})
-        elif step["action"] == "handoff":
-            self.emit("handoff", {"agent": step["agent"], "note": step["summary"], "seq": step["seq"]})
+        for typ, data in step_events(step):
+            self.emit(typ, data)
 
     def agent(self, agent, persona, payload, max_steps):
         msg = payload_message(TASK[persona], payload)
