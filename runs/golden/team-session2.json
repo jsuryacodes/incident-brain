@@ -1,11 +1,11 @@
 {
- "run_id": "run-2765aab96de6",
+ "run_id": "run-46f2e60fb0d8",
  "agent": "team",
  "tenant": "kestrel_pay",
  "mode": "mock",
  "model": "mock",
- "session_id": "ses:20261014T223738-2fccb4",
- "started_at": 1792017458,
+ "session_id": "ses:20261014T224542-800510",
+ "started_at": 1792017942,
  "status": "ok",
  "alert": {
   "service_id": "svc:payouts-service",
@@ -85,6 +85,7 @@
    "Restore the setting required by dec:rules-cache-ttl before re-shipping."
   ],
   "confidence": "high",
+  "industry_pattern": "Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
   "actions_taken": [
    "paged Priya Nair for INC-2026-033 (simulated): INC-2026-033 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Likely …",
    "opened OPS-2 (tkt:OPS-2): INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl"
@@ -314,6 +315,7 @@
      "Restore the setting required by dec:rules-cache-ttl before re-shipping."
     ],
     "confidence": "high",
+    "industry_pattern": "Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
     "actions_taken": [
      "paged Priya Nair for INC-2026-033 (simulated): INC-2026-033 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Likely …",
      "opened OPS-2 (tkt:OPS-2): INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl"
@@ -341,8 +343,8 @@
   "cache_read_input_tokens": 0,
   "cost_usd": 0.0,
   "llm_calls": 11,
-  "tool_calls": 17,
-  "duration_ms": 151
+  "tool_calls": 18,
+  "duration_ms": 100
  },
  "steps": [
   {
@@ -385,10 +387,10 @@
     }
    },
    "summary": "find_service → matches: svc:payouts-service",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-2fccb4-001"
+   "step_id": "step:20261014T224542-800510-001"
   },
   {
    "seq": 2,
@@ -433,10 +435,10 @@
     }
    },
    "summary": "blast_radius → 0 upstream (0 tier-1)",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-2fccb4-002"
+   "step_id": "step:20261014T224542-800510-002"
   },
   {
    "seq": 3,
@@ -554,10 +556,10 @@
     }
    },
    "summary": "critical_services → pagerank: config-service, config-db, kafka-events, ledger-service",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-2fccb4-003"
+   "step_id": "step:20261014T224542-800510-003"
   },
   {
    "seq": 4,
@@ -675,10 +677,10 @@
     }
    },
    "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)",
-   "ts": 1792017458,
-   "ms": 1,
+   "ts": 1792017942,
+   "ms": 2,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-2fccb4-004"
+   "step_id": "step:20261014T224542-800510-004"
   },
   {
    "seq": 5,
@@ -712,7 +714,7 @@
        "title": "payouts-service: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
        "severity": 2,
        "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -721,8 +723,8 @@
       "params": {
        "id": "inc:2026-033",
        "svc": "svc:payouts-service",
-       "ses": "ses:20261014T223738-2fccb4",
-       "now": 1792017458
+       "ses": "ses:20261014T224542-800510",
+       "now": 1792017942
       },
       "write": true
      }
@@ -731,7 +733,7 @@
      "nodes": [
       "inc:2026-033",
       "svc:payouts-service",
-      "ses:20261014T223738-2fccb4"
+      "ses:20261014T224542-800510"
      ],
      "edges": [
       {
@@ -740,7 +742,7 @@
        "to": "svc:payouts-service"
       },
       {
-       "from": "ses:20261014T223738-2fccb4",
+       "from": "ses:20261014T224542-800510",
        "type": "FOR_INCIDENT",
        "to": "inc:2026-033"
       }
@@ -748,10 +750,10 @@
     }
    },
    "summary": "open_incident → opened INC-2026-033 (inc:2026-033), severity 2, on svc:payouts-service",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 2,
-   "step_id": "step:20261014T223738-2fccb4-005"
+   "step_id": "step:20261014T224542-800510-005"
   },
   {
    "seq": 6,
@@ -818,10 +820,10 @@
     }
    },
    "summary": "Opened INC-2026-033 (inc:2026-033) at severity 2: payouts-service is tier 1 with 0 upstream callers (0 tier-1); not in the PageRank top 10. Blast radius: no tier-1 callers. Seen on this service before: INC-2025-044.",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 3,
-   "step_id": "step:20261014T223738-2fccb4-006"
+   "step_id": "step:20261014T224542-800510-006"
   },
   {
    "seq": 7,
@@ -860,7 +862,7 @@
         }
        ]
       },
-      "session": "ses:20261014T223738-7e4916"
+      "session": "ses:20261014T224542-bdedf3"
      }
     ],
     "facts": [],
@@ -890,7 +892,7 @@
         "name": "Priya Nair"
        }
       ],
-      "session": "ses:20261014T223738-7e4916",
+      "session": "ses:20261014T224542-bdedf3",
       "runbook": {
        "id": "rb:fraud-scoring-latency-v2",
        "title": "Runbook: fraud-scoring latency",
@@ -1040,10 +1042,10 @@
     }
    },
    "summary": "memory_recall → 1 learned edge(s), 0 fact(s), 1 resolved incident(s); suspect: risk-rules",
-   "ts": 1792017458,
-   "ms": 2,
+   "ts": 1792017942,
+   "ms": 3,
    "llm_call": 4,
-   "step_id": "step:20261014T223738-2fccb4-007"
+   "step_id": "step:20261014T224542-800510-007"
   },
   {
    "seq": 8,
@@ -1065,7 +1067,7 @@
       "deploy": {
        "id": "dep:risk-rules-v2.8.1",
        "version": "2.8.1",
-       "ts": 1792017158,
+       "ts": 1792017642,
        "minutes_ago": 5,
        "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
        "by": "Leo Park"
@@ -1102,7 +1104,7 @@
       "deploy": {
        "id": "dep:risk-rules-v2.8.0",
        "version": "2.8.0",
-       "ts": 1792015058,
+       "ts": 1792015542,
        "minutes_ago": 40,
        "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster",
        "by": "Leo Park"
@@ -1153,7 +1155,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792010258,
+       "since": 1792010742,
        "downstream": [
         "svc:ledger-service",
         "svc:bank-connector",
@@ -1222,10 +1224,10 @@
     }
    },
    "summary": "shared_dependency_changes → 2 hit(s): risk-rules via shared config-service (LEARNED edge), deployed 5 min ago",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 5,
-   "step_id": "step:20261014T223738-2fccb4-008"
+   "step_id": "step:20261014T224542-800510-008"
   },
   {
    "seq": 9,
@@ -1274,7 +1276,7 @@
         "svc:config-service",
         "svc:risk-rules"
        ],
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -1283,7 +1285,7 @@
       "params": {
        "id": "inc:2026-033",
        "t": "dep:risk-rules-v2.8.1",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -1292,7 +1294,7 @@
       "params": {
        "id": "inc:2026-033",
        "t": "svc:risk-rules",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -1301,7 +1303,7 @@
       "params": {
        "id": "inc:2026-033",
        "t": "rc:cache-ttl-thundering-herd",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      }
@@ -1344,10 +1346,10 @@
     }
    },
    "summary": "update_incident → INC-2026-033: affected +2; cause dep:risk-rules-v2.8.1; cause svc:risk-rules; root cause rc:cache-ttl-thundering-herd",
-   "ts": 1792017458,
-   "ms": 4,
+   "ts": 1792017942,
+   "ms": 3,
    "llm_call": 6,
-   "step_id": "step:20261014T223738-2fccb4-009"
+   "step_id": "step:20261014T224542-800510-009"
   },
   {
    "seq": 10,
@@ -1382,7 +1384,7 @@
        "o": "inc:2026-032",
        "score": 0.9,
        "reason": "also caused by a change to risk-rules: payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      }
@@ -1402,10 +1404,10 @@
     }
    },
    "summary": "link_similar → inc:2026-033 SIMILAR_TO inc:2026-032 (0.9): also caused by a change to risk-rules: payments-api: 5xx rate 12% and p99 4.1s …",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 6,
-   "step_id": "step:20261014T223738-2fccb4-010"
+   "step_id": "step:20261014T224542-800510-010"
   },
   {
    "seq": 11,
@@ -1479,10 +1481,10 @@
     }
    },
    "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 6,
-   "step_id": "step:20261014T223738-2fccb4-011"
+   "step_id": "step:20261014T224542-800510-011"
   },
   {
    "seq": 12,
@@ -1568,6 +1570,14 @@
        {
         "id": "inc:2026-012",
         "score": 0.85
+       },
+       {
+        "id": "pm:slack-2022-02-22",
+        "score": 0.75
+       },
+       {
+        "id": "pm:facebook-2010-09-23",
+        "score": 0.7
        },
        {
         "id": "inc:2026-033",
@@ -1703,6 +1713,8 @@
       "per:priya-nair",
       "inc:2025-031",
       "inc:2026-012",
+      "pm:slack-2022-02-22",
+      "pm:facebook-2010-09-23",
       "rb:fraud-scoring-latency-v2",
       "dep:risk-rules-v2.3.0",
       "res:2025-031",
@@ -1801,6 +1813,16 @@
        "from": "inc:2026-032",
        "type": "SIMILAR_TO",
        "to": "inc:2026-012"
+      },
+      {
+       "from": "inc:2026-032",
+       "type": "SIMILAR_TO",
+       "to": "pm:slack-2022-02-22"
+      },
+      {
+       "from": "inc:2026-032",
+       "type": "SIMILAR_TO",
+       "to": "pm:facebook-2010-09-23"
       },
       {
        "from": "inc:2026-032",
@@ -1916,10 +1938,10 @@
     }
    },
    "summary": "past_incidents → 5 incident(s): INC-2026-033, INC-2026-032 (fixed by Priya Nair), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)",
-   "ts": 1792017458,
-   "ms": 3,
+   "ts": 1792017943,
+   "ms": 2,
    "llm_call": 6,
-   "step_id": "step:20261014T223738-2fccb4-012"
+   "step_id": "step:20261014T224542-800510-012"
   },
   {
    "seq": 13,
@@ -2060,10 +2082,10 @@
     }
    },
    "summary": "who_to_call → top: Priya Nair (score 73); maintainer Arjun Mehta LEFT",
-   "ts": 1792017458,
+   "ts": 1792017943,
    "ms": 2,
    "llm_call": 6,
-   "step_id": "step:20261014T223738-2fccb4-013"
+   "step_id": "step:20261014T224542-800510-013"
   },
   {
    "seq": 14,
@@ -2098,7 +2120,7 @@
        "o": "inc:2025-031",
        "score": 0.8,
        "reason": "also caused by a change to risk-rules: fraud-scoring timeouts during checkout peak",
-       "now": 1792017458
+       "now": 1792017943
       },
       "write": true
      }
@@ -2118,10 +2140,10 @@
     }
    },
    "summary": "link_similar → inc:2026-033 SIMILAR_TO inc:2025-031 (0.8): also caused by a change to risk-rules: fraud-scoring timeouts during checkout p…",
-   "ts": 1792017458,
+   "ts": 1792017943,
    "ms": 1,
    "llm_call": 7,
-   "step_id": "step:20261014T223738-2fccb4-014"
+   "step_id": "step:20261014T224542-800510-014"
   },
   {
    "seq": 15,
@@ -2345,10 +2367,10 @@
     }
    },
    "summary": "From memory: Seen before: INC-2026-032, fixed by Priya Nair (Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered), see Runbook v2 step 2 (rb:fraud-scoring-latency-v2). Cause: dep:risk-rules-v2.8.1 on risk-rules (RISK-412 follow-up: re-enable 5s TTL for EU ruleset), path payouts-service -> config-service -> risk-rules via a LEARNED dependency. It contradicts dec:rules-cache-ttl (chat:risk-eng-config-load). Contact candidates: Priya Nair, Leo Park, Dana Okafor.",
-   "ts": 1792017458,
+   "ts": 1792017943,
    "ms": 0,
    "llm_call": 8,
-   "step_id": "step:20261014T223738-2fccb4-015"
+   "step_id": "step:20261014T224542-800510-015"
   },
   {
    "seq": 16,
@@ -2489,10 +2511,10 @@
     }
    },
    "summary": "who_to_call → top: Priya Nair (score 73); maintainer Arjun Mehta LEFT",
-   "ts": 1792017458,
-   "ms": 6,
+   "ts": 1792017943,
+   "ms": 2,
    "llm_call": 9,
-   "step_id": "step:20261014T223738-2fccb4-016"
+   "step_id": "step:20261014T224542-800510-016"
   },
   {
    "seq": 17,
@@ -2576,13 +2598,109 @@
     }
    },
    "summary": "stale_knowledge → 1 stale: doc:risk-rules-readme",
-   "ts": 1792017458,
-   "ms": 2,
+   "ts": 1792017943,
+   "ms": 0,
    "llm_call": 9,
-   "step_id": "step:20261014T223738-2fccb4-017"
+   "step_id": "step:20261014T224542-800510-017"
   },
   {
    "seq": 18,
+   "agent": "communicator",
+   "action": "tool_call",
+   "tool": "industry_matches",
+   "args": {
+    "incident_id": "inc:2026-033"
+   },
+   "result": {
+    "incident": "inc:2026-033",
+    "root_causes": [
+     "rc:cache-ttl-thundering-herd"
+    ],
+    "match_count": 2,
+    "matches": [
+     {
+      "id": "pm:slack-2022-02-22",
+      "company": "Slack",
+      "title": "Slack's Incident on 2-22-22",
+      "url": "https://slack.engineering/slacks-incident-on-2-22-22/",
+      "published": "2022-04-26",
+      "summary": "A rolling Consul agent upgrade restarted memcached nodes at peak and they came back empty. Cache misses turned an expensive membership query into scatter queries across every database shard, and the overloaded database stopped the cache from refilling. Throttling client boots and fixing the query restored service.",
+      "shared_root_causes": [
+       "rc:cache-ttl-thundering-herd"
+      ],
+      "overlap_terms": []
+     },
+     {
+      "id": "pm:facebook-2010-09-23",
+      "company": "Meta (Facebook)",
+      "title": "More Details on Today's Outage",
+      "url": "https://engineering.fb.com/2010/09/23/uncategorized/more-details-on-today-s-outage/",
+      "published": "2010-09-23",
+      "summary": "A change to a stored configuration value made an automated checker treat it as invalid, so every client tried to fix its cached copy by querying one database cluster. Errors were read as invalid values and caused more cache deletions, a feedback loop. The site was taken down to stop traffic, then restored gradually.",
+      "shared_root_causes": [
+       "rc:cache-ttl-thundering-herd"
+      ],
+      "overlap_terms": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "industry_matches",
+    "args": {
+     "root_cause_id": null,
+     "incident_id": "inc:2026-033",
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident {id:$id}) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) RETURN i.title, i.symptom, i.summary, collect(rc.id)",
+      "params": {
+       "id": "inc:2026-033"
+      }
+     },
+     {
+      "cypher": "MATCH (:Incident {id:$id})-[s:SIMILAR_TO]->(pm:PublicPostmortem) RETURN pm.id, s.score",
+      "params": {
+       "id": "inc:2026-033"
+      }
+     },
+     {
+      "cypher": "MATCH (pm:PublicPostmortem)-[:HAS_ROOT_CAUSE]->(rc:RootCause) WHERE rc.id IN $rcs RETURN pm.id, pm.company, pm.title, pm.url, pm.published_at, pm.summary, collect(DISTINCT rc.id)",
+      "params": {
+       "rcs": [
+        "rc:cache-ttl-thundering-herd"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "pm:slack-2022-02-22",
+      "rc:cache-ttl-thundering-herd",
+      "pm:facebook-2010-09-23"
+     ],
+     "edges": [
+      {
+       "from": "pm:slack-2022-02-22",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:cache-ttl-thundering-herd"
+      },
+      {
+       "from": "pm:facebook-2010-09-23",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:cache-ttl-thundering-herd"
+      }
+     ]
+    }
+   },
+   "summary": "industry_matches → 2 public postmortem(s): Slack — Slack's Incident on 2-22-22",
+   "ts": 1792017943,
+   "ms": 1,
+   "llm_call": 9,
+   "step_id": "step:20261014T224542-800510-018"
+  },
+  {
+   "seq": 19,
    "agent": "communicator",
    "action": "page",
    "tool": "page_person",
@@ -2624,13 +2742,13 @@
     }
    },
    "summary": "page_person → paged Priya Nair for INC-2026-033 (simulated): INC-2026-033 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Likely …",
-   "ts": 1792017458,
-   "ms": 4,
+   "ts": 1792017943,
+   "ms": 1,
    "llm_call": 10,
-   "step_id": "step:20261014T223738-2fccb4-018"
+   "step_id": "step:20261014T224542-800510-019"
   },
   {
-   "seq": 19,
+   "seq": 20,
    "agent": "communicator",
    "action": "write",
    "tool": "open_ticket",
@@ -2660,7 +2778,7 @@
       "params": {
        "title": "INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
        "text": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset (dep:risk-rules-v2.8.1, deployed 5 min ago by Leo Park). payouts-service and risk-rules both call config-service (via a learned dependency): payouts-service -> config-service -> risk-rules. Conflicts with dec:rules-cache-ttl. Actions: Roll back dep:risk-rules-v2.8.1 on risk-rules. Follow rb:fraud-scoring-latency-v2 step 2: If risk-rules RULES_CACHE_TTL was changed, roll it back. What fixed INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered Page Priya Nair (per:priya-nair). Restore the setting required by dec:rules-cache-ttl before re-shipping.",
-       "now": 1792017458,
+       "now": 1792017943,
        "priority": "P2"
       },
       "write": true
@@ -2670,7 +2788,7 @@
       "params": {
        "id": "tkt:OPS-2",
        "x": "svc:risk-rules",
-       "now": 1792017458
+       "now": 1792017943
       },
       "write": true
      },
@@ -2679,7 +2797,7 @@
       "params": {
        "id": "tkt:OPS-2",
        "x": "inc:2026-033",
-       "now": 1792017458
+       "now": 1792017943
       },
       "write": true
      },
@@ -2687,8 +2805,8 @@
       "cypher": "MATCH (n:Ticket {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "tkt:OPS-2",
-       "ses": "ses:20261014T223738-2fccb4",
-       "now": 1792017458
+       "ses": "ses:20261014T224542-800510",
+       "now": 1792017943
       },
       "write": true
      }
@@ -2698,7 +2816,7 @@
       "tkt:OPS-2",
       "svc:risk-rules",
       "inc:2026-033",
-      "ses:20261014T223738-2fccb4"
+      "ses:20261014T224542-800510"
      ],
      "edges": [
       {
@@ -2714,19 +2832,19 @@
       {
        "from": "tkt:OPS-2",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T223738-2fccb4"
+       "to": "ses:20261014T224542-800510"
       }
      ]
     }
    },
    "summary": "open_ticket → opened OPS-2 (tkt:OPS-2): INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
-   "ts": 1792017458,
-   "ms": 5,
+   "ts": 1792017943,
+   "ms": 2,
    "llm_call": 10,
-   "step_id": "step:20261014T223738-2fccb4-019"
+   "step_id": "step:20261014T224542-800510-020"
   },
   {
-   "seq": 20,
+   "seq": 21,
    "agent": "communicator",
    "action": "handoff",
    "tool": "submit_report",
@@ -2801,6 +2919,7 @@
      "Restore the setting required by dec:rules-cache-ttl before re-shipping."
     ],
     "confidence": "high",
+    "industry_pattern": "Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
     "actions_taken": [
      "paged Priya Nair for INC-2026-033 (simulated): INC-2026-033 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Likely …",
      "opened OPS-2 (tkt:OPS-2): INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl"
@@ -2888,6 +3007,7 @@
       "Restore the setting required by dec:rules-cache-ttl before re-shipping."
      ],
      "confidence": "high",
+     "industry_pattern": "Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
      "actions_taken": [
       "paged Priya Nair for INC-2026-033 (simulated): INC-2026-033 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Likely …",
       "opened OPS-2 (tkt:OPS-2): INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl"
@@ -2918,10 +3038,10 @@
     }
    },
    "summary": "INC-2026-033: payouts-service payout batch API 5xx 9% and p99 3.2s. Likely cause dep:risk-rules-v2.8.1 on risk-rules. Seen before: INC-2026-032, fixed by Priya Nair (Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered), see Runbook v2 step 2 (rb:fraud-scoring-latency-v2).",
-   "ts": 1792017458,
-   "ms": 1,
+   "ts": 1792017943,
+   "ms": 0,
    "llm_call": 11,
-   "step_id": "step:20261014T223738-2fccb4-020"
+   "step_id": "step:20261014T224542-800510-021"
   }
  ]
 }

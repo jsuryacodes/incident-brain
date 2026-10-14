@@ -83,6 +83,8 @@ def print_report(r):
     for s in r.get("similar_past_incidents") or []:
         print(f"  seen before: {s['incident_id']}: {s['what_fixed_it']} (by {s['resolved_by']})")
     print(f"  blast radius: {', '.join(r.get('blast_radius') or [])}")
+    if r.get("industry_pattern"):
+        print(f"  {r['industry_pattern']}")
     for e in r.get("evidence") or []:
         print(f"  evidence: {e['node_id']}: {e['claim']}")
     for a in r.get("recommended_actions") or []:

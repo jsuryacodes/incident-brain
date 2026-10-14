@@ -760,3 +760,58 @@ def memory_recall(ctx, service_id, max_hops=3):
     if not (learned or facts or incidents):
         res["note"] = "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
     return rec.done(res, limit=4500)
+
+
+# ───────────── 16. industry_matches ─────────────
+Q_IND_INCIDENT = """MATCH (i:Incident {id:$id})
+OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause)
+RETURN i.title, i.symptom, i.summary, collect(rc.id)"""
+Q_IND_MATCHES = """MATCH (pm:PublicPostmortem)-[:HAS_ROOT_CAUSE]->(rc:RootCause)
+WHERE rc.id IN $rcs
+RETURN pm.id, pm.company, pm.title, pm.url, pm.published_at, pm.summary, collect(DISTINCT rc.id)"""
+Q_IND_LINKED = "MATCH (:Incident {id:$id})-[s:SIMILAR_TO]->(pm:PublicPostmortem) RETURN pm.id, s.score"
+_IND_STOP = {"with", "that", "this", "from", "into", "were", "when", "then", "they", "their", "every", "after", "before",
+             "about", "which", "while", "would", "could", "because", "service", "services", "minutes", "last"}
+
+
+def _terms(text):
+    return {w for w in re.findall(r"[a-z][a-z0-9]+", (text or "").lower()) if len(w) >= 4 and w not in _IND_STOP}
+
+
+def industry_matches(ctx, root_cause_id=None, incident_id=None, limit=5):
+    rec = Recorder(ctx, "industry_matches", {"root_cause_id": root_cause_id, "incident_id": incident_id, "limit": limit})
+    if (root_cause_id is None) == (incident_id is None):
+        return rec.error("pass exactly one of root_cause_id (rc:...) or incident_id (inc:...)")
+    text, linked = "", {}
+    if incident_id is not None:
+        if err := rec.check(incident_id, "Incident"):
+            return rec.error(err)
+        title, symptom, summary, rcs = rec.q(Q_IND_INCIDENT, {"id": incident_id})[0]
+        text = " ".join(x for x in (title, symptom, summary) if x)
+        linked = dict(rec.q(Q_IND_LINKED, {"id": incident_id}))
+        if not rcs:
+            return rec.done({"incident": incident_id, "root_causes": [], "matches": [],
+                             "note": "this incident has no root cause yet; set one (update_incident root_cause_id) first"})
+    else:
+        if err := rec.check(root_cause_id, "RootCause"):
+            return rec.error(err)
+        rcs = [root_cause_id]
+    mine = _terms(text)
+    rows = rec.q(Q_IND_MATCHES, {"rcs": rcs})
+    # rank: more shared root causes, then more words shared with the incident, then newest
+    scored = sorted(((r, sorted(mine & _terms(f"{r[2]} {r[5]}"))) for r in rows),
+                    key=lambda x: (-len(x[0][6]), -len(x[1]), -(x[0][4] or 0)))
+    limit = clamp(limit, 1, 10, 5)
+    out = []
+    for (pid, company, title, url, pub, summ, shared), overlap in scored[:limit]:
+        for rc in shared:
+            rec.hl_edge(pid, "HAS_ROOT_CAUSE", rc)
+        if pid in linked:
+            rec.hl_edge(incident_id, "SIMILAR_TO", pid)
+        out.append({"id": pid, "company": company, "title": clip(title, 120), "url": url, "published": iso(pub),
+                    "summary": clip(summ, 420), "shared_root_causes": shared, "overlap_terms": overlap[:6],
+                    **({"already_linked": linked[pid]} if pid in linked else {})})
+    res = {**({"incident": incident_id} if incident_id else {}), "root_causes": rcs, "match_count": len(rows), "matches": out}
+    if not rows:
+        res["note"] = "no public postmortem shares these root causes"
+    return rec.done(res, limit=4000)

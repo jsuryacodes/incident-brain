@@ -1,11 +1,11 @@
 {
- "run_id": "run-6d5d0c1120bb",
+ "run_id": "run-f07e96e222a9",
  "agent": "resolve",
  "tenant": "kestrel_pay",
  "mode": "mock",
  "model": "mock",
- "session_id": "ses:20261014T223738-76035b",
- "started_at": 1792017458,
+ "session_id": "ses:20261014T224542-573dac",
+ "started_at": 1792017942,
  "status": "ok",
  "incident_id": "inc:2026-032",
  "operator": {
@@ -15,13 +15,15 @@
   "what_fixed_it": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered"
  },
  "report": {
-  "note": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012.",
+  "note": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012, pm:slack-2022-02-22, pm:facebook-2010-09-23. Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
   "details": {
    "resolution_id": "res:2026-032",
    "runbook_id": "rb:fraud-scoring-latency-v2",
    "supersedes": "rb:fraud-scoring-latency",
    "similar": [
-    "inc:2026-012"
+    "inc:2026-012",
+    "pm:slack-2022-02-22",
+    "pm:facebook-2010-09-23"
    ]
   }
  },
@@ -35,13 +37,15 @@
     "errors": []
    },
    "report": {
-    "note": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012.",
+    "note": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012, pm:slack-2022-02-22, pm:facebook-2010-09-23. Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
     "details": {
      "resolution_id": "res:2026-032",
      "runbook_id": "rb:fraud-scoring-latency-v2",
      "supersedes": "rb:fraud-scoring-latency",
      "similar": [
-      "inc:2026-012"
+      "inc:2026-012",
+      "pm:slack-2022-02-22",
+      "pm:facebook-2010-09-23"
      ]
     }
    },
@@ -57,8 +61,8 @@
   "cache_read_input_tokens": 0,
   "cost_usd": 0.0,
   "llm_calls": 4,
-  "tool_calls": 8,
-  "duration_ms": 44
+  "tool_calls": 11,
+  "duration_ms": 61
  },
  "steps": [
   {
@@ -107,10 +111,10 @@
     }
    },
    "summary": "update_incident → INC-2026-032: status=mitigated, summary=5xx rate 12% and p99 4.1s on payments-a…",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-76035b-001"
+   "step_id": "step:20261014T224542-573dac-001"
   },
   {
    "seq": 2,
@@ -508,10 +512,10 @@
     }
    },
    "summary": "past_incidents → 5 incident(s): INC-2026-032, INC-2025-031 (fixed by Priya Nair, Arjun Mehta), INC-2026-012 (fixed by Priya Nair)",
-   "ts": 1792017458,
-   "ms": 2,
+   "ts": 1792017942,
+   "ms": 3,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-76035b-002"
+   "step_id": "step:20261014T224542-573dac-002"
   },
   {
    "seq": 3,
@@ -597,13 +601,114 @@
     }
    },
    "summary": "search_knowledge → 2 hit(s): rb:ledger-db-failover",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-76035b-003"
+   "step_id": "step:20261014T224542-573dac-003"
   },
   {
    "seq": 4,
+   "agent": "communicator",
+   "action": "tool_call",
+   "tool": "industry_matches",
+   "args": {
+    "incident_id": "inc:2026-032"
+   },
+   "result": {
+    "incident": "inc:2026-032",
+    "root_causes": [
+     "rc:cache-ttl-thundering-herd"
+    ],
+    "match_count": 2,
+    "matches": [
+     {
+      "id": "pm:slack-2022-02-22",
+      "company": "Slack",
+      "title": "Slack's Incident on 2-22-22",
+      "url": "https://slack.engineering/slacks-incident-on-2-22-22/",
+      "published": "2022-04-26",
+      "summary": "A rolling Consul agent upgrade restarted memcached nodes at peak and they came back empty. Cache misses turned an expensive membership query into scatter queries across every database shard, and the overloaded database stopped the cache from refilling. Throttling client boots and fixing the query restored service.",
+      "shared_root_causes": [
+       "rc:cache-ttl-thundering-herd"
+      ],
+      "overlap_terms": [
+       "back",
+       "cache"
+      ]
+     },
+     {
+      "id": "pm:facebook-2010-09-23",
+      "company": "Meta (Facebook)",
+      "title": "More Details on Today's Outage",
+      "url": "https://engineering.fb.com/2010/09/23/uncategorized/more-details-on-today-s-outage/",
+      "published": "2010-09-23",
+      "summary": "A change to a stored configuration value made an automated checker treat it as invalid, so every client tried to fix its cached copy by querying one database cluster. Errors were read as invalid values and caused more cache deletions, a feedback loop. The site was taken down to stop traffic, then restored gradually.",
+      "shared_root_causes": [
+       "rc:cache-ttl-thundering-herd"
+      ],
+      "overlap_terms": [
+       "cache"
+      ]
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "industry_matches",
+    "args": {
+     "root_cause_id": null,
+     "incident_id": "inc:2026-032",
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident {id:$id}) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) RETURN i.title, i.symptom, i.summary, collect(rc.id)",
+      "params": {
+       "id": "inc:2026-032"
+      }
+     },
+     {
+      "cypher": "MATCH (:Incident {id:$id})-[s:SIMILAR_TO]->(pm:PublicPostmortem) RETURN pm.id, s.score",
+      "params": {
+       "id": "inc:2026-032"
+      }
+     },
+     {
+      "cypher": "MATCH (pm:PublicPostmortem)-[:HAS_ROOT_CAUSE]->(rc:RootCause) WHERE rc.id IN $rcs RETURN pm.id, pm.company, pm.title, pm.url, pm.published_at, pm.summary, collect(DISTINCT rc.id)",
+      "params": {
+       "rcs": [
+        "rc:cache-ttl-thundering-herd"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "pm:slack-2022-02-22",
+      "rc:cache-ttl-thundering-herd",
+      "pm:facebook-2010-09-23"
+     ],
+     "edges": [
+      {
+       "from": "pm:slack-2022-02-22",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:cache-ttl-thundering-herd"
+      },
+      {
+       "from": "pm:facebook-2010-09-23",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:cache-ttl-thundering-herd"
+      }
+     ]
+    }
+   },
+   "summary": "industry_matches → 2 public postmortem(s): Slack — Slack's Incident on 2-22-22",
+   "ts": 1792017942,
+   "ms": 1,
+   "llm_call": 1,
+   "step_id": "step:20261014T224542-573dac-004"
+  },
+  {
+   "seq": 5,
    "agent": "communicator",
    "action": "tool_call",
    "tool": "read_source",
@@ -682,13 +787,13 @@
     }
    },
    "summary": "read_source → ok",
-   "ts": 1792017458,
-   "ms": 1,
+   "ts": 1792017942,
+   "ms": 2,
    "llm_call": 2,
-   "step_id": "step:20261014T223738-76035b-004"
+   "step_id": "step:20261014T224542-573dac-005"
   },
   {
-   "seq": 5,
+   "seq": 6,
    "agent": "communicator",
    "action": "tool_call",
    "tool": "read_source",
@@ -767,13 +872,13 @@
     }
    },
    "summary": "read_source → ok",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 2,
-   "step_id": "step:20261014T223738-76035b-005"
+   "step_id": "step:20261014T224542-573dac-006"
   },
   {
-   "seq": 6,
+   "seq": 7,
    "agent": "communicator",
    "action": "write",
    "tool": "record_resolution",
@@ -824,7 +929,7 @@
        "id": "res:2026-032",
        "summary": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
        "steps": "1. Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -833,7 +938,7 @@
       "params": {
        "iid": "inc:2026-032",
        "id": "res:2026-032",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -844,7 +949,7 @@
        "pids": [
         "per:priya-nair"
        ],
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -854,7 +959,7 @@
        "id": "res:2026-032",
        "sid": "inc:2026-032",
        "excerpt": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -862,8 +967,8 @@
       "cypher": "MATCH (n:Resolution {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "res:2026-032",
-       "ses": "ses:20261014T223738-76035b",
-       "now": 1792017458
+       "ses": "ses:20261014T224542-573dac",
+       "now": 1792017942
       },
       "write": true
      }
@@ -873,7 +978,7 @@
       "inc:2026-032",
       "res:2026-032",
       "per:priya-nair",
-      "ses:20261014T223738-76035b"
+      "ses:20261014T224542-573dac"
      ],
      "edges": [
       {
@@ -894,19 +999,19 @@
       {
        "from": "res:2026-032",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T223738-76035b"
+       "to": "ses:20261014T224542-573dac"
       }
      ]
     }
    },
    "summary": "record_resolution → resolution res:2026-032 for INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-   "ts": 1792017458,
-   "ms": 3,
+   "ts": 1792017942,
+   "ms": 4,
    "llm_call": 3,
-   "step_id": "step:20261014T223738-76035b-006"
+   "step_id": "step:20261014T224542-573dac-007"
   },
   {
-   "seq": 7,
+   "seq": 8,
    "agent": "communicator",
    "action": "write",
    "tool": "link_similar",
@@ -938,7 +1043,7 @@
        "o": "inc:2026-012",
        "score": 0.85,
        "reason": "same root cause rc:cache-ttl-thundering-herd: merchant-onboarding config reads timing out",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      }
@@ -958,13 +1063,129 @@
     }
    },
    "summary": "link_similar → inc:2026-032 SIMILAR_TO inc:2026-012 (0.85): same root cause rc:cache-ttl-thundering-herd: merchant-onboarding config reads …",
-   "ts": 1792017458,
-   "ms": 0,
+   "ts": 1792017942,
+   "ms": 1,
    "llm_call": 3,
-   "step_id": "step:20261014T223738-76035b-007"
+   "step_id": "step:20261014T224542-573dac-008"
   },
   {
-   "seq": 8,
+   "seq": 9,
+   "agent": "communicator",
+   "action": "write",
+   "tool": "link_similar",
+   "args": {
+    "incident_id": "inc:2026-032",
+    "other_id": "pm:slack-2022-02-22",
+    "score": 0.75,
+    "reason": "industry pattern rc:cache-ttl-thundering-herd: Slack — Slack's Incident on 2-22-22"
+   },
+   "result": {
+    "from": "inc:2026-032",
+    "to": "pm:slack-2022-02-22",
+    "score": 0.75,
+    "summary": "inc:2026-032 SIMILAR_TO pm:slack-2022-02-22 (0.75): industry pattern rc:cache-ttl-thundering-herd: Slack — Slack's Incident on 2-22…"
+   },
+   "receipt": {
+    "tool": "link_similar",
+    "args": {
+     "incident_id": "inc:2026-032",
+     "other_id": "pm:slack-2022-02-22",
+     "score": 0.75,
+     "reason": "industry pattern rc:cache-ttl-thundering-herd: Slack — Slack's Incident on 2-22-22"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident {id:$id}), (o:PublicPostmortem {id:$o}) MERGE (i)-[r:SIMILAR_TO]->(o) ON CREATE SET r.origin = 'agent', r.created_at = $now SET r.score = $score, r.reason = $reason",
+      "params": {
+       "id": "inc:2026-032",
+       "o": "pm:slack-2022-02-22",
+       "score": 0.75,
+       "reason": "industry pattern rc:cache-ttl-thundering-herd: Slack — Slack's Incident on 2-22-22",
+       "now": 1792017942
+      },
+      "write": true
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2026-032",
+      "pm:slack-2022-02-22"
+     ],
+     "edges": [
+      {
+       "from": "inc:2026-032",
+       "type": "SIMILAR_TO",
+       "to": "pm:slack-2022-02-22"
+      }
+     ]
+    }
+   },
+   "summary": "link_similar → inc:2026-032 SIMILAR_TO pm:slack-2022-02-22 (0.75): industry pattern rc:cache-ttl-thundering-herd: Slack — Slack's Incident on 2-22…",
+   "ts": 1792017942,
+   "ms": 1,
+   "llm_call": 3,
+   "step_id": "step:20261014T224542-573dac-009"
+  },
+  {
+   "seq": 10,
+   "agent": "communicator",
+   "action": "write",
+   "tool": "link_similar",
+   "args": {
+    "incident_id": "inc:2026-032",
+    "other_id": "pm:facebook-2010-09-23",
+    "score": 0.7,
+    "reason": "industry pattern rc:cache-ttl-thundering-herd: Meta (Facebook) — More Details on Today's Outage"
+   },
+   "result": {
+    "from": "inc:2026-032",
+    "to": "pm:facebook-2010-09-23",
+    "score": 0.7,
+    "summary": "inc:2026-032 SIMILAR_TO pm:facebook-2010-09-23 (0.7): industry pattern rc:cache-ttl-thundering-herd: Meta (Facebook) — More Details o…"
+   },
+   "receipt": {
+    "tool": "link_similar",
+    "args": {
+     "incident_id": "inc:2026-032",
+     "other_id": "pm:facebook-2010-09-23",
+     "score": 0.7,
+     "reason": "industry pattern rc:cache-ttl-thundering-herd: Meta (Facebook) — More Details on Today's Outage"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident {id:$id}), (o:PublicPostmortem {id:$o}) MERGE (i)-[r:SIMILAR_TO]->(o) ON CREATE SET r.origin = 'agent', r.created_at = $now SET r.score = $score, r.reason = $reason",
+      "params": {
+       "id": "inc:2026-032",
+       "o": "pm:facebook-2010-09-23",
+       "score": 0.7,
+       "reason": "industry pattern rc:cache-ttl-thundering-herd: Meta (Facebook) — More Details on Today's Outage",
+       "now": 1792017942
+      },
+      "write": true
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2026-032",
+      "pm:facebook-2010-09-23"
+     ],
+     "edges": [
+      {
+       "from": "inc:2026-032",
+       "type": "SIMILAR_TO",
+       "to": "pm:facebook-2010-09-23"
+      }
+     ]
+    }
+   },
+   "summary": "link_similar → inc:2026-032 SIMILAR_TO pm:facebook-2010-09-23 (0.7): industry pattern rc:cache-ttl-thundering-herd: Meta (Facebook) — More Details o…",
+   "ts": 1792017942,
+   "ms": 1,
+   "llm_call": 3,
+   "step_id": "step:20261014T224542-573dac-010"
+  },
+  {
+   "seq": 11,
    "agent": "communicator",
    "action": "write",
    "tool": "write_runbook",
@@ -1034,7 +1255,7 @@
        "title": "Runbook: fraud-scoring latency",
        "steps": "1. Check for a recent deploy to risk-rules first: INC-2026-032 was caused by dep:risk-rules-v2.8.0 (RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster).\n2. If risk-rules RULES_CACHE_TTL was changed, roll it back. What fixed INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered\n3. Watch config-service CPU and request rate: risk-rules calls config-service at request time; the service catalog does not list this dependency. (fact:learned-risk-rules-config-service)\n4. Open the fraud-scoring dashboard and check p99 latency and pod CPU.\n5. If CPU is above 70%, scale the deployment up by 50% and wait five minutes.\n6. Check the feature store database for slow queries and connection saturation.\n7. If latency is still high, restart the pods one at a time.\n8. If payments are being declined, ask payments-api on-call to enable the conservative fallback.",
        "v": 2,
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -1043,7 +1264,7 @@
       "params": {
        "id": "rb:fraud-scoring-latency-v2",
        "s": "svc:fraud-scoring",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -1052,7 +1273,7 @@
       "params": {
        "id": "rb:fraud-scoring-latency-v2",
        "o": "rb:fraud-scoring-latency",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -1062,7 +1283,7 @@
        "id": "rb:fraud-scoring-latency-v2",
        "sid": "inc:2026-032",
        "excerpt": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -1072,7 +1293,7 @@
        "id": "rb:fraud-scoring-latency-v2",
        "sid": "chat:risk-eng-config-load",
        "excerpt": "On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint.",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -1080,8 +1301,8 @@
       "cypher": "MATCH (n:Runbook {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "rb:fraud-scoring-latency-v2",
-       "ses": "ses:20261014T223738-76035b",
-       "now": 1792017458
+       "ses": "ses:20261014T224542-573dac",
+       "now": 1792017942
       },
       "write": true
      }
@@ -1093,7 +1314,7 @@
       "rb:fraud-scoring-latency",
       "inc:2026-032",
       "chat:risk-eng-config-load",
-      "ses:20261014T223738-76035b"
+      "ses:20261014T224542-573dac"
      ],
      "edges": [
       {
@@ -1119,30 +1340,32 @@
       {
        "from": "rb:fraud-scoring-latency-v2",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T223738-76035b"
+       "to": "ses:20261014T224542-573dac"
       }
      ]
     }
    },
    "summary": "write_runbook → runbook rb:fraud-scoring-latency-v2 v2 supersedes rb:fraud-scoring-latency",
-   "ts": 1792017458,
-   "ms": 5,
+   "ts": 1792017942,
+   "ms": 6,
    "llm_call": 3,
-   "step_id": "step:20261014T223738-76035b-008"
+   "step_id": "step:20261014T224542-573dac-011"
   },
   {
-   "seq": 9,
+   "seq": 12,
    "agent": "communicator",
    "action": "handoff",
    "tool": "submit_handoff",
    "args": {
-    "note": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012.",
+    "note": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012, pm:slack-2022-02-22, pm:facebook-2010-09-23. Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
     "details": {
      "resolution_id": "res:2026-032",
      "runbook_id": "rb:fraud-scoring-latency-v2",
      "supersedes": "rb:fraud-scoring-latency",
      "similar": [
-      "inc:2026-012"
+      "inc:2026-012",
+      "pm:slack-2022-02-22",
+      "pm:facebook-2010-09-23"
      ]
     }
    },
@@ -1153,13 +1376,15 @@
    "receipt": {
     "tool": "submit_handoff",
     "args": {
-     "note": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012.",
+     "note": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012, pm:slack-2022-02-22, pm:facebook-2010-09-23. Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
      "details": {
       "resolution_id": "res:2026-032",
       "runbook_id": "rb:fraud-scoring-latency-v2",
       "supersedes": "rb:fraud-scoring-latency",
       "similar": [
-       "inc:2026-012"
+       "inc:2026-012",
+       "pm:slack-2022-02-22",
+       "pm:facebook-2010-09-23"
       ]
      }
     },
@@ -1168,6 +1393,8 @@
      "nodes": [
       "inc:2026-012",
       "per:priya-nair",
+      "pm:facebook-2010-09-23",
+      "pm:slack-2022-02-22",
       "rb:fraud-scoring-latency",
       "rb:fraud-scoring-latency-v2",
       "res:2026-032"
@@ -1175,11 +1402,11 @@
      "edges": []
     }
    },
-   "summary": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012.",
-   "ts": 1792017458,
+   "summary": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012, pm:slack-2022-02-22, pm:facebook-2010-09-23. Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 4,
-   "step_id": "step:20261014T223738-76035b-009"
+   "step_id": "step:20261014T224542-573dac-012"
   }
  ]
 }

@@ -3,6 +3,17 @@
 Plain-language explanations of each piece of work, newest first. Each section: what it is, why it is built that way,
 and what to say if asked.
 
+## 06C: public postmortems (industry pattern layer)
+**What:** 21 real outage write-ups from companies like Cloudflare, AWS, GitHub and Slack, stored in every company's
+graph as `PublicPostmortem` nodes tagged with root causes (cache stampede, bad config push, retry storm, DNS/BGP,
+hidden dependency, database failover…). The text is a short summary in our own words plus the link.
+**How it's used:** an incident's root cause is a node; the same node is attached to matching public postmortems. So
+"has anyone else had this?" is a two-hop graph query (`industry_matches`). When an incident is resolved, the agent
+links it to the best 1–2 matches (`SIMILAR_TO`), and the incident report says e.g. "Matches known industry pattern:
+Slack — Slack's Incident on 2-22-22 (link)".
+**If asked "is this scraped?":** no. Each page was read and summarised by hand-checked facts, with no copied
+sentences, and pages we couldn't verify were left out. A root cause with no public match simply returns nothing.
+
 ## 06B: memory-first recall
 **What:** a new tool, `memory_recall`, that the Investigator calls before anything else. It asks the graph "what have
 earlier agent sessions learned about this service and the things it calls?": dependencies they discovered (with the

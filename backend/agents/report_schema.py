@@ -28,6 +28,8 @@ REPORT_PROPS = {
     "evidence": {"type": "array", "minItems": 3, "items": _obj({"node_id": _S, "claim": _S})},
     "recommended_actions": {"type": "array", "maxItems": 4, "items": _S},
     "confidence": {"enum": ["low", "medium", "high"]},
+    "industry_pattern": {**_SN, "description": "'Matches known industry pattern: <company> — <title> (<url>)' from "
+                                                "industry_matches, or null if nothing matched."},
 }
 SUBMIT_REPORT = {
     "description": "Submit the final incident report. Call exactly once, at the end. Every id must have come back "

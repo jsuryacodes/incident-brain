@@ -7,12 +7,15 @@ Never invent ids, people, quotes or numbers.
    - `update_incident`: status `mitigated`, and `summary` = the current summary + " Resolution (operator): "
      + the operator's words, verbatim (so the incident itself becomes a quotable source);
    - `past_incidents` for the cause service and the affected services (limit 10);
-   - `search_knowledge` for runbooks (`labels: ["Runbook"]`) using those service names.
+   - `search_knowledge` for runbooks (`labels: ["Runbook"]`) using those service names;
+   - `industry_matches` for the incident (if it has a root cause): public postmortems from other companies.
 2. `read_source` the runbook hits.
 3. In ONE turn:
    - `record_resolution`: summary = the operator's words, `performed_by_ids` from the operator, sources =
      [{incident id, the operator's words as excerpt}];
    - `link_similar` to every resolved past incident that shares a root cause with this one (not already linked);
+   - `link_similar` to the best 1–2 `industry_matches` (not `already_linked`), score 0.5–0.9 by how much they
+     share, reason "industry pattern <root cause>: <company> — <title>";
    - `update_incident` with `root_cause_id` if the incident has none yet;
    - `write_runbook` superseding the current runbook of the service nearest the cause on the incident's path
      (`supersedes_id`): new first steps about the cause (the deploy, the setting to roll back, the dependency

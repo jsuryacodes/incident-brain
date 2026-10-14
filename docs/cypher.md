@@ -2,7 +2,7 @@
 
 > **Generated** by `python -m backend.tools.export_docs` from `backend/tools/registry.py`. Do not edit by hand.
 
-Every product answer comes from one of these 15 fixed, parameterised, **read-only** tools (`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.
+Every product answer comes from one of these 16 fixed, parameterised, **read-only** tools (`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.
 
 - `$name` are query parameters. `N` in `*1..N` is a hop bound: variable-length bounds cannot be parameters, so it is clamped to an integer 1..6 before being written into the query.
 - `(a)-[:DEPENDS_ON]->(b)` means *a calls b*. `source` on that edge is `declared` (catalog) or `learned` (written by an agent).
@@ -28,6 +28,7 @@ Every product answer comes from one of these 15 fixed, parameterised, **read-onl
 | 13 | [`read_source`](#read_source) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain | — |
 | 14 | [`get_incident_state`](#get_incident_state) | Track 2: Agent Memory and Coordination | — |
 | 15 | [`memory_recall`](#memory_recall) | Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data | — |
+| 16 | [`industry_matches`](#industry_matches) | Track 3: Company Brain, Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data | — |
 
 ## find_service
 
@@ -544,6 +545,38 @@ RETURN DISTINCT i.id, latest.id, latest.title, latest.version, latest.steps
 ```
 
 **Explanation:** Memory-first recall. The scope is the alerting service plus everything it calls within N hops (declared or learned edges). Then four small queries: learned DEPENDS_ON edges touching the scope (with the Fact on learned_from, its SOURCED_FROM excerpt and the Session it was WRITTEN_IN); other agent Facts ABOUT scope services; incidents with origin 'agent' and status 'resolved' that AFFECTED the scope (CAUSED_BY, HAS_ROOT_CAUSE, RESOLVED_BY, PERFORMED_BY); and for those incidents the newest runbook, found by following SUPERSEDES*0..5 back to a runbook that nothing supersedes. A learned edge into one of my dependencies makes its caller a noisy-neighbour suspect; a learned edge on my own path or the cause of a recalled incident makes that service a suspect too. Only agent-written memory is recalled: seeded history stays with past_incidents, so a first session honestly recalls nothing.
+
+## industry_matches
+
+**Purpose:** Real public postmortems from other companies (Cloudflare, AWS, GitHub, Slack, ...) that share a root cause with an incident or a root-cause id.
+
+**Track(s):** Track 3: Company Brain, Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data
+
+**FalkorDB algorithm:** none (plain pattern matching)
+
+**Arguments:** `{"root_cause_id":{"type":"string","description":"e.g. 'rc:bad-config-push'."},"incident_id":{"type":"string","description":"e.g. 'inc:2026-032'; uses its HAS_ROOT_CAUSE."},"limit":{"type":"integer","minimum":1,"maximum":10}}` (required: none)
+
+**LLM-facing description:** Real public postmortems from other companies (Cloudflare, AWS, GitHub, Slack, ...) that share a root cause with an incident or a root-cause id. Pass exactly one of incident_id or root_cause_id. Returns company, title, url, a short summary in our own words, the shared root causes and overlapping terms, best match first.
+
+**Cypher:**
+
+```cypher
+MATCH (i:Incident {id:$id})
+OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause)
+RETURN i.title, i.symptom, i.summary, collect(rc.id)
+```
+
+```cypher
+MATCH (:Incident {id:$id})-[s:SIMILAR_TO]->(pm:PublicPostmortem) RETURN pm.id, s.score
+```
+
+```cypher
+MATCH (pm:PublicPostmortem)-[:HAS_ROOT_CAUSE]->(rc:RootCause)
+WHERE rc.id IN $rcs
+RETURN pm.id, pm.company, pm.title, pm.url, pm.published_at, pm.summary, collect(DISTINCT rc.id)
+```
+
+**Explanation:** The industry-pattern layer: every tenant graph holds the same ~20 PublicPostmortem nodes, each HAS_ROOT_CAUSE -> RootCause. Incident -[:HAS_ROOT_CAUSE]-> RootCause <-[:HAS_ROOT_CAUSE]- PublicPostmortem is a two-hop join, so 'has anyone else had this?' is a graph query, not a web search. Ranked by number of shared root causes, then words shared with the incident's title/symptom/summary, then recency. SIMILAR_TO edges an agent already wrote are flagged as already_linked.
 
 ## FalkorDB notes
 

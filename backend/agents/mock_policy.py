@@ -128,6 +128,12 @@ def recalled(culprit, past):
             if culprit["service"] in i.get("caused_by_change_to", []) and i.get("status") == "resolved"]
 
 
+def industry_line(res):
+    """'Matches known industry pattern: <company> — <title> (<url>)' for the best industry_matches hit, else None."""
+    m = ((res or {}).get("matches") or [None])[0]
+    return f"Matches known industry pattern: {m['company']} — {m['title']} ({m['url']})" if m else None
+
+
 def svc_name(sid):
     return sid.split(":", 1)[-1] if sid else sid
 
@@ -147,7 +153,7 @@ def contact_from(who):
     return {"person_id": c["id"], "name": c["name"], "reason": reason}, warn
 
 
-def build_report(alert_svc, culprit, blast, who, decisions, past):
+def build_report(alert_svc, culprit, blast, who, decisions, past, industry=None):
     """The incident report, built only from tool results."""
     contact, warn = contact_from(who)
     conf = conflict_from(culprit, decisions)
@@ -204,7 +210,7 @@ def build_report(alert_svc, culprit, blast, who, decisions, past):
             "contact": contact or {"person_id": None, "name": None, "reason": "no candidate found"},
             "bus_factor_warning": warn, "conflicting_decision": conflicting, "similar_past_incidents": sims,
             "evidence": evidence, "recommended_actions": actions[:4],
-            "confidence": ["low", "low", "medium", "high"][score]}
+            "confidence": ["low", "low", "medium", "high"][score], "industry_pattern": industry_line(industry)}
 
 
 # ───────────── firefighter ─────────────
@@ -234,8 +240,11 @@ def firefighter(v):
         else:
             calls.append(("who_to_call", {"service_id": svc}))
         return turn(v.turns, *calls, ("past_incidents", {"service_ids": ids}))
+    rc = next((r for i in recalled(culprit, v.last("past_incidents")) for r in i.get("root_causes", [])), None)
+    if rc and not v.called("industry_matches"):
+        return turn(v.turns, ("industry_matches", {"root_cause_id": rc}))
     report = build_report(svc, culprit, v.last("blast_radius"), v.last("who_to_call"), v.last("decisions_about"),
-                          v.last("past_incidents"))
+                          v.last("past_incidents"), v.last("industry_matches"))
     return turn(v.turns, ("submit_report", report))
 
 
@@ -427,7 +436,8 @@ def communicator(v):
     cause = _cause_service(st)
     if not v.called("who_to_call"):
         return turn(v.turns, ("who_to_call", {"service_id": cause or svc}),
-                    *([("stale_knowledge", {"service_id": cause})] if cause else []))
+                    *([("stale_knowledge", {"service_id": cause})] if cause else []),
+                    *([("industry_matches", {"incident_id": inc})] if st.get("root_causes") else []))
     who, stale = v.last("who_to_call"), v.last("stale_knowledge") or {"items": []}
     contact, warn = contact_from(who)
     lc = inv.get("likely_cause") or {}
@@ -463,6 +473,7 @@ def communicator(v):
               "bus_factor_warning": warn, "conflicting_decision": cd, "similar_past_incidents": sims,
               "evidence": (inv.get("evidence") or [])[:6] or [{"node_id": svc, "claim": "alerting service"}],
               "recommended_actions": (inv.get("recommended_actions") or [])[:4], "confidence": inv.get("confidence", "low"),
+              "industry_pattern": industry_line(v.last("industry_matches")),
               "actions_taken": taken, "learned": learned,
               "status_update": f"[{key}] sev {st.get('severity')}, {st.get('status')}: {svc_name(svc)} {alert['symptom']}. "
                                + (f"Likely cause: {lc['deploy_id']} on {svc_name(lc['service_id'])}"
@@ -484,7 +495,8 @@ def postmortem(v):
         return turn(v.turns, ("update_incident", {"incident_id": inc, "status": "mitigated",
                                                   "summary": f"{st.get('summary')} Resolution (operator): {what}"}),
                     ("past_incidents", {"service_ids": services[:10], "limit": 10}),
-                    ("search_knowledge", {"query": " ".join(map(svc_name, services)), "labels": ["Runbook"], "limit": 5}))
+                    ("search_knowledge", {"query": " ".join(map(svc_name, services)), "labels": ["Runbook"], "limit": 5}),
+                    *([("industry_matches", {"incident_id": inc})] if st.get("root_causes") else []))
     if not v.called("read_source"):
         hits = [h["id"] for h in (v.last("search_knowledge") or {}).get("hits", [])][:4]
         if hits:
@@ -504,6 +516,11 @@ def postmortem(v):
                                         "performed_by_ids": op["resolved_by_ids"], "sources": [{"node_id": inc, "excerpt": what}]})]
         calls += [("link_similar", {"incident_id": inc, "other_id": i["id"], "score": 0.85,
                                     "reason": f"same root cause {', '.join(set(i['root_causes']) & set(rcs))}: {i['title']}"}) for i in same]
+        # the best 1-2 public postmortems sharing a root cause (industry pattern)
+        for m in [m for m in (v.last("industry_matches") or {}).get("matches", []) if "already_linked" not in m][:2]:
+            calls.append(("link_similar", {"incident_id": inc, "other_id": m["id"],
+                                           "score": round(min(0.9, 0.5 + 0.15 * len(m["shared_root_causes"]) + 0.05 * len(m["overlap_terms"])), 2),
+                                           "reason": f"industry pattern {', '.join(m['shared_root_causes'])}: {m['company']} — {m['title']}"}))
         dep = next((c for c in st.get("caused_by", []) if c["label"] == "Deploy"), None)
         cname = svc_name(culprit) if culprit else "the service"
         conf_key = (CONFIG_KEY.findall(dep["summary"]) or ["configuration"])[0] if dep else "configuration"
@@ -520,9 +537,10 @@ def postmortem(v):
         return turn(v.turns, *calls)
     res, rbw = v.last("record_resolution") or {}, v.last("write_runbook") or {}
     links = [x["to"] for _, x in v.all("link_similar")]
+    ind = industry_line(v.last("industry_matches"))
     note = (f"{key} resolved by {', '.join(op['resolved_by_ids'])}: {what}. Wrote {res.get('id')}"
             + (f", runbook {rbw['id']}" + (f" (supersedes {rbw['supersedes']})" if rbw.get("supersedes") else "") if rbw else "")
-            + (f"; linked similar incidents {', '.join(links)}." if links else "."))
+            + (f"; linked similar incidents {', '.join(links)}." if links else ".") + (f" {ind}" if ind else ""))
     return turn(v.turns, ("submit_handoff", {"note": note, "details": {
         "resolution_id": res.get("id"), "runbook_id": rbw.get("id"), "supersedes": rbw.get("supersedes"), "similar": links}}))
 

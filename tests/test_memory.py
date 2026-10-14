@@ -185,6 +185,8 @@ def test_resolve(story):
     assert "RULES_CACHE_TTL" in steps and "config-service" in steps
     sim = {r[0] for r in one(g, "MATCH (:Incident {id:$i})-[:SIMILAR_TO]->(o) RETURN o.id", {"i": inc})}
     assert {"inc:2025-031", "inc:2026-012"} <= sim
+    pms = one(g, "MATCH (:Incident {id:$i})-[s:SIMILAR_TO]->(p:PublicPostmortem) RETURN p.id, s.score, s.reason, s.origin", {"i": inc})
+    assert 1 <= len(pms) <= 2 and all(0 < sc <= 1 and "industry pattern" in rs and o == "agent" for _, sc, rs, o in pms)
     assert one(g, "MATCH (i:Incident {id:$i}) RETURN i.status", {"i": inc}) == [["resolved"]]
 
 
@@ -229,6 +231,7 @@ def test_s2_memory_first(story):
     assert (f"Seen before: {key}, fixed by Priya Nair (Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered), "
             "see Runbook v2 step 2 (rb:fraud-scoring-latency-v2)") in s2["report"]["summary"]
     assert all(a["grounding"]["ok"] for a in s2["agents"])
+    assert s2["report"]["industry_pattern"].startswith("Matches known industry pattern: ") and "(https://" in s2["report"]["industry_pattern"]
 
 
 def test_s1_recalls_nothing_and_scans_as_before(story):

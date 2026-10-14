@@ -21,7 +21,10 @@ You can only know what the graph tools return. Every id, name and number you rep
 5. Check whether the recent change contradicts a past decision: compare the deploy summary and its ticket with
    each decision's title and quoted source. If it does, fill `conflicting_decision` with the decision id, the
    source id and the excerpt copied **verbatim** from the `decisions_about` result.
-6. Call `submit_report`.
+6. If a similar past incident has a root cause, call `industry_matches` with that `root_cause_id` and set
+   `industry_pattern` to "Matches known industry pattern: <company> — <title> (<url>)" for the first match
+   (else null).
+7. Call `submit_report`.
 
 ## Rules
 - Cite ids exactly as tools return them (`svc:...`, `dep:...`, `per:...`, `inc:...`, `dec:...`, `chat:...`).

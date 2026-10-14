@@ -117,6 +117,14 @@ TOOLS = {
         cypher=[gt.Q_RECALL_SCOPE, gt.Q_RECALL_LEARNED, gt.Q_RECALL_FACTS, gt.Q_RECALL_INCIDENTS, gt.Q_RECALL_RUNBOOKS],
         algorithm=None,
         explanation="Memory-first recall. The scope is the alerting service plus everything it calls within N hops (declared or learned edges). Then four small queries: learned DEPENDS_ON edges touching the scope (with the Fact on learned_from, its SOURCED_FROM excerpt and the Session it was WRITTEN_IN); other agent Facts ABOUT scope services; incidents with origin 'agent' and status 'resolved' that AFFECTED the scope (CAUSED_BY, HAS_ROOT_CAUSE, RESOLVED_BY, PERFORMED_BY); and for those incidents the newest runbook, found by following SUPERSEDES*0..5 back to a runbook that nothing supersedes. A learned edge into one of my dependencies makes its caller a noisy-neighbour suspect; a learned edge on my own path or the cause of a recalled incident makes that service a suspect too. Only agent-written memory is recalled: seeded history stays with past_incidents, so a first session honestly recalls nothing."),
+    "industry_matches": dict(
+        fn=gt.industry_matches, track=[B, T, F],
+        description="Real public postmortems from other companies (Cloudflare, AWS, GitHub, Slack, ...) that share a root cause with an incident or a root-cause id. Pass exactly one of incident_id or root_cause_id. Returns company, title, url, a short summary in our own words, the shared root causes and overlapping terms, best match first.",
+        input_schema=_obj({"root_cause_id": {"type": "string", "description": "e.g. 'rc:bad-config-push'."},
+                           "incident_id": {"type": "string", "description": "e.g. 'inc:2026-032'; uses its HAS_ROOT_CAUSE."},
+                           "limit": {"type": "integer", "minimum": 1, "maximum": 10}}),
+        cypher=[gt.Q_IND_INCIDENT, gt.Q_IND_LINKED, gt.Q_IND_MATCHES], algorithm=None,
+        explanation="The industry-pattern layer: every tenant graph holds the same ~20 PublicPostmortem nodes, each HAS_ROOT_CAUSE -> RootCause. Incident -[:HAS_ROOT_CAUSE]-> RootCause <-[:HAS_ROOT_CAUSE]- PublicPostmortem is a two-hop join, so 'has anyone else had this?' is a graph query, not a web search. Ranked by number of shared root causes, then words shared with the incident's title/symptom/summary, then recency. SIMILAR_TO edges an agent already wrote are flagged as already_linked."),
 }
 
 

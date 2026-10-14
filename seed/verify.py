@@ -13,8 +13,8 @@ from seed import schema
 
 TARGETS = {  # label -> target count (±30%); 0 means must be exactly 0
     "Team": 4, "Service": 27, "Person": 20, "Deploy": 30, "Doc": 12, "Ticket": 15, "ChatThread": 10,
-    "Decision": 5, "Incident": 6, "Resolution": 6, "Runbook": 3, "RootCause": 5,
-    "PublicPostmortem": 0, "Fact": 0, "Session": 0, "Step": 0,
+    "Decision": 5, "Incident": 6, "Resolution": 6, "Runbook": 3, "RootCause": 10,
+    "PublicPostmortem": 21, "Fact": 0, "Session": 0, "Step": 0,
 }
 EXACT = {"Team", "Service"}
 PA, RR, CS = "svc:payments-api", "svc:risk-rules", "svc:config-service"
@@ -124,7 +124,15 @@ def main():
 
     def n1():
         got = dict(q("MATCH (n) RETURN labels(n)[0], count(n)"))
-        return got.get("Team") == 2 and got.get("Service") == 9 and got.get("Person") == 8 and 35 <= sum(got.values()) <= 50, f"{got}"
+        own = sum(v for k, v in got.items() if k not in ("PublicPostmortem", "RootCause"))  # minus the shared public layer
+        return got.get("Team") == 2 and got.get("Service") == 9 and got.get("Person") == 8 and 33 <= own <= 48, f"{got}"
+
+    def p1():
+        n = q("MATCH (p:PublicPostmortem) RETURN count(p)")[0][0]
+        bad = q("MATCH (p:PublicPostmortem) WHERE NOT (p)-[:HAS_ROOT_CAUSE]->(:RootCause) OR NOT p.url STARTS WITH 'https://' "
+                "OR size(split(p.summary, ' ')) > 60 OR p.published_at IS NULL RETURN p.id")
+        rcs = q("MATCH (:PublicPostmortem)-[:HAS_ROOT_CAUSE]->(rc:RootCause) RETURN count(DISTINCT rc)")[0][0]
+        return n >= 15 and not bad, f"{n} postmortems over {rcs} root causes; bad (no root cause / url / >60 words)={bad}"
 
     def n2():
         r = q("MATCH (:Service {id:'svc:patient-portal'})-[:DEPENDS_ON*1..4]->(d:Service)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since "
@@ -144,7 +152,7 @@ def main():
               ("Planted story: only notifications changed recently downstream of patient-portal", n2),
               ("Decision sourced from #platform chat; notifications maintainer has left", n3),
               ("Isolation: nothing from Kestrel Pay in this graph", n4), ("No SIMILAR_TO edges and no agent-origin nodes", c11),
-              ("All expected indexes exist", c13)] if pkg == "northwind_health" else [
+              ("All expected indexes exist", c13), ("Public postmortems: >=15, each with a root cause, https url, <=60-word summary", p1)] if pkg == "northwind_health" else [
         ("Counts per label within ±30% (4 teams, 27 services)", c1),
         ("Provenance: ids/origin everywhere; every Decision+Resolution has a literal SOURCED_FROM excerpt", c2),
         ("Bus factor: risk-rules maintainer has left; Priya is top active contributor", c3),
@@ -157,7 +165,8 @@ def main():
         ("Decoy: email-sender deployed recently but is not downstream of payments-api", c10),
         ("No SIMILAR_TO edges and no agent-origin nodes", c11),
         ("Full-text search finds the config-load thread", c12),
-        ("All expected indexes exist", c13)]
+        ("All expected indexes exist", c13),
+        ("Public postmortems: >=15, each with a root cause, https url, <=60-word summary", p1)]
     for i, (name, fn) in enumerate(checks, 1):
         check(i, name, fn)
 

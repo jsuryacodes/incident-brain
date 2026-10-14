@@ -43,9 +43,9 @@ AGENTS = {
                                "read_source", "past_incidents", "who_to_call", "node_details", "get_incident_state"],
                          write=["update_incident", "record_learned_dependency", "record_fact", "link_similar"],
                          submit=("submit_handoff", SUBMIT_HANDOFF)),
-    "communicator": dict(read=["who_to_call", "stale_knowledge", "get_incident_state"],
+    "communicator": dict(read=["who_to_call", "stale_knowledge", "industry_matches", "get_incident_state"],
                          write=["page_person", "open_ticket", "flag_stale"], submit=("submit_report", SUBMIT_TEAM_REPORT)),
-    "postmortem": dict(read=["get_incident_state", "past_incidents", "search_knowledge", "read_source"],
+    "postmortem": dict(read=["get_incident_state", "past_incidents", "search_knowledge", "read_source", "industry_matches"],
                        write=["update_incident", "record_resolution", "link_similar", "write_runbook"],
                        submit=("submit_handoff", SUBMIT_HANDOFF)),
 }

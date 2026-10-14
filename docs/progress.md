@@ -7,12 +7,30 @@ Resume line: "Read docs/prompts/06-overnight.md and docs/progress.md and continu
 |---|---|---|
 | A Setup on a fresh Mac | DONE | 06A |
 | B Memory-first recall | DONE | 06B |
-| C Public postmortems | todo | |
+| C Public postmortems | DONE | 06C |
 | D Brain eval 5 → 15 | todo | |
 | E README draft | todo | |
 | F Hardening pass | todo | |
 
 **Total live API spend: $0.00** (0 live calls, no key).
+
+## 06C — Public postmortems (industry pattern layer)
+**Status:** DONE
+
+**What was built**
+- `seed/data/public_postmortems.json`: **21 real public postmortems** (Cloudflare ×4, AWS ×4, Google Cloud ×2, Meta ×2, Slack ×2, GitHub, Stripe, Fastly, Roblox, GitLab, Datadog, Twilio). Each: company, exact title, url, published date, **our own ≤ 60-word summary** (no quotes), 1–2 root-cause tags. Every page was fetched and its facts checked on the page itself on 15 Oct 2026. `docs/postmortems.md` is generated from it (`python -m backend.tools.export_docs`).
+- `seed.load` adds the layer to EVERY tenant: `PublicPostmortem` nodes + `HAS_ROOT_CAUSE`; generic RootCauses (`rc:dns-bgp-misconfiguration`, `rc:hidden-dependency`, `rc:database-failover`, `rc:capacity-limit`, `rc:operator-error`, plus the reused ids) are added only where the tenant doesn't define them. Northwind's `rc:nw-retry-storm` was renamed to the generic `rc:retry-storm` so its incidents match too.
+- `seed.verify`: new check for both tenants (≥ 15 postmortems, each with a root cause, https url, ≤ 60 words); Kestrel targets updated (RootCause 10, PublicPostmortem 21). kestrel_pay 14/14, northwind_health 8/8.
+- Read tool #16 `industry_matches(root_cause_id | incident_id)`: postmortems sharing a root cause, ranked by shared root causes → words shared with the incident → recency; flags ones already linked.
+- Resolve (postmortem pass) calls it and writes `SIMILAR_TO {score, reason, origin:'agent'}` to the best 1–2 not yet linked. S1's incident links to Slack 2-22-22 and Facebook 2010 (both cache stampedes).
+- Reports gain `industry_pattern`: "Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)" (Communicator and Firefighter; mock + prompts). Firefighter: 5 LLM calls, check_run 12/12.
+- MCP now lists 16 read tools; golden runs and `docs/cypher.md` regenerated; 5 new tests.
+
+**Decisions**
+- *Skipped when unverifiable:* Epic Games' certificate post (403), Microsoft Azure 2013 certificate post (URL now redirects to a category page), Reddit Pi-Day (fetch blocked), Google Voice 2021 (no primary page found). So **no postmortem is tagged `rc:expired-tls-certificate`** yet; add one when a primary page can be read.
+- *Dates:* AWS S3 2017 / Kinesis 2020 / DynamoDB 2025 and both GCP status pages show the incident date, not a publication date; those use the incident date (stated in the doc).
+- *Tag judgement calls:* Slack 2-22-22 and Facebook 2010 are tagged `cache-ttl-thundering-herd` (a cache emptied or judged invalid → everyone hits one store); Datadog 2023 is `bad-config-push` + `hidden-dependency` (an automatic OS update rolled widely and collided with container routing). Worth a look.
+- *Ranking is deliberately simple:* shared root causes, then word overlap. Good enough to pick 1–2 links; no embeddings (schema §5.3).
 
 ## 06B — Memory-first recall
 **Status:** DONE

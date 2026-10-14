@@ -142,14 +142,14 @@ EDGES += [("per:maya-okoro", "AUTHORED", "dec:results-index", {}), ("dec:results
           ("dec:results-index", "SOURCED_FROM", "tkt:PM-NW-2026-03", {"excerpt": Q_PM2})]
 
 # ───────────── incidents ─────────────
-NODES += [{"label": "RootCause", "id": "rc:nw-retry-storm", "name": "Retry storm against an external provider",
+NODES += [{"label": "RootCause", "id": "rc:retry-storm", "name": "Retry storm against an external provider",
            "description": "Immediate, unbounded retries amplify a provider timeout until the provider throttles us."},
           {"label": "RootCause", "id": "rc:nw-missing-index", "name": "Missing database index after migration",
            "description": "A migration dropped an index, so queries fall back to sequential scans."}]
 for slug, title, sev, days, symptom, summary, affected, cause, rc, people, pm, res_sum, res_quote in [
     ("nw-2025-14", "Appointment reminders stopped: SMS provider throttled us", 2, 300, "appointment reminder SMS not sent; provider 429s",
      "notifications v3.1.0 retried SMS without limit on provider timeouts; the provider throttled the account.",
-     ["notifications", "appointments"], "dep:notifications-v3.1.0", "rc:nw-retry-storm", ["owen-bryce"], "tkt:PM-NW-2025-14",
+     ["notifications", "appointments"], "dep:notifications-v3.1.0", "rc:retry-storm", ["owen-bryce"], "tkt:PM-NW-2025-14",
      "Restored the 3-attempt cap with backoff", Q_PM1),
     ("nw-2026-03", "Results page timeouts after records migration", 3, 60, "portal results page timing out",
      "lab-results ran sequential scans on records-db after a migration dropped the visit_id index.",

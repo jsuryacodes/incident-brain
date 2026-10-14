@@ -1,6 +1,8 @@
 """Load a tenant seed into FalkorDB.  python -m seed.load --graph kestrel_pay [--reset] [--now EPOCH]"""
 import argparse
+import calendar
 import importlib
+import json
 import os
 import sys
 import time
@@ -12,6 +14,23 @@ from falkordb import FalkorDB
 from seed import schema, timeutil
 
 BATCH = 100
+PUBLIC = os.path.join(os.path.dirname(__file__), "data", "public_postmortems.json")
+
+
+def public_layer(tenant_ids):
+    """Public postmortems for EVERY tenant (schema §5.2: copied into each graph). RootCause nodes the tenant already
+    defines are reused; generic ones are added only when missing. -> (nodes, edges)"""
+    with open(PUBLIC) as f:
+        d = json.load(f)
+    nodes = [{"label": "RootCause", "id": rid, "name": name, "description": desc}
+             for rid, (name, desc) in d["root_causes"].items() if rid not in tenant_ids]
+    edges = []
+    for p in d["postmortems"]:
+        y, m, day = map(int, p["published_at"].split("-"))
+        nodes.append({"label": "PublicPostmortem", "id": p["id"], "company": p["company"], "title": p["title"],
+                      "summary": p["summary"], "url": p["url"], "published_at": calendar.timegm((y, m, day, 0, 0, 0))})
+        edges += [(p["id"], "HAS_ROOT_CAUSE", rc, {}) for rc in p["root_causes"]]
+    return nodes, edges
 
 
 def validate(nodes, edges):
@@ -136,10 +155,13 @@ def load(graph_name, reset=True, now=None, data_package=None, quiet=False):
         del sys.modules[name]  # force re-evaluation so a new NOW takes effect when called twice in one process
     data = importlib.import_module(f"seed.data.{pkg}")
     nodes = [dict(n) for n in data.NODES]
+    pub_nodes, pub_edges = public_layer({n["id"] for n in nodes})
+    nodes += pub_nodes
+    edges = list(data.EDGES) + pub_edges
     for n in nodes:
         n.setdefault("origin", "seed")
         n.setdefault("created_at", timeutil.NOW)
-    errs = validate(nodes, data.EDGES)
+    errs = validate(nodes, edges)
     if errs:
         raise ValueError(f"VALIDATION FAILED ({len(errs)} problems), nothing written:\n" + "\n".join("  - " + e for e in errs))
 
@@ -151,14 +173,14 @@ def load(graph_name, reset=True, now=None, data_package=None, quiet=False):
             pass
     g = db.select_graph(graph_name)
     create_indexes(g, quiet)
-    write(g, nodes, data.EDGES)
+    write(g, nodes, edges)
 
-    summary = {"nodes": Counter(n["label"] for n in nodes), "edges": Counter(e[1] for e in data.EDGES), "now": timeutil.NOW}
+    summary = {"nodes": Counter(n["label"] for n in nodes), "edges": Counter(e[1] for e in edges), "now": timeutil.NOW}
     if not quiet:
         print(f"\ngraph '{graph_name}' loaded (NOW={timeutil.NOW}):")
         print("  nodes:", ", ".join(f"{k}={v}" for k, v in sorted(summary["nodes"].items())))
         print("  edges:", ", ".join(f"{k}={v}" for k, v in sorted(summary["edges"].items())))
-        print(f"  {len(nodes)} nodes, {len(data.EDGES)} edges in {time.time() - t0:.1f}s")
+        print(f"  {len(nodes)} nodes, {len(edges)} edges in {time.time() - t0:.1f}s")
     return summary
 
 

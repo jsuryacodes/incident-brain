@@ -1,11 +1,11 @@
 {
- "run_id": "run-ba9f3c034e6d",
+ "run_id": "run-f62bc43a428d",
  "agent": "team",
  "tenant": "kestrel_pay",
  "mode": "mock",
  "model": "mock",
- "session_id": "ses:20261014T223738-7e4916",
- "started_at": 1792017458,
+ "session_id": "ses:20261014T224542-bdedf3",
+ "started_at": 1792017942,
  "status": "ok",
  "alert": {
   "service_id": "svc:payments-api",
@@ -76,6 +76,7 @@
    "Follow the INC-2025-031 fix: Rolled back TTL to 300s and added cache warm-up."
   ],
   "confidence": "high",
+  "industry_pattern": "Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
   "actions_taken": [
    "paged Priya Nair for INC-2026-032 (simulated): INC-2026-032 sev 2: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes. Li…",
    "opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
@@ -312,6 +313,7 @@
      "Follow the INC-2025-031 fix: Rolled back TTL to 300s and added cache warm-up."
     ],
     "confidence": "high",
+    "industry_pattern": "Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
     "actions_taken": [
      "paged Priya Nair for INC-2026-032 (simulated): INC-2026-032 sev 2: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes. Li…",
      "opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
@@ -339,8 +341,8 @@
   "cache_read_input_tokens": 0,
   "cost_usd": 0.0,
   "llm_calls": 12,
-  "tool_calls": 20,
-  "duration_ms": 107
+  "tool_calls": 21,
+  "duration_ms": 120
  },
  "steps": [
   {
@@ -383,10 +385,10 @@
     }
    },
    "summary": "find_service → matches: svc:payments-api",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-7e4916-001"
+   "step_id": "step:20261014T224542-bdedf3-001"
   },
   {
    "seq": 2,
@@ -469,10 +471,10 @@
     }
    },
    "summary": "blast_radius → 3 upstream (2 tier-1)",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-7e4916-002"
+   "step_id": "step:20261014T224542-bdedf3-002"
   },
   {
    "seq": 3,
@@ -590,10 +592,10 @@
     }
    },
    "summary": "critical_services → pagerank: config-db, config-service, kafka-events, ledger-service",
-   "ts": 1792017458,
-   "ms": 0,
+   "ts": 1792017942,
+   "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-7e4916-003"
+   "step_id": "step:20261014T224542-bdedf3-003"
   },
   {
    "seq": 4,
@@ -836,10 +838,10 @@
     }
    },
    "summary": "past_incidents → 3 incident(s): INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez), INC-2025-044 (fixed by Marcus Webb), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)",
-   "ts": 1792017458,
-   "ms": 1,
+   "ts": 1792017942,
+   "ms": 2,
    "llm_call": 1,
-   "step_id": "step:20261014T223738-7e4916-004"
+   "step_id": "step:20261014T224542-bdedf3-004"
   },
   {
    "seq": 5,
@@ -873,7 +875,7 @@
        "title": "payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
        "severity": 2,
        "symptom": "5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -882,8 +884,8 @@
       "params": {
        "id": "inc:2026-032",
        "svc": "svc:payments-api",
-       "ses": "ses:20261014T223738-7e4916",
-       "now": 1792017458
+       "ses": "ses:20261014T224542-bdedf3",
+       "now": 1792017942
       },
       "write": true
      }
@@ -892,7 +894,7 @@
      "nodes": [
       "inc:2026-032",
       "svc:payments-api",
-      "ses:20261014T223738-7e4916"
+      "ses:20261014T224542-bdedf3"
      ],
      "edges": [
       {
@@ -901,7 +903,7 @@
        "to": "svc:payments-api"
       },
       {
-       "from": "ses:20261014T223738-7e4916",
+       "from": "ses:20261014T224542-bdedf3",
        "type": "FOR_INCIDENT",
        "to": "inc:2026-032"
       }
@@ -909,10 +911,10 @@
     }
    },
    "summary": "open_incident → opened INC-2026-032 (inc:2026-032), severity 2, on svc:payments-api",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 2,
-   "step_id": "step:20261014T223738-7e4916-005"
+   "step_id": "step:20261014T224542-bdedf3-005"
   },
   {
    "seq": 6,
@@ -1038,10 +1040,10 @@
     }
    },
    "summary": "Opened INC-2026-032 (inc:2026-032) at severity 2: payments-api is tier 1 with 3 upstream callers (2 tier-1); not in the PageRank top 10. Blast radius: api-gateway, web-checkout. Seen on this service before: INC-2025-067, INC-2025-044, INC-2025-031.",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 3,
-   "step_id": "step:20261014T223738-7e4916-006"
+   "step_id": "step:20261014T224542-bdedf3-006"
   },
   {
    "seq": 7,
@@ -1161,10 +1163,10 @@
     }
    },
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792017458,
-   "ms": 2,
+   "ts": 1792017942,
+   "ms": 1,
    "llm_call": 4,
-   "step_id": "step:20261014T223738-7e4916-007"
+   "step_id": "step:20261014T224542-bdedf3-007"
   },
   {
    "seq": 8,
@@ -1195,7 +1197,7 @@
       "deploy": {
        "id": "dep:risk-rules-v2.8.0",
        "version": "2.8.0",
-       "ts": 1792015058,
+       "ts": 1792015542,
        "minutes_ago": 40,
        "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster",
        "by": "Leo Park"
@@ -1219,7 +1221,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*1..4]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, min(length(p)) AS hops, dep.id, dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:payments-api",
-       "since": 1792010258
+       "since": 1792010742
       }
      },
      {
@@ -1271,10 +1273,10 @@
     }
    },
    "summary": "recent_changes_downstream → 1 hit(s): risk-rules (deployed 40 min ago by Leo Park, RISK-412)",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 5,
-   "step_id": "step:20261014T223738-7e4916-008"
+   "step_id": "step:20261014T224542-bdedf3-008"
   },
   {
    "seq": 9,
@@ -1310,7 +1312,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:payments-api",
-       "since": 1792010258,
+       "since": 1792010742,
        "downstream": [
         "svc:ledger-service",
         "svc:card-processor-adapter",
@@ -1335,10 +1337,10 @@
     }
    },
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 5,
-   "step_id": "step:20261014T223738-7e4916-009"
+   "step_id": "step:20261014T224542-bdedf3-009"
   },
   {
    "seq": 10,
@@ -1412,10 +1414,10 @@
     }
    },
    "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 6,
-   "step_id": "step:20261014T223738-7e4916-010"
+   "step_id": "step:20261014T224542-bdedf3-010"
   },
   {
    "seq": 11,
@@ -1705,10 +1707,10 @@
     }
    },
    "summary": "past_incidents → 4 incident(s): INC-2025-031 (fixed by Priya Nair, Arjun Mehta), INC-2026-032, INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 2,
    "llm_call": 6,
-   "step_id": "step:20261014T223738-7e4916-011"
+   "step_id": "step:20261014T224542-bdedf3-011"
   },
   {
    "seq": 12,
@@ -1849,10 +1851,10 @@
     }
    },
    "summary": "who_to_call → top: Priya Nair (score 48); maintainer Arjun Mehta LEFT",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 2,
    "llm_call": 6,
-   "step_id": "step:20261014T223738-7e4916-012"
+   "step_id": "step:20261014T224542-bdedf3-012"
   },
   {
    "seq": 13,
@@ -1870,7 +1872,7 @@
     "author_status": "left",
     "date": "2025-08-10",
     "days_ago": 430,
-    "text": "[2025-08-10 22:37] Priya Nair: Arjun, quick one while I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time?\n[2025-08-10 22:40] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just the source of truth for the rule editor. On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint.\n[2025-08-10 22:41] Arjun Mehta: It's not in the service catalog because it started as a \"temporary\" hack two years ago and nobody ever went back to register it.\n[2025-08-10 22:43] Priya Nair: So if the rules cache is cold, every fraud-scoring call can fan out to config-service?\n[2025-08-10 22:44] Arjun Mehta: Yes. Cold cache or tiny TTL, same thing: every payment turns into a rulesets fetch.\n[2025-08-10 22:46] Priya Nair: That explains why config-service CPU was pinned during the incident. 10s TTL times ~40 pods at peak...\n[2025-08-10 22:47] Arjun Mehta: Exactly. Every pod refetched the full ruleset every few seconds, all at once.\n[2025-08-10 22:49] Priya Nair: Can we write a floor for that TTL down somewhere people will actually see it?\n[2025-08-10 22:51] Arjun Mehta: Decision: RULES_CACHE_TTL stays at 300s minimum. Below ~30s config-service falls over at checkout peak — that's what bit us in INC-2025-031.\n[2025-08-10 22:52] Priya Nair: Agreed. Please don't leave it only in Slack.\n[2025-08-10 22:53] Arjun Mehta: I'll put it in the risk-rules README next sprint.",
+    "text": "[2025-08-10 22:45] Priya Nair: Arjun, quick one while I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time?\n[2025-08-10 22:48] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just the source of truth for the rule editor. On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint.\n[2025-08-10 22:49] Arjun Mehta: It's not in the service catalog because it started as a \"temporary\" hack two years ago and nobody ever went back to register it.\n[2025-08-10 22:51] Priya Nair: So if the rules cache is cold, every fraud-scoring call can fan out to config-service?\n[2025-08-10 22:52] Arjun Mehta: Yes. Cold cache or tiny TTL, same thing: every payment turns into a rulesets fetch.\n[2025-08-10 22:54] Priya Nair: That explains why config-service CPU was pinned during the incident. 10s TTL times ~40 pods at peak...\n[2025-08-10 22:55] Arjun Mehta: Exactly. Every pod refetched the full ruleset every few seconds, all at once.\n[2025-08-10 22:57] Priya Nair: Can we write a floor for that TTL down somewhere people will actually see it?\n[2025-08-10 22:59] Arjun Mehta: Decision: RULES_CACHE_TTL stays at 300s minimum. Below ~30s config-service falls over at checkout peak — that's what bit us in INC-2025-031.\n[2025-08-10 23:00] Priya Nair: Agreed. Please don't leave it only in Slack.\n[2025-08-10 23:01] Arjun Mehta: I'll put it in the risk-rules README next sprint.",
     "truncated": false,
     "mentions": [
      "per:priya-nair",
@@ -1946,10 +1948,10 @@
     }
    },
    "summary": "read_source → ok",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 7,
-   "step_id": "step:20261014T223738-7e4916-013"
+   "step_id": "step:20261014T224542-bdedf3-013"
   },
   {
    "seq": 14,
@@ -2001,7 +2003,7 @@
         "svc:risk-rules",
         "svc:config-service"
        ],
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -2010,7 +2012,7 @@
       "params": {
        "id": "inc:2026-032",
        "t": "dep:risk-rules-v2.8.0",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -2019,7 +2021,7 @@
       "params": {
        "id": "inc:2026-032",
        "t": "svc:risk-rules",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -2028,7 +2030,7 @@
       "params": {
        "id": "inc:2026-032",
        "t": "rc:cache-ttl-thundering-herd",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      }
@@ -2077,10 +2079,10 @@
     }
    },
    "summary": "update_incident → INC-2026-032: affected +3; cause dep:risk-rules-v2.8.0; cause svc:risk-rules; root cause rc:cache-ttl-thundering-herd",
-   "ts": 1792017458,
-   "ms": 3,
+   "ts": 1792017942,
+   "ms": 4,
    "llm_call": 8,
-   "step_id": "step:20261014T223738-7e4916-014"
+   "step_id": "step:20261014T224542-bdedf3-014"
   },
   {
    "seq": 15,
@@ -2136,7 +2138,7 @@
        "statement": "risk-rules calls config-service at request time; the service catalog does not list this dependency.",
        "confidence": 0.8,
        "kind": "sync",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -2145,7 +2147,7 @@
       "params": {
        "id": "fact:learned-risk-rules-config-service",
        "x": "svc:risk-rules",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -2154,7 +2156,7 @@
       "params": {
        "id": "fact:learned-risk-rules-config-service",
        "x": "svc:config-service",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -2164,7 +2166,7 @@
        "id": "fact:learned-risk-rules-config-service",
        "sid": "chat:risk-eng-config-load",
        "excerpt": "On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint.",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -2172,8 +2174,8 @@
       "cypher": "MATCH (n:Fact {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "fact:learned-risk-rules-config-service",
-       "ses": "ses:20261014T223738-7e4916",
-       "now": 1792017458
+       "ses": "ses:20261014T224542-bdedf3",
+       "now": 1792017942
       },
       "write": true
      }
@@ -2184,7 +2186,7 @@
       "svc:risk-rules",
       "svc:config-service",
       "chat:risk-eng-config-load",
-      "ses:20261014T223738-7e4916"
+      "ses:20261014T224542-bdedf3"
      ],
      "edges": [
       {
@@ -2205,7 +2207,7 @@
       {
        "from": "fact:learned-risk-rules-config-service",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T223738-7e4916"
+       "to": "ses:20261014T224542-bdedf3"
       },
       {
        "from": "svc:risk-rules",
@@ -2216,10 +2218,10 @@
     }
    },
    "summary": "record_learned_dependency → LEARNED svc:risk-rules -[DEPENDS_ON]-> svc:config-service (fact:learned-risk-rules-config-service)",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 3,
    "llm_call": 8,
-   "step_id": "step:20261014T223738-7e4916-015"
+   "step_id": "step:20261014T224542-bdedf3-015"
   },
   {
    "seq": 16,
@@ -2254,7 +2256,7 @@
        "o": "inc:2025-031",
        "score": 0.8,
        "reason": "also caused by a change to risk-rules: fraud-scoring timeouts during checkout peak",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      }
@@ -2274,10 +2276,10 @@
     }
    },
    "summary": "link_similar → inc:2026-032 SIMILAR_TO inc:2025-031 (0.8): also caused by a change to risk-rules: fraud-scoring timeouts during checkout p…",
-   "ts": 1792017458,
-   "ms": 0,
+   "ts": 1792017942,
+   "ms": 1,
    "llm_call": 8,
-   "step_id": "step:20261014T223738-7e4916-016"
+   "step_id": "step:20261014T224542-bdedf3-016"
   },
   {
    "seq": 17,
@@ -2478,10 +2480,10 @@
     }
    },
    "summary": "Cause: dep:risk-rules-v2.8.0 on risk-rules (RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster), path payments-api -> fraud-scoring -> risk-rules. It contradicts dec:rules-cache-ttl (chat:risk-eng-config-load). Learned: svc:risk-rules -> svc:config-service (fact:learned-risk-rules-config-service). Seen before: INC-2025-031 fixed by Priya Nair, Arjun Mehta: Rolled back TTL to 300s and added cache warm-up. Contact candidates: Priya Nair, Leo Park, Dana Okafor.",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 9,
-   "step_id": "step:20261014T223738-7e4916-017"
+   "step_id": "step:20261014T224542-bdedf3-017"
   },
   {
    "seq": 18,
@@ -2622,10 +2624,10 @@
     }
    },
    "summary": "who_to_call → top: Priya Nair (score 48); maintainer Arjun Mehta LEFT",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 2,
    "llm_call": 10,
-   "step_id": "step:20261014T223738-7e4916-018"
+   "step_id": "step:20261014T224542-bdedf3-018"
   },
   {
    "seq": 19,
@@ -2709,13 +2711,109 @@
     }
    },
    "summary": "stale_knowledge → 1 stale: doc:risk-rules-readme",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 10,
-   "step_id": "step:20261014T223738-7e4916-019"
+   "step_id": "step:20261014T224542-bdedf3-019"
   },
   {
    "seq": 20,
+   "agent": "communicator",
+   "action": "tool_call",
+   "tool": "industry_matches",
+   "args": {
+    "incident_id": "inc:2026-032"
+   },
+   "result": {
+    "incident": "inc:2026-032",
+    "root_causes": [
+     "rc:cache-ttl-thundering-herd"
+    ],
+    "match_count": 2,
+    "matches": [
+     {
+      "id": "pm:slack-2022-02-22",
+      "company": "Slack",
+      "title": "Slack's Incident on 2-22-22",
+      "url": "https://slack.engineering/slacks-incident-on-2-22-22/",
+      "published": "2022-04-26",
+      "summary": "A rolling Consul agent upgrade restarted memcached nodes at peak and they came back empty. Cache misses turned an expensive membership query into scatter queries across every database shard, and the overloaded database stopped the cache from refilling. Throttling client boots and fixing the query restored service.",
+      "shared_root_causes": [
+       "rc:cache-ttl-thundering-herd"
+      ],
+      "overlap_terms": []
+     },
+     {
+      "id": "pm:facebook-2010-09-23",
+      "company": "Meta (Facebook)",
+      "title": "More Details on Today's Outage",
+      "url": "https://engineering.fb.com/2010/09/23/uncategorized/more-details-on-today-s-outage/",
+      "published": "2010-09-23",
+      "summary": "A change to a stored configuration value made an automated checker treat it as invalid, so every client tried to fix its cached copy by querying one database cluster. Errors were read as invalid values and caused more cache deletions, a feedback loop. The site was taken down to stop traffic, then restored gradually.",
+      "shared_root_causes": [
+       "rc:cache-ttl-thundering-herd"
+      ],
+      "overlap_terms": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "industry_matches",
+    "args": {
+     "root_cause_id": null,
+     "incident_id": "inc:2026-032",
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident {id:$id}) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) RETURN i.title, i.symptom, i.summary, collect(rc.id)",
+      "params": {
+       "id": "inc:2026-032"
+      }
+     },
+     {
+      "cypher": "MATCH (:Incident {id:$id})-[s:SIMILAR_TO]->(pm:PublicPostmortem) RETURN pm.id, s.score",
+      "params": {
+       "id": "inc:2026-032"
+      }
+     },
+     {
+      "cypher": "MATCH (pm:PublicPostmortem)-[:HAS_ROOT_CAUSE]->(rc:RootCause) WHERE rc.id IN $rcs RETURN pm.id, pm.company, pm.title, pm.url, pm.published_at, pm.summary, collect(DISTINCT rc.id)",
+      "params": {
+       "rcs": [
+        "rc:cache-ttl-thundering-herd"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "pm:slack-2022-02-22",
+      "rc:cache-ttl-thundering-herd",
+      "pm:facebook-2010-09-23"
+     ],
+     "edges": [
+      {
+       "from": "pm:slack-2022-02-22",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:cache-ttl-thundering-herd"
+      },
+      {
+       "from": "pm:facebook-2010-09-23",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:cache-ttl-thundering-herd"
+      }
+     ]
+    }
+   },
+   "summary": "industry_matches → 2 public postmortem(s): Slack — Slack's Incident on 2-22-22",
+   "ts": 1792017942,
+   "ms": 1,
+   "llm_call": 10,
+   "step_id": "step:20261014T224542-bdedf3-020"
+  },
+  {
+   "seq": 21,
    "agent": "communicator",
    "action": "page",
    "tool": "page_person",
@@ -2757,13 +2855,13 @@
     }
    },
    "summary": "page_person → paged Priya Nair for INC-2026-032 (simulated): INC-2026-032 sev 2: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes. Li…",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 1,
    "llm_call": 11,
-   "step_id": "step:20261014T223738-7e4916-020"
+   "step_id": "step:20261014T224542-bdedf3-021"
   },
   {
-   "seq": 21,
+   "seq": 22,
    "agent": "communicator",
    "action": "write",
    "tool": "open_ticket",
@@ -2793,7 +2891,7 @@
       "params": {
        "title": "INC-2026-032 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
        "text": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster (dep:risk-rules-v2.8.0, deployed 40 min ago by Leo Park). payments-api calls risk-rules via declared dependencies: payments-api -> fraud-scoring -> risk-rules. Conflicts with dec:rules-cache-ttl. Actions: Roll back dep:risk-rules-v2.8.0 on risk-rules. Page Priya Nair (per:priya-nair). Restore the setting required by dec:rules-cache-ttl before re-shipping. Follow the INC-2025-031 fix: Rolled back TTL to 300s and added cache warm-up.",
-       "now": 1792017458,
+       "now": 1792017942,
        "priority": "P2"
       },
       "write": true
@@ -2803,7 +2901,7 @@
       "params": {
        "id": "tkt:OPS-1",
        "x": "svc:risk-rules",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -2812,7 +2910,7 @@
       "params": {
        "id": "tkt:OPS-1",
        "x": "inc:2026-032",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      },
@@ -2820,8 +2918,8 @@
       "cypher": "MATCH (n:Ticket {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "tkt:OPS-1",
-       "ses": "ses:20261014T223738-7e4916",
-       "now": 1792017458
+       "ses": "ses:20261014T224542-bdedf3",
+       "now": 1792017942
       },
       "write": true
      }
@@ -2831,7 +2929,7 @@
       "tkt:OPS-1",
       "svc:risk-rules",
       "inc:2026-032",
-      "ses:20261014T223738-7e4916"
+      "ses:20261014T224542-bdedf3"
      ],
      "edges": [
       {
@@ -2847,19 +2945,19 @@
       {
        "from": "tkt:OPS-1",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T223738-7e4916"
+       "to": "ses:20261014T224542-bdedf3"
       }
      ]
     }
    },
    "summary": "open_ticket → opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 2,
    "llm_call": 11,
-   "step_id": "step:20261014T223738-7e4916-021"
+   "step_id": "step:20261014T224542-bdedf3-022"
   },
   {
-   "seq": 22,
+   "seq": 23,
    "agent": "communicator",
    "action": "write",
    "tool": "flag_stale",
@@ -2884,7 +2982,7 @@
       "params": {
        "id": "doc:risk-rules-readme",
        "reason": "author_left; names_departed_person (Arjun Mehta); old_vs_changes (3 deploys since); missing_learned_dependency (svc:config-service)",
-       "now": 1792017458
+       "now": 1792017942
       },
       "write": true
      }
@@ -2897,13 +2995,13 @@
     }
    },
    "summary": "flag_stale → flagged doc:risk-rules-readme stale: author_left; names_departed_person (Arjun Mehta); old_vs_changes (3 deploys since); missing_learned…",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 11,
-   "step_id": "step:20261014T223738-7e4916-022"
+   "step_id": "step:20261014T224542-bdedf3-023"
   },
   {
-   "seq": 23,
+   "seq": 24,
    "agent": "communicator",
    "action": "handoff",
    "tool": "submit_report",
@@ -2969,6 +3067,7 @@
      "Follow the INC-2025-031 fix: Rolled back TTL to 300s and added cache warm-up."
     ],
     "confidence": "high",
+    "industry_pattern": "Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
     "actions_taken": [
      "paged Priya Nair for INC-2026-032 (simulated): INC-2026-032 sev 2: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes. Li…",
      "opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
@@ -3047,6 +3146,7 @@
       "Follow the INC-2025-031 fix: Rolled back TTL to 300s and added cache warm-up."
      ],
      "confidence": "high",
+     "industry_pattern": "Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
      "actions_taken": [
       "paged Priya Nair for INC-2026-032 (simulated): INC-2026-032 sev 2: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes. Li…",
       "opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
@@ -3079,10 +3179,10 @@
     }
    },
    "summary": "INC-2026-032: payments-api 5xx rate 12% and p99 4.1s on payments-api. Likely cause dep:risk-rules-v2.8.0 on risk-rules. Seen before: inc:2025-031, fixed by Priya Nair, Arjun Mehta.",
-   "ts": 1792017458,
+   "ts": 1792017942,
    "ms": 0,
    "llm_call": 12,
-   "step_id": "step:20261014T223738-7e4916-023"
+   "step_id": "step:20261014T224542-bdedf3-024"
   }
  ]
 }

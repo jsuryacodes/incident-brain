@@ -76,3 +76,12 @@ def test_api_and_mcp_accept_the_second_tenant(tenants, monkeypatch):
             return await m.call_tool("recent_changes_downstream", {"service_id": "svc:patient-portal", "since_minutes": 120})
     r = anyio.run(go)
     assert json.loads(r.content[0].text)["hits"][0]["deploy"]["id"] == "dep:notifications-v3.2.0"
+
+
+def test_public_postmortems_in_every_tenant(tenants):
+    kp, nw, _ = tenants
+    for t in (kp, nw):
+        n = get_graph(t).ro_query("MATCH (p:PublicPostmortem)-[:HAS_ROOT_CAUSE]->(:RootCause) RETURN count(DISTINCT p)").result_set[0][0]
+        assert n >= 15
+    r = call("industry_matches", {"incident_id": "inc:nw-2025-14"}, ToolContext(tenant=nw)).result  # Northwind's own retry storm
+    assert r["root_causes"] == ["rc:retry-storm"] and r["matches"]

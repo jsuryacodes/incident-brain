@@ -147,8 +147,10 @@ GOOD = [
     ("read_source", {"node_id": "chat:risk-eng-config-load"}), ("read_source", {"node_id": "rb:fraud-scoring-latency"}),
     ("read_source", {"node_id": "dec:rules-cache-ttl"}), ("get_incident_state", {"incident_id": "inc:2025-031"}),
     ("memory_recall", {"service_id": PO}), ("memory_recall", {"service_id": PA, "max_hops": 6}),
+    ("industry_matches", {"incident_id": "inc:2025-031"}), ("industry_matches", {"root_cause_id": "rc:bad-config-push", "limit": 10}),
 ]
-LIMITS = {"read_source": gt.SOURCE_CHARS + 1200, "get_incident_state": gt.STATE_CHARS, "memory_recall": 4500}  # deliberately bigger
+LIMITS = {"read_source": gt.SOURCE_CHARS + 1200, "get_incident_state": gt.STATE_CHARS, "memory_recall": 4500,
+          "industry_matches": 4000}  # deliberately bigger
 BAD = [
     ("find_service", {"query": ""}), ("blast_radius", {"service_id": "svc:nope"}), ("blast_radius", {"service_id": "per:priya-nair"}),
     ("recent_changes_downstream", {"service_id": "nope"}), ("shared_dependency_changes", {"service_id": "svc:nope"}),
@@ -159,6 +161,8 @@ BAD = [
     ("not_a_tool", {}), ("blast_radius", {}), ("read_source", {"node_id": "svc:risk-rules"}),
     ("read_source", {"node_id": "doc:nope"}), ("get_incident_state", {"incident_id": "inc:nope"}),
     ("memory_recall", {"service_id": "svc:nope"}), ("memory_recall", {}),
+    ("industry_matches", {}), ("industry_matches", {"incident_id": "inc:nope"}),
+    ("industry_matches", {"incident_id": "inc:2025-031", "root_cause_id": "rc:retry-storm"}), ("industry_matches", {"root_cause_id": "svc:x"}),
 ]
 
 
@@ -232,3 +236,11 @@ def test_18_memory_recall_turns_a_learned_edge_into_a_suspect(ctx, learned_edge)
         r = call("memory_recall", {"service_id": PO}, ctx).result
     assert [(e["from"], e["to"]) for e in r["learned_edges"]] == [(RR, CS)]
     assert r["suspects"] == [{"service": RR, "relation": "shares_dependency", "via": [f"learned edge {RR} -> {CS}"], "shared": CS}]
+
+
+def test_19_industry_matches_share_a_root_cause(ctx):
+    r = call("industry_matches", {"incident_id": "inc:2025-031"}, ctx).result
+    assert r["root_causes"] == ["rc:cache-ttl-thundering-herd"] and len(r["matches"]) >= 2
+    assert all(m["url"].startswith("https://") and "rc:cache-ttl-thundering-herd" in m["shared_root_causes"] for m in r["matches"])
+    many = call("industry_matches", {"root_cause_id": "rc:bad-config-push", "limit": 10}, ctx).result
+    assert many["match_count"] >= 5 and len({m["company"] for m in many["matches"]}) >= 3

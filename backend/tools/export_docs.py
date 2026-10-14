@@ -1,10 +1,12 @@
-"""python -m backend.tools.export_docs  ->  docs/cypher.md, generated from the registry."""
+"""python -m backend.tools.export_docs  ->  docs/cypher.md (from the registry) and docs/postmortems.md (from the public postmortems seed)."""
 import json
 from pathlib import Path
 
 from backend.tools.registry import ALL_TRACKS, TOOLS
 
-OUT = Path(__file__).resolve().parents[2] / "docs" / "cypher.md"
+ROOT = Path(__file__).resolve().parents[2]
+OUT = ROOT / "docs" / "cypher.md"
+PM_OUT = ROOT / "docs" / "postmortems.md"
 
 
 def render():
@@ -46,6 +48,31 @@ def render():
     return "\n".join(L)
 
 
+def render_postmortems():
+    d = json.loads((ROOT / "seed" / "data" / "public_postmortems.json").read_text())
+    names = d["root_causes"]
+    L = ["# Public postmortems (industry pattern layer)", "",
+         "> **Generated** by `python -m backend.tools.export_docs` from `seed/data/public_postmortems.json`. Do not edit by hand.", "",
+         f"{len(d['postmortems'])} real, publicly available incident write-ups from company engineering blogs and status pages. "
+         "Each is loaded into **every** tenant graph as a `PublicPostmortem` node with `HAS_ROOT_CAUSE` edges, so "
+         "`industry_matches` can answer \"has anyone else had this?\" with a two-hop graph query, and the postmortem pass "
+         "writes `SIMILAR_TO {score, reason}` from a resolved incident to the best 1–2 matches.", "",
+         "**The summaries are our own words** (≤ 60 words each), written after reading each linked page on 15 Oct 2026. "
+         "They are not quotes; read the original for the authoritative account. Only pages whose facts could be checked "
+         "on the page itself were included. `published` is the page's date, or the incident date when the page shows none.", "",
+         "| Company | Title | Published | Our summary | Root-cause tags |", "|---|---|---|---|---|"]
+    for p in sorted(d["postmortems"], key=lambda p: p["published_at"], reverse=True):
+        tags = ", ".join(f"`{r}`" for r in p["root_causes"])
+        L.append(f"| {p['company']} | [{p['title']}]({p['url']}) | {p['published_at']} | {p['summary']} | {tags} |")
+    L += ["", "## Root-cause tags", "", "| id | name | meaning |", "|---|---|---|"]
+    L += [f"| `{k}` | {n} | {desc} |" for k, (n, desc) in names.items()]
+    L += ["", "A tenant that already defines one of these ids (Kestrel Pay defines `rc:cache-ttl-thundering-herd`, "
+          "`rc:bad-config-push`, `rc:retry-storm`; Northwind Health `rc:retry-storm`) keeps its own name and description; "
+          "the others are added by the loader.", ""]
+    return "\n".join(L)
+
+
 if __name__ == "__main__":
     OUT.write_text(render())
-    print(f"wrote {OUT} ({len(OUT.read_text().splitlines())} lines)")
+    PM_OUT.write_text(render_postmortems())
+    print(f"wrote {OUT} ({len(OUT.read_text().splitlines())} lines) and {PM_OUT}")
