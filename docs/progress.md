@@ -10,8 +10,8 @@ Resume point for `docs/prompts/05-mega.md`. Continue from the first milestone no
 |---|---|---|
 | M1 Firefighter agent | DONE (live check SKIPPED, no key) | 5f54e03 |
 | M2 Memory write-back + team + Session 2 | DONE (live check SKIPPED, no key) | 66db978 |
-| M3 Ask the Brain | IN PROGRESS | — |
-| M4 MCP server | TODO | — |
+| M3 Ask the Brain | DONE (live check SKIPPED, no key) | bd91e13 |
+| M4 MCP server | IN PROGRESS | — |
 | M5 Backend API | TODO | — |
 | M6 Second tenant | TODO | — |
 
@@ -76,3 +76,30 @@ Mock result: S1 finds `dep:risk-rules-v2.8.0`, learns `risk-rules → config-ser
 - Live run of the story never done (no key). When a key exists: `python -m backend.demo story --live` (about 30 Haiku calls).
 - `get_incident_state` may return up to 10,000 chars (≈2.5k tokens); fine for a few sessions per incident.
 - Incident keys assume < 1,000 incidents per year (3-digit sequence).
+
+## M3 — Ask the Brain + persistent conversation history
+**Status:** DONE · commit `bd91e13` · live check: **SKIPPED (no key)** · live spend $0.00
+
+**What was built**
+- `backend/agents/brain.py`: `ask(tenant, user, question, session_id=None)` and `list_sessions(tenant, user)`, plus the CLI. Brain agent = 8 read tools + `flag_stale` + `submit_answer {answer ≤150 words, citations [{node_id, excerpt}], people, stale_warnings}`.
+- Each turn is an `answer` Step in a `brain` Session; `params_json` holds question, answer, citations and people.
+- `backend/agents/brain_eval.py`: the 5 canned questions with expected citations/people. Mock: 5/5 on a fresh seed and 5/5 after the M2 story (Q4 then also reports `missing_learned_dependency`).
+
+**How to run**
+```
+python -m backend.agents.brain ask "Why must RULES_CACHE_TTL stay at 300 seconds?"
+python -m backend.agents.brain ask "Who should I talk to about that?" --session ses:...   # works in a new process
+python -m backend.agents.brain sessions --user jaya
+python -m backend.agents.brain_eval            # add --live for one Haiku pass (~20 calls)
+```
+
+**Decisions (plain language)**
+- *Conversation memory lives in the graph.* A follow-up loads the earlier turns from that session's `answer` Steps and replays them as history. Nothing is kept in process memory, so "who should I talk to about that?" works after a restart, and every turn is inspectable in the Browser.
+- *"That" is resolved from what was cited.* The follow-up's subject comes from the sources cited in the earlier answer (e.g. `dec:rules-cache-ttl` is ABOUT `svc:risk-rules`), not from guessing.
+- *Answers must quote.* At least one citation whose excerpt is a literal quote of the cited node, unless the Brain says it doesn't know. Fake ids, misquotes and missing citations are rejected (one retry), same rules as the incident agents.
+- *Search with specific terms.* Full-text search on the whole question is weak, so the Brain searches for config keys, service names and Title Case names, then reads the best sources in full.
+- *Sessions are per user.* `list_sessions` filters on the Session's `user`; continuing someone else's session is refused.
+
+**Open issues**
+- Live eval never run (no key).
+- A "who" answer with no source mentioning the person falls back to "I don't know", because citations are mandatory. A softer fallback (cite the past incident's postmortem) could be added.
