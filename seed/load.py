@@ -9,7 +9,7 @@ import time
 from collections import Counter, defaultdict
 
 from dotenv import load_dotenv
-from falkordb import FalkorDB
+from seed.conn import connect
 
 from seed import schema, timeutil
 
@@ -171,7 +171,7 @@ def load(graph_name, reset=True, now=None, data_package=None, quiet=False):
     if errs:
         raise ValueError(f"VALIDATION FAILED ({len(errs)} problems), nothing written:\n" + "\n".join("  - " + e for e in errs))
 
-    db = FalkorDB(host=os.getenv("FALKORDB_HOST", "localhost"), port=int(os.getenv("FALKORDB_PORT", "6379")))
+    db = connect()
     if reset:
         try:
             db.select_graph(graph_name).delete()

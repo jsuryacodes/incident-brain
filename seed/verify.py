@@ -2,12 +2,11 @@
 Prints every Cypher query it runs (the receipts) and PASS/FAIL per check; exits 1 on any failure.
 'Recent' checks are relative to now: run right after loading (or pass the same --now as the load)."""
 import argparse
-import os
 import sys
 import time
 
 from dotenv import load_dotenv
-from falkordb import FalkorDB
+from seed.conn import connect
 
 from seed import schema
 
@@ -28,7 +27,7 @@ def main():
     args = ap.parse_args()
     pkg = args.data or (args.graph if args.graph in ("kestrel_pay", "northwind_health") else "kestrel_pay")
     load_dotenv()
-    g = FalkorDB(host=os.getenv("FALKORDB_HOST", "localhost"), port=int(os.getenv("FALKORDB_PORT", "6379"))).select_graph(args.graph)
+    g = connect().select_graph(args.graph)
     since = args.now - 2 * 3600
     results = []
 

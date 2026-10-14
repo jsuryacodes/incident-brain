@@ -57,15 +57,26 @@ def test_graph_overview_and_node(client, tenant):
     assert client.get("/api/node/svc:nope", params={"tenant": tenant}).status_code == 404
 
 
-def test_team_run_streams_in_order_and_is_forced_to_mock(client, tenant):
-    ev = run_team(client, tenant, live=True)  # asks for live without a code
+def test_fresh_runs_need_the_code(client, tenant):
+    body = {"tenant": tenant, "service_id": "svc:payments-api", "symptom": "5xx rate 12%"}
+    assert client.post("/api/team/run", json=body).status_code == 403
+    assert client.post("/api/team/run", json=body, headers={"X-Access-Code": "wrong"}).status_code == 403
+    r = client.post("/api/incidents/inc:2026-032/resolve", json={"tenant": tenant, "resolved_by_ids": ["per:priya-nair"],
+                                                                 "what_fixed_it": "Priya rolled back RULES_CACHE_TTL"})
+    assert r.status_code == 403
+
+
+def test_team_run_streams_in_order_and_is_forced_to_mock(client, tenant, monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "")
+    ev = run_team(client, tenant, {"X-Access-Code": CODE}, live=True)  # asks for live: the server has no key
     names = [e for e, _ in ev]
-    assert ev[0][0] == "start" and ev[0][1]["mode"] == "mock" and "access code" in ev[0][1]["mode_reason"]
+    assert ev[0][0] == "start" and ev[0][1]["mode"] == "mock" and "ANTHROPIC_API_KEY" in ev[0][1]["mode_reason"]
     for a, b in (("step", "handoff"), ("handoff", "report"), ("report", "done")):
         assert names.index(a) < names.index(b)
     assert names.count("handoff") == 3 and names[-1] == "done" and "error" not in names
     step = next(d for e, d in ev if e == "step")
-    assert {"agent", "tool", "args", "summary", "receipt"} <= set(step)
+    assert {"seq", "agent", "tool", "args", "summary", "cypher", "params", "result_preview", "highlight", "cited",
+            "writes", "elements", "mode"} <= set(step) and step["mode"] == "mock"
     assert any(d["tool"] == "open_incident" for e, d in ev if e == "write")
     report = next(d for e, d in ev if e == "report")
     assert report["report"]["likely_cause"]["deploy_id"] == "dep:risk-rules-v2.8.0"
@@ -80,21 +91,22 @@ def test_team_run_streams_in_order_and_is_forced_to_mock(client, tenant):
 
 
 def test_resolve_endpoint(client, tenant):
-    inc = next(d for e, d in run_team(client, tenant) if e == "report")["incident_id"]
-    r = client.post(f"/api/incidents/{inc}/resolve", json={"tenant": tenant, "resolved_by_ids": ["per:priya-nair"],
+    inc = next(d for e, d in run_team(client, tenant, {"X-Access-Code": CODE}) if e == "report")["incident_id"]
+    r = client.post(f"/api/incidents/{inc}/resolve", headers={"X-Access-Code": CODE}, json={"tenant": tenant, "resolved_by_ids": ["per:priya-nair"],
                                                             "what_fixed_it": "Priya rolled back RULES_CACHE_TTL to 300s"})
     assert r.status_code == 200 and r.json()["status"] == "ok" and r.json()["mode"] == "mock"
 
 
 def test_brain_ask_and_sessions(client, tenant):
-    r = client.post("/api/brain/ask", json={"tenant": tenant, "user": "ann", "question": "Why must RULES_CACHE_TTL stay at 300 seconds?"}).json()
-    assert r["mode"] == "mock" and {c["node_id"] for c in r["citations"]} >= {"dec:rules-cache-ttl"}
-    f = client.post("/api/brain/ask", json={"tenant": tenant, "user": "ann", "question": "Who should I talk to about that?",
-                                            "session_id": r["session_id"]}).json()
+    code = {"X-Access-Code": CODE}  # with the code the conversation is persisted in the graph
+    r = client.post("/api/brain/ask", headers=code, json={"tenant": tenant, "user": "ann", "question": "Why must RULES_CACHE_TTL stay at 300 seconds?"}).json()
+    assert r["mode"] == "mock" and {c["node_id"] for c in r["citations"]} >= {"dec:rules-cache-ttl"} and r["persisted"]
+    f = client.post("/api/brain/ask", headers=code, json={"tenant": tenant, "user": "ann", "question": "Who should I talk to about that?",
+                                                          "session_id": r["session_id"]}).json()
     assert "per:priya-nair" in f["people"] and f["turn"] == 2
     assert r["session_id"] in {s["id"] for s in client.get("/api/sessions", params={"tenant": tenant, "user": "ann"}).json()}
     assert r["session_id"] not in {s["id"] for s in client.get("/api/sessions", params={"tenant": tenant, "user": "bo"}).json()}
-    stolen = client.post("/api/brain/ask", json={"tenant": tenant, "user": "bo", "question": "x?", "session_id": r["session_id"]})
+    stolen = client.post("/api/brain/ask", headers=code, json={"tenant": tenant, "user": "bo", "question": "x?", "session_id": r["session_id"]})
     assert stolen.status_code == 403
 
 
@@ -103,6 +115,8 @@ def test_replay_golden(client):
         ev = events(r)
     names = [e for e, _ in ev]
     assert ev[0][1]["mode"] == "replay" and names.count("handoff") == 3 and names[-2:] == ["report", "done"]
+    learned = [d for e, d in ev if e == "step" and d["tool"] == "record_learned_dependency"][0]
+    assert any(w["type"] == "DEPENDS_ON" and w["origin"] == "agent" for w in learned["writes"]["edges"])
     assert client.post("/api/replay/..%2F..%2F.env").status_code == 404
     assert client.post("/api/replay/nope.json").status_code == 404
 

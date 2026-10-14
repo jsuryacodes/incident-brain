@@ -18,7 +18,7 @@ from backend.agents.team import memory_tools
 from backend.db import get_graph
 from backend.llm import LLMClient
 from backend.memory.sessions import StepLog, end_session, start_session, step_id
-from backend.tools.receipt import ToolContext
+from backend.tools.receipt import ToolContext, ToolOutput
 
 READ = ["search_knowledge", "decisions_about", "who_to_call", "read_source", "node_details", "stale_knowledge",
         "find_service", "past_incidents", "blast_radius", "industry_matches"]
@@ -80,16 +80,26 @@ def list_sessions(tenant, user):
             for i, m, st, at, n in get_graph(tenant).ro_query(Q_LIST, {"user": user}).result_set]
 
 
-def ask(tenant, user, question, session_id=None, llm=None, on_step=None, max_steps=8):
+def not_persisted(ctx, args):
+    return ToolOutput({"skipped": "not saved: this answer is not persisted (no access code)"},
+                      {"tool": "flag_stale", "args": args, "queries": [], "highlight": {"nodes": [], "edges": []}})
+
+
+def ask(tenant, user, question, session_id=None, llm=None, on_step=None, max_steps=8, persist=True, turns=None):
+    """persist=False: nothing is written (no Session/Step, flag_stale is a no-op); follow-ups then use `turns`, the
+    earlier [{question, answer, citations, people}] the caller kept."""
     llm, t0 = llm or LLMClient(), time.time()
-    turns, last_seq = load_turns(tenant, session_id, user) if session_id else ([], 0)
-    session_id = session_id or start_session(tenant, user, "brain")
+    if persist:
+        turns, last_seq = load_turns(tenant, session_id, user) if session_id else ([], 0)
+        session_id = session_id or start_session(tenant, user, "brain")
+        log = StepLog(tenant, session_id)
+        log.prev = step_id(session_id, last_seq) if last_seq else None
+    else:
+        turns, last_seq, session_id, log = list(turns or []), 0, None, (lambda step: None)
     ctx = ToolContext(tenant=tenant, session_id=session_id)
-    log = StepLog(tenant, session_id)
-    log.prev = step_id(session_id, last_seq) if last_seq else None
     steps = []
 
-    def persist(step):
+    def record(step):
         if step["action"] == "answer":  # the turn record: question + answer + citations
             step = {**step, "args": {**step["args"], "question": question}}
         log(step)
@@ -98,14 +108,17 @@ def ask(tenant, user, question, session_id=None, llm=None, on_step=None, max_ste
             on_step(step)
     graph, totals = get_graph(tenant), new_totals()
     tools = {**read_tools(READ), **memory_tools(["flag_stale"]), "submit_answer": SUBMIT_ANSWER}
+    if not persist:
+        tools["flag_stale"] = {**tools["flag_stale"], "fn": not_persisted}
     rec = run_agent("brain", (PROMPTS / "brain.md").read_text(), tools,
                     payload_message("Answer this question about the company using the graph tools.", {"question": question}),
                     ctx, llm, max_steps=max_steps, validate=lambda n, a, seen: check_answer(a, seen, graph),
-                    history=history_messages(turns), on_step=persist, totals=totals, seq_start=last_seq)
-    end_session(tenant, session_id, "open" if rec["status"] == "ok" else rec["status"])
+                    history=history_messages(turns), on_step=record, totals=totals, seq_start=last_seq)
+    if persist:
+        end_session(tenant, session_id, "open" if rec["status"] == "ok" else rec["status"])
     out = rec["report"] or {"answer": None, "citations": [], "people": [], "stale_warnings": []}
     return {"session_id": session_id, "question": question, "status": rec["status"], **out,
-            "grounding": rec["grounding"], "turn": len(turns) + 1, "mode": llm.mode, "steps": steps,
+            "grounding": rec["grounding"], "turn": len(turns) + 1, "mode": llm.mode, "steps": steps, "persisted": persist,
             "totals": {**totals, "duration_ms": int((time.time() - t0) * 1000)}}
 
 

@@ -97,7 +97,8 @@ def time_to_cause(steps):
 
 def step_events(step):
     """The SSE events one step produces (shared by live runs and golden replays)."""
-    out = [("step", {k: step.get(k) for k in ("seq", "agent", "action", "tool", "args", "summary", "receipt", "ts", "ms")})]
+    out = [("step", {k: step.get(k) for k in ("seq", "agent", "action", "tool", "args", "summary", "receipt", "result", "ts",
+                                              "ms", "llm_call")})]
     if step["action"] in ("write", "page"):
         out.append(("write", {"agent": step["agent"], "tool": step["tool"], "summary": step["summary"],
                               "queries": step["receipt"]["queries"]}))

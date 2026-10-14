@@ -1,11 +1,11 @@
 {
- "run_id": "run-8b5af4658520",
+ "run_id": "run-aed749200096",
  "agent": "team",
  "tenant": "kestrel_pay",
  "mode": "mock",
  "model": "mock",
- "session_id": "ses:20261014T230101-bcf22f",
- "started_at": 1792018861,
+ "session_id": "ses:20261014T232619-fb6be5",
+ "started_at": 1792020379,
  "status": "ok",
  "alert": {
   "service_id": "svc:payouts-service",
@@ -344,7 +344,7 @@
   "cost_usd": 0.0,
   "llm_calls": 11,
   "tool_calls": 18,
-  "duration_ms": 102
+  "duration_ms": 145
  },
  "steps": [
   {
@@ -387,10 +387,10 @@
     }
    },
    "summary": "find_service → matches: svc:payouts-service",
-   "ts": 1792018861,
+   "ts": 1792020379,
    "ms": 0,
    "llm_call": 1,
-   "step_id": "step:20261014T230101-bcf22f-001"
+   "step_id": "step:20261014T232619-fb6be5-001"
   },
   {
    "seq": 2,
@@ -435,10 +435,10 @@
     }
    },
    "summary": "blast_radius → 0 upstream (0 tier-1)",
-   "ts": 1792018861,
+   "ts": 1792020379,
    "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T230101-bcf22f-002"
+   "step_id": "step:20261014T232619-fb6be5-002"
   },
   {
    "seq": 3,
@@ -556,10 +556,10 @@
     }
    },
    "summary": "critical_services → pagerank: config-service, config-db, kafka-events, ledger-service",
-   "ts": 1792018861,
+   "ts": 1792020379,
    "ms": 0,
    "llm_call": 1,
-   "step_id": "step:20261014T230101-bcf22f-003"
+   "step_id": "step:20261014T232619-fb6be5-003"
   },
   {
    "seq": 4,
@@ -677,10 +677,10 @@
     }
    },
    "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)",
-   "ts": 1792018861,
-   "ms": 1,
+   "ts": 1792020379,
+   "ms": 2,
    "llm_call": 1,
-   "step_id": "step:20261014T230101-bcf22f-004"
+   "step_id": "step:20261014T232619-fb6be5-004"
   },
   {
    "seq": 5,
@@ -714,7 +714,7 @@
        "title": "payouts-service: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
        "severity": 2,
        "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
-       "now": 1792018861
+       "now": 1792020379
       },
       "write": true
      },
@@ -723,8 +723,8 @@
       "params": {
        "id": "inc:2026-033",
        "svc": "svc:payouts-service",
-       "ses": "ses:20261014T230101-bcf22f",
-       "now": 1792018861
+       "ses": "ses:20261014T232619-fb6be5",
+       "now": 1792020379
       },
       "write": true
      }
@@ -733,7 +733,7 @@
      "nodes": [
       "inc:2026-033",
       "svc:payouts-service",
-      "ses:20261014T230101-bcf22f"
+      "ses:20261014T232619-fb6be5"
      ],
      "edges": [
       {
@@ -742,7 +742,7 @@
        "to": "svc:payouts-service"
       },
       {
-       "from": "ses:20261014T230101-bcf22f",
+       "from": "ses:20261014T232619-fb6be5",
        "type": "FOR_INCIDENT",
        "to": "inc:2026-033"
       }
@@ -750,10 +750,10 @@
     }
    },
    "summary": "open_incident → opened INC-2026-033 (inc:2026-033), severity 2, on svc:payouts-service",
-   "ts": 1792018861,
+   "ts": 1792020379,
    "ms": 1,
    "llm_call": 2,
-   "step_id": "step:20261014T230101-bcf22f-005"
+   "step_id": "step:20261014T232619-fb6be5-005"
   },
   {
    "seq": 6,
@@ -820,10 +820,10 @@
     }
    },
    "summary": "Opened INC-2026-033 (inc:2026-033) at severity 2: payouts-service is tier 1 with 0 upstream callers (0 tier-1); not in the PageRank top 10. Blast radius: no tier-1 callers. Seen on this service before: INC-2025-044.",
-   "ts": 1792018861,
+   "ts": 1792020379,
    "ms": 0,
    "llm_call": 3,
-   "step_id": "step:20261014T230101-bcf22f-006"
+   "step_id": "step:20261014T232619-fb6be5-006"
   },
   {
    "seq": 7,
@@ -862,7 +862,7 @@
         }
        ]
       },
-      "session": "ses:20261014T230101-83c2b6"
+      "session": "ses:20261014T232618-763572"
      }
     ],
     "facts": [],
@@ -892,7 +892,7 @@
         "name": "Priya Nair"
        }
       ],
-      "session": "ses:20261014T230101-83c2b6",
+      "session": "ses:20261014T232618-763572",
       "runbook": {
        "id": "rb:fraud-scoring-latency-v2",
        "title": "Runbook: fraud-scoring latency",
@@ -1042,10 +1042,10 @@
     }
    },
    "summary": "memory_recall → 1 learned edge(s), 0 fact(s), 1 resolved incident(s); suspect: risk-rules",
-   "ts": 1792018861,
-   "ms": 2,
+   "ts": 1792020379,
+   "ms": 3,
    "llm_call": 4,
-   "step_id": "step:20261014T230101-bcf22f-007"
+   "step_id": "step:20261014T232619-fb6be5-007"
   },
   {
    "seq": 8,
@@ -1067,7 +1067,7 @@
       "deploy": {
        "id": "dep:risk-rules-v2.8.1",
        "version": "2.8.1",
-       "ts": 1792018561,
+       "ts": 1792020079,
        "minutes_ago": 5,
        "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
        "by": "Leo Park"
@@ -1104,7 +1104,7 @@
       "deploy": {
        "id": "dep:risk-rules-v2.8.0",
        "version": "2.8.0",
-       "ts": 1792016461,
+       "ts": 1792017978,
        "minutes_ago": 40,
        "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster",
        "by": "Leo Park"
@@ -1155,7 +1155,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792011661,
+       "since": 1792013179,
        "downstream": [
         "svc:ledger-service",
         "svc:bank-connector",
@@ -1224,10 +1224,10 @@
     }
    },
    "summary": "shared_dependency_changes → 2 hit(s): risk-rules via shared config-service (LEARNED edge), deployed 5 min ago",
-   "ts": 1792018861,
-   "ms": 1,
+   "ts": 1792020379,
+   "ms": 3,
    "llm_call": 5,
-   "step_id": "step:20261014T230101-bcf22f-008"
+   "step_id": "step:20261014T232619-fb6be5-008"
   },
   {
    "seq": 9,
@@ -1276,7 +1276,7 @@
         "svc:config-service",
         "svc:risk-rules"
        ],
-       "now": 1792018861
+       "now": 1792020379
       },
       "write": true
      },
@@ -1285,7 +1285,7 @@
       "params": {
        "id": "inc:2026-033",
        "t": "dep:risk-rules-v2.8.1",
-       "now": 1792018861
+       "now": 1792020379
       },
       "write": true
      },
@@ -1294,7 +1294,7 @@
       "params": {
        "id": "inc:2026-033",
        "t": "svc:risk-rules",
-       "now": 1792018861
+       "now": 1792020379
       },
       "write": true
      },
@@ -1303,7 +1303,7 @@
       "params": {
        "id": "inc:2026-033",
        "t": "rc:cache-ttl-thundering-herd",
-       "now": 1792018861
+       "now": 1792020379
       },
       "write": true
      }
@@ -1346,10 +1346,10 @@
     }
    },
    "summary": "update_incident → INC-2026-033: affected +2; cause dep:risk-rules-v2.8.1; cause svc:risk-rules; root cause rc:cache-ttl-thundering-herd",
-   "ts": 1792018861,
-   "ms": 3,
+   "ts": 1792020379,
+   "ms": 4,
    "llm_call": 6,
-   "step_id": "step:20261014T230101-bcf22f-009"
+   "step_id": "step:20261014T232619-fb6be5-009"
   },
   {
    "seq": 10,
@@ -1384,7 +1384,7 @@
        "o": "inc:2026-032",
        "score": 0.9,
        "reason": "also caused by a change to risk-rules: payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
-       "now": 1792018861
+       "now": 1792020379
       },
       "write": true
      }
@@ -1404,10 +1404,10 @@
     }
    },
    "summary": "link_similar → inc:2026-033 SIMILAR_TO inc:2026-032 (0.9): also caused by a change to risk-rules: payments-api: 5xx rate 12% and p99 4.1s …",
-   "ts": 1792018861,
+   "ts": 1792020379,
    "ms": 1,
    "llm_call": 6,
-   "step_id": "step:20261014T230101-bcf22f-010"
+   "step_id": "step:20261014T232619-fb6be5-010"
   },
   {
    "seq": 11,
@@ -1481,10 +1481,10 @@
     }
    },
    "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s",
-   "ts": 1792018861,
-   "ms": 0,
+   "ts": 1792020379,
+   "ms": 1,
    "llm_call": 6,
-   "step_id": "step:20261014T230101-bcf22f-011"
+   "step_id": "step:20261014T232619-fb6be5-011"
   },
   {
    "seq": 12,
@@ -1938,10 +1938,10 @@
     }
    },
    "summary": "past_incidents → 5 incident(s): INC-2026-033, INC-2026-032 (fixed by Priya Nair), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)",
-   "ts": 1792018861,
-   "ms": 2,
+   "ts": 1792020379,
+   "ms": 3,
    "llm_call": 6,
-   "step_id": "step:20261014T230101-bcf22f-012"
+   "step_id": "step:20261014T232619-fb6be5-012"
   },
   {
    "seq": 13,
@@ -2082,10 +2082,10 @@
     }
    },
    "summary": "who_to_call → top: Priya Nair (score 73); maintainer Arjun Mehta LEFT",
-   "ts": 1792018861,
-   "ms": 2,
+   "ts": 1792020379,
+   "ms": 3,
    "llm_call": 6,
-   "step_id": "step:20261014T230101-bcf22f-013"
+   "step_id": "step:20261014T232619-fb6be5-013"
   },
   {
    "seq": 14,
@@ -2120,7 +2120,7 @@
        "o": "inc:2025-031",
        "score": 0.8,
        "reason": "also caused by a change to risk-rules: fraud-scoring timeouts during checkout peak",
-       "now": 1792018861
+       "now": 1792020379
       },
       "write": true
      }
@@ -2140,10 +2140,10 @@
     }
    },
    "summary": "link_similar → inc:2026-033 SIMILAR_TO inc:2025-031 (0.8): also caused by a change to risk-rules: fraud-scoring timeouts during checkout p…",
-   "ts": 1792018861,
-   "ms": 1,
+   "ts": 1792020379,
+   "ms": 2,
    "llm_call": 7,
-   "step_id": "step:20261014T230101-bcf22f-014"
+   "step_id": "step:20261014T232619-fb6be5-014"
   },
   {
    "seq": 15,
@@ -2367,10 +2367,10 @@
     }
    },
    "summary": "From memory: Seen before: INC-2026-032, fixed by Priya Nair (Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered), see Runbook v2 step 2 (rb:fraud-scoring-latency-v2). Cause: dep:risk-rules-v2.8.1 on risk-rules (RISK-412 follow-up: re-enable 5s TTL for EU ruleset), path payouts-service -> config-service -> risk-rules via a LEARNED dependency. It contradicts dec:rules-cache-ttl (chat:risk-eng-config-load). Contact candidates: Priya Nair, Leo Park, Dana Okafor.",
-   "ts": 1792018861,
+   "ts": 1792020379,
    "ms": 0,
    "llm_call": 8,
-   "step_id": "step:20261014T230101-bcf22f-015"
+   "step_id": "step:20261014T232619-fb6be5-015"
   },
   {
    "seq": 16,
@@ -2511,10 +2511,10 @@
     }
    },
    "summary": "who_to_call → top: Priya Nair (score 73); maintainer Arjun Mehta LEFT",
-   "ts": 1792018861,
-   "ms": 2,
+   "ts": 1792020379,
+   "ms": 3,
    "llm_call": 9,
-   "step_id": "step:20261014T230101-bcf22f-016"
+   "step_id": "step:20261014T232619-fb6be5-016"
   },
   {
    "seq": 17,
@@ -2598,10 +2598,10 @@
     }
    },
    "summary": "stale_knowledge → 1 stale: doc:risk-rules-readme",
-   "ts": 1792018861,
+   "ts": 1792020379,
    "ms": 1,
    "llm_call": 9,
-   "step_id": "step:20261014T230101-bcf22f-017"
+   "step_id": "step:20261014T232619-fb6be5-017"
   },
   {
    "seq": 18,
@@ -2694,10 +2694,10 @@
     }
    },
    "summary": "industry_matches → 2 public postmortem(s): Slack — Slack's Incident on 2-22-22",
-   "ts": 1792018861,
-   "ms": 1,
+   "ts": 1792020379,
+   "ms": 2,
    "llm_call": 9,
-   "step_id": "step:20261014T230101-bcf22f-018"
+   "step_id": "step:20261014T232619-fb6be5-018"
   },
   {
    "seq": 19,
@@ -2742,10 +2742,10 @@
     }
    },
    "summary": "page_person → paged Priya Nair for INC-2026-033 (simulated): INC-2026-033 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Likely …",
-   "ts": 1792018861,
+   "ts": 1792020379,
    "ms": 1,
    "llm_call": 10,
-   "step_id": "step:20261014T230101-bcf22f-019"
+   "step_id": "step:20261014T232619-fb6be5-019"
   },
   {
    "seq": 20,
@@ -2778,7 +2778,7 @@
       "params": {
        "title": "INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
        "text": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset (dep:risk-rules-v2.8.1, deployed 5 min ago by Leo Park). payouts-service and risk-rules both call config-service (via a learned dependency): payouts-service -> config-service -> risk-rules. Conflicts with dec:rules-cache-ttl. Actions: Roll back dep:risk-rules-v2.8.1 on risk-rules. Follow rb:fraud-scoring-latency-v2 step 2: If risk-rules RULES_CACHE_TTL was changed, roll it back. What fixed INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered Page Priya Nair (per:priya-nair). Restore the setting required by dec:rules-cache-ttl before re-shipping.",
-       "now": 1792018861,
+       "now": 1792020379,
        "priority": "P2"
       },
       "write": true
@@ -2788,7 +2788,7 @@
       "params": {
        "id": "tkt:OPS-2",
        "x": "svc:risk-rules",
-       "now": 1792018861
+       "now": 1792020379
       },
       "write": true
      },
@@ -2797,7 +2797,7 @@
       "params": {
        "id": "tkt:OPS-2",
        "x": "inc:2026-033",
-       "now": 1792018861
+       "now": 1792020379
       },
       "write": true
      },
@@ -2805,8 +2805,8 @@
       "cypher": "MATCH (n:Ticket {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "tkt:OPS-2",
-       "ses": "ses:20261014T230101-bcf22f",
-       "now": 1792018861
+       "ses": "ses:20261014T232619-fb6be5",
+       "now": 1792020379
       },
       "write": true
      }
@@ -2816,7 +2816,7 @@
       "tkt:OPS-2",
       "svc:risk-rules",
       "inc:2026-033",
-      "ses:20261014T230101-bcf22f"
+      "ses:20261014T232619-fb6be5"
      ],
      "edges": [
       {
@@ -2832,16 +2832,16 @@
       {
        "from": "tkt:OPS-2",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T230101-bcf22f"
+       "to": "ses:20261014T232619-fb6be5"
       }
      ]
     }
    },
    "summary": "open_ticket → opened OPS-2 (tkt:OPS-2): INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
-   "ts": 1792018861,
-   "ms": 3,
+   "ts": 1792020379,
+   "ms": 5,
    "llm_call": 10,
-   "step_id": "step:20261014T230101-bcf22f-020"
+   "step_id": "step:20261014T232619-fb6be5-020"
   },
   {
    "seq": 21,
@@ -3038,10 +3038,1237 @@
     }
    },
    "summary": "INC-2026-033: payouts-service payout batch API 5xx 9% and p99 3.2s. Likely cause dep:risk-rules-v2.8.1 on risk-rules. Seen before: INC-2026-032, fixed by Priya Nair (Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered), see Runbook v2 step 2 (rb:fraud-scoring-latency-v2).",
-   "ts": 1792018861,
-   "ms": 1,
+   "ts": 1792020379,
+   "ms": 2,
    "llm_call": 11,
-   "step_id": "step:20261014T230101-bcf22f-021"
+   "step_id": "step:20261014T232619-fb6be5-021"
   }
- ]
+ ],
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:risk-fraud",
+    "label": "Team",
+    "name": "Risk & Fraud",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Risk & Fraud"
+    }
+   },
+   {
+    "id": "per:priya-nair",
+    "label": "Person",
+    "name": "Priya Nair",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Priya Nair",
+     "role": "Senior Engineer",
+     "email": "priya.nair@kestrelpay.example",
+     "joined_at": 1662420378
+    }
+   },
+   {
+    "id": "per:marcus-webb",
+    "label": "Person",
+    "name": "Marcus Webb",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Marcus Webb",
+     "role": "Staff Engineer",
+     "email": "marcus.webb@kestrelpay.example",
+     "joined_at": 1593300378
+    }
+   },
+   {
+    "id": "per:arjun-mehta",
+    "label": "Person",
+    "name": "Arjun Mehta",
+    "origin": "seed",
+    "props": {
+     "status": "left",
+     "origin": "seed",
+     "name": "Arjun Mehta",
+     "role": "Staff Engineer",
+     "email": "arjun.mehta@kestrelpay.example",
+     "joined_at": 1601940378,
+     "left_at": 1783812378
+    }
+   },
+   {
+    "id": "per:leo-park",
+    "label": "Person",
+    "name": "Leo Park",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Leo Park",
+     "role": "Engineer",
+     "email": "leo.park@kestrelpay.example",
+     "joined_at": 1786836378
+    }
+   },
+   {
+    "id": "per:dana-okafor",
+    "label": "Person",
+    "name": "Dana Okafor",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Dana Okafor",
+     "role": "Engineering Manager",
+     "email": "dana.okafor@kestrelpay.example",
+     "joined_at": 1757460378
+    }
+   },
+   {
+    "id": "svc:payments-api",
+    "label": "Service",
+    "name": "payments-api",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "payments-api",
+     "description": "Public payments API: authorises, captures and refunds card payments.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/payments-api"
+    }
+   },
+   {
+    "id": "svc:ledger-service",
+    "label": "Service",
+    "name": "ledger-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "ledger-service",
+     "description": "Double-entry ledger; the system of record for every money movement.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/ledger-service"
+    }
+   },
+   {
+    "id": "svc:bank-connector",
+    "label": "Service",
+    "name": "bank-connector",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "bank-connector",
+     "description": "Connects to partner banks for settlement files and instant-payout rails.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/bank-connector"
+    }
+   },
+   {
+    "id": "svc:payouts-service",
+    "label": "Service",
+    "name": "payouts-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "payouts-service",
+     "description": "Schedules and executes merchant payouts in batches.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/payouts-service"
+    }
+   },
+   {
+    "id": "svc:fx-rates-service",
+    "label": "Service",
+    "name": "fx-rates-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "fx-rates-service",
+     "description": "Serves cached foreign-exchange rates and applies the margin policy.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/fx-rates-service"
+    }
+   },
+   {
+    "id": "svc:ledger-db",
+    "label": "Service",
+    "name": "ledger-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "ledger-db",
+     "description": "Primary PostgreSQL cluster backing the ledger.",
+     "tier": 1,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.kestrelpay.example/ledger-db"
+    }
+   },
+   {
+    "id": "svc:risk-rules",
+    "label": "Service",
+    "name": "risk-rules",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "risk-rules",
+     "description": "Rule engine evaluating analyst-authored fraud rules against payment features.",
+     "tier": 1,
+     "language": "Kotlin",
+     "repo_url": "https://git.kestrelpay.example/risk-rules"
+    }
+   },
+   {
+    "id": "svc:sanctions-screening",
+    "label": "Service",
+    "name": "sanctions-screening",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "sanctions-screening",
+     "description": "Screens merchants and beneficiaries against sanctions lists.",
+     "tier": 2,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/sanctions-screening"
+    }
+   },
+   {
+    "id": "svc:api-gateway",
+    "label": "Service",
+    "name": "api-gateway",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "api-gateway",
+     "description": "Edge gateway: routing, rate limiting and request authentication.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/api-gateway"
+    }
+   },
+   {
+    "id": "svc:auth-service",
+    "label": "Service",
+    "name": "auth-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "auth-service",
+     "description": "Issues and validates API keys and OAuth tokens.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/auth-service"
+    }
+   },
+   {
+    "id": "svc:config-service",
+    "label": "Service",
+    "name": "config-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "config-service",
+     "description": "Central configuration and ruleset distribution service used by many backends.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/config-service"
+    }
+   },
+   {
+    "id": "svc:config-db",
+    "label": "Service",
+    "name": "config-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "config-db",
+     "description": "PostgreSQL store for config-service.",
+     "tier": 1,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.kestrelpay.example/config-db"
+    }
+   },
+   {
+    "id": "svc:kafka-events",
+    "label": "Service",
+    "name": "kafka-events",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "kafka-events",
+     "description": "Shared Kafka cluster carrying payment, ledger and notification events.",
+     "tier": 1,
+     "language": "Kafka",
+     "repo_url": "https://git.kestrelpay.example/kafka-events"
+    }
+   },
+   {
+    "id": "svc:audit-log",
+    "label": "Service",
+    "name": "audit-log",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "audit-log",
+     "description": "Append-only audit trail of administrative and money-moving actions.",
+     "tier": 2,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/audit-log"
+    }
+   },
+   {
+    "id": "dep:risk-rules-v2.8.0",
+    "label": "Deploy",
+    "name": "2.8.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792017978,
+     "origin": "seed",
+     "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster",
+     "version": "2.8.0"
+    }
+   },
+   {
+    "id": "dep:risk-rules-v2.3.0",
+    "label": "Deploy",
+    "name": "2.3.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1752697578,
+     "origin": "seed",
+     "summary": "Lower RULES_CACHE_TTL to 10s",
+     "version": "2.3.0"
+    }
+   },
+   {
+    "id": "chat:risk-eng-config-load",
+    "label": "ChatThread",
+    "name": "How does risk-rules get its rules? (config load)",
+    "origin": "seed",
+    "props": {
+     "ts": 1754868378,
+     "origin": "seed",
+     "title": "How does risk-rules get its rules? (config load)",
+     "text": "[2025-08-10 23:26] Priya Nair: Arjun, quick one while I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-10 23:29] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just the source of truth for the rule editor. On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint. [2025-08-10 23:30]…",
+     "channel": "#risk-eng"
+    }
+   },
+   {
+    "id": "doc:risk-rules-readme",
+    "label": "Doc",
+    "name": "risk-rules README",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "risk-rules README",
+     "text": "# risk-rules risk-rules is the fraud rule engine. It evaluates analyst-authored rules (velocity limits, geo mismatches, device reputation, BIN blocklists) against the feature vector that fraud-scoring sends for every payment, and returns a list of rule verdicts in under 20 ms. ## Ownership Owner and primary contact: Arjun Mehta (Risk & Fraud). Page the Risk & Fraud on-call if Arjun is unavailable…",
+     "updated_at": 1740180378,
+     "flagged_stale": true,
+     "flagged_reason": "author_left; names_departed_person (Arjun Mehta); old_vs_changes (3 deploys since); missing_learned_dependency (svc:config-service)",
+     "flagged_at": 1792020379
+    }
+   },
+   {
+    "id": "tkt:RISK-412",
+    "label": "Ticket",
+    "name": "RISK-412",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL",
+     "text": "Analysts report that editing a fraud rule in the console takes up to 5 minutes to take effect in production, because risk-rules caches the rule set for RULES_CACHE_TTL (currently 300s). Proposal: reduce RULES_CACHE_TTL from 300s to 5s so edits apply almost immediately. Acceptance criteria: an edited rule is visible to fraud-scoring within 10 seconds. Shipped in risk-rules v2.8.0.",
+     "key": "RISK-412",
+     "kind": "task",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "tkt:PM-2025-031",
+    "label": "Ticket",
+    "name": "PM-2025-031",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: fraud-scoring timeouts during checkout peak",
+     "text": "INC-2025-031, sev 2. Impact: about 11% of card payments failed or were declined for two hours at the evening checkout peak. Timeline: risk-rules v2.3.0 lowered RULES_CACHE_TTL to 10s. At peak, config-service CPU reached 98%, fraud-scoring calls timed out and payments-api returned 5xx. Root cause: cache TTL too low, causing a thundering herd on a shared config store. Follow-ups: alert on config-se…",
+     "key": "PM-2025-031",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "tkt:PM-2026-012",
+    "label": "Ticket",
+    "name": "PM-2026-012",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: merchant-onboarding config reads timing out",
+     "text": "INC-2026-012, sev 3. Impact: merchant signups were slow or failed for about 40 minutes. Timeline: merchant-onboarding v2.11.0 disabled the local config cache, so every request read config-service directly. Latency on config-service rose and onboarding calls timed out. Root cause: no local cache in front of a shared config store, a thundering herd under signup load. Follow-up: document that the lo…",
+     "key": "PM-2026-012",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "tkt:PM-2025-044",
+    "label": "Ticket",
+    "name": "PM-2025-044",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: ledger connection pool exhausted during payout run",
+     "text": "INC-2025-044, sev 2. Impact: payouts were delayed by three hours and some payment captures failed. Timeline: ledger-service v3.4.0 added a parallel payout journal writer. During the daily payout run it opened more connections than the database pool allowed, starving payments-api requests. Root cause: database connection pool exhaustion. Follow-up: load-test payout runs against the pool limit. Res…",
+     "key": "PM-2025-044",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "dec:rules-cache-ttl",
+    "label": "Decision",
+    "name": "RULES_CACHE_TTL must stay ≥ 300s",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "RULES_CACHE_TTL must stay ≥ 300s",
+     "rationale": "Below ~30s config-service saturates at checkout peak, because risk-rules refetches rulesets from it on every cache miss. This is what caused INC-2025-031.",
+     "decided_at": 1754868378
+    }
+   },
+   {
+    "id": "rc:cache-ttl-thundering-herd",
+    "label": "RootCause",
+    "name": "Cache TTL too low → thundering herd on a shared config store",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Cache TTL too low → thundering herd on a shared config store",
+     "description": "A client cache expires too often or is disabled, so many instances refetch from a shared store at once and overload it."
+    }
+   },
+   {
+    "id": "rc:connection-pool-exhaustion",
+    "label": "RootCause",
+    "name": "Database connection pool exhaustion",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Database connection pool exhaustion",
+     "description": "More concurrent work than the connection pool allows, so requests queue or fail."
+    }
+   },
+   {
+    "id": "inc:2025-031",
+    "label": "Incident",
+    "name": "INC-2025-031",
+    "origin": "seed",
+    "props": {
+     "started_at": 1752708378,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "fraud-scoring timeouts during checkout peak",
+     "summary": "risk-rules v2.3.0 lowered RULES_CACHE_TTL to 10s. At checkout peak every risk-rules pod refetched rulesets, saturating config-service and timing out fraud-scoring. Rolled back the TTL to 300s and added cache warm-up.",
+     "key": "INC-2025-031",
+     "severity": 2,
+     "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%",
+     "resolved_at": 1752715578
+    }
+   },
+   {
+    "id": "inc:2026-012",
+    "label": "Incident",
+    "name": "INC-2026-012",
+    "origin": "seed",
+    "props": {
+     "started_at": 1779060378,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "merchant-onboarding config reads timing out",
+     "summary": "merchant-onboarding v2.11.0 disabled its local config cache, so every request hit config-service and timed out under signup load. Re-enabled the cache with a jittered TTL.",
+     "key": "INC-2026-012",
+     "severity": 3,
+     "symptom": "merchant signups slow or failing; config-service latency elevated",
+     "resolved_at": 1779063978
+    }
+   },
+   {
+    "id": "inc:2025-044",
+    "label": "Incident",
+    "name": "INC-2025-044",
+    "origin": "seed",
+    "props": {
+     "started_at": 1757892378,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "ledger-service connection pool exhausted during payout run",
+     "summary": "ledger-service v3.4.0 added a parallel payout journal writer that opened more connections than the ledger-db pool allowed, starving payment captures. Raised the pool ceiling and capped writer concurrency.",
+     "key": "INC-2025-044",
+     "severity": 2,
+     "symptom": "payout run stalled; payment captures failing with pool timeout errors",
+     "resolved_at": 1757903178
+    }
+   },
+   {
+    "id": "res:2025-031",
+    "label": "Resolution",
+    "name": "Rolled back TTL to 300s and added cache warm-up",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Rolled back TTL to 300s and added cache warm-up",
+     "steps": "1. Roll back RULES_CACHE_TTL to 300s. 2. Restart risk-rules pods gradually. 3. Add cache warm-up on pod start. 4. Watch config-service CPU until it is below 40%."
+    }
+   },
+   {
+    "id": "res:2026-012",
+    "label": "Resolution",
+    "name": "Re-enabled local config cache with jittered TTL",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Re-enabled local config cache with jittered TTL",
+     "steps": "1. Redeploy merchant-onboarding with the local config cache enabled. 2. Add +/-20% jitter to the cache TTL. 3. Confirm config-service latency returns to normal."
+    }
+   },
+   {
+    "id": "res:2025-044",
+    "label": "Resolution",
+    "name": "Raised pool ceiling and capped payout writer concurrency",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Raised pool ceiling and capped payout writer concurrency",
+     "steps": "1. Reduce payout writer concurrency to 4. 2. Raise the ledger-db connection pool limit. 3. Re-run the stalled payout batch."
+    }
+   },
+   {
+    "id": "pm:slack-2022-02-22",
+    "label": "PublicPostmortem",
+    "name": "Slack's Incident on 2-22-22",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "Slack's Incident on 2-22-22",
+     "summary": "A rolling Consul agent upgrade restarted memcached nodes at peak and they came back empty. Cache misses turned an expensive membership query into scatter queries across every database shard, and the overloaded database stopped the cache from refilling. Throttling client boots and fixing the query restored service.",
+     "company": "Slack",
+     "url": "https://slack.engineering/slacks-incident-on-2-22-22/",
+     "published_at": 1650931200
+    }
+   },
+   {
+    "id": "pm:facebook-2010-09-23",
+    "label": "PublicPostmortem",
+    "name": "More Details on Today's Outage",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "More Details on Today's Outage",
+     "summary": "A change to a stored configuration value made an automated checker treat it as invalid, so every client tried to fix its cached copy by querying one database cluster. Errors were read as invalid values and caused more cache deletions, a feedback loop. The site was taken down to stop traffic, then restored gradually.",
+     "company": "Meta (Facebook)",
+     "url": "https://engineering.fb.com/2010/09/23/uncategorized/more-details-on-today-s-outage/",
+     "published_at": 1285200000
+    }
+   },
+   {
+    "id": "inc:2026-032",
+    "label": "Incident",
+    "name": "INC-2026-032",
+    "origin": "agent",
+    "props": {
+     "started_at": 1792020378,
+     "status": "resolved",
+     "origin": "agent",
+     "title": "payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
+     "summary": "5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes Resolution (operator): Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
+     "key": "INC-2026-032",
+     "severity": 2,
+     "symptom": "5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
+     "resolved_at": 1792020379
+    }
+   },
+   {
+    "id": "fact:learned-risk-rules-config-service",
+    "label": "Fact",
+    "name": "risk-rules calls config-service at request time; the servic…",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "statement": "risk-rules calls config-service at request time; the service catalog does not list this dependency.",
+     "confidence": 0.8
+    }
+   },
+   {
+    "id": "res:2026-032",
+    "label": "Resolution",
+    "name": "Priya rolled back RULES_CACHE_TTL to 300s; config-service l…",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "summary": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
+     "steps": "1. Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered"
+    }
+   },
+   {
+    "id": "rb:fraud-scoring-latency-v2",
+    "label": "Runbook",
+    "name": "Runbook: fraud-scoring latency",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "title": "Runbook: fraud-scoring latency",
+     "steps": "1. Check for a recent deploy to risk-rules first: INC-2026-032 was caused by dep:risk-rules-v2.8.0 (RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster). 2. If risk-rules RULES_CACHE_TTL was changed, roll it back. What fixed INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered 3. Watch config-service CPU and request rate: risk-rules calls config…",
+     "version": 2,
+     "updated_at": 1792020379
+    }
+   },
+   {
+    "id": "dep:risk-rules-v2.8.1",
+    "label": "Deploy",
+    "name": "2.8.1",
+    "origin": "seed",
+    "props": {
+     "ts": 1792020079,
+     "origin": "seed",
+     "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
+     "version": "2.8.1"
+    }
+   },
+   {
+    "id": "inc:2026-033",
+    "label": "Incident",
+    "name": "INC-2026-033",
+    "origin": "agent",
+    "props": {
+     "started_at": 1792020379,
+     "status": "open",
+     "origin": "agent",
+     "title": "payouts-service: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
+     "summary": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
+     "key": "INC-2026-033",
+     "severity": 2,
+     "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes"
+    }
+   },
+   {
+    "id": "tkt:OPS-2",
+    "label": "Ticket",
+    "name": "OPS-2",
+    "origin": "agent",
+    "props": {
+     "status": "open",
+     "origin": "agent",
+     "title": "INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
+     "text": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset (dep:risk-rules-v2.8.1, deployed 5 min ago by Leo Park). payouts-service and risk-rules both call config-service (via a learned dependency): payouts-service -> config-service -> risk-rules. Conflicts with dec:rules-cache-ttl. Actions: Roll back dep:risk-rules-v2.8.1 on risk-rules. Follow rb:fraud-scoring-latency-v2 step 2: If risk-rules RULES_CA…",
+     "key": "OPS-2",
+     "kind": "incident-followup",
+     "priority": "P2"
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:risk-fraud",
+    "type": "OWNS",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:priya-nair",
+    "type": "WORKED_ON",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {
+     "commits": 23,
+     "last_at": 1788564378
+    }
+   },
+   {
+    "source": "per:arjun-mehta",
+    "type": "MAINTAINS",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:arjun-mehta",
+    "type": "AUTHORED",
+    "target": "doc:risk-rules-readme",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:arjun-mehta",
+    "type": "AUTHORED",
+    "target": "dec:rules-cache-ttl",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:leo-park",
+    "type": "WORKED_ON",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {
+     "commits": 3,
+     "last_at": 1791933978
+    }
+   },
+   {
+    "source": "per:leo-park",
+    "type": "DEPLOYED",
+    "target": "dep:risk-rules-v2.8.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:leo-park",
+    "type": "DEPLOYED",
+    "target": "dep:risk-rules-v2.8.1",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:dana-okafor",
+    "type": "WORKED_ON",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {
+     "commits": 2,
+     "last_at": 1781652378
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:ledger-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:bank-connector",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:fx-rates-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:kafka-events",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:risk-rules",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "kind": "sync",
+     "source": "learned",
+     "learned_at": 1792020379,
+     "learned_from": "fact:learned-risk-rules-config-service"
+    }
+   },
+   {
+    "source": "dep:risk-rules-v2.8.0",
+    "type": "CHANGED",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:risk-rules-v2.8.0",
+    "type": "FOR_TICKET",
+    "target": "tkt:RISK-412",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:risk-rules-v2.3.0",
+    "type": "CHANGED",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "doc:risk-rules-readme",
+    "type": "MENTIONS",
+    "target": "per:arjun-mehta",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "doc:risk-rules-readme",
+    "type": "DESCRIBES",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dec:rules-cache-ttl",
+    "type": "ABOUT",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dec:rules-cache-ttl",
+    "type": "SOURCED_FROM",
+    "target": "chat:risk-eng-config-load",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Decision: RULES_CACHE_TTL stays at 300s minimum. Below ~30s config-service falls over at checkout peak — that's what bit us in INC-2025-031."
+    }
+   },
+   {
+    "source": "inc:2025-031",
+    "type": "AFFECTED",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-031",
+    "type": "CAUSED_BY",
+    "target": "dep:risk-rules-v2.3.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-031",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:cache-ttl-thundering-herd",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-031",
+    "type": "RESOLVED_BY",
+    "target": "res:2025-031",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-012",
+    "type": "AFFECTED",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-012",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:cache-ttl-thundering-herd",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-012",
+    "type": "RESOLVED_BY",
+    "target": "res:2026-012",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "AFFECTED",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:connection-pool-exhaustion",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "RESOLVED_BY",
+    "target": "res:2025-044",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-031",
+    "type": "PERFORMED_BY",
+    "target": "per:priya-nair",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-031",
+    "type": "PERFORMED_BY",
+    "target": "per:arjun-mehta",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-031",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2025-031",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: rolled back TTL to 300s and added cache warm-up on pod start."
+    }
+   },
+   {
+    "source": "res:2026-012",
+    "type": "PERFORMED_BY",
+    "target": "per:priya-nair",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2026-012",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2026-012",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: re-enabled the local config cache with a jittered TTL."
+    }
+   },
+   {
+    "source": "res:2025-044",
+    "type": "PERFORMED_BY",
+    "target": "per:marcus-webb",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-044",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2025-044",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: raised the ledger connection pool ceiling and capped payout writer concurrency."
+    }
+   },
+   {
+    "source": "pm:slack-2022-02-22",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:cache-ttl-thundering-herd",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "pm:facebook-2010-09-23",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:cache-ttl-thundering-herd",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "AFFECTED",
+    "target": "svc:risk-rules",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "AFFECTED",
+    "target": "svc:config-service",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "CAUSED_BY",
+    "target": "dep:risk-rules-v2.8.0",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:cache-ttl-thundering-herd",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "SIMILAR_TO",
+    "target": "inc:2025-031",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "score": 0.8,
+     "reason": "also caused by a change to risk-rules: fraud-scoring timeouts during checkout peak"
+    }
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "SIMILAR_TO",
+    "target": "inc:2026-012",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "score": 0.85,
+     "reason": "same root cause rc:cache-ttl-thundering-herd: merchant-onboarding config reads timing out"
+    }
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "SIMILAR_TO",
+    "target": "pm:slack-2022-02-22",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "score": 0.75,
+     "reason": "industry pattern rc:cache-ttl-thundering-herd: Slack — Slack's Incident on 2-22-22"
+    }
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "SIMILAR_TO",
+    "target": "pm:facebook-2010-09-23",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "score": 0.7,
+     "reason": "industry pattern rc:cache-ttl-thundering-herd: Meta (Facebook) — More Details on Today's Outage"
+    }
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "RESOLVED_BY",
+    "target": "res:2026-032",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "fact:learned-risk-rules-config-service",
+    "type": "SOURCED_FROM",
+    "target": "chat:risk-eng-config-load",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "excerpt": "On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint."
+    }
+   },
+   {
+    "source": "res:2026-032",
+    "type": "PERFORMED_BY",
+    "target": "per:priya-nair",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "res:2026-032",
+    "type": "SOURCED_FROM",
+    "target": "inc:2026-032",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "excerpt": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered"
+    }
+   },
+   {
+    "source": "rb:fraud-scoring-latency-v2",
+    "type": "SOURCED_FROM",
+    "target": "inc:2026-032",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "excerpt": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered"
+    }
+   },
+   {
+    "source": "dep:risk-rules-v2.8.1",
+    "type": "CHANGED",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:risk-rules-v2.8.1",
+    "type": "FOR_TICKET",
+    "target": "tkt:RISK-412",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-033",
+    "type": "AFFECTED",
+    "target": "svc:payouts-service",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "inc:2026-033",
+    "type": "AFFECTED",
+    "target": "svc:risk-rules",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "inc:2026-033",
+    "type": "CAUSED_BY",
+    "target": "svc:risk-rules",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "inc:2026-033",
+    "type": "AFFECTED",
+    "target": "svc:config-service",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "inc:2026-033",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:cache-ttl-thundering-herd",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "inc:2026-033",
+    "type": "SIMILAR_TO",
+    "target": "inc:2025-031",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "score": 0.8,
+     "reason": "also caused by a change to risk-rules: fraud-scoring timeouts during checkout peak"
+    }
+   },
+   {
+    "source": "inc:2026-033",
+    "type": "SIMILAR_TO",
+    "target": "inc:2026-032",
+    "origin": "agent",
+    "props": {
+     "origin": "agent",
+     "score": 0.9,
+     "reason": "also caused by a change to risk-rules: payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes"
+    }
+   },
+   {
+    "source": "inc:2026-033",
+    "type": "CAUSED_BY",
+    "target": "dep:risk-rules-v2.8.1",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "tkt:OPS-2",
+    "type": "ABOUT",
+    "target": "svc:risk-rules",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "tkt:OPS-2",
+    "type": "ABOUT",
+    "target": "inc:2026-033",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "SIMILAR_TO",
+    "target": "inc:2026-033",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-031",
+    "type": "SIMILAR_TO",
+    "target": "inc:2026-032",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-012",
+    "type": "SIMILAR_TO",
+    "target": "inc:2026-032",
+    "origin": "seed",
+    "props": {}
+   }
+  ],
+  "base": [
+   "svc:bank-connector",
+   "svc:config-service",
+   "svc:fx-rates-service",
+   "svc:kafka-events",
+   "svc:ledger-service",
+   "svc:payouts-service"
+  ],
+  "alert": "svc:payouts-service"
+ }
 }

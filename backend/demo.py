@@ -11,7 +11,8 @@ from backend.agents.loop import BOLD, CYAN, RST
 from backend.agents.firefighter import print_report
 from backend.agents.team import resolve_incident, run_team, tracer
 from backend.agents.brain import ask
-from backend.db import allowed_tenants, get_graph
+from backend.api.views import run_graph
+from backend.db import allowed_tenants, get_graph, nomem_twin
 from backend.llm import LLMClient
 from seed import scenario
 from seed.load import load, package_for
@@ -23,13 +24,88 @@ BROWSER_CYPHER = "MATCH (n {origin:'agent'})-[r]-(m) RETURN n,r,m"
 GOLDEN = Path(__file__).resolve().parents[1] / "runs" / "golden"
 
 
+GOLDEN_FILES = (("s1", "team-session1"), ("resolve", "resolve-session1"), ("s2", "team-session2"),
+                ("s2_nomem", "team-session2-nomem"))
+
+
 def save_golden(out):
-    """Recorded runs for /api/replay (no LLM needed to show the demo)."""
+    """Recorded runs for the UI's replays (no LLM needed to show the demo). Each embeds its graph snapshot."""
     GOLDEN.mkdir(parents=True, exist_ok=True)
-    for key, name in (("s1", "team-session1.json"), ("resolve", "resolve-session1.json"), ("s2", "team-session2.json")):
+    for key, name in GOLDEN_FILES:
         if key in out:
             rec = {k: v for k, v in out[key].items() if k != "path"}
-            (GOLDEN / name).write_text(json.dumps(rec, indent=1, ensure_ascii=False, default=str))
+            (GOLDEN / f"{name}.json").write_text(json.dumps(rec, indent=1, ensure_ascii=False, default=str))
+
+
+def snap(graph, rec):
+    """Attach the run's graph snapshot right after it ran (later beats change the graph)."""
+    rec["graph"] = run_graph(graph, rec)
+    return rec
+
+
+# ───────────── the story as the web UI plays it ─────────────
+BEATS = [
+    {"id": "session1", "label": "Fire alert", "kind": "team", "alert": S1_ALERT, "replay": "team-session1",
+     "title": "Session 1", "caption": "The team investigates a payments-api alert with no memory yet."},
+    {"id": "resolve", "label": "Resolve", "kind": "resolve", "continues": "session1", "replay": "resolve-session1",
+     "title": "Resolve", "resolver": {"ids": ["per:priya-nair"], "name": "Priya Nair"}, "summary": FIX,
+     "caption": "Priya fixes it. The resolution, Runbook v2 and industry matches are written to the graph."},
+    {"id": "session2", "label": "Fire Session 2", "kind": "team", "alert": S2_ALERT, "replay": "team-session2",
+     "title": "Session 2", "caption": "A different service alerts. The Investigator asks memory first."},
+    {"id": "compare", "label": "Compare without memory", "kind": "team", "alert": S2_ALERT, "memory": False,
+     "replay": "team-session2-nomem", "title": "Session 2, no memory",
+     "caption": "The same alert on a fresh copy of the company without Session 1's memory."},
+]
+
+
+def tenant_name(tenant):
+    return " ".join(w.capitalize() for w in tenant.split("_"))
+
+
+def has_story(tenant):
+    try:
+        return package_for(tenant) == "kestrel_pay"
+    except ValueError:
+        return False
+
+
+def story_meta(tenant):
+    """What the UI's Story view renders: the beats, their button labels, alerts and the resolve step."""
+    if not has_story(tenant):
+        return {"tenant": tenant, "name": tenant_name(tenant), "has_story": False, "beats": []}
+    return {"tenant": tenant, "name": tenant_name(tenant), "has_story": True, "beats": BEATS,
+            "intro": "An alert fires. Three agents (Triage, Investigator, Communicator) find the cause in the company "
+                     "graph, show every query they ran, and write what they learned back into it."}
+
+
+def golden(name):
+    path = GOLDEN / f"{Path(name).stem}.json"
+    return json.loads(path.read_text()) if path.parent == GOLDEN and path.is_file() else None
+
+
+def run_beat(tenant, beat_id, llm, on_event, latest):
+    """A FRESH run of one beat (it writes to the graph; the API only allows it with an access code).
+    latest: {beat_id: record} of this tenant's earlier fresh beats. Returns the record with its graph snapshot."""
+    beat = next(b for b in BEATS if b["id"] == beat_id)
+    if beat_id == "session1":
+        load(tenant, reset=True, data_package=package_for(tenant), quiet=True)
+        return snap(tenant, run_team(beat["alert"], tenant, "web", llm, on_event))
+    if beat_id == "resolve":
+        s1 = latest.get("session1")
+        if not s1 or not s1.get("incident_id"):
+            raise LookupError("run Session 1 first: there is no incident to resolve")
+        return snap(tenant, resolve_incident(s1["incident_id"], beat["resolver"]["ids"], beat["summary"], tenant, llm,
+                                             "web", on_event))
+    if beat_id == "session2":
+        scenario.apply("session2", tenant)
+        return snap(tenant, run_team(beat["alert"], tenant, "web", llm, on_event))
+    twin = nomem_twin(tenant)  # compare: the same alert on a fresh copy without Session 1's memory
+    load(twin, reset=True, data_package=package_for(tenant), quiet=True)
+    try:
+        scenario.apply("session2", twin)
+        return snap(twin, run_team(beat["alert"], twin, "web", llm, on_event))
+    finally:
+        get_graph(twin).delete()
 
 
 def banner(t):
@@ -86,7 +162,7 @@ def story(graph="kestrel_pay", llm=None, quiet=False, compare_no_memory=False, o
         banner("0. Contrast: Session 2 on a fresh seed, WITHOUT Session 1's memory")
         load(graph, reset=True, data_package="kestrel_pay", quiet=True)
         say(f"added {scenario.apply('session2', graph)}")
-        out["s2_nomem"] = run_team(S2_ALERT, graph, "jaya", llm, ev)
+        out["s2_nomem"] = snap(graph, run_team(S2_ALERT, graph, "jaya", llm, ev))
         if not quiet:
             print_report(out["s2_nomem"]["report"])
     if not quiet:
@@ -95,16 +171,16 @@ def story(graph="kestrel_pay", llm=None, quiet=False, compare_no_memory=False, o
     if other:
         load(other, reset=True, data_package="northwind_health", quiet=True)
     banner("2. Session 1: payments-api alert, the team investigates")
-    out["s1"] = run_team(S1_ALERT, graph, "jaya", llm, ev)
+    out["s1"] = snap(graph, run_team(S1_ALERT, graph, "jaya", llm, ev))
     if not quiet:
         print_report(out["s1"]["report"])
     banner("3. Operator: resolved by Priya")
-    out["resolve"] = resolve_incident(out["s1"]["incident_id"], ["per:priya-nair"], FIX, graph, llm, "jaya", ev)
+    out["resolve"] = snap(graph, resolve_incident(out["s1"]["incident_id"], ["per:priya-nair"], FIX, graph, llm, "jaya", ev))
     if not quiet:
         banner("4. World event: risk-rules v2.8.1 ships (scenario session2)")
     say(f"added {scenario.apply('session2', graph)}")
     banner("5. Session 2: payouts-service alert, with memory")
-    out["s2"] = run_team(S2_ALERT, graph, "jaya", llm, ev)
+    out["s2"] = snap(graph, run_team(S2_ALERT, graph, "jaya", llm, ev))
     if not quiet:
         print_report(out["s2"]["report"])
     out.update(memory_summary(graph))

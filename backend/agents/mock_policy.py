@@ -548,7 +548,7 @@ def postmortem(v):
 # ───────────── brain (Ask the Brain) ─────────────
 _Q_STOP = {"why", "what", "who", "which", "how", "should", "must", "does", "did", "the", "and", "are", "about", "that",
            "this", "there", "now", "best", "knows", "know", "talk", "ask", "first", "read", "new", "i'm", "out", "date",
-           "docs", "doc", "stay", "left", "seconds", "for", "with", "from", "into", "our", "any"}
+           "docs", "doc", "stay", "left", "seconds", "for", "with", "from", "into", "our", "any", "decide", "decided"}
 
 
 def _qterms(q):

@@ -4,11 +4,10 @@ python -m seed.scenario session2 --graph kestrel_pay
   adds dep:risk-rules-v2.8.1 (now - 5 min, by Leo Park, RISK-412 follow-up), so Session 2 is a fresh regression.
 """
 import argparse
-import os
 import time
 
 from dotenv import load_dotenv
-from falkordb import FalkorDB
+from seed.conn import connect
 
 Q_SESSION2 = """MATCH (s:Service {id:'svc:risk-rules'}), (p:Person {id:'per:leo-park'}), (t:Ticket {id:'tkt:RISK-412'})
 MERGE (d:Deploy {id:'dep:risk-rules-v2.8.1'})
@@ -25,8 +24,7 @@ SCENARIOS = {"session2": Q_SESSION2}
 def apply(name, graph, now=None, graph_obj=None):
     now = int(now or time.time())
     load_dotenv()
-    g = graph_obj or FalkorDB(host=os.getenv("FALKORDB_HOST", "localhost"),
-                              port=int(os.getenv("FALKORDB_PORT", "6379"))).select_graph(graph)
+    g = graph_obj or connect().select_graph(graph)
     rows = g.query(SCENARIOS[name], {"ts": now - 5 * 60, "now": now}).result_set
     if not rows:
         raise RuntimeError(f"scenario {name}: risk-rules / Leo Park / RISK-412 not found in graph {graph!r}; seed it first")

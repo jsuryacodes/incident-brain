@@ -3,6 +3,17 @@
 Plain-language explanations of each piece of work, newest first. Each section: what it is, why it is built that way,
 and what to say if asked.
 
+## 07A: the API the web UI reads
+**What:** a handful of read endpoints that turn the graph and the recorded runs into what a browser can draw: the
+story's buttons, every step of a run (with its Cypher, sources and what it wrote), the nodes and edges a run touches,
+the before/after numbers, six suggested questions and an Explorer view with PageRank.
+**Why recordings:** a judge without a code watches the exact recorded run (a "golden replay") so the demo is free and
+identical every time. With the access code the same buttons start a fresh mock run that really writes to the graph.
+**The gate:** anything that writes needs the code. Asking the Brain works for everyone, but without the code nothing
+is saved; follow-up questions still work because the browser sends the earlier turns back.
+**If asked "is the replay faked?":** it is the record of a real mock run, including the graph snapshot taken right
+after it. `python -m backend.demo story --compare-no-memory --save-golden` regenerates all four.
+
 ## 06F: hardening
 **What:** an independent reviewer agent went through the code looking for leaks of the demo story into agent logic,
 unsafe queries, holes in grounding, missing write validation, tenant mix-ups, secrets and flaky tests.

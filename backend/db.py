@@ -2,7 +2,7 @@
 import os
 
 from dotenv import load_dotenv
-from falkordb import FalkorDB
+from seed.conn import connect
 
 load_dotenv()
 _client = None
@@ -15,7 +15,7 @@ def allowed_tenants():
 def client():
     global _client
     if _client is None:
-        _client = FalkorDB(host=os.getenv("FALKORDB_HOST", "localhost"), port=int(os.getenv("FALKORDB_PORT", "6379")))
+        _client = connect()
     return _client
 
 
@@ -24,7 +24,14 @@ def redis():
     return client().connection
 
 
+NOMEM = "__nomem"  # internal twin graph for the "without memory" contrast run; never served over HTTP
+
+
+def nomem_twin(tenant):
+    return tenant + NOMEM
+
+
 def get_graph(tenant):
-    if tenant not in allowed_tenants():
+    if (tenant[:-len(NOMEM)] if tenant.endswith(NOMEM) else tenant) not in allowed_tenants():
         raise ValueError(f"unknown tenant {tenant!r}; allowed: {allowed_tenants()}")
     return client().select_graph(tenant)

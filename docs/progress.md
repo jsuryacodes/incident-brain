@@ -6,7 +6,7 @@ Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
 | Part | Status | Commit |
 |---|---|---|
 | 0 Preflight + demo script | DONE | 07-0 |
-| A API additions | TODO | |
+| A API additions | DONE | 07A |
 | B Frontend (themes, shell, Story, Brain, Explorer, polish) | TODO | |
 | C Deploy-ready container | TODO | |
 | D Headless-browser self-check | TODO | |
@@ -19,6 +19,26 @@ Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
 - `node -v` → **v22.23.2** (npm 10.9.8, Homebrew present). Node ≥ 18, so the **Vite path** (React + Vite + TS), not the no-build fallback.
 - Docker up, `falkordb` container running; `scripts/setup.sh` clean (kestrel_pay 14/14, northwind_health 8/8); `pytest -q` → 105 passed before any change.
 - `docs/demo-script.md`: the 2:45 shot list (7 beats, screen / click / narrator / timestamp) plus the list of UI features the script needs.
+
+## 07A — API additions for the UI
+**Status:** DONE · tests: `pytest -q` 116 passed (10 new in `tests/test_ui_api.py`, 1 new + 4 updated in `tests/test_api.py`)
+
+**What was built** (`backend/api/views.py` = generic read models; `backend/demo.py` = the only story knowledge)
+- `GET /api/meta` (tenants with display name + `has_story`, llm modes, `writes_need_code`, version), `POST /api/access/check`.
+- `GET /api/story?tenant=`: beats from `demo.BEATS` (Fire alert → Resolve → Fire Session 2 → Compare without memory) with alerts, labels, resolver/summary, replay names.
+- One **step event shape** for replays and fresh runs (`views.step_event`): `seq, agent, action, tool, summary, args, cypher, params, queries, result_preview, highlight{nodes, edges{source,target,type,props}}, cited[] (source cards), writes{nodes, edges} (agent-written, with origin), elements, mode, ms, llm_call`.
+- `GET /api/replay/{name}` (the whole recorded run as events, JSON), `GET /api/run-graph/{run_id}` (golden name or a fresh run id), `GET /api/subgraph?ids=&hops=`, `GET /api/compare/latest`, `GET /api/brain/suggestions`, `GET /api/explorer?labels=&origin=agent`.
+- Fresh story beats: `POST /api/story/{beat}/run` (**access code required**) → one-time stream token → `GET /api/stream/{token}` (EventSource). One fresh run per tenant at a time (409 otherwise).
+- Golden runs regenerated with a **graph snapshot embedded** (`graph`), plus a 4th recording `team-session2-nomem.json`.
+- `seed/conn.py`: one FalkorDB connection helper (host, port, optional username/password, `FALKORDB_TLS`) used by seed, scenario, verify and the backend.
+
+**Decisions**
+- *No code → no writes, everywhere.* `POST /api/team/run` and `/api/incidents/{id}/resolve` now need the code too (M5 let anyone write in mock mode). The UI's visitor path is the golden replays. Brain answers work without a code but are **not persisted** (`ask(persist=False)`: no Session/Step, `flag_stale` is a no-op); follow-ups then use the earlier turns the client sends back (`turns`, max 10, ids still grounded by tools).
+- *EventSource can't send headers,* so the code is checked when the run is created and the stream URL carries a random single-use token that expires after 60 s.
+- *Replays are JSON, not SSE:* the UI paces playback itself, so autoplay is deterministic and the scrubber can jump anywhere.
+- *The no-memory contrast never touches the hero graph:* a fresh compare run uses an internal twin graph `<tenant>__nomem` (seeded, run, deleted). `get_graph` accepts the twin; the HTTP tenant check does not.
+- *Run graph = snapshot taken right after the run*, so a replay looks the same whatever state the live graph is in. Session/Step nodes are not drawn (the timeline shows them).
+- *Suggested questions are templates filled by Cypher* (decision behind the most recently changed service, a departed maintainer's service, top PageRank service, a doc by someone who left, a root cause shared with public postmortems, a team named in a doc title). All 12 (both tenants) were checked against the mock Brain; that found "decide" missing from the mock's stop words (fixed).
 
 ---
 

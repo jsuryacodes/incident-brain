@@ -8,7 +8,7 @@ from contextlib import contextmanager
 import pytest
 
 SCRATCH = ["kestrel_pay_mem", "kestrel_pay_story", "kestrel_pay_nomem", "kestrel_pay_conc", "kestrel_pay_api",
-           "kestrel_pay_brain", "kestrel_pay_brain2", "kestrel_pay_iso", "northwind_test"]
+           "kestrel_pay_brain", "kestrel_pay_brain2", "kestrel_pay_iso", "kestrel_pay_ui", "northwind_test"]
 os.environ["TENANTS"] = ",".join(["kestrel_pay_test"] + SCRATCH)  # never the demo graph itself  # read by backend.db at call time
 os.environ["LLM_MODE"] = "mock"  # tests are always mock
 

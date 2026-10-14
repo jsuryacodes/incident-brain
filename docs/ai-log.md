@@ -79,3 +79,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-15 — 07-0: preflight + demo script
 - Claude Code (Opus 5.5, unattended) ran the 07 preflight (Node v22.23.2 → Vite path; Docker + FalkorDB up; setup.sh clean; pytest 105 passed) and wrote `docs/demo-script.md`, a 2:45 shot list in 7 beats.
 - Double-check: (1) the narrator lines are mine; read them aloud once for timing. (2) The script assumes replay mode at 1× and a 1920×1080 window.
+
+## 2026-10-15 — 07A: API additions for the UI
+- Claude Code (Opus 5.5, unattended) added `backend/api/views.py` (elements, step events, run graphs, compare, suggestions, Explorer), story beats in `backend/demo.py`, 11 endpoints, the access-code gate on every write (incl. the existing team-run and resolve endpoints), Brain answers without persistence, a single-use stream token for EventSource, `seed/conn.py`, golden runs with embedded graph snapshots (+ the no-memory recording), 11 new tests.
+- Double-check: (1) **behaviour change:** `/api/team/run` and `/api/incidents/{id}/resolve` now return 403 without the code. (2) The fresh "compare" beat runs on an internal twin graph `<tenant>__nomem` that is deleted afterwards; `get_graph` allows that suffix. (3) Brain mock stop words gained "decide"/"decided".

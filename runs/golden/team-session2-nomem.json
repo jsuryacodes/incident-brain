@@ -1,0 +1,1985 @@
+{
+ "run_id": "run-f8b65092ad9d",
+ "agent": "team",
+ "tenant": "kestrel_pay",
+ "mode": "mock",
+ "model": "mock",
+ "session_id": "ses:20261014T232618-597d16",
+ "started_at": 1792020378,
+ "status": "ok",
+ "alert": {
+  "service_id": "svc:payouts-service",
+  "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes"
+ },
+ "user": "jaya",
+ "incident_id": "inc:2026-032",
+ "incident_key": "INC-2026-032",
+ "report": {
+  "summary": "INC-2026-032: payouts-service payout batch API 5xx 9% and p99 3.2s. Cause unknown.",
+  "likely_cause": {
+   "service_id": null,
+   "deploy_id": null,
+   "ticket_key": null,
+   "path": [],
+   "explanation": "unknown"
+  },
+  "blast_radius": [],
+  "contact": {
+   "person_id": "per:sofia-alvarez",
+   "name": "Sofia Alvarez",
+   "reason": "140 commits on payouts-service (score 140)"
+  },
+  "bus_factor_warning": null,
+  "conflicting_decision": null,
+  "similar_past_incidents": [],
+  "evidence": [
+   {
+    "node_id": "svc:payouts-service",
+    "claim": "no recent downstream or shared-dependency change in 120 min"
+   },
+   {
+    "node_id": "inc:2026-032",
+    "claim": "incident record"
+   },
+   {
+    "node_id": "inc:2026-032",
+    "claim": "incident record"
+   }
+  ],
+  "recommended_actions": [],
+  "confidence": "low",
+  "industry_pattern": null,
+  "actions_taken": [
+   "paged Sofia Alvarez for INC-2026-032 (simulated): INC-2026-032 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause u…",
+   "opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: payouts-service"
+  ],
+  "learned": [],
+  "status_update": "[INC-2026-032] sev 2, open: payouts-service payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause still unknown. Sofia Alvarez has been paged. Follow-up ticket OPS-1. Next update in 30 minutes."
+ },
+ "agents": [
+  {
+   "agent": "triage",
+   "status": "ok",
+   "grounding": {
+    "ok": true,
+    "ungrounded_ids": [],
+    "errors": []
+   },
+   "report": {
+    "note": "Opened INC-2026-032 (inc:2026-032) at severity 2: payouts-service is tier 1 with 0 upstream callers (0 tier-1); not in the PageRank top 10. Blast radius: no tier-1 callers. Seen on this service before: INC-2025-044.",
+    "details": {
+     "incident_id": "inc:2026-032",
+     "severity": 2,
+     "reasoning": "payouts-service is tier 1 with 0 upstream callers (0 tier-1); not in the PageRank top 10",
+     "blast_radius": [],
+     "tier1_upstream": [],
+     "pagerank_rank": null,
+     "seen_before": [
+      {
+       "id": "inc:2025-044",
+       "key": "INC-2025-044",
+       "title": "ledger-service connection pool exhausted during payout run",
+       "resolution": "Raised pool ceiling and capped payout writer concurrency",
+       "resolved_by": [
+        "Marcus Webb"
+       ]
+      }
+     ]
+    }
+   },
+   "abort_reason": null,
+   "persona": "triage"
+  },
+  {
+   "agent": "investigator",
+   "status": "ok",
+   "grounding": {
+    "ok": true,
+    "ungrounded_ids": [],
+    "errors": []
+   },
+   "report": {
+    "note": "No service downstream of payouts-service, or sharing a dependency with it, changed in the last 120 min. Cause unknown; confidence low. Not setting a cause.",
+    "details": {
+     "likely_cause": null,
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "confidence": "low",
+     "evidence": [
+      {
+       "node_id": "svc:payouts-service",
+       "claim": "no recent downstream or shared-dependency change in 120 min"
+      }
+     ]
+    }
+   },
+   "abort_reason": null,
+   "persona": "investigator"
+  },
+  {
+   "agent": "communicator",
+   "status": "ok",
+   "grounding": {
+    "ok": true,
+    "ungrounded_ids": [],
+    "errors": []
+   },
+   "report": {
+    "summary": "INC-2026-032: payouts-service payout batch API 5xx 9% and p99 3.2s. Cause unknown.",
+    "likely_cause": {
+     "service_id": null,
+     "deploy_id": null,
+     "ticket_key": null,
+     "path": [],
+     "explanation": "unknown"
+    },
+    "blast_radius": [],
+    "contact": {
+     "person_id": "per:sofia-alvarez",
+     "name": "Sofia Alvarez",
+     "reason": "140 commits on payouts-service (score 140)"
+    },
+    "bus_factor_warning": null,
+    "conflicting_decision": null,
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "svc:payouts-service",
+      "claim": "no recent downstream or shared-dependency change in 120 min"
+     },
+     {
+      "node_id": "inc:2026-032",
+      "claim": "incident record"
+     },
+     {
+      "node_id": "inc:2026-032",
+      "claim": "incident record"
+     }
+    ],
+    "recommended_actions": [],
+    "confidence": "low",
+    "industry_pattern": null,
+    "actions_taken": [
+     "paged Sofia Alvarez for INC-2026-032 (simulated): INC-2026-032 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause u…",
+     "opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: payouts-service"
+    ],
+    "learned": [],
+    "status_update": "[INC-2026-032] sev 2, open: payouts-service payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause still unknown. Sofia Alvarez has been paged. Follow-up ticket OPS-1. Next update in 30 minutes."
+   },
+   "abort_reason": null,
+   "persona": "communicator"
+  }
+ ],
+ "time_to_cause": null,
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 10,
+  "tool_calls": 12,
+  "duration_ms": 92
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "triage",
+   "action": "tool_call",
+   "tool": "find_service",
+   "args": {
+    "query": "payouts-service"
+   },
+   "result": {
+    "query": "payouts-service",
+    "matches": [
+     {
+      "id": "svc:payouts-service",
+      "name": "payouts-service",
+      "tier": 1,
+      "team": "Payments Core"
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "find_service",
+    "args": {
+     "query": "payouts-service"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service)<-[:OWNS]-(t:Team) WHERE toLower(s.name) CONTAINS $q OR toLower(s.id) CONTAINS $q RETURN s.id, s.name, s.tier, t.name",
+      "params": {
+       "q": "payouts-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "find_service → matches: svc:payouts-service",
+   "ts": 1792020378,
+   "ms": 1,
+   "llm_call": 1,
+   "step_id": "step:20261014T232618-597d16-001"
+  },
+  {
+   "seq": 2,
+   "agent": "triage",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:payouts-service"
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "max_hops": 4,
+    "upstream_count": 0,
+    "tier1_count": 0,
+    "upstream": []
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "blast_radius → 0 upstream (0 tier-1)",
+   "ts": 1792020378,
+   "ms": 4,
+   "llm_call": 1,
+   "step_id": "step:20261014T232618-597d16-002"
+  },
+  {
+   "seq": 3,
+   "agent": "triage",
+   "action": "tool_call",
+   "tool": "critical_services",
+   "args": {
+    "algorithm": "pagerank",
+    "limit": 10
+   },
+   "result": {
+    "algorithm": "pagerank",
+    "meaning": "shared dependencies: services many others call, directly or indirectly",
+    "services": [
+     {
+      "id": "svc:config-db",
+      "name": "config-db",
+      "tier": 1,
+      "team": "Platform",
+      "score": 0.1215
+     },
+     {
+      "id": "svc:config-service",
+      "name": "config-service",
+      "tier": 1,
+      "team": "Platform",
+      "score": 0.1213
+     },
+     {
+      "id": "svc:kafka-events",
+      "name": "kafka-events",
+      "tier": 1,
+      "team": "Platform",
+      "score": 0.089
+     },
+     {
+      "id": "svc:ledger-service",
+      "name": "ledger-service",
+      "tier": 1,
+      "team": "Payments Core",
+      "score": 0.0532
+     },
+     {
+      "id": "svc:sanctions-screening",
+      "name": "sanctions-screening",
+      "tier": 2,
+      "team": "Risk & Fraud",
+      "score": 0.0503
+     },
+     {
+      "id": "svc:api-gateway",
+      "name": "api-gateway",
+      "tier": 1,
+      "team": "Platform",
+      "score": 0.0418
+     },
+     {
+      "id": "svc:rules-store-db",
+      "name": "rules-store-db",
+      "tier": 1,
+      "team": "Risk & Fraud",
+      "score": 0.0394
+     },
+     {
+      "id": "svc:audit-log",
+      "name": "audit-log",
+      "tier": 2,
+      "team": "Platform",
+      "score": 0.0335
+     },
+     {
+      "id": "svc:ledger-db",
+      "name": "ledger-db",
+      "tier": 1,
+      "team": "Payments Core",
+      "score": 0.0335
+     },
+     {
+      "id": "svc:auth-service",
+      "name": "auth-service",
+      "tier": 1,
+      "team": "Platform",
+      "score": 0.0302
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "critical_services",
+    "args": {
+     "algorithm": "pagerank",
+     "limit": 10
+    },
+    "queries": [
+     {
+      "cypher": "CALL algo.pageRank('Service', 'DEPENDS_ON') YIELD node, score MATCH (t:Team)-[:OWNS]->(node) RETURN node.id, node.name, node.tier, t.name, score ORDER BY score DESC LIMIT $limit",
+      "params": {
+       "limit": 10
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:config-db",
+      "svc:config-service",
+      "svc:kafka-events",
+      "svc:ledger-service",
+      "svc:sanctions-screening",
+      "svc:api-gateway",
+      "svc:rules-store-db",
+      "svc:audit-log",
+      "svc:ledger-db",
+      "svc:auth-service"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "critical_services → pagerank: config-db, config-service, kafka-events, ledger-service",
+   "ts": 1792020378,
+   "ms": 1,
+   "llm_call": 1,
+   "step_id": "step:20261014T232618-597d16-003"
+  },
+  {
+   "seq": 4,
+   "agent": "triage",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:payouts-service"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:payouts-service"
+    ],
+    "incident_count": 1,
+    "incidents": [
+     {
+      "id": "inc:2025-044",
+      "key": "INC-2025-044",
+      "title": "ledger-service connection pool exhausted during payout run",
+      "severity": 2,
+      "started": "2025-09-14",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:connection-pool-exhaustion"
+      ],
+      "resolution": "Raised pool ceiling and capped payout writer concurrency",
+      "resolved_by": [
+       "Marcus Webb"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2025-044"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:payouts-service"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:2025-044"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2025-044",
+      "rc:connection-pool-exhaustion",
+      "svc:payouts-service",
+      "res:2025-044",
+      "per:marcus-webb",
+      "tkt:PM-2025-044"
+     ],
+     "edges": [
+      {
+       "from": "inc:2025-044",
+       "type": "AFFECTED",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:connection-pool-exhaustion"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "RESOLVED_BY",
+       "to": "res:2025-044"
+      },
+      {
+       "from": "res:2025-044",
+       "type": "PERFORMED_BY",
+       "to": "per:marcus-webb"
+      },
+      {
+       "from": "res:2025-044",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2025-044"
+      }
+     ]
+    }
+   },
+   "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)",
+   "ts": 1792020378,
+   "ms": 5,
+   "llm_call": 1,
+   "step_id": "step:20261014T232618-597d16-004"
+  },
+  {
+   "seq": 5,
+   "agent": "triage",
+   "action": "write",
+   "tool": "open_incident",
+   "args": {
+    "service_id": "svc:payouts-service",
+    "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
+    "severity": 2
+   },
+   "result": {
+    "id": "inc:2026-032",
+    "key": "INC-2026-032",
+    "status": "open",
+    "severity": 2,
+    "summary": "opened INC-2026-032 (inc:2026-032), severity 2, on svc:payouts-service"
+   },
+   "receipt": {
+    "tool": "open_incident",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
+     "severity": 2
+    },
+    "queries": [
+     {
+      "cypher": "OPTIONAL MATCH (i:Incident) WHERE i.key STARTS WITH $prefix WITH coalesce(max(toInteger(substring(i.key, size($prefix)))), 0) + 1 AS n WITH $prefix + right('00' + toString(n), 3) AS key CREATE (x:Incident {id: 'inc:' + substring(key, 4), key: key, title: $title, severity: $severity, status: 'open', symptom: $symptom, summary: $symptom, started_at: $now, origin: 'agent', created_at: $now}) RETURN x.id, x.key",
+      "params": {
+       "prefix": "INC-2026-",
+       "title": "payouts-service: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
+       "severity": 2,
+       "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
+       "now": 1792020378
+      },
+      "write": true
+     },
+     {
+      "cypher": "MATCH (x:Incident {id:$id}), (s:Service {id:$svc}), (ses:Session {id:$ses}) MERGE (x)-[a:AFFECTED]->(s) ON CREATE SET a.origin = 'agent', a.created_at = $now MERGE (ses)-[f:FOR_INCIDENT]->(x) ON CREATE SET f.origin = 'agent', f.created_at = $now MERGE (x)-[w:WRITTEN_IN]->(ses) ON CREATE SET w.origin = 'agent', w.created_at = $now",
+      "params": {
+       "id": "inc:2026-032",
+       "svc": "svc:payouts-service",
+       "ses": "ses:20261014T232618-597d16",
+       "now": 1792020378
+      },
+      "write": true
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2026-032",
+      "svc:payouts-service",
+      "ses:20261014T232618-597d16"
+     ],
+     "edges": [
+      {
+       "from": "inc:2026-032",
+       "type": "AFFECTED",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "ses:20261014T232618-597d16",
+       "type": "FOR_INCIDENT",
+       "to": "inc:2026-032"
+      }
+     ]
+    }
+   },
+   "summary": "open_incident → opened INC-2026-032 (inc:2026-032), severity 2, on svc:payouts-service",
+   "ts": 1792020378,
+   "ms": 4,
+   "llm_call": 2,
+   "step_id": "step:20261014T232618-597d16-005"
+  },
+  {
+   "seq": 6,
+   "agent": "triage",
+   "action": "handoff",
+   "tool": "submit_handoff",
+   "args": {
+    "note": "Opened INC-2026-032 (inc:2026-032) at severity 2: payouts-service is tier 1 with 0 upstream callers (0 tier-1); not in the PageRank top 10. Blast radius: no tier-1 callers. Seen on this service before: INC-2025-044.",
+    "details": {
+     "incident_id": "inc:2026-032",
+     "severity": 2,
+     "reasoning": "payouts-service is tier 1 with 0 upstream callers (0 tier-1); not in the PageRank top 10",
+     "blast_radius": [],
+     "tier1_upstream": [],
+     "pagerank_rank": null,
+     "seen_before": [
+      {
+       "id": "inc:2025-044",
+       "key": "INC-2025-044",
+       "title": "ledger-service connection pool exhausted during payout run",
+       "resolution": "Raised pool ceiling and capped payout writer concurrency",
+       "resolved_by": [
+        "Marcus Webb"
+       ]
+      }
+     ]
+    }
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_handoff"
+   },
+   "receipt": {
+    "tool": "submit_handoff",
+    "args": {
+     "note": "Opened INC-2026-032 (inc:2026-032) at severity 2: payouts-service is tier 1 with 0 upstream callers (0 tier-1); not in the PageRank top 10. Blast radius: no tier-1 callers. Seen on this service before: INC-2025-044.",
+     "details": {
+      "incident_id": "inc:2026-032",
+      "severity": 2,
+      "reasoning": "payouts-service is tier 1 with 0 upstream callers (0 tier-1); not in the PageRank top 10",
+      "blast_radius": [],
+      "tier1_upstream": [],
+      "pagerank_rank": null,
+      "seen_before": [
+       {
+        "id": "inc:2025-044",
+        "key": "INC-2025-044",
+        "title": "ledger-service connection pool exhausted during payout run",
+        "resolution": "Raised pool ceiling and capped payout writer concurrency",
+        "resolved_by": [
+         "Marcus Webb"
+        ]
+       }
+      ]
+     }
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "inc:2025-044",
+      "inc:2026-032"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "Opened INC-2026-032 (inc:2026-032) at severity 2: payouts-service is tier 1 with 0 upstream callers (0 tier-1); not in the PageRank top 10. Blast radius: no tier-1 callers. Seen on this service before: INC-2025-044.",
+   "ts": 1792020378,
+   "ms": 0,
+   "llm_call": 3,
+   "step_id": "step:20261014T232618-597d16-006"
+  },
+  {
+   "seq": 7,
+   "agent": "investigator",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:payouts-service"
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "scope": [
+     "svc:payouts-service",
+     "svc:ledger-service",
+     "svc:bank-connector",
+     "svc:fx-rates-service",
+     "svc:config-service",
+     "svc:kafka-events",
+     "svc:config-db",
+     "svc:ledger-db",
+     "svc:audit-log"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792020378,
+   "ms": 2,
+   "llm_call": 4,
+   "step_id": "step:20261014T232618-597d16-007"
+  },
+  {
+   "seq": 8,
+   "agent": "investigator",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:payouts-service",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no downstream service was deployed in this window"
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "since_minutes": 120,
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*1..4]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, min(length(p)) AS hops, dep.id, dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:payouts-service",
+       "since": 1792013178
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "recent_changes_downstream → no recent downstream deploys",
+   "ts": 1792020378,
+   "ms": 1,
+   "llm_call": 5,
+   "step_id": "step:20261014T232618-597d16-008"
+  },
+  {
+   "seq": 9,
+   "agent": "investigator",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:payouts-service",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:payouts-service",
+       "since": 1792013178,
+       "downstream": [
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792020378,
+   "ms": 1,
+   "llm_call": 5,
+   "step_id": "step:20261014T232618-597d16-009"
+  },
+  {
+   "seq": 10,
+   "agent": "investigator",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:payouts-service"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:payouts-service"
+    ],
+    "incident_count": 2,
+    "incidents": [
+     {
+      "id": "inc:2026-032",
+      "key": "INC-2026-032",
+      "title": "payouts-service: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
+      "severity": 2,
+      "started": "2026-10-14",
+      "origin": "agent",
+      "status": "open",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [],
+      "resolution": null,
+      "resolved_by": [],
+      "resolution_sources": [],
+      "similar_to": []
+     },
+     {
+      "id": "inc:2025-044",
+      "key": "INC-2025-044",
+      "title": "ledger-service connection pool exhausted during payout run",
+      "severity": 2,
+      "started": "2025-09-14",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:connection-pool-exhaustion"
+      ],
+      "resolution": "Raised pool ceiling and capped payout writer concurrency",
+      "resolved_by": [
+       "Marcus Webb"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2025-044"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:payouts-service"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:2025-044",
+        "inc:2026-032"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2026-032",
+      "svc:payouts-service",
+      "inc:2025-044",
+      "rc:connection-pool-exhaustion",
+      "res:2025-044",
+      "per:marcus-webb",
+      "tkt:PM-2025-044"
+     ],
+     "edges": [
+      {
+       "from": "inc:2026-032",
+       "type": "AFFECTED",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "AFFECTED",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:connection-pool-exhaustion"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "RESOLVED_BY",
+       "to": "res:2025-044"
+      },
+      {
+       "from": "res:2025-044",
+       "type": "PERFORMED_BY",
+       "to": "per:marcus-webb"
+      },
+      {
+       "from": "res:2025-044",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2025-044"
+      }
+     ]
+    }
+   },
+   "summary": "past_incidents → 2 incident(s): INC-2026-032, INC-2025-044 (fixed by Marcus Webb)",
+   "ts": 1792020378,
+   "ms": 1,
+   "llm_call": 6,
+   "step_id": "step:20261014T232618-597d16-010"
+  },
+  {
+   "seq": 11,
+   "agent": "investigator",
+   "action": "handoff",
+   "tool": "submit_handoff",
+   "args": {
+    "note": "No service downstream of payouts-service, or sharing a dependency with it, changed in the last 120 min. Cause unknown; confidence low. Not setting a cause.",
+    "details": {
+     "likely_cause": null,
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "confidence": "low",
+     "evidence": [
+      {
+       "node_id": "svc:payouts-service",
+       "claim": "no recent downstream or shared-dependency change in 120 min"
+      }
+     ]
+    }
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_handoff"
+   },
+   "receipt": {
+    "tool": "submit_handoff",
+    "args": {
+     "note": "No service downstream of payouts-service, or sharing a dependency with it, changed in the last 120 min. Cause unknown; confidence low. Not setting a cause.",
+     "details": {
+      "likely_cause": null,
+      "conflicting_decision": null,
+      "similar_past_incidents": [],
+      "confidence": "low",
+      "evidence": [
+       {
+        "node_id": "svc:payouts-service",
+        "claim": "no recent downstream or shared-dependency change in 120 min"
+       }
+      ]
+     }
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "No service downstream of payouts-service, or sharing a dependency with it, changed in the last 120 min. Cause unknown; confidence low. Not setting a cause.",
+   "ts": 1792020378,
+   "ms": 0,
+   "llm_call": 7,
+   "step_id": "step:20261014T232618-597d16-011"
+  },
+  {
+   "seq": 12,
+   "agent": "communicator",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:payouts-service"
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "maintainers": [
+     {
+      "id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "role": "Engineer",
+      "commits": 140,
+      "last_commit_days_ago": 5,
+      "resolutions": 0,
+      "score": 140
+     },
+     {
+      "id": "per:tomasz-kowalski",
+      "name": "Tomasz Kowalski",
+      "role": "Engineer",
+      "commits": 37,
+      "last_commit_days_ago": 19,
+      "resolutions": 0,
+      "score": 37
+     },
+     {
+      "id": "per:marcus-webb",
+      "name": "Marcus Webb",
+      "role": "Staff Engineer",
+      "commits": 0,
+      "last_commit_days_ago": null,
+      "resolutions": 1,
+      "score": 25
+     },
+     {
+      "id": "per:priya-nair",
+      "name": "Priya Nair",
+      "role": "Senior Engineer",
+      "commits": 12,
+      "last_commit_days_ago": 55,
+      "resolutions": 0,
+      "score": 12
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:payments-core",
+     "name": "Payments Core",
+     "active_members": [
+      "Priya Nair",
+      "Marcus Webb",
+      "Sofia Alvarez",
+      "Tomasz Kowalski",
+      "Aiko Tanaka"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:payouts-service"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:priya-nair",
+      "svc:payouts-service",
+      "per:sofia-alvarez",
+      "per:tomasz-kowalski",
+      "team:payments-core",
+      "per:marcus-webb"
+     ],
+     "edges": [
+      {
+       "from": "per:priya-nair",
+       "type": "WORKED_ON",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "per:sofia-alvarez",
+       "type": "WORKED_ON",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "WORKED_ON",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "per:sofia-alvarez",
+       "type": "MAINTAINS",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "team:payments-core",
+       "type": "OWNS",
+       "to": "svc:payouts-service"
+      }
+     ]
+    }
+   },
+   "summary": "who_to_call → top: Sofia Alvarez (score 140)",
+   "ts": 1792020378,
+   "ms": 2,
+   "llm_call": 8,
+   "step_id": "step:20261014T232618-597d16-012"
+  },
+  {
+   "seq": 13,
+   "agent": "communicator",
+   "action": "page",
+   "tool": "page_person",
+   "args": {
+    "person_id": "per:sofia-alvarez",
+    "incident_id": "inc:2026-032",
+    "message": "INC-2026-032 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause unknown. You are the top active contact (140 commits on payouts-service (score 140))."
+   },
+   "result": {
+    "paged": "per:sofia-alvarez",
+    "name": "Sofia Alvarez",
+    "incident": "inc:2026-032",
+    "simulated": true,
+    "message": "INC-2026-032 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause unknown. You are the top active contact (140 commits on payouts-service (score 140)).",
+    "summary": "paged Sofia Alvarez for INC-2026-032 (simulated): INC-2026-032 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause u…"
+   },
+   "receipt": {
+    "tool": "page_person",
+    "args": {
+     "person_id": "per:sofia-alvarez",
+     "incident_id": "inc:2026-032",
+     "message": "INC-2026-032 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause unknown. You are the top active contact (140 commits on payouts-service (score 140))."
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person {id:$p}), (i:Incident {id:$i}) RETURN p.name, p.status, p.left_at, i.key",
+      "params": {
+       "p": "per:sofia-alvarez",
+       "i": "inc:2026-032"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:sofia-alvarez",
+      "inc:2026-032"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "page_person → paged Sofia Alvarez for INC-2026-032 (simulated): INC-2026-032 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause u…",
+   "ts": 1792020378,
+   "ms": 1,
+   "llm_call": 9,
+   "step_id": "step:20261014T232618-597d16-013"
+  },
+  {
+   "seq": 14,
+   "agent": "communicator",
+   "action": "write",
+   "tool": "open_ticket",
+   "args": {
+    "service_id": "svc:payouts-service",
+    "incident_id": "inc:2026-032",
+    "title": "INC-2026-032 follow-up: payouts-service",
+    "text": "Cause not yet known. Actions: investigate further"
+   },
+   "result": {
+    "id": "tkt:OPS-1",
+    "key": "OPS-1",
+    "status": "open",
+    "summary": "opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: payouts-service"
+   },
+   "receipt": {
+    "tool": "open_ticket",
+    "args": {
+     "title": "INC-2026-032 follow-up: payouts-service",
+     "text": "Cause not yet known. Actions: investigate further",
+     "service_id": "svc:payouts-service",
+     "incident_id": "inc:2026-032"
+    },
+    "queries": [
+     {
+      "cypher": "OPTIONAL MATCH (t:Ticket) WHERE t.key STARTS WITH 'OPS-' WITH coalesce(max(toInteger(substring(t.key, 4))), 0) + 1 AS n CREATE (x:Ticket {id: 'tkt:OPS-' + toString(n), key: 'OPS-' + toString(n), title: $title, text: $text, kind: 'incident-followup', status: 'open', priority: $priority, origin: 'agent', created_at: $now}) RETURN x.id, x.key",
+      "params": {
+       "title": "INC-2026-032 follow-up: payouts-service",
+       "text": "Cause not yet known. Actions: investigate further",
+       "now": 1792020378,
+       "priority": "P2"
+      },
+      "write": true
+     },
+     {
+      "cypher": "MATCH (t:Ticket {id:$id}), (x:Service {id:$x}) MERGE (t)-[r:ABOUT]->(x) ON CREATE SET r.origin = 'agent', r.created_at = $now",
+      "params": {
+       "id": "tkt:OPS-1",
+       "x": "svc:payouts-service",
+       "now": 1792020378
+      },
+      "write": true
+     },
+     {
+      "cypher": "MATCH (t:Ticket {id:$id}), (x:Incident {id:$x}) MERGE (t)-[r:ABOUT]->(x) ON CREATE SET r.origin = 'agent', r.created_at = $now",
+      "params": {
+       "id": "tkt:OPS-1",
+       "x": "inc:2026-032",
+       "now": 1792020378
+      },
+      "write": true
+     },
+     {
+      "cypher": "MATCH (n:Ticket {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
+      "params": {
+       "id": "tkt:OPS-1",
+       "ses": "ses:20261014T232618-597d16",
+       "now": 1792020378
+      },
+      "write": true
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "tkt:OPS-1",
+      "svc:payouts-service",
+      "inc:2026-032",
+      "ses:20261014T232618-597d16"
+     ],
+     "edges": [
+      {
+       "from": "tkt:OPS-1",
+       "type": "ABOUT",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "tkt:OPS-1",
+       "type": "ABOUT",
+       "to": "inc:2026-032"
+      },
+      {
+       "from": "tkt:OPS-1",
+       "type": "WRITTEN_IN",
+       "to": "ses:20261014T232618-597d16"
+      }
+     ]
+    }
+   },
+   "summary": "open_ticket → opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: payouts-service",
+   "ts": 1792020378,
+   "ms": 3,
+   "llm_call": 9,
+   "step_id": "step:20261014T232618-597d16-014"
+  },
+  {
+   "seq": 15,
+   "agent": "communicator",
+   "action": "handoff",
+   "tool": "submit_report",
+   "args": {
+    "summary": "INC-2026-032: payouts-service payout batch API 5xx 9% and p99 3.2s. Cause unknown.",
+    "likely_cause": {
+     "service_id": null,
+     "deploy_id": null,
+     "ticket_key": null,
+     "path": [],
+     "explanation": "unknown"
+    },
+    "blast_radius": [],
+    "contact": {
+     "person_id": "per:sofia-alvarez",
+     "name": "Sofia Alvarez",
+     "reason": "140 commits on payouts-service (score 140)"
+    },
+    "bus_factor_warning": null,
+    "conflicting_decision": null,
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "svc:payouts-service",
+      "claim": "no recent downstream or shared-dependency change in 120 min"
+     },
+     {
+      "node_id": "inc:2026-032",
+      "claim": "incident record"
+     },
+     {
+      "node_id": "inc:2026-032",
+      "claim": "incident record"
+     }
+    ],
+    "recommended_actions": [],
+    "confidence": "low",
+    "industry_pattern": null,
+    "actions_taken": [
+     "paged Sofia Alvarez for INC-2026-032 (simulated): INC-2026-032 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause u…",
+     "opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: payouts-service"
+    ],
+    "learned": [],
+    "status_update": "[INC-2026-032] sev 2, open: payouts-service payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause still unknown. Sofia Alvarez has been paged. Follow-up ticket OPS-1. Next update in 30 minutes."
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "INC-2026-032: payouts-service payout batch API 5xx 9% and p99 3.2s. Cause unknown.",
+     "likely_cause": {
+      "service_id": null,
+      "deploy_id": null,
+      "ticket_key": null,
+      "path": [],
+      "explanation": "unknown"
+     },
+     "blast_radius": [],
+     "contact": {
+      "person_id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "reason": "140 commits on payouts-service (score 140)"
+     },
+     "bus_factor_warning": null,
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "evidence": [
+      {
+       "node_id": "svc:payouts-service",
+       "claim": "no recent downstream or shared-dependency change in 120 min"
+      },
+      {
+       "node_id": "inc:2026-032",
+       "claim": "incident record"
+      },
+      {
+       "node_id": "inc:2026-032",
+       "claim": "incident record"
+      }
+     ],
+     "recommended_actions": [],
+     "confidence": "low",
+     "industry_pattern": null,
+     "actions_taken": [
+      "paged Sofia Alvarez for INC-2026-032 (simulated): INC-2026-032 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause u…",
+      "opened OPS-1 (tkt:OPS-1): INC-2026-032 follow-up: payouts-service"
+     ],
+     "learned": [],
+     "status_update": "[INC-2026-032] sev 2, open: payouts-service payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Cause still unknown. Sofia Alvarez has been paged. Follow-up ticket OPS-1. Next update in 30 minutes."
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "inc:2026-032",
+      "per:sofia-alvarez",
+      "svc:payouts-service",
+      "tkt:OPS-1"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "INC-2026-032: payouts-service payout batch API 5xx 9% and p99 3.2s. Cause unknown.",
+   "ts": 1792020378,
+   "ms": 0,
+   "llm_call": 10,
+   "step_id": "step:20261014T232618-597d16-015"
+  }
+ ],
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:payments-core",
+    "label": "Team",
+    "name": "Payments Core",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Payments Core"
+    }
+   },
+   {
+    "id": "per:priya-nair",
+    "label": "Person",
+    "name": "Priya Nair",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Priya Nair",
+     "role": "Senior Engineer",
+     "email": "priya.nair@kestrelpay.example",
+     "joined_at": 1662420378
+    }
+   },
+   {
+    "id": "per:marcus-webb",
+    "label": "Person",
+    "name": "Marcus Webb",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Marcus Webb",
+     "role": "Staff Engineer",
+     "email": "marcus.webb@kestrelpay.example",
+     "joined_at": 1593300378
+    }
+   },
+   {
+    "id": "per:sofia-alvarez",
+    "label": "Person",
+    "name": "Sofia Alvarez",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Sofia Alvarez",
+     "role": "Engineer",
+     "email": "sofia.alvarez@kestrelpay.example",
+     "joined_at": 1714260378
+    }
+   },
+   {
+    "id": "per:tomasz-kowalski",
+    "label": "Person",
+    "name": "Tomasz Kowalski",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Tomasz Kowalski",
+     "role": "Engineer",
+     "email": "tomasz.kowalski@kestrelpay.example",
+     "joined_at": 1731540378
+    }
+   },
+   {
+    "id": "svc:ledger-service",
+    "label": "Service",
+    "name": "ledger-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "ledger-service",
+     "description": "Double-entry ledger; the system of record for every money movement.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/ledger-service"
+    }
+   },
+   {
+    "id": "svc:bank-connector",
+    "label": "Service",
+    "name": "bank-connector",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "bank-connector",
+     "description": "Connects to partner banks for settlement files and instant-payout rails.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/bank-connector"
+    }
+   },
+   {
+    "id": "svc:payouts-service",
+    "label": "Service",
+    "name": "payouts-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "payouts-service",
+     "description": "Schedules and executes merchant payouts in batches.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/payouts-service"
+    }
+   },
+   {
+    "id": "svc:fx-rates-service",
+    "label": "Service",
+    "name": "fx-rates-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "fx-rates-service",
+     "description": "Serves cached foreign-exchange rates and applies the margin policy.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/fx-rates-service"
+    }
+   },
+   {
+    "id": "svc:ledger-db",
+    "label": "Service",
+    "name": "ledger-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "ledger-db",
+     "description": "Primary PostgreSQL cluster backing the ledger.",
+     "tier": 1,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.kestrelpay.example/ledger-db"
+    }
+   },
+   {
+    "id": "svc:rules-store-db",
+    "label": "Service",
+    "name": "rules-store-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "rules-store-db",
+     "description": "PostgreSQL database holding rule definitions and rule audit history.",
+     "tier": 1,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.kestrelpay.example/rules-store-db"
+    }
+   },
+   {
+    "id": "svc:sanctions-screening",
+    "label": "Service",
+    "name": "sanctions-screening",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "sanctions-screening",
+     "description": "Screens merchants and beneficiaries against sanctions lists.",
+     "tier": 2,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/sanctions-screening"
+    }
+   },
+   {
+    "id": "svc:api-gateway",
+    "label": "Service",
+    "name": "api-gateway",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "api-gateway",
+     "description": "Edge gateway: routing, rate limiting and request authentication.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/api-gateway"
+    }
+   },
+   {
+    "id": "svc:auth-service",
+    "label": "Service",
+    "name": "auth-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "auth-service",
+     "description": "Issues and validates API keys and OAuth tokens.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/auth-service"
+    }
+   },
+   {
+    "id": "svc:config-service",
+    "label": "Service",
+    "name": "config-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "config-service",
+     "description": "Central configuration and ruleset distribution service used by many backends.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/config-service"
+    }
+   },
+   {
+    "id": "svc:config-db",
+    "label": "Service",
+    "name": "config-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "config-db",
+     "description": "PostgreSQL store for config-service.",
+     "tier": 1,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.kestrelpay.example/config-db"
+    }
+   },
+   {
+    "id": "svc:kafka-events",
+    "label": "Service",
+    "name": "kafka-events",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "kafka-events",
+     "description": "Shared Kafka cluster carrying payment, ledger and notification events.",
+     "tier": 1,
+     "language": "Kafka",
+     "repo_url": "https://git.kestrelpay.example/kafka-events"
+    }
+   },
+   {
+    "id": "svc:audit-log",
+    "label": "Service",
+    "name": "audit-log",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "audit-log",
+     "description": "Append-only audit trail of administrative and money-moving actions.",
+     "tier": 2,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/audit-log"
+    }
+   },
+   {
+    "id": "tkt:PM-2025-044",
+    "label": "Ticket",
+    "name": "PM-2025-044",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: ledger connection pool exhausted during payout run",
+     "text": "INC-2025-044, sev 2. Impact: payouts were delayed by three hours and some payment captures failed. Timeline: ledger-service v3.4.0 added a parallel payout journal writer. During the daily payout run it opened more connections than the database pool allowed, starving payments-api requests. Root cause: database connection pool exhaustion. Follow-up: load-test payout runs against the pool limit. Res…",
+     "key": "PM-2025-044",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "rc:connection-pool-exhaustion",
+    "label": "RootCause",
+    "name": "Database connection pool exhaustion",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Database connection pool exhaustion",
+     "description": "More concurrent work than the connection pool allows, so requests queue or fail."
+    }
+   },
+   {
+    "id": "inc:2025-044",
+    "label": "Incident",
+    "name": "INC-2025-044",
+    "origin": "seed",
+    "props": {
+     "started_at": 1757892378,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "ledger-service connection pool exhausted during payout run",
+     "summary": "ledger-service v3.4.0 added a parallel payout journal writer that opened more connections than the ledger-db pool allowed, starving payment captures. Raised the pool ceiling and capped writer concurrency.",
+     "key": "INC-2025-044",
+     "severity": 2,
+     "symptom": "payout run stalled; payment captures failing with pool timeout errors",
+     "resolved_at": 1757903178
+    }
+   },
+   {
+    "id": "res:2025-044",
+    "label": "Resolution",
+    "name": "Raised pool ceiling and capped payout writer concurrency",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Raised pool ceiling and capped payout writer concurrency",
+     "steps": "1. Reduce payout writer concurrency to 4. 2. Raise the ledger-db connection pool limit. 3. Re-run the stalled payout batch."
+    }
+   },
+   {
+    "id": "inc:2026-032",
+    "label": "Incident",
+    "name": "INC-2026-032",
+    "origin": "agent",
+    "props": {
+     "started_at": 1792020378,
+     "status": "open",
+     "origin": "agent",
+     "title": "payouts-service: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
+     "summary": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
+     "key": "INC-2026-032",
+     "severity": 2,
+     "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes"
+    }
+   },
+   {
+    "id": "tkt:OPS-1",
+    "label": "Ticket",
+    "name": "OPS-1",
+    "origin": "agent",
+    "props": {
+     "status": "open",
+     "origin": "agent",
+     "title": "INC-2026-032 follow-up: payouts-service",
+     "text": "Cause not yet known. Actions: investigate further",
+     "key": "OPS-1",
+     "kind": "incident-followup",
+     "priority": "P2"
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:payments-core",
+    "type": "OWNS",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:priya-nair",
+    "type": "WORKED_ON",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {
+     "commits": 12,
+     "last_at": 1787268378
+    }
+   },
+   {
+    "source": "per:sofia-alvarez",
+    "type": "MAINTAINS",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:sofia-alvarez",
+    "type": "WORKED_ON",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {
+     "commits": 140,
+     "last_at": 1791588378
+    }
+   },
+   {
+    "source": "per:tomasz-kowalski",
+    "type": "WORKED_ON",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {
+     "commits": 37,
+     "last_at": 1790378778
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:ledger-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:bank-connector",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:fx-rates-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:kafka-events",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "AFFECTED",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:connection-pool-exhaustion",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "RESOLVED_BY",
+    "target": "res:2025-044",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-044",
+    "type": "PERFORMED_BY",
+    "target": "per:marcus-webb",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-044",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2025-044",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: raised the ledger connection pool ceiling and capped payout writer concurrency."
+    }
+   },
+   {
+    "source": "inc:2026-032",
+    "type": "AFFECTED",
+    "target": "svc:payouts-service",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "tkt:OPS-1",
+    "type": "ABOUT",
+    "target": "svc:payouts-service",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   },
+   {
+    "source": "tkt:OPS-1",
+    "type": "ABOUT",
+    "target": "inc:2026-032",
+    "origin": "agent",
+    "props": {
+     "origin": "agent"
+    }
+   }
+  ],
+  "base": [
+   "svc:bank-connector",
+   "svc:config-service",
+   "svc:fx-rates-service",
+   "svc:kafka-events",
+   "svc:ledger-service",
+   "svc:payouts-service"
+  ],
+  "alert": "svc:payouts-service"
+ }
+}
