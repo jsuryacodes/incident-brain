@@ -126,6 +126,12 @@ class Recorder:
         self.queries.append({"cypher": " ".join(cypher.split()), "params": params})
         return self.graph.ro_query(cypher, params).result_set
 
+    def w(self, cypher, params=None):
+        """A write (memory tools only). Recorded in the receipt like every read."""
+        params = dict(params or {})
+        self.queries.append({"cypher": " ".join(cypher.split()), "params": params, "write": True})
+        return self.graph.query(cypher, params).result_set
+
     def check(self, node_id, label):
         """Return an error string if node_id is not an existing :label node, else None. Not recorded."""
         prefix = LABEL_TO_PREFIX[label] + ":"

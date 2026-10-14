@@ -1,4 +1,4 @@
-"""Machine-readable copy of docs/schema.md (LOCKED v1). Change the doc first, then this file."""
+"""Machine-readable copy of docs/schema.md (LOCKED v1.1). Change the doc first, then this file."""
 
 PREFIX_TO_LABEL = {
     "team": "Team", "per": "Person", "svc": "Service", "dep": "Deploy", "doc": "Doc",
@@ -30,6 +30,8 @@ REQUIRED = {
 }
 OPTIONAL = {
     "Person": {"left_at"},
+    "Doc": {"flagged_reason", "flagged_at"},  # v1.1: set by flag_stale
+    "Runbook": {"flagged_stale", "flagged_reason", "flagged_at"},  # v1.1: set by flag_stale
     "Incident": {"resolved_at"},
     "Session": {"ended_at"},
     "Step": {"tool", "cypher", "params_json"},
@@ -84,6 +86,9 @@ EDGE_PROPS = {  # type -> (required, optional)
     "SOURCED_FROM": ({"excerpt"}, set()),
     "SIMILAR_TO": (set(), {"score", "reason"}),
 }
+# v1.1: every edge an agent writes also carries origin='agent' and created_at (optional on all edge types)
+EDGE_COMMON_OPTIONAL = {"origin", "created_at"}
+
 EDGE_ENUMS = {
     ("DEPENDS_ON", "kind"): {"sync", "async", "db", "cache"},
     ("DEPENDS_ON", "source"): {"declared", "learned"},

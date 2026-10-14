@@ -1,4 +1,4 @@
-"""The 12 fixed, parameterised, read-only graph tools.  fn(ctx, **args) -> ToolOutput.
+"""The fixed, parameterised, read-only graph tools.  fn(ctx, **args) -> ToolOutput.
 
 Every query goes through Recorder.q -> graph.ro_query. Variable-length bounds cannot be parameters, so the only
 interpolation is `__N__`, replaced by an int clamped to 1..6. Query text lives in module constants (Q_*) so that
@@ -7,6 +7,7 @@ registry.py / export_docs.py can print exactly what runs.
 FalkorDB quirk: a MATCH placed *after* `WITH ... aggregate` can silently return no rows. So every aggregation
 (min(length(p)), collect, count) is the last step in its query (in RETURN), and all MATCHes come before it.
 """
+import json
 import re
 
 from backend.tools.receipt import Recorder, clamp, clip, days_ago, iso, minutes_ago
@@ -142,7 +143,8 @@ OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d)
 OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket)
 RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title,
        [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source],
-       [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source]
+       [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source],
+       [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from]
 ORDER BY length(p1) + length(p2), d.ts DESC
 LIMIT 60"""
 
@@ -166,7 +168,7 @@ def shared_dependency_changes(ctx, service_id, since_minutes=1440, max_hops=3):
             best[key]["others"].append(r[1])
     hits = []
     for (nb, did), b in sorted(best.items(), key=lambda kv: (kv[1]["total"], -kv[1]["row"][4]))[:5]:
-        (_, shared, _, ver, ts, summ, wid, wname, tid, tkey, ttitle, p1, s1, p2, s2) = b["row"]
+        (_, shared, _, ver, ts, summ, wid, wname, tid, tkey, ttitle, p1, s1, p2, s2, facts) = b["row"]
         p2, s2 = p2[::-1], s2[::-1]  # neighbour -> shared
         rec.hl_path(p1)
         rec.hl_path(p2)
@@ -180,6 +182,8 @@ def shared_dependency_changes(ctx, service_id, since_minutes=1440, max_hops=3):
                "path_to_shared": p1, "path_to_shared_sources": s1,
                "neighbour_path": p2, "neighbour_path_sources": s2,
                "uses_learned_edge": "learned" in s1 + s2}
+        if facts:
+            hit["learned_facts"] = sorted(set(facts))
         if b["others"]:
             hit["also_shares"] = b["others"][:3]
         hits.append(hit)
@@ -312,9 +316,11 @@ OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution)
 OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person)
 OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src)
 OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o)
+OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i)
 RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status,
        collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id),
-       collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score})"""
+       collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}),
+       collect(DISTINCT rb.id)"""
 
 
 def past_incidents(ctx, service_ids, limit=5):
@@ -340,7 +346,7 @@ def past_incidents(ctx, service_ids, limit=5):
     details = {r[0]: r for r in rec.q(Q_INC_DETAIL, {"iids": list(found)})} if found else {}
     ranked = sorted(details.values(), key=lambda r: (-len(found[r[0]]["services"]), -(r[4] or 0)))[:limit]
     out = []
-    for iid, key, title, sev, started, origin, status, rcs, rids, rsums, pids, pnames, srcs, sims in ranked:
+    for iid, key, title, sev, started, origin, status, rcs, rids, rsums, pids, pnames, srcs, sims, rbs in ranked:
         f = found[iid]
         rec.hl(iid, *rcs)
         for e in f["edges"]:
@@ -360,7 +366,10 @@ def past_incidents(ctx, service_ids, limit=5):
                     "origin": origin, "status": status, "overlap": len(f["services"]), "via": sorted(f["via"]),
                     "caused_by_change_to": sorted(f["caused"]),
                     "root_causes": rcs, "resolution": clip(rsums[0], 120) if rsums else None,
-                    "resolved_by": pnames, "resolution_sources": srcs, "similar_to": similar})
+                    "resolved_by": pnames, "resolution_sources": srcs, "similar_to": similar,
+                    **({"runbooks": sorted(rbs)} if rbs else {})})
+        for rb in rbs:
+            rec.hl_edge(rb, "SOURCED_FROM", iid)
     res = {"service_ids": service_ids, "incident_count": len(found), "incidents": out}
     if len(found) > len(out):
         res["truncated"] = True
@@ -449,7 +458,7 @@ OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x)
 OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'})
 OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at
 OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at
-RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status,
+RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false),
        collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id)
 ORDER BY x.updated_at"""
 
@@ -459,7 +468,7 @@ def stale_knowledge(ctx, service_id=None):
     if service_id is not None and (err := rec.check(service_id, "Service")):
         return rec.error(err)
     items = []
-    for xid, label, title, upd, sid, aid, aname, astat, gone, gone_ids, deploys, learned in rec.q(Q_STALE, {"sid": service_id}):
+    for xid, label, title, upd, sid, aid, aname, astat, flagged, gone, gone_ids, deploys, learned in rec.q(Q_STALE, {"sid": service_id}):
         reasons, detail = [], {}
         if astat == "left":
             reasons.append("author_left")
@@ -483,7 +492,8 @@ def stale_knowledge(ctx, service_id=None):
         for t in learned:
             rec.hl_edge(sid, "DEPENDS_ON", t)
         items.append({"id": xid, "kind": label, "title": clip(title, 80), "describes": sid,
-                      "updated": iso(upd), "updated_days_ago": days_ago(ctx.now, upd), "reasons": reasons, **detail})
+                      "updated": iso(upd), "updated_days_ago": days_ago(ctx.now, upd), "flagged": flagged,
+                      "reasons": reasons, **detail})
     res = {"service": service_id, "stale_count": len(items), "items": items[:10]}
     if len(items) > 10:
         res["truncated"] = True
@@ -532,3 +542,123 @@ def node_details(ctx, node_id):
     if sum(counts.values()) > len(neighbours):
         res["truncated"] = True
     return rec.done(res)
+
+
+# ───────────── 13. read_source ─────────────
+READABLE = {"Doc": "text", "Ticket": "text", "ChatThread": "text", "Decision": "rationale", "Runbook": "steps", "Incident": "summary"}
+SOURCE_CHARS = 1800
+Q_SOURCE = """MATCH (n:__LABEL__ {id:$id})
+OPTIONAL MATCH (a:Person)-[:AUTHORED]->(n)
+RETURN n, a.id, a.name, a.status"""
+Q_SOURCE_LINKS = """MATCH (n:__LABEL__ {id:$id})-[r:MENTIONS|DESCRIBES|ABOUT|SUPERSEDES|SOURCED_FROM]->(m)
+RETURN type(r), m.id"""
+Q_SUPERSEDED_BY = "MATCH (o:Runbook)-[:SUPERSEDES]->(n:Runbook {id:$id}) RETURN o.id"
+
+
+def read_source(ctx, node_id):
+    rec = Recorder(ctx, "read_source", {"node_id": node_id})
+    prefix = node_id.split(":", 1)[0] if isinstance(node_id, str) and ":" in node_id else None
+    label = PREFIX_TO_LABEL.get(prefix)
+    if label not in READABLE:
+        return rec.error(f"read_source reads {sorted(READABLE)} ids (doc:, tkt:, chat:, dec:, rb:, inc:); got {node_id!r}")
+    rows = rec.q(Q_SOURCE.replace("__LABEL__", label), {"id": node_id})
+    if not rows:
+        return rec.error(f"unknown {label.lower()} id {node_id!r}")
+    p = rows[0][0].properties
+    text = "\n".join(x for x in ([p.get("symptom")] if label == "Incident" else []) + [p.get(READABLE[label])] if x)
+    links = {}
+    for typ, mid in rec.q(Q_SOURCE_LINKS.replace("__LABEL__", label), {"id": node_id}):
+        links.setdefault(typ.lower(), []).append(mid)
+        rec.hl_edge(node_id, typ, mid)
+    date = next((p[k] for k in ("ts", "updated_at", "decided_at", "started_at", "created_at") if p.get(k)), None)
+    res = {"id": node_id, "label": label, "title": p.get("title") or p.get("key"), "author": rows[0][2],
+           "author_status": rows[0][3], "date": iso(date), "days_ago": days_ago(ctx.now, date),
+           "text": text[:SOURCE_CHARS], "truncated": len(text) > SOURCE_CHARS, **links}
+    for k in ("channel", "key", "status", "version", "flagged_stale", "origin"):
+        if p.get(k) is not None:
+            res[k] = p[k]
+    if label == "Runbook":
+        res["superseded_by"] = [r[0] for r in rec.q(Q_SUPERSEDED_BY, {"id": node_id})]
+    if rows[0][1]:
+        rec.hl_edge(rows[0][1], "AUTHORED", node_id)
+    rec.hl(node_id)
+    return rec.done(res, limit=SOURCE_CHARS + 1200)
+
+
+# ───────────── 14. get_incident_state ─────────────
+Q_STATE = "MATCH (i:Incident {id:$id}) RETURN i"
+Q_STATE_AFFECTED = "MATCH (i:Incident {id:$id})-[:AFFECTED]->(s:Service) RETURN s.id ORDER BY s.id"
+Q_STATE_CAUSE = """MATCH (i:Incident {id:$id})-[:CAUSED_BY]->(c)
+OPTIONAL MATCH (c)-[:CHANGED]->(s:Service)
+OPTIONAL MATCH (c)-[:FOR_TICKET]->(t:Ticket)
+OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(c)
+RETURN c.id, labels(c)[0], c.summary, c.ts, s.id, t.key, t.title, who.name"""
+Q_STATE_RC = "MATCH (i:Incident {id:$id})-[:HAS_ROOT_CAUSE]->(rc:RootCause) RETURN rc.id, rc.name"
+Q_STATE_FACTS = """MATCH (:Incident {id:$id})<-[:FOR_INCIDENT]-(:Session)<-[:WRITTEN_IN]-(f:Fact)
+OPTIONAL MATCH (f)-[:ABOUT]->(x)
+OPTIONAL MATCH (f)-[r:SOURCED_FROM]->(src)
+RETURN f.id, f.statement, f.confidence, collect(DISTINCT x.id), collect(DISTINCT [src.id, r.excerpt])"""
+Q_STATE_STEPS = """MATCH (:Incident {id:$id})<-[:FOR_INCIDENT]-(ses:Session)<-[:IN_SESSION]-(st:Step)
+WHERE st.action IN ['handoff', 'write', 'page']
+RETURN ses.id, ses.started_at, st.seq, st.agent, st.action, st.tool, st.summary, st.params_json
+ORDER BY ses.started_at, st.seq"""
+Q_STATE_TICKETS = "MATCH (t:Ticket)-[:ABOUT]->(:Incident {id:$id}) RETURN t.id, t.key, t.title, t.status"
+Q_STATE_SIMILAR = """MATCH (i:Incident {id:$id})-[s:SIMILAR_TO]-(o)
+OPTIONAL MATCH (o)-[:RESOLVED_BY]->(r:Resolution)
+OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person)
+OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(o)
+RETURN o.id, o.key, s.score, s.reason, r.summary, collect(DISTINCT p.name), collect(DISTINCT rb.id)"""
+Q_STATE_RESOLUTION = """MATCH (i:Incident {id:$id})-[:RESOLVED_BY]->(r:Resolution)
+OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person)
+RETURN r.id, r.summary, collect(p.id), collect(p.name)"""
+STATE_CHARS = 10000  # ponytail: ~2.5k tokens; the handoffs must never be trimmed. Summarise old handoffs if states grow past this.
+
+
+def get_incident_state(ctx, incident_id):
+    rec = Recorder(ctx, "get_incident_state", {"incident_id": incident_id})
+    if err := rec.check(incident_id, "Incident"):
+        return rec.error(err)
+    p = {"id": incident_id}
+    i = rec.q(Q_STATE, p)[0][0].properties
+    res = {"id": incident_id, **{k: i.get(k) for k in ("key", "title", "severity", "status", "symptom", "summary", "origin")},
+           "started_minutes_ago": minutes_ago(ctx.now, i["started_at"]) if i.get("started_at") else None,
+           "affected": [r[0] for r in rec.q(Q_STATE_AFFECTED, p)]}
+    for s in res["affected"]:
+        rec.hl_edge(incident_id, "AFFECTED", s)
+    res["caused_by"] = []
+    for cid, clabel, summ, ts, sid, tkey, ttitle, who in rec.q(Q_STATE_CAUSE, p):
+        rec.hl_edge(incident_id, "CAUSED_BY", cid)
+        c = {"id": cid, "label": clabel}
+        if clabel == "Deploy":
+            c.update(service=sid, summary=clip(summ, 160), minutes_ago=minutes_ago(ctx.now, ts), by=who,
+                     ticket={"key": tkey, "title": clip(ttitle, 100)} if tkey else None)
+            rec.hl_edge(cid, "CHANGED", sid)
+        res["caused_by"].append(c)
+    res["root_causes"] = [{"id": a, "name": b} for a, b in rec.q(Q_STATE_RC, p)]
+    for rc in res["root_causes"]:
+        rec.hl_edge(incident_id, "HAS_ROOT_CAUSE", rc["id"])
+    res["facts"] = []
+    for fid, stmt, conf, about, srcs in rec.q(Q_STATE_FACTS, p):
+        rec.hl(fid)
+        res["facts"].append({"id": fid, "statement": stmt, "confidence": conf, "about": about,
+                             "sources": [{"id": s, "excerpt": clip(e, 220)} for s, e in srcs if s]})
+    res["handoffs"], res["actions"] = [], []
+    for sid, _, seq, agent, action, tool, summ, pj in rec.q(Q_STATE_STEPS, p):
+        if action == "handoff":
+            try:
+                details = json.loads(pj or "{}").get("details")
+            except ValueError:
+                details = None
+            res["handoffs"].append({"agent": agent, "session": sid, "seq": seq, "note": summ, "details": details})
+        else:
+            res["actions"].append({"agent": agent, "action": action, "tool": tool, "summary": clip(summ, 160)})
+    res["tickets"] = [{"id": a, "key": b, "title": clip(c, 90), "status": d} for a, b, c, d in rec.q(Q_STATE_TICKETS, p)]
+    res["similar"] = []
+    for oid, key, score, reason, rsum, people, rbs in rec.q(Q_STATE_SIMILAR, p):
+        rec.hl_edge(incident_id, "SIMILAR_TO", oid)
+        res["similar"].append({"id": oid, "key": key, "score": score, "reason": clip(reason, 120),
+                               "resolution": clip(rsum, 120) if rsum else None, "resolved_by": people, "runbooks": rbs})
+    r = rec.q(Q_STATE_RESOLUTION, p)
+    res["resolution"] = {"id": r[0][0], "summary": r[0][1], "performed_by": r[0][2], "names": r[0][3]} if r else None
+    rec.hl(incident_id)
+    return rec.done(res, limit=STATE_CHARS)

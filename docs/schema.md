@@ -1,4 +1,4 @@
-# Incident Brain — Graph Schema (LOCKED v1.0.2 · 15 Oct 2026)
+# Incident Brain — Graph Schema (LOCKED v1.1 · 15 Oct 2026)
 
 This file is the single source of truth for the graph model. Code must follow it.
 Changing it requires a deliberate decision (bump the version + note why at the bottom).
@@ -99,13 +99,13 @@ Common properties on every node: `id`, `origin` ('seed' | 'agent'), `created_at`
 | Person | `per:` | seed | name, role, email, status ('active' \| 'left'), joined_at, left_at (nullable) | who to call; bus factor |
 | Service | `svc:` | seed | name, tier (1–3), description, language, repo_url | the dependency map |
 | Deploy | `dep:` | seed (+ demo script) | version, ts, summary | "what changed recently" |
-| Doc | `doc:` | seed | title, text, updated_at, flagged_stale (bool, agent-set) | Ask the Brain; stale-doc flagging |
+| Doc | `doc:` | seed | title, text, updated_at, flagged_stale (bool, agent-set), flagged_reason, flagged_at (v1.1, optional, agent-set) | Ask the Brain; stale-doc flagging |
 | Ticket | `tkt:` | seed + agent | key (e.g. RISK-412), title, text, kind ('bug' \| 'task' \| 'postmortem' \| 'incident-followup'), status, priority | sources; agent opens new ones |
 | ChatThread | `chat:` | seed | channel, title, text, ts | where buried decisions live |
 | Decision | `dec:` | seed | title, rationale, decided_at | "why did we decide Y" |
 | Incident | `inc:` | seed + agent | key, title, severity (1–4), status ('open' \| 'mitigated' \| 'resolved'), symptom, summary, started_at, resolved_at | episodic memory + shared incident state |
 | Resolution | `res:` | seed + agent | summary, steps | "Priya fixed it by X" |
-| Runbook | `rb:` | seed + agent | title, steps, version (int), updated_at | procedural memory |
+| Runbook | `rb:` | seed + agent | title, steps, version (int), updated_at; flagged_stale, flagged_reason, flagged_at (v1.1, optional, agent-set) | procedural memory |
 | RootCause | `rc:` | seed | name, description | recurring patterns; industry matching |
 | PublicPostmortem | `pm:` | seed (step 9) | company, title, summary, url, published_at | industry pattern layer |
 | Fact | `fact:` | agent | statement, confidence (0–1) | semantic memory |
@@ -143,6 +143,8 @@ Common properties on every node: `id`, `origin` ('seed' | 'agent'), `created_at`
 | NEXT | Step → Step | | handoff chain |
 | CITED | Step → any node | | receipt for one step |
 | WRITTEN_IN | Fact \| Resolution \| Runbook \| Ticket \| Incident (agent-origin) → Session | | "what did this session learn" |
+
+**Agent-written edges (v1.1):** every edge an agent creates also carries `origin: 'agent'` and `created_at` (optional on every edge type; seed edges don't have them). This lets the UI colour learned memory on edges too, e.g. `CAUSED_BY`, `SIMILAR_TO`, `CITED`.
 
 Reading `DEPENDS_ON`:
 - **Blast radius** of b failing → walk *incoming* edges (who calls b, transitively).
@@ -227,6 +229,7 @@ CALL algo.pageRank('Service', 'DEPENDS_ON') YIELD node, score RETURN node.name, 
 ```
 
 ## Changelog
+- v1.1 (15 Oct 2026): optional properties only, no label/edge changes. `Doc.flagged_reason`, `Doc.flagged_at`, `Runbook.flagged_stale`, `Runbook.flagged_reason`, `Runbook.flagged_at` (set by the `flag_stale` tool); `origin` + `created_at` on every agent-written edge. Reason: the mega task requires `origin:'agent'` and `created_at` on everything agents create, and stale flags need a reason the Brain can quote.
 - v1.0.2 (15 Oct 2026): added 'Data model at a glance' Mermaid diagrams (no model change).
 - v1.0.1 (15 Oct 2026): §6 full-text syntax corrected to CREATE FULLTEXT INDEX (no model change).
 - v1 (15 Oct 2026): locked. Added `origin` on all nodes, `FOR_TICKET` (Deploy → Ticket) and `WRITTEN_IN` (agent node → Session) to the step-1 proposal.

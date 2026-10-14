@@ -12,7 +12,7 @@ def render():
          "",
          "> **Generated** by `python -m backend.tools.export_docs` from `backend/tools/registry.py`. Do not edit by hand.",
          "",
-         "Every product answer comes from one of these 12 fixed, parameterised, **read-only** tools "
+         f"Every product answer comes from one of these {len(TOOLS)} fixed, parameterised, **read-only** tools "
          "(`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. "
          "Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.",
          "",

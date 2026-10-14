@@ -2,7 +2,7 @@
 
 > **Generated** by `python -m backend.tools.export_docs` from `backend/tools/registry.py`. Do not edit by hand.
 
-Every product answer comes from one of these 12 fixed, parameterised, **read-only** tools (`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.
+Every product answer comes from one of these 14 fixed, parameterised, **read-only** tools (`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.
 
 - `$name` are query parameters. `N` in `*1..N` is a hop bound: variable-length bounds cannot be parameters, so it is clamped to an integer 1..6 before being written into the query.
 - `(a)-[:DEPENDS_ON]->(b)` means *a calls b*. `source` on that edge is `declared` (catalog) or `learned` (written by an agent).
@@ -25,6 +25,8 @@ Every product answer comes from one of these 12 fixed, parameterised, **read-onl
 | 10 | [`critical_services`](#critical_services) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | algo.pageRank / algo.betweenness |
 | 11 | [`stale_knowledge`](#stale_knowledge) | Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
 | 12 | [`node_details`](#node_details) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
+| 13 | [`read_source`](#read_source) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain | — |
+| 14 | [`get_incident_state`](#get_incident_state) | Track 2: Agent Memory and Coordination | — |
 
 ## find_service
 
@@ -141,7 +143,8 @@ OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d)
 OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket)
 RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title,
        [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source],
-       [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source]
+       [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source],
+       [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from]
 ORDER BY length(p1) + length(p2), d.ts DESC
 LIMIT 60
 ```
@@ -268,9 +271,11 @@ OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution)
 OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person)
 OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src)
 OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o)
+OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i)
 RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status,
        collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id),
-       collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score})
+       collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}),
+       collect(DISTINCT rb.id)
 ```
 
 **Explanation:** Two routes into an incident: AFFECTED (it hurt the service) and CAUSED_BY a Deploy that CHANGED the service (it came from there). Ranked by how many of the given services it touches, then recency. Detail query follows HAS_ROOT_CAUSE, RESOLVED_BY, PERFORMED_BY and SOURCED_FROM; SIMILAR_TO is read in both directions so links written by agents show up. Nothing filters on origin, so agent-written incidents are recalled too.
@@ -348,7 +353,7 @@ OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x)
 OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'})
 OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at
 OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at
-RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status,
+RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false),
        collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id)
 ORDER BY x.updated_at
 ```
@@ -380,6 +385,105 @@ LIMIT 300
 ```
 
 **Explanation:** Looks the node up by its prefixed id (the prefix selects the label, so the index on id is used) and lists one-hop neighbours with edge type and direction. Neighbours are taken round-robin across edge types so a node with many mentions still shows its maintainer, dependencies and owner.
+
+## read_source
+
+**Purpose:** Read the full text (up to 1,800 chars) of a doc, ticket, chat thread, decision, runbook or incident, with title, author (and whether they left), date and what it mentions/describes.
+
+**Track(s):** Track 1: Agents That Act on Connected Data, Track 3: Company Brain
+
+**FalkorDB algorithm:** none (plain pattern matching)
+
+**Arguments:** `{"node_id":{"type":"string","description":"e.g. 'chat:risk-eng-config-load', 'doc:risk-rules-readme', 'rb:fraud-scoring-latency'."}}` (required: node_id)
+
+**LLM-facing description:** Read the full text (up to 1,800 chars) of a doc, ticket, chat thread, decision, runbook or incident, with title, author (and whether they left), date and what it mentions/describes. node_details only shows 200 chars; use this to read a source and quote it verbatim.
+
+**Cypher:**
+
+```cypher
+MATCH (n:<Label from id prefix> {id:$id})
+OPTIONAL MATCH (a:Person)-[:AUTHORED]->(n)
+RETURN n, a.id, a.name, a.status
+```
+
+```cypher
+MATCH (n:<Label from id prefix> {id:$id})-[r:MENTIONS|DESCRIBES|ABOUT|SUPERSEDES|SOURCED_FROM]->(m)
+RETURN type(r), m.id
+```
+
+```cypher
+MATCH (o:Runbook)-[:SUPERSEDES]->(n:Runbook {id:$id}) RETURN o.id
+```
+
+**Explanation:** Looks the node up by its prefixed id and returns its main text field (text, rationale, steps or summary) with AUTHORED for the author and the outgoing MENTIONS / DESCRIBES / ABOUT / SUPERSEDES / SOURCED_FROM links. Agents need the full text because key chat lines sit deep in a thread, and every excerpt they write must be a literal quote of it.
+
+## get_incident_state
+
+**Purpose:** The shared state of an incident: status, severity, affected services, cause (deploy/service), root causes, facts learned in its sessions, handoff notes from earlier agents (in order), actions taken (pages, tickets, writes), similar incidents and the resolution.
+
+**Track(s):** Track 2: Agent Memory and Coordination
+
+**FalkorDB algorithm:** none (plain pattern matching)
+
+**Arguments:** `{"incident_id":{"type":"string","description":"Incident id, e.g. 'inc:2026-032'."}}` (required: incident_id)
+
+**LLM-facing description:** The shared state of an incident: status, severity, affected services, cause (deploy/service), root causes, facts learned in its sessions, handoff notes from earlier agents (in order), actions taken (pages, tickets, writes), similar incidents and the resolution.
+
+**Cypher:**
+
+```cypher
+MATCH (i:Incident {id:$id}) RETURN i
+```
+
+```cypher
+MATCH (i:Incident {id:$id})-[:AFFECTED]->(s:Service) RETURN s.id ORDER BY s.id
+```
+
+```cypher
+MATCH (i:Incident {id:$id})-[:CAUSED_BY]->(c)
+OPTIONAL MATCH (c)-[:CHANGED]->(s:Service)
+OPTIONAL MATCH (c)-[:FOR_TICKET]->(t:Ticket)
+OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(c)
+RETURN c.id, labels(c)[0], c.summary, c.ts, s.id, t.key, t.title, who.name
+```
+
+```cypher
+MATCH (i:Incident {id:$id})-[:HAS_ROOT_CAUSE]->(rc:RootCause) RETURN rc.id, rc.name
+```
+
+```cypher
+MATCH (:Incident {id:$id})<-[:FOR_INCIDENT]-(:Session)<-[:WRITTEN_IN]-(f:Fact)
+OPTIONAL MATCH (f)-[:ABOUT]->(x)
+OPTIONAL MATCH (f)-[r:SOURCED_FROM]->(src)
+RETURN f.id, f.statement, f.confidence, collect(DISTINCT x.id), collect(DISTINCT [src.id, r.excerpt])
+```
+
+```cypher
+MATCH (:Incident {id:$id})<-[:FOR_INCIDENT]-(ses:Session)<-[:IN_SESSION]-(st:Step)
+WHERE st.action IN ['handoff', 'write', 'page']
+RETURN ses.id, ses.started_at, st.seq, st.agent, st.action, st.tool, st.summary, st.params_json
+ORDER BY ses.started_at, st.seq
+```
+
+```cypher
+MATCH (t:Ticket)-[:ABOUT]->(:Incident {id:$id}) RETURN t.id, t.key, t.title, t.status
+```
+
+```cypher
+MATCH (i:Incident {id:$id})-[s:SIMILAR_TO]-(o)
+OPTIONAL MATCH (o)-[:RESOLVED_BY]->(r:Resolution)
+OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person)
+OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(o)
+RETURN o.id, o.key, s.score, s.reason, r.summary, collect(DISTINCT p.name), collect(DISTINCT rb.id)
+```
+
+```cypher
+MATCH (i:Incident {id:$id})-[:RESOLVED_BY]->(r:Resolution)
+OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person)
+RETURN r.id, r.summary, collect(p.id), collect(p.name)
+```
+
+**Explanation:** This is how agents hand off: each agent starts with an empty conversation and reads the incident's state from the graph. Sessions point at the incident (FOR_INCIDENT); their Steps (IN_SESSION) with action 'handoff' carry the notes, and Facts WRITTEN_IN those sessions are what the team learned. Nine small queries instead of one big one, because FalkorDB drops rows when a MATCH follows an aggregation.
 
 ## FalkorDB notes
 

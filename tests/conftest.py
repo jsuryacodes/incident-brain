@@ -1,11 +1,14 @@
-"""Loads the Kestrel Pay seed into a throwaway graph 'kestrel_pay_test' (never touches 'kestrel_pay')."""
+"""Loads the Kestrel Pay seed into throwaway graphs (never touches 'kestrel_pay').
+kestrel_pay_test: read-only tool tests. Tests that WRITE memory get their own graph from the `fresh` fixture."""
 import os
 import time
 from contextlib import contextmanager
 
 import pytest
 
-os.environ["TENANTS"] = "kestrel_pay,kestrel_pay_test"  # read by backend.db at call time
+SCRATCH = ["kestrel_pay_mem", "kestrel_pay_story", "kestrel_pay_nomem", "kestrel_pay_conc", "kestrel_pay_api"]
+os.environ["TENANTS"] = ",".join(["kestrel_pay", "kestrel_pay_test"] + SCRATCH)  # read by backend.db at call time
+os.environ["LLM_MODE"] = "mock"  # tests are always mock
 
 from backend.db import get_graph  # noqa: E402
 from backend.tools.receipt import ToolContext  # noqa: E402
@@ -48,3 +51,18 @@ def learned_edge(graph, now):
         finally:
             graph.query("MATCH (:Service {id:'svc:risk-rules'})-[r:DEPENDS_ON {source:'learned'}]->(:Service {id:'svc:config-service'}) DELETE r")
     return cm
+
+
+@pytest.fixture(scope="session")
+def fresh():
+    """fresh(name) -> name: (re)load the seed into a scratch graph; all are deleted at the end."""
+    made = []
+
+    def make(name):
+        assert name in SCRATCH
+        load(name, reset=True, data_package="kestrel_pay", quiet=True)
+        made.append(name)
+        return name
+    yield make
+    for n in set(made):
+        get_graph(n).delete()

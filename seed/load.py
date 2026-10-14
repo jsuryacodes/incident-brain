@@ -60,7 +60,7 @@ def validate(nodes, edges):
         req, opt = schema.EDGE_PROPS.get(t, (set(), set()))
         for p in sorted(req - set(props)):
             errs.append(f"{tag}: missing edge prop '{p}'")
-        for p in sorted(set(props) - req - opt):
+        for p in sorted(set(props) - req - opt - schema.EDGE_COMMON_OPTIONAL):
             errs.append(f"{tag}: edge prop '{p}' not in schema")
         for k, v in props.items():
             if schema.is_time_prop(k) and type(v) is not int:

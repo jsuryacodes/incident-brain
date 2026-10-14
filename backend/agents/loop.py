@@ -25,9 +25,10 @@ def tool_specs(tools):
 
 
 def run_agent(agent, system, tools, initial_message, ctx, llm, *, max_steps=10, validate=None, history=None,
-              on_step=None, totals=None, max_tokens=1024, seq_start=0):
+              on_step=None, totals=None, max_tokens=1024, seq_start=0, persona=None):
     """tools: name -> {description, input_schema, fn(ctx, args) -> ToolOutput, action}. action is 'tool_call',
-    'write', 'page', or 'handoff'/'answer' for a submit tool (which has no fn). Returns the agent record."""
+    'write', 'page', or 'handoff'/'answer' for a submit tool (which has no fn). persona: which mock policy plays
+    this agent (default: agent). Returns the agent record."""
     totals = totals if totals is not None else new_totals()
     messages = list(history or []) + [{"role": "user", "content": initial_message}]
     seen = ids_in(initial_message) | ids_in(history or [])
@@ -36,7 +37,7 @@ def run_agent(agent, system, tools, initial_message, ctx, llm, *, max_steps=10, 
            "grounding": {"ok": None, "ungrounded_ids": [], "errors": []}, "steps": []}
     rejected = 0
     for _ in range(max_steps):
-        resp = llm.complete(system, specs, messages, max_tokens=max_tokens, agent=agent)
+        resp = llm.complete(system, specs, messages, max_tokens=max_tokens, agent=persona or agent)
         totals["llm_calls"] += 1
         for k in USAGE_KEYS:
             totals[k] += resp.usage.get(k, 0)
@@ -88,7 +89,8 @@ def run_agent(agent, system, tools, initial_message, ctx, llm, *, max_steps=10, 
             step = {"seq": seq_start + len(rec["steps"]) + 1, "agent": agent,
                     "action": spec["action"] if spec and not is_err else "tool_call",
                     "tool": name, "args": args, "result": result, "receipt": receipt,
-                    "summary": summarize(name, args, result), "ts": int(time.time()),
+                    "summary": (clip(args.get("note") or args.get("summary") or args.get("answer") or name, 900)
+                                if result.get("accepted") else summarize(name, args, result)), "ts": int(time.time()),
                     "ms": int((time.time() - t0) * 1000), "llm_call": totals["llm_calls"]}
             rec["steps"].append(step)
             if on_step:

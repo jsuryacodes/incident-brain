@@ -97,18 +97,33 @@ TOOLS = {
         input_schema=_obj({"node_id": {"type": "string", "description": "Any node id, e.g. 'chat:risk-eng-config-load'."}}, ["node_id"]),
         cypher=[gt.Q_NODE, gt.Q_NEIGHBOURS], algorithm=None,
         explanation="Looks the node up by its prefixed id (the prefix selects the label, so the index on id is used) and lists one-hop neighbours with edge type and direction. Neighbours are taken round-robin across edge types so a node with many mentions still shows its maintainer, dependencies and owner."),
+    "read_source": dict(
+        fn=gt.read_source, track=[F, B],
+        description="Read the full text (up to 1,800 chars) of a doc, ticket, chat thread, decision, runbook or incident, with title, author (and whether they left), date and what it mentions/describes. node_details only shows 200 chars; use this to read a source and quote it verbatim.",
+        input_schema=_obj({"node_id": {"type": "string", "description": "e.g. 'chat:risk-eng-config-load', 'doc:risk-rules-readme', 'rb:fraud-scoring-latency'."}}, ["node_id"]),
+        cypher=[gt.Q_SOURCE, gt.Q_SOURCE_LINKS, gt.Q_SUPERSEDED_BY], algorithm=None,
+        explanation="Looks the node up by its prefixed id and returns its main text field (text, rationale, steps or summary) with AUTHORED for the author and the outgoing MENTIONS / DESCRIBES / ABOUT / SUPERSEDES / SOURCED_FROM links. Agents need the full text because key chat lines sit deep in a thread, and every excerpt they write must be a literal quote of it."),
+    "get_incident_state": dict(
+        fn=gt.get_incident_state, track=[T],
+        description="The shared state of an incident: status, severity, affected services, cause (deploy/service), root causes, facts learned in its sessions, handoff notes from earlier agents (in order), actions taken (pages, tickets, writes), similar incidents and the resolution.",
+        input_schema=_obj({"incident_id": {"type": "string", "description": "Incident id, e.g. 'inc:2026-032'."}}, ["incident_id"]),
+        cypher=[gt.Q_STATE, gt.Q_STATE_AFFECTED, gt.Q_STATE_CAUSE, gt.Q_STATE_RC, gt.Q_STATE_FACTS, gt.Q_STATE_STEPS,
+                gt.Q_STATE_TICKETS, gt.Q_STATE_SIMILAR, gt.Q_STATE_RESOLUTION], algorithm=None,
+        explanation="This is how agents hand off: each agent starts with an empty conversation and reads the incident's state from the graph. Sessions point at the incident (FOR_INCIDENT); their Steps (IN_SESSION) with action 'handoff' carry the notes, and Facts WRITTEN_IN those sessions are what the team learned. Nine small queries instead of one big one, because FalkorDB drops rows when a MATCH follows an aggregation."),
 }
 
 
-def call(name, args=None, ctx=None):
-    """Dispatch by name. Unknown tools / missing or unexpected args come back as an error result, never an exception."""
+def call(name, args=None, ctx=None, table=None):
+    """Dispatch by name (table: TOOLS by default, or memory_tools.MEMORY_TOOLS). Unknown tools / missing or
+    unexpected args come back as an error result, never an exception."""
+    table = TOOLS if table is None else table
     ctx = ctx or ToolContext()
     args = dict(args or {})
     err = None
-    if name not in TOOLS:
-        err = f"unknown tool {name!r}; available: {sorted(TOOLS)}"
+    if name not in table:
+        err = f"unknown tool {name!r}; available: {sorted(table)}"
     else:
-        schema = TOOLS[name]["input_schema"]
+        schema = table[name]["input_schema"]
         extra = sorted(set(args) - set(schema["properties"]))
         missing = [r for r in schema["required"] if r not in args]
         if extra or missing:
@@ -116,7 +131,7 @@ def call(name, args=None, ctx=None):
                                                        f"missing required args {missing}" if missing else "") if x)
     if err:
         return ToolOutput({"error": err}, {"tool": name, "args": args, "queries": [], "highlight": {"nodes": [], "edges": []}})
-    return TOOLS[name]["fn"](ctx, **args)
+    return table[name]["fn"](ctx, **args)
 
 
 def llm_tool_specs():

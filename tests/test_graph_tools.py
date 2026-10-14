@@ -4,6 +4,7 @@ import pytest
 
 from backend.db import get_graph
 from backend.tools.receipt import MAX_RESULT_CHARS, fit
+from backend.tools import graph_tools as gt
 from backend.tools.registry import TOOLS, call
 
 RR, CS, PA, PO = "svc:risk-rules", "svc:config-service", "svc:payments-api", "svc:payouts-service"
@@ -143,7 +144,10 @@ GOOD = [
     ("critical_services", {"algorithm": "pagerank"}), ("critical_services", {"algorithm": "betweenness", "limit": 27}),
     ("stale_knowledge", {"service_id": RR}), ("stale_knowledge", {}),
     ("node_details", {"node_id": RR}), ("node_details", {"node_id": CS}), ("node_details", {"node_id": "per:priya-nair"}),
+    ("read_source", {"node_id": "chat:risk-eng-config-load"}), ("read_source", {"node_id": "rb:fraud-scoring-latency"}),
+    ("read_source", {"node_id": "dec:rules-cache-ttl"}), ("get_incident_state", {"incident_id": "inc:2025-031"}),
 ]
+LIMITS = {"read_source": gt.SOURCE_CHARS + 1200, "get_incident_state": gt.STATE_CHARS}  # deliberately bigger
 BAD = [
     ("find_service", {"query": ""}), ("blast_radius", {"service_id": "svc:nope"}), ("blast_radius", {"service_id": "per:priya-nair"}),
     ("recent_changes_downstream", {"service_id": "nope"}), ("shared_dependency_changes", {"service_id": "svc:nope"}),
@@ -151,18 +155,19 @@ BAD = [
     ("decisions_about", {"service_id": "svc:nope"}), ("past_incidents", {"service_ids": ["svc:nope"]}), ("past_incidents", {"service_ids": []}),
     ("search_knowledge", {"query": "!!! ???"}), ("critical_services", {"algorithm": "nope"}),
     ("stale_knowledge", {"service_id": "svc:nope"}), ("node_details", {"node_id": "nope"}), ("node_details", {"node_id": "svc:nope"}),
-    ("not_a_tool", {}), ("blast_radius", {}),
+    ("not_a_tool", {}), ("blast_radius", {}), ("read_source", {"node_id": "svc:risk-rules"}),
+    ("read_source", {"node_id": "doc:nope"}), ("get_incident_state", {"incident_id": "inc:nope"}),
 ]
 
 
 def test_13_every_tool_is_small_receipted_and_grounded(ctx, learned_edge):
-    assert {n for n, _ in GOOD} == set(TOOLS)  # all 12 covered
+    assert {n for n, _ in GOOD} == set(TOOLS)  # every tool covered
     g = get_graph(ctx.tenant)
     with learned_edge():  # the learned path adds the most content
         for name, args in GOOD:
             out = call(name, args, ctx)
             assert "error" not in out.result, (name, out.result)
-            assert len(json.dumps(out.result)) <= MAX_RESULT_CHARS, (name, args)
+            assert len(json.dumps(out.result)) <= LIMITS.get(name, MAX_RESULT_CHARS), (name, args)
             assert len(out.receipt["queries"]) >= 1 and all("cypher" in q and "params" in q for q in out.receipt["queries"])
             hl = out.receipt["highlight"]
             if hl["nodes"]:
@@ -196,3 +201,18 @@ def test_13d_fit_truncates_longest_list():
 def test_14_unknown_tenant():
     with pytest.raises(ValueError):
         get_graph("not_a_tenant")
+
+
+def test_15_read_source_full_text_and_links(ctx):
+    r = call("read_source", {"node_id": "chat:risk-eng-config-load"}, ctx).result
+    assert "risk-rules polls config-service's internal /v1/rulesets endpoint" in r["text"]  # past node_details' 200 chars
+    assert r["truncated"] is False and r["author"] == "Arjun Mehta" and r["author_status"] == "left"
+    assert {"svc:risk-rules", "svc:config-service"} <= set(r["mentions"])
+    rb = call("read_source", {"node_id": "rb:fraud-scoring-latency"}, ctx).result
+    assert rb["describes"] == ["svc:fraud-scoring"] and rb["version"] == 1 and rb["superseded_by"] == []
+
+
+def test_16_past_incidents_says_which_change_caused_it(ctx):
+    r = call("past_incidents", {"service_ids": [PA, RR]}, ctx).result
+    i = next(x for x in r["incidents"] if x["id"] == "inc:2025-031")
+    assert i["caused_by_change_to"] == [RR]
