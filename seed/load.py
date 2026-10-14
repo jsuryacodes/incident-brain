@@ -72,7 +72,7 @@ def validate(nodes, edges):
     return errs
 
 
-def create_indexes(g):
+def create_indexes(g, quiet=False):
     def run(q):
         try:
             g.query(q)
@@ -94,7 +94,8 @@ def create_indexes(g):
                 ok += 1
             else:
                 print(f"  note: unique constraint on {label}.id skipped ({e})")
-    print(f"indexes: {len(schema.RANGE_INDEXES)} range, {len(schema.FULLTEXT_INDEXES)} full-text; unique constraints: {ok}/{len(schema.LABELS)}")
+    if not quiet:
+        print(f"indexes: {len(schema.RANGE_INDEXES)} range, {len(schema.FULLTEXT_INDEXES)} full-text; unique constraints: {ok}/{len(schema.LABELS)}")
 
 
 def write(g, nodes, edges):
@@ -141,7 +142,7 @@ def load(graph_name, reset=True, now=None, data_package=None, quiet=False):
         except Exception:
             pass
     g = db.select_graph(graph_name)
-    create_indexes(g)
+    create_indexes(g, quiet)
     write(g, nodes, data.EDGES)
 
     summary = {"nodes": Counter(n["label"] for n in nodes), "edges": Counter(e[1] for e in data.EDGES), "now": timeutil.NOW}

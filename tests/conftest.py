@@ -6,7 +6,8 @@ from contextlib import contextmanager
 
 import pytest
 
-SCRATCH = ["kestrel_pay_mem", "kestrel_pay_story", "kestrel_pay_nomem", "kestrel_pay_conc", "kestrel_pay_api"]
+SCRATCH = ["kestrel_pay_mem", "kestrel_pay_story", "kestrel_pay_nomem", "kestrel_pay_conc", "kestrel_pay_api",
+           "kestrel_pay_brain", "kestrel_pay_brain2"]
 os.environ["TENANTS"] = ",".join(["kestrel_pay", "kestrel_pay_test"] + SCRATCH)  # read by backend.db at call time
 os.environ["LLM_MODE"] = "mock"  # tests are always mock
 
