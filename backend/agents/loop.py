@@ -149,7 +149,16 @@ def _past(a, r):
         f"{i['key']}" + (f" (fixed by {', '.join(i['resolved_by'])})" if i.get("resolved_by") else "") for i in inc[:3]) if inc else "")
 
 
+def _recall(a, r):
+    if r.get("note"):
+        return "nothing recalled (no memory yet)"
+    sus = ", ".join(_name(x["service"]) for x in r.get("suspects", [])[:2])
+    return (f"{len(r['learned_edges'])} learned edge(s), {len(r['facts'])} fact(s), {len(r['incidents'])} resolved incident(s)"
+            + (f"; suspect: {sus}" if sus else ""))
+
+
 _SUM = {
+    "memory_recall": _recall,
     "find_service": lambda a, r: "matches: " + (", ".join(m["id"] for m in r.get("matches", [])) or "none"),
     "blast_radius": lambda a, r: f"{r['upstream_count']} upstream ({r['tier1_count']} tier-1)",
     "recent_changes_downstream": _recent,

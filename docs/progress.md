@@ -6,13 +6,32 @@ Resume line: "Read docs/prompts/06-overnight.md and docs/progress.md and continu
 | Part | Status | Commit |
 |---|---|---|
 | A Setup on a fresh Mac | DONE | 06A |
-| B Memory-first recall | todo | |
+| B Memory-first recall | DONE | 06B |
 | C Public postmortems | todo | |
 | D Brain eval 5 → 15 | todo | |
 | E README draft | todo | |
 | F Hardening pass | todo | |
 
 **Total live API spend: $0.00** (0 live calls, no key).
+
+## 06B — Memory-first recall
+**Status:** DONE
+
+**What was built**
+- Read tool #15 `memory_recall(service_id, max_hops=3)` (`graph_tools.py`, registry, MCP, `docs/cypher.md`). Scope = the alert service + everything it calls within 3 hops (declared or learned). Returns: learned `DEPENDS_ON` edges touching the scope (with the Fact on `learned_from`, its `SOURCED_FROM` excerpt and the Session it was written in), other agent Facts about scope services, incidents with `origin:'agent'` and `status:'resolved'` that AFFECTED the scope (cause deploy + service, root causes, Resolution summary, PERFORMED_BY people, session) and, for each, the newest runbook (`SUPERSEDES*0..5` back to one that nothing supersedes) with its steps; plus `suspects` (services memory points at, relation `downstream` or `shares_dependency`). Result ≤ 4,500 chars.
+- Investigator + Firefighter (mock policy AND live prompts): call `memory_recall` first, alone. With a suspect: verify it with ONE tool (`recent_changes_downstream` if downstream, else `shared_dependency_changes`); if it changed recently it is the culprit and the cause is set immediately (`update_incident` + `link_similar` to the recalled incident, in the same turn as `decisions_about` / `past_incidents` / `who_to_call`). Without a suspect, or if the suspect didn't change: exactly the old scan.
+- The Investigator note and the final report say: "Seen before: INC-2026-032, fixed by Priya Nair (Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered), see Runbook v2 step 2 (rb:fraud-scoring-latency-v2)." Every value comes from the `memory_recall` result.
+- `time_to_cause` now also has `agent_tool_calls` (the setting agent's own calls). Demo summary is a before/after box with Session 1, Session 2 and Session 2 without memory. `--compare-no-memory` now runs the no-memory contrast FIRST (fresh seed + scenario + S2), then the full story, so one command shows all three.
+- Prompts no longer name Kestrel Pay ("at this company"): the same prompts serve Northwind.
+- Golden runs regenerated; 6 new tests (recall empty on a fresh seed, learned edge → suspect, S2 order recall → verify → cause, S1 recalls nothing and scans as before, contrast).
+
+**Numbers (mock):** Session 2's Investigator names `dep:risk-rules-v2.8.1` at its **3rd** tool call (memory_recall → shared_dependency_changes → update_incident); 9 tool calls / 6 LLM calls from session start (Triage uses 5 + its handoff before the Investigator starts). Session 1: 14 / 8 (8 by the Investigator); it was 13 / 7: the +1 is the empty `memory_recall`. Session 2 without memory: cause not found.
+
+**Decisions**
+- *Recall = agent-written memory only.* Seeded history (e.g. resolved INC-2025-031 on payments-api) stays with `past_incidents`. Otherwise Session 1 would "recall" the seed and change, and the spec says Session 1 has no memory to recall. A first session therefore honestly recalls nothing.
+- *"Within its first 3 tool calls" is counted for the Investigator,* the agent that names the cause. Session-wide it can't be ≤ 3: Triage must open the incident first (5 calls). Both numbers are in the box.
+- *Session 1's results are unchanged* (same cause, learned edge, page, ticket, flags, resolve); its only behavioural change is one empty `memory_recall` call first.
+- *Learned edges count if they touch the scope,* not only if they lie on the alert service's outgoing paths: a learned edge INTO one of my dependencies is exactly how a noisy neighbour shows up.
 
 ## 06A — Setup that works on a fresh Mac
 **Status:** DONE

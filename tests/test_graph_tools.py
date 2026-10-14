@@ -146,8 +146,9 @@ GOOD = [
     ("node_details", {"node_id": RR}), ("node_details", {"node_id": CS}), ("node_details", {"node_id": "per:priya-nair"}),
     ("read_source", {"node_id": "chat:risk-eng-config-load"}), ("read_source", {"node_id": "rb:fraud-scoring-latency"}),
     ("read_source", {"node_id": "dec:rules-cache-ttl"}), ("get_incident_state", {"incident_id": "inc:2025-031"}),
+    ("memory_recall", {"service_id": PO}), ("memory_recall", {"service_id": PA, "max_hops": 6}),
 ]
-LIMITS = {"read_source": gt.SOURCE_CHARS + 1200, "get_incident_state": gt.STATE_CHARS}  # deliberately bigger
+LIMITS = {"read_source": gt.SOURCE_CHARS + 1200, "get_incident_state": gt.STATE_CHARS, "memory_recall": 4500}  # deliberately bigger
 BAD = [
     ("find_service", {"query": ""}), ("blast_radius", {"service_id": "svc:nope"}), ("blast_radius", {"service_id": "per:priya-nair"}),
     ("recent_changes_downstream", {"service_id": "nope"}), ("shared_dependency_changes", {"service_id": "svc:nope"}),
@@ -157,6 +158,7 @@ BAD = [
     ("stale_knowledge", {"service_id": "svc:nope"}), ("node_details", {"node_id": "nope"}), ("node_details", {"node_id": "svc:nope"}),
     ("not_a_tool", {}), ("blast_radius", {}), ("read_source", {"node_id": "svc:risk-rules"}),
     ("read_source", {"node_id": "doc:nope"}), ("get_incident_state", {"incident_id": "inc:nope"}),
+    ("memory_recall", {"service_id": "svc:nope"}), ("memory_recall", {}),
 ]
 
 
@@ -216,3 +218,17 @@ def test_16_past_incidents_says_which_change_caused_it(ctx):
     r = call("past_incidents", {"service_ids": [PA, RR]}, ctx).result
     i = next(x for x in r["incidents"] if x["id"] == "inc:2025-031")
     assert i["caused_by_change_to"] == [RR]
+
+
+def test_17_memory_recall_is_empty_without_agent_memory(ctx):
+    """Seeded history (e.g. resolved INC-2025-031 on payments-api) is not agent memory: a first session recalls nothing."""
+    r = call("memory_recall", {"service_id": PA}, ctx).result
+    assert not (r["learned_edges"] or r["facts"] or r["incidents"] or r["suspects"]) and "no memory" in r["note"]
+    assert RR in r["scope"] and CS in r["scope"]
+
+
+def test_18_memory_recall_turns_a_learned_edge_into_a_suspect(ctx, learned_edge):
+    with learned_edge():
+        r = call("memory_recall", {"service_id": PO}, ctx).result
+    assert [(e["from"], e["to"]) for e in r["learned_edges"]] == [(RR, CS)]
+    assert r["suspects"] == [{"service": RR, "relation": "shares_dependency", "via": [f"learned edge {RR} -> {CS}"], "shared": CS}]

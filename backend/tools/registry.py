@@ -110,6 +110,13 @@ TOOLS = {
         cypher=[gt.Q_STATE, gt.Q_STATE_AFFECTED, gt.Q_STATE_CAUSE, gt.Q_STATE_RC, gt.Q_STATE_FACTS, gt.Q_STATE_STEPS,
                 gt.Q_STATE_TICKETS, gt.Q_STATE_SIMILAR, gt.Q_STATE_RESOLUTION], algorithm=None,
         explanation="This is how agents hand off: each agent starts with an empty conversation and reads the incident's state from the graph. Sessions point at the incident (FOR_INCIDENT); their Steps (IN_SESSION) with action 'handoff' carry the notes, and Facts WRITTEN_IN those sessions are what the team learned. Nine small queries instead of one big one, because FalkorDB drops rows when a MATCH follows an aggregation."),
+    "memory_recall": dict(
+        fn=gt.memory_recall, track=[T, F],
+        description="Call FIRST on an alert: what earlier agent sessions learned about this service and its dependencies (DEPENDS_ON 1..3 hops). Returns learned dependencies (with the Fact, quoted source and session), agent-written facts, incidents agents resolved (cause, root cause, who fixed it and how, latest runbook steps) and `suspects`: services that memory points at, each with relation 'downstream' or 'shares_dependency'. Empty when nothing was learned yet.",
+        input_schema=_obj({"service_id": _SVC, "max_hops": _HOPS}, ["service_id"]),
+        cypher=[gt.Q_RECALL_SCOPE, gt.Q_RECALL_LEARNED, gt.Q_RECALL_FACTS, gt.Q_RECALL_INCIDENTS, gt.Q_RECALL_RUNBOOKS],
+        algorithm=None,
+        explanation="Memory-first recall. The scope is the alerting service plus everything it calls within N hops (declared or learned edges). Then four small queries: learned DEPENDS_ON edges touching the scope (with the Fact on learned_from, its SOURCED_FROM excerpt and the Session it was WRITTEN_IN); other agent Facts ABOUT scope services; incidents with origin 'agent' and status 'resolved' that AFFECTED the scope (CAUSED_BY, HAS_ROOT_CAUSE, RESOLVED_BY, PERFORMED_BY); and for those incidents the newest runbook, found by following SUPERSEDES*0..5 back to a runbook that nothing supersedes. A learned edge into one of my dependencies makes its caller a noisy-neighbour suspect; a learned edge on my own path or the cause of a recalled incident makes that service a suspect too. Only agent-written memory is recalled: seeded history stays with past_incidents, so a first session honestly recalls nothing."),
 }
 
 

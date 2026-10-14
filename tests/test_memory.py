@@ -211,11 +211,40 @@ def test_steps_cite_only_existing_nodes(story):
     assert cited and cited <= recorded
 
 
+def test_s2_memory_first(story):
+    """Session 2's Investigator recalls first, verifies memory's suspect with one tool and names the culprit at its
+    3rd tool call, quoting who fixed it before and the runbook step."""
+    s2 = story["s2"]
+    inv = [s for s in s2["steps"] if s["agent"] == "investigator"]
+    assert [s["tool"] for s in inv[:3]] == ["memory_recall", "shared_dependency_changes", "update_incident"]
+    assert inv[2]["args"]["cause_deploy_id"] == "dep:risk-rules-v2.8.1"
+    recall = inv[0]["result"]
+    assert recall["suspects"][0]["service"] == RR and recall["learned_edges"][0]["fact"]["sources"][0]["id"] == CHAT
+    assert recall["learned_edges"][0]["session"] == story["s1"]["session_id"]
+    mem = recall["incidents"][0]
+    assert mem["id"] == story["s1"]["incident_id"] and mem["runbook"]["id"] == "rb:fraud-scoring-latency-v2" and mem["runbook"]["version"] == 2
+    t = s2["time_to_cause"]
+    assert t["agent"] == "investigator" and t["agent_tool_calls"] <= 3
+    key = story["s1"]["incident_key"]
+    assert (f"Seen before: {key}, fixed by Priya Nair (Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered), "
+            "see Runbook v2 step 2 (rb:fraud-scoring-latency-v2)") in s2["report"]["summary"]
+    assert all(a["grounding"]["ok"] for a in s2["agents"])
+
+
+def test_s1_recalls_nothing_and_scans_as_before(story):
+    inv = [s for s in story["s1"]["steps"] if s["agent"] == "investigator"]
+    assert inv[0]["tool"] == "memory_recall" and "no memory" in inv[0]["result"]["note"]
+    assert {inv[1]["tool"], inv[2]["tool"]} == {"recent_changes_downstream", "shared_dependency_changes"}
+    assert inv[1]["llm_call"] == inv[2]["llm_call"]  # one turn, as before memory_recall existed
+
+
 def test_no_memory_compare(fresh):
     out = demo.story(fresh("kestrel_pay_nomem"), quiet=True, compare_no_memory=True)
-    r = out["s2"]["report"]
+    nm = out["s2_nomem"]
+    r = nm["report"]
     assert r["likely_cause"]["service_id"] != RR and RR not in str(r["likely_cause"])
-    assert r["confidence"] == "low" and out["s2"]["time_to_cause"] is None and not out["learned_edges"]
+    assert r["confidence"] == "low" and nm["time_to_cause"] is None
+    assert out["s2"]["time_to_cause"]["agent_tool_calls"] <= 3  # the full story still runs after the contrast
 
 
 # ───────────── concurrency ─────────────

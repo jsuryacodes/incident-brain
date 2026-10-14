@@ -39,7 +39,7 @@ SUBMIT_TEAM_REPORT = {"action": "handoff", "input_schema": TEAM_REPORT_SCHEMA,
 AGENTS = {
     "triage": dict(read=["find_service", "blast_radius", "critical_services", "past_incidents", "get_incident_state"],
                    write=["open_incident", "update_incident"], submit=("submit_handoff", SUBMIT_HANDOFF)),
-    "investigator": dict(read=["recent_changes_downstream", "shared_dependency_changes", "dependency_path", "decisions_about",
+    "investigator": dict(read=["memory_recall", "recent_changes_downstream", "shared_dependency_changes", "dependency_path", "decisions_about",
                                "read_source", "past_incidents", "who_to_call", "node_details", "get_incident_state"],
                          write=["update_incident", "record_learned_dependency", "record_fact", "link_similar"],
                          submit=("submit_handoff", SUBMIT_HANDOFF)),
@@ -85,11 +85,13 @@ def incident_ref(x):
 
 
 def time_to_cause(steps):
-    """LLM calls and tool calls (from session start) until update_incident set a cause."""
+    """LLM calls and tool calls until update_incident set a cause: from session start, and by the agent that set it
+    (agent_tool_calls: the Investigator's own calls, i.e. how fast it named the culprit)."""
     for n, s in enumerate(steps, 1):
         if s["tool"] == "update_incident" and "error" not in s["result"] and (
                 s["args"].get("cause_deploy_id") or s["args"].get("cause_service_id")):
-            return {"llm_calls": s["llm_call"], "tool_calls": n, "agent": s["agent"]}
+            mine = sum(1 for x in steps[:n] if x["agent"] == s["agent"])
+            return {"llm_calls": s["llm_call"], "tool_calls": n, "agent": s["agent"], "agent_tool_calls": mine}
     return None
 
 

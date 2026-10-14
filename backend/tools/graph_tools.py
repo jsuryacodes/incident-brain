@@ -662,3 +662,101 @@ def get_incident_state(ctx, incident_id):
     res["resolution"] = {"id": r[0][0], "summary": r[0][1], "performed_by": r[0][2], "names": r[0][3]} if r else None
     rec.hl(incident_id)
     return rec.done(res, limit=STATE_CHARS)
+
+
+# ───────────── 15. memory_recall ─────────────
+Q_RECALL_SCOPE = "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..__N__]->(d:Service) RETURN DISTINCT d.id"
+Q_RECALL_LEARNED = """MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service)
+WHERE a.id IN $ids OR b.id IN $ids
+OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from
+OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src)
+OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session)
+RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id"""
+Q_RECALL_FACTS = """MATCH (f:Fact)-[:ABOUT]->(s:Service)
+WHERE s.id IN $ids AND NOT f.id IN $skip
+OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src)
+OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session)
+RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)"""
+Q_RECALL_INCIDENTS = """MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service)
+WHERE s.id IN $ids
+OPTIONAL MATCH (i)-[:CAUSED_BY]->(c)
+OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service)
+OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause)
+OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution)
+OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person)
+OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session)
+RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]),
+       collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id)
+ORDER BY i.resolved_at DESC"""
+# latest version of each runbook written from those incidents: follow SUPERSEDES up to a runbook nothing supersedes
+Q_RECALL_RUNBOOKS = """MATCH (rb:Runbook)-[:SOURCED_FROM]->(i:Incident)
+WHERE i.id IN $iids
+MATCH (latest:Runbook)-[:SUPERSEDES*0..5]->(rb)
+WHERE NOT ()-[:SUPERSEDES]->(latest)
+RETURN DISTINCT i.id, latest.id, latest.title, latest.version, latest.steps"""
+
+
+def _suspect(sus, svc, relation, via, shared=None):
+    s = sus.setdefault(svc, {"service": svc, "relation": relation, "via": []})
+    s["via"].append(via)
+    if shared and "shared" not in s:
+        s["shared"] = shared
+
+
+def memory_recall(ctx, service_id, max_hops=3):
+    rec = Recorder(ctx, "memory_recall", {"service_id": service_id, "max_hops": max_hops})
+    if err := rec.check(service_id, "Service"):
+        return rec.error(err)
+    n = clamp(max_hops, 1, MAX_HOPS, 3)
+    down = [r[0] for r in rec.q(_n(Q_RECALL_SCOPE, n), {"id": service_id})]
+    scope = [service_id] + down
+    sus = {}  # service -> why earlier sessions point at it
+    learned = {}
+    for a, b, kind, at, fid, stmt, src, exc, ses in rec.q(Q_RECALL_LEARNED, {"ids": scope}):
+        e = learned.setdefault((a, b), {"from": a, "to": b, "kind": kind, "learned": iso(at),
+                                         "fact": {"id": fid, "statement": clip(stmt, 200), "sources": []}, "session": ses})
+        if src and src not in [s["id"] for s in e["fact"]["sources"]]:
+            e["fact"]["sources"].append({"id": src, "excerpt": clip(exc, 220)})
+        rec.hl_edge(a, "DEPENDS_ON", b)
+        if fid and src:
+            rec.hl_edge(fid, "SOURCED_FROM", src)
+        if a in scope:  # on my own call path: the callee is downstream
+            _suspect(sus, b, "downstream", f"learned edge {a} -> {b}" + (f" ({fid})" if fid else ""))
+        else:  # someone else calls one of my dependencies: a noisy-neighbour candidate
+            _suspect(sus, a, "shares_dependency", f"learned edge {a} -> {b}" + (f" ({fid})" if fid else ""), shared=b)
+    skip = [e["fact"]["id"] for e in learned.values() if e["fact"]["id"]]
+    facts = []
+    for fid, stmt, conf, about, srcs, sess in rec.q(Q_RECALL_FACTS, {"ids": scope, "skip": skip}):
+        rec.hl(fid)
+        facts.append({"id": fid, "statement": clip(stmt, 200), "confidence": conf, "about": about,
+                      "sources": [{"id": s, "excerpt": clip(x, 220)} for s, x in srcs if s], "session": (sess or [None])[0]})
+    incidents = []
+    for iid, key, title, resolved, aff, causes, rcs, rid, rsum, people, sess in rec.q(Q_RECALL_INCIDENTS, {"ids": scope}):
+        cause = next(({"deploy": c, "service": cs} for c, lab, cs in causes if lab == "Deploy"), None) or next(
+            ({"deploy": None, "service": c} for c, lab, _ in causes if lab == "Service"), None)
+        for s in aff:
+            rec.hl_edge(iid, "AFFECTED", s)
+        if rid:
+            rec.hl_edge(iid, "RESOLVED_BY", rid)
+        for pid, _ in people:
+            if pid and rid:
+                rec.hl_edge(rid, "PERFORMED_BY", pid)
+        incidents.append({"id": iid, "key": key, "title": clip(title, 90), "resolved": iso(resolved),
+                          "affected_in_scope": aff, "cause": cause, "root_causes": rcs,
+                          "resolution": {"id": rid, "summary": clip(rsum, 160)} if rid else None,
+                          "resolved_by": [{"id": p, "name": nm} for p, nm in people if p], "session": (sess or [None])[0]})
+        if cause and cause["service"] and cause["service"] != service_id:
+            _suspect(sus, cause["service"], "downstream" if cause["service"] in scope else "shares_dependency",
+                     f"caused {key}")
+    if incidents:
+        for iid, rb, title, version, steps in rec.q(Q_RECALL_RUNBOOKS, {"iids": [i["id"] for i in incidents]}):
+            rec.hl_edge(rb, "SOURCED_FROM", iid)
+            inc = next(i for i in incidents if i["id"] == iid)
+            inc["runbook"] = {"id": rb, "title": clip(title, 80), "version": version,
+                              "steps": [clip(l, 180) for l in (steps or "").split("\n") if l.strip()][:8]}
+    rec.hl(service_id)
+    res = {"service": service_id, "scope": scope, "learned_edges": list(learned.values()), "facts": facts[:5],
+           "incidents": incidents[:3], "suspects": sorted(sus.values(), key=lambda s: -len(s["via"]))[:5]}
+    if not (learned or facts or incidents):
+        res["note"] = "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+    return rec.done(res, limit=4500)

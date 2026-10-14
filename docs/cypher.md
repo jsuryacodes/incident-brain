@@ -2,7 +2,7 @@
 
 > **Generated** by `python -m backend.tools.export_docs` from `backend/tools/registry.py`. Do not edit by hand.
 
-Every product answer comes from one of these 14 fixed, parameterised, **read-only** tools (`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.
+Every product answer comes from one of these 15 fixed, parameterised, **read-only** tools (`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.
 
 - `$name` are query parameters. `N` in `*1..N` is a hop bound: variable-length bounds cannot be parameters, so it is clamped to an integer 1..6 before being written into the query.
 - `(a)-[:DEPENDS_ON]->(b)` means *a calls b*. `source` on that edge is `declared` (catalog) or `learned` (written by an agent).
@@ -27,6 +27,7 @@ Every product answer comes from one of these 14 fixed, parameterised, **read-onl
 | 12 | [`node_details`](#node_details) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
 | 13 | [`read_source`](#read_source) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain | — |
 | 14 | [`get_incident_state`](#get_incident_state) | Track 2: Agent Memory and Coordination | — |
+| 15 | [`memory_recall`](#memory_recall) | Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data | — |
 
 ## find_service
 
@@ -484,6 +485,65 @@ RETURN r.id, r.summary, collect(p.id), collect(p.name)
 ```
 
 **Explanation:** This is how agents hand off: each agent starts with an empty conversation and reads the incident's state from the graph. Sessions point at the incident (FOR_INCIDENT); their Steps (IN_SESSION) with action 'handoff' carry the notes, and Facts WRITTEN_IN those sessions are what the team learned. Nine small queries instead of one big one, because FalkorDB drops rows when a MATCH follows an aggregation.
+
+## memory_recall
+
+**Purpose:** Call FIRST on an alert: what earlier agent sessions learned about this service and its dependencies (DEPENDS_ON 1..3 hops).
+
+**Track(s):** Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data
+
+**FalkorDB algorithm:** none (plain pattern matching)
+
+**Arguments:** `{"service_id":{"type":"string","description":"Service id, e.g. 'svc:payments-api'. Use find_service if unsure."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
+
+**LLM-facing description:** Call FIRST on an alert: what earlier agent sessions learned about this service and its dependencies (DEPENDS_ON 1..3 hops). Returns learned dependencies (with the Fact, quoted source and session), agent-written facts, incidents agents resolved (cause, root cause, who fixed it and how, latest runbook steps) and `suspects`: services that memory points at, each with relation 'downstream' or 'shares_dependency'. Empty when nothing was learned yet.
+
+**Cypher:**
+
+```cypher
+MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..N]->(d:Service) RETURN DISTINCT d.id
+```
+
+```cypher
+MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service)
+WHERE a.id IN $ids OR b.id IN $ids
+OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from
+OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src)
+OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session)
+RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id
+```
+
+```cypher
+MATCH (f:Fact)-[:ABOUT]->(s:Service)
+WHERE s.id IN $ids AND NOT f.id IN $skip
+OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src)
+OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session)
+RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)
+```
+
+```cypher
+MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service)
+WHERE s.id IN $ids
+OPTIONAL MATCH (i)-[:CAUSED_BY]->(c)
+OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service)
+OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause)
+OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution)
+OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person)
+OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session)
+RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]),
+       collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id)
+ORDER BY i.resolved_at DESC
+```
+
+```cypher
+MATCH (rb:Runbook)-[:SOURCED_FROM]->(i:Incident)
+WHERE i.id IN $iids
+MATCH (latest:Runbook)-[:SUPERSEDES*0..5]->(rb)
+WHERE NOT ()-[:SUPERSEDES]->(latest)
+RETURN DISTINCT i.id, latest.id, latest.title, latest.version, latest.steps
+```
+
+**Explanation:** Memory-first recall. The scope is the alerting service plus everything it calls within N hops (declared or learned edges). Then four small queries: learned DEPENDS_ON edges touching the scope (with the Fact on learned_from, its SOURCED_FROM excerpt and the Session it was WRITTEN_IN); other agent Facts ABOUT scope services; incidents with origin 'agent' and status 'resolved' that AFFECTED the scope (CAUSED_BY, HAS_ROOT_CAUSE, RESOLVED_BY, PERFORMED_BY); and for those incidents the newest runbook, found by following SUPERSEDES*0..5 back to a runbook that nothing supersedes. A learned edge into one of my dependencies makes its caller a noisy-neighbour suspect; a learned edge on my own path or the cause of a recalled incident makes that service a suspect too. Only agent-written memory is recalled: seeded history stays with past_incidents, so a first session honestly recalls nothing.
 
 ## FalkorDB notes
 

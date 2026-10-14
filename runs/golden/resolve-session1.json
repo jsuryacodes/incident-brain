@@ -1,11 +1,11 @@
 {
- "run_id": "run-89645232b678",
+ "run_id": "run-6d5d0c1120bb",
  "agent": "resolve",
  "tenant": "kestrel_pay",
  "mode": "mock",
  "model": "mock",
- "session_id": "ses:20261014T215003-1e570b",
- "started_at": 1792014603,
+ "session_id": "ses:20261014T223738-76035b",
+ "started_at": 1792017458,
  "status": "ok",
  "incident_id": "inc:2026-032",
  "operator": {
@@ -58,7 +58,7 @@
   "cost_usd": 0.0,
   "llm_calls": 4,
   "tool_calls": 8,
-  "duration_ms": 45
+  "duration_ms": 44
  },
  "steps": [
   {
@@ -107,10 +107,10 @@
     }
    },
    "summary": "update_incident → INC-2026-032: status=mitigated, summary=5xx rate 12% and p99 4.1s on payments-a…",
-   "ts": 1792014603,
-   "ms": 0,
+   "ts": 1792017458,
+   "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T215003-1e570b-001"
+   "step_id": "step:20261014T223738-76035b-001"
   },
   {
    "seq": 2,
@@ -508,10 +508,10 @@
     }
    },
    "summary": "past_incidents → 5 incident(s): INC-2026-032, INC-2025-031 (fixed by Priya Nair, Arjun Mehta), INC-2026-012 (fixed by Priya Nair)",
-   "ts": 1792014603,
+   "ts": 1792017458,
    "ms": 2,
    "llm_call": 1,
-   "step_id": "step:20261014T215003-1e570b-002"
+   "step_id": "step:20261014T223738-76035b-002"
   },
   {
    "seq": 3,
@@ -597,10 +597,10 @@
     }
    },
    "summary": "search_knowledge → 2 hit(s): rb:ledger-db-failover",
-   "ts": 1792014603,
+   "ts": 1792017458,
    "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T215003-1e570b-003"
+   "step_id": "step:20261014T223738-76035b-003"
   },
   {
    "seq": 4,
@@ -682,10 +682,10 @@
     }
    },
    "summary": "read_source → ok",
-   "ts": 1792014603,
+   "ts": 1792017458,
    "ms": 1,
    "llm_call": 2,
-   "step_id": "step:20261014T215003-1e570b-004"
+   "step_id": "step:20261014T223738-76035b-004"
   },
   {
    "seq": 5,
@@ -767,10 +767,10 @@
     }
    },
    "summary": "read_source → ok",
-   "ts": 1792014603,
+   "ts": 1792017458,
    "ms": 1,
    "llm_call": 2,
-   "step_id": "step:20261014T215003-1e570b-005"
+   "step_id": "step:20261014T223738-76035b-005"
   },
   {
    "seq": 6,
@@ -824,7 +824,7 @@
        "id": "res:2026-032",
        "summary": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
        "steps": "1. Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-       "now": 1792014603
+       "now": 1792017458
       },
       "write": true
      },
@@ -833,7 +833,7 @@
       "params": {
        "iid": "inc:2026-032",
        "id": "res:2026-032",
-       "now": 1792014603
+       "now": 1792017458
       },
       "write": true
      },
@@ -844,7 +844,7 @@
        "pids": [
         "per:priya-nair"
        ],
-       "now": 1792014603
+       "now": 1792017458
       },
       "write": true
      },
@@ -854,7 +854,7 @@
        "id": "res:2026-032",
        "sid": "inc:2026-032",
        "excerpt": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-       "now": 1792014603
+       "now": 1792017458
       },
       "write": true
      },
@@ -862,8 +862,8 @@
       "cypher": "MATCH (n:Resolution {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "res:2026-032",
-       "ses": "ses:20261014T215003-1e570b",
-       "now": 1792014603
+       "ses": "ses:20261014T223738-76035b",
+       "now": 1792017458
       },
       "write": true
      }
@@ -873,7 +873,7 @@
       "inc:2026-032",
       "res:2026-032",
       "per:priya-nair",
-      "ses:20261014T215003-1e570b"
+      "ses:20261014T223738-76035b"
      ],
      "edges": [
       {
@@ -894,16 +894,16 @@
       {
        "from": "res:2026-032",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T215003-1e570b"
+       "to": "ses:20261014T223738-76035b"
       }
      ]
     }
    },
    "summary": "record_resolution → resolution res:2026-032 for INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-   "ts": 1792014603,
+   "ts": 1792017458,
    "ms": 3,
    "llm_call": 3,
-   "step_id": "step:20261014T215003-1e570b-006"
+   "step_id": "step:20261014T223738-76035b-006"
   },
   {
    "seq": 7,
@@ -938,7 +938,7 @@
        "o": "inc:2026-012",
        "score": 0.85,
        "reason": "same root cause rc:cache-ttl-thundering-herd: merchant-onboarding config reads timing out",
-       "now": 1792014603
+       "now": 1792017458
       },
       "write": true
      }
@@ -958,10 +958,10 @@
     }
    },
    "summary": "link_similar → inc:2026-032 SIMILAR_TO inc:2026-012 (0.85): same root cause rc:cache-ttl-thundering-herd: merchant-onboarding config reads …",
-   "ts": 1792014603,
+   "ts": 1792017458,
    "ms": 0,
    "llm_call": 3,
-   "step_id": "step:20261014T215003-1e570b-007"
+   "step_id": "step:20261014T223738-76035b-007"
   },
   {
    "seq": 8,
@@ -1034,7 +1034,7 @@
        "title": "Runbook: fraud-scoring latency",
        "steps": "1. Check for a recent deploy to risk-rules first: INC-2026-032 was caused by dep:risk-rules-v2.8.0 (RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster).\n2. If risk-rules RULES_CACHE_TTL was changed, roll it back. What fixed INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered\n3. Watch config-service CPU and request rate: risk-rules calls config-service at request time; the service catalog does not list this dependency. (fact:learned-risk-rules-config-service)\n4. Open the fraud-scoring dashboard and check p99 latency and pod CPU.\n5. If CPU is above 70%, scale the deployment up by 50% and wait five minutes.\n6. Check the feature store database for slow queries and connection saturation.\n7. If latency is still high, restart the pods one at a time.\n8. If payments are being declined, ask payments-api on-call to enable the conservative fallback.",
        "v": 2,
-       "now": 1792014603
+       "now": 1792017458
       },
       "write": true
      },
@@ -1043,7 +1043,7 @@
       "params": {
        "id": "rb:fraud-scoring-latency-v2",
        "s": "svc:fraud-scoring",
-       "now": 1792014603
+       "now": 1792017458
       },
       "write": true
      },
@@ -1052,7 +1052,7 @@
       "params": {
        "id": "rb:fraud-scoring-latency-v2",
        "o": "rb:fraud-scoring-latency",
-       "now": 1792014603
+       "now": 1792017458
       },
       "write": true
      },
@@ -1062,7 +1062,7 @@
        "id": "rb:fraud-scoring-latency-v2",
        "sid": "inc:2026-032",
        "excerpt": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-       "now": 1792014603
+       "now": 1792017458
       },
       "write": true
      },
@@ -1072,7 +1072,7 @@
        "id": "rb:fraud-scoring-latency-v2",
        "sid": "chat:risk-eng-config-load",
        "excerpt": "On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint.",
-       "now": 1792014603
+       "now": 1792017458
       },
       "write": true
      },
@@ -1080,8 +1080,8 @@
       "cypher": "MATCH (n:Runbook {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "rb:fraud-scoring-latency-v2",
-       "ses": "ses:20261014T215003-1e570b",
-       "now": 1792014603
+       "ses": "ses:20261014T223738-76035b",
+       "now": 1792017458
       },
       "write": true
      }
@@ -1093,7 +1093,7 @@
       "rb:fraud-scoring-latency",
       "inc:2026-032",
       "chat:risk-eng-config-load",
-      "ses:20261014T215003-1e570b"
+      "ses:20261014T223738-76035b"
      ],
      "edges": [
       {
@@ -1119,16 +1119,16 @@
       {
        "from": "rb:fraud-scoring-latency-v2",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T215003-1e570b"
+       "to": "ses:20261014T223738-76035b"
       }
      ]
     }
    },
    "summary": "write_runbook → runbook rb:fraud-scoring-latency-v2 v2 supersedes rb:fraud-scoring-latency",
-   "ts": 1792014603,
+   "ts": 1792017458,
    "ms": 5,
    "llm_call": 3,
-   "step_id": "step:20261014T215003-1e570b-008"
+   "step_id": "step:20261014T223738-76035b-008"
   },
   {
    "seq": 9,
@@ -1176,10 +1176,10 @@
     }
    },
    "summary": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012.",
-   "ts": 1792014603,
+   "ts": 1792017458,
    "ms": 0,
    "llm_call": 4,
-   "step_id": "step:20261014T215003-1e570b-009"
+   "step_id": "step:20261014T223738-76035b-009"
   }
  ]
 }

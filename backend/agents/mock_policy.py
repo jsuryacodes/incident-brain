@@ -59,19 +59,53 @@ def _tokens(text):
 
 
 # ───────────── analysis shared by every incident agent ─────────────
-def culprit_from(recent, shared):
-    """First downstream hit (nearest), else first noisy neighbour. -> dict or None."""
-    if recent and recent.get("hits"):
-        h = recent["hits"][0]
-        return {"service": h["service"], "deploy": h["deploy"], "ticket": h.get("ticket"), "path": h["path"],
-                "learned_hop": "learned" in h.get("edge_sources", []), "shared": None}
-    if shared and shared.get("hits"):
-        h = shared["hits"][0]
-        path = h["path_to_shared"] + h["neighbour_path"][::-1][1:]  # alerting -> shared -> neighbour
-        return {"service": h["neighbour"], "deploy": h["deploy"], "ticket": h.get("ticket"), "path": path,
-                "learned_hop": h.get("uses_learned_edge", False), "shared": h["shared"],
-                "learned_facts": h.get("learned_facts", [])}
+def culprit_from(recent, shared, only=None):
+    """First downstream hit (nearest), else first noisy neighbour; with `only`, the first hit on one of those
+    services. -> dict or None."""
+    for res, is_shared in ((recent, False), (shared, True)):
+        for h in (res or {}).get("hits", []):
+            svc = h["neighbour"] if is_shared else h["service"]
+            if only is not None and svc not in only:
+                continue
+            if not is_shared:
+                return {"service": svc, "deploy": h["deploy"], "ticket": h.get("ticket"), "path": h["path"],
+                        "learned_hop": "learned" in h.get("edge_sources", []), "shared": None}
+            path = h["path_to_shared"] + h["neighbour_path"][::-1][1:]  # alerting -> shared -> neighbour
+            return {"service": svc, "deploy": h["deploy"], "ticket": h.get("ticket"), "path": path,
+                    "learned_hop": h.get("uses_learned_edge", False), "shared": h["shared"],
+                    "learned_facts": h.get("learned_facts", [])}
     return None
+
+
+def suspects_of(recall):
+    return (recall or {}).get("suspects") or []
+
+
+def verify_call(svc, suspect):
+    """The cheapest check of a suspect from memory: recent deploys where it sits relative to the alerting service."""
+    tool = "recent_changes_downstream" if suspect["relation"] == "downstream" else "shared_dependency_changes"
+    return tool, {"service_id": svc, "since_minutes": 120}
+
+
+def find_culprit(v, svc, both_at_once):
+    """Memory first: verify recall's top suspect with one tool. If nothing was recalled, or the suspect did not
+    change recently, scan as before. -> ("call", [tool calls]) or ("culprit", culprit or None, from_memory)."""
+    sus = {s["service"] for s in suspects_of(v.last("memory_recall"))}
+    recent, shared = v.last("recent_changes_downstream"), v.last("shared_dependency_changes")
+    if sus and (c := culprit_from(recent, shared, only=sus)):
+        return "culprit", c, True
+    if sus and recent is None and shared is None:
+        return "call", [verify_call(svc, suspects_of(v.last("memory_recall"))[0])]
+    scan = {"service_id": svc, "since_minutes": 120}
+    if both_at_once:
+        missing = [t for t, r in (("recent_changes_downstream", recent), ("shared_dependency_changes", shared)) if r is None]
+        if missing:
+            return "call", [(t, scan) for t in missing]
+    elif recent is None:
+        return "call", [("recent_changes_downstream", scan)]
+    elif not recent["hits"] and shared is None:
+        return "call", [("shared_dependency_changes", scan)]
+    return "culprit", culprit_from(recent, shared), False
 
 
 def conflict_from(culprit, decisions):
@@ -184,13 +218,12 @@ def firefighter(v):
         svc = fs["matches"][0]["id"] if fs.get("matches") else None
         if not svc:
             return []  # nothing to investigate; the loop nudges, the run ends at step_limit
-    recent = v.last("recent_changes_downstream")
-    if recent is None:
-        return turn(v.turns, ("recent_changes_downstream", {"service_id": svc, "since_minutes": 120}))
-    shared = v.last("shared_dependency_changes")
-    if not recent["hits"] and shared is None:
-        return turn(v.turns, ("shared_dependency_changes", {"service_id": svc, "since_minutes": 120}))
-    culprit = culprit_from(recent, shared)
+    if not v.called("memory_recall"):
+        return turn(v.turns, ("memory_recall", {"service_id": svc}))
+    found = find_culprit(v, svc, both_at_once=False)
+    if found[0] == "call":
+        return turn(v.turns, *found[1])
+    culprit = found[1]
     if not v.called("blast_radius"):
         calls = [("blast_radius", {"service_id": svc})]
         ids = [svc]
@@ -277,14 +310,24 @@ def triage(v):
 
 
 # ───────────── investigator ─────────────
+def seen_before(inc, step):
+    """'Seen before: INC-x, fixed by P (summary), see Runbook vN step K (rb:...)' from a recalled incident."""
+    who = ", ".join(p["name"] for p in inc.get("resolved_by", [])) or "unknown"
+    fix = (inc.get("resolution") or {}).get("summary") or "fix not recorded"
+    rb = inc.get("runbook")
+    return (f"Seen before: {inc['key']}, fixed by {who} ({fix})"
+            + (f", see Runbook v{rb['version']} step {step['step']} ({rb['id']})" if rb and step else "") + ".")
+
+
 def investigator(v):
     alert = v.payload["alert"]
     svc, inc = alert["service_id"], _state(v).get("id")
-    recent, shared = v.last("recent_changes_downstream"), v.last("shared_dependency_changes")
-    if recent is None:
-        return turn(v.turns, ("recent_changes_downstream", {"service_id": svc, "since_minutes": 120}),
-                    ("shared_dependency_changes", {"service_id": svc, "since_minutes": 120}))
-    c = culprit_from(recent, shared)
+    if not v.called("memory_recall"):
+        return turn(v.turns, ("memory_recall", {"service_id": svc}))
+    found = find_culprit(v, svc, both_at_once=True)
+    if found[0] == "call":
+        return turn(v.turns, *found[1])
+    _, c, from_memory = found
     if c is None:
         if not v.called("past_incidents"):
             return turn(v.turns, ("past_incidents", {"service_ids": [svc]}))
@@ -293,10 +336,28 @@ def investigator(v):
         return turn(v.turns, ("submit_handoff", {"note": note, "details": {
             "likely_cause": None, "conflicting_decision": None, "similar_past_incidents": [], "confidence": "low",
             "evidence": [{"node_id": svc, "claim": "no recent downstream or shared-dependency change in 120 min"}]}}))
+    # incidents an earlier session resolved that were caused by a change to the same service
+    mem_incs = [i for i in (v.last("memory_recall") or {}).get("incidents", [])
+                if (i.get("cause") or {}).get("service") == c["service"]] if from_memory else []
+    reads = [("decisions_about", {"service_id": c["service"]}),
+             ("past_incidents", {"service_ids": [svc, c["service"]] + ([c["shared"]] if c["shared"] else []), "limit": 10}),
+             ("who_to_call", {"service_id": c["service"]})]
+
+    def update(similar, learned=None):
+        upd = {"incident_id": inc, "cause_deploy_id": c["deploy"]["id"], "cause_service_id": c["service"],
+               "affected_ids": list(dict.fromkeys(c["path"][1:] + ([learned["to"]] if learned else [])))}
+        if rc := next((r for i in similar for r in i.get("root_causes", [])), None):
+            upd["root_cause_id"] = rc
+        return "update_incident", upd
+
+    def link(i):
+        return "link_similar", {"incident_id": inc, "other_id": i["id"], "score": 0.9 if i.get("origin", "agent") == "agent" else 0.8,
+                                "reason": f"also caused by a change to {svc_name(c['service'])}: {i['title']}"}
+    if from_memory and not v.called("update_incident"):
+        # memory named the culprit and one tool confirmed it: set the cause now, then gather the rest
+        return turn(v.turns, update(mem_incs), *[link(i) for i in mem_incs], *reads)
     if not v.called("decisions_about"):
-        ids = [svc, c["service"]] + ([c["shared"]] if c["shared"] else [])
-        return turn(v.turns, ("decisions_about", {"service_id": c["service"]}),
-                    ("past_incidents", {"service_ids": ids, "limit": 10}), ("who_to_call", {"service_id": c["service"]}))
+        return turn(v.turns, *reads)
     dec, past, who = v.last("decisions_about"), v.last("past_incidents"), v.last("who_to_call")
     conf = conflict_from(c, dec)
     # a learned hop means an earlier session already read that source and recorded what it says
@@ -304,48 +365,50 @@ def investigator(v):
         return turn(v.turns, ("read_source", {"node_id": conf[1]["id"]}))
     similar = recalled(c, past)
     learned = learn_from_source(v.last("read_source"), c["service"]) if not c["learned_hop"] else None
+    learn = [("record_learned_dependency", {
+        "from_service_id": learned["from"], "to_service_id": learned["to"], "kind": "sync", "confidence": 0.8,
+        "statement": f"{svc_name(learned['from'])} calls {svc_name(learned['to'])} at request time; "
+                     "the service catalog does not list this dependency.",
+        "sources": [{"node_id": learned["source_id"], "excerpt": learned["excerpt"]}]})] if learned else []
     if not v.called("update_incident"):
-        upd = {"incident_id": inc, "cause_deploy_id": c["deploy"]["id"], "cause_service_id": c["service"],
-               "affected_ids": list(dict.fromkeys(c["path"][1:] + ([learned["to"]] if learned else [])))}
-        if rc := next((r for i in similar for r in i.get("root_causes", [])), None):
-            upd["root_cause_id"] = rc
-        calls = [("update_incident", upd)]
-        if learned:
-            calls.append(("record_learned_dependency", {
-                "from_service_id": learned["from"], "to_service_id": learned["to"], "kind": "sync", "confidence": 0.8,
-                "statement": f"{svc_name(learned['from'])} calls {svc_name(learned['to'])} at request time; "
-                             "the service catalog does not list this dependency.",
-                "sources": [{"node_id": learned["source_id"], "excerpt": learned["excerpt"]}]}))
-        for i in similar:
-            calls.append(("link_similar", {"incident_id": inc, "other_id": i["id"], "score": 0.9 if i.get("origin") == "agent" else 0.8,
-                                           "reason": f"also caused by a change to {svc_name(c['service'])}: {i['title']}"}))
-        return turn(v.turns, *calls)
-    rb = next((r for i in similar for r in i.get("runbooks", [])), None)
-    if rb and not v.last("read_source", node_id=rb):
-        return turn(v.turns, ("read_source", {"node_id": rb}))
+        return turn(v.turns, update(similar, learned), *learn, *[link(i) for i in similar])
+    linked = {a["other_id"] for a, _ in v.all("link_similar")}
+    extra = (learn if not v.called("record_learned_dependency") else []) + [link(i) for i in similar if i["id"] not in linked]
+    if extra:
+        return turn(v.turns, *extra)
+    mem_rb = next((i["runbook"] for i in mem_incs if i.get("runbook")), None)
+    if mem_rb:  # recall already returned the newest runbook's steps
+        rb_src = {"id": mem_rb["id"], "text": "\n".join(mem_rb["steps"])}
+    else:
+        rb = next((r for i in similar for r in i.get("runbooks", [])), None)
+        if rb and not v.last("read_source", node_id=rb):
+            return turn(v.turns, ("read_source", {"node_id": rb}))
+        rb_src = v.last("read_source", node_id=rb) if rb else None
     r = build_report(svc, c, None, who, dec, past)
-    step = runbook_step(v.last("read_source", node_id=rb), similar, c["service"]) if rb else None
+    step = runbook_step(rb_src, similar, c["service"])
     facts = [x for _, x in v.all("record_learned_dependency")]
-    memory = c.get("learned_facts", []) if c["learned_hop"] else []
-    if memory:
-        r["evidence"].insert(1, {"node_id": memory[0], "claim": f"{svc_name(svc)} and {svc_name(c['service'])} share "
-                                                                 f"{svc_name(c['shared'] or svc)} only through a dependency learned in an earlier session."})
+    memory = (c.get("learned_facts", []) if c["learned_hop"] else []) + [i["id"] for i in mem_incs]
+    seen = seen_before(mem_incs[0], step) if mem_incs else None
+    if c["learned_hop"] and c.get("learned_facts"):
+        r["evidence"].insert(1, {"node_id": c["learned_facts"][0], "claim": f"{svc_name(svc)} and {svc_name(c['service'])} share "
+                                                                           f"{svc_name(c['shared'] or svc)} only through a dependency learned in an earlier session."})
     if step:
         r["recommended_actions"].insert(1, f"Follow {step['runbook_id']} step {step['step']}: {step['text']}")
         r["recommended_actions"] = r["recommended_actions"][:4]
     cand = [{"id": x["id"], "name": x["name"], "score": x["score"]} for x in (who or {}).get("candidates", [])[:3]]
-    note = (f"Cause: {c['deploy']['id']} on {svc_name(c['service'])} ({c['deploy']['summary']}), path "
+    note = ((f"From memory: {seen} " if seen else "")
+            + f"Cause: {c['deploy']['id']} on {svc_name(c['service'])} ({c['deploy']['summary']}), path "
             + " -> ".join(map(svc_name, c["path"])) + (" via a LEARNED dependency." if c["learned_hop"] else ".")
             + (f" It contradicts {conf[0]['id']} ({conf[1]['id']})." if conf else "")
             + "".join(f" Learned: {f['edge']['from']} -> {f['edge']['to']} ({f['fact_id']})." for f in facts)
             + (" Seen before: " + "; ".join(f"{i['key']} fixed by {', '.join(i.get('resolved_by') or ['?'])}: {i.get('resolution')}"
-                                           for i in similar) + "." if similar else "")
-            + (f" Runbook {step['runbook_id']} step {step['step']}: {step['text']}" if step else "")
+                                           for i in similar) + "." if similar and not seen else "")
+            + (f" Runbook {step['runbook_id']} step {step['step']}: {step['text']}" if step and not seen else "")
             + (f" Contact candidates: {', '.join(x['name'] for x in cand)}." if cand else ""))
     details = {k: r[k] for k in ("likely_cause", "conflicting_decision", "similar_past_incidents", "evidence",
                                  "recommended_actions", "confidence")}
     details.update(learned=[{"fact_id": f["fact_id"], **f["edge"]} for f in facts], memory_used=memory,
-                   runbook_step=step, contact_candidates=cand)
+                   runbook_step=step, contact_candidates=cand, seen_before=seen)
     return turn(v.turns, ("submit_handoff", {"note": note, "details": details}))
 
 
@@ -391,7 +454,8 @@ def communicator(v):
     sims = inv.get("similar_past_incidents") or []
     summary = (f"{key}: {svc_name(svc)} {alert['symptom'].split(' for ')[0]}. "
                + (f"Likely cause {lc['deploy_id']} on {svc_name(lc['service_id'])}." if lc.get("deploy_id") else "Cause unknown.")
-               + (f" Seen before: {sims[0]['incident_id']}, fixed by {sims[0]['resolved_by']}." if sims else ""))
+               + (f" {inv['seen_before']}" if inv.get("seen_before") else
+                  f" Seen before: {sims[0]['incident_id']}, fixed by {sims[0]['resolved_by']}." if sims else ""))
     report = {"summary": summary,
               "likely_cause": lc or {"service_id": None, "deploy_id": None, "ticket_key": None, "path": [], "explanation": "unknown"},
               "blast_radius": tri.get("blast_radius", []),

@@ -1,7 +1,7 @@
 """The whole demo storyline, mock by default.
 
 python -m backend.demo story [--graph kestrel_pay] [--live] [--quiet]
-python -m backend.demo story --compare-no-memory      # Session 2 on a fresh seed, WITHOUT Session 1
+python -m backend.demo story --compare-no-memory      # also Session 2 on a fresh seed WITHOUT Session 1, for contrast
 """
 import argparse
 import json
@@ -72,28 +72,36 @@ def handoffs_only(typ, d):
 
 
 def story(graph="kestrel_pay", llm=None, quiet=False, compare_no_memory=False, other="northwind_health"):
-    """quiet: print only session headers, handoffs and the summary box (verbose prints every step)."""
+    """The whole story. compare_no_memory: first run Session 2 on a fresh seed WITHOUT Session 1 (the contrast),
+    then the normal story, so the summary box shows all three. quiet: print only session headers, handoffs and the
+    summary box (verbose prints every step)."""
     llm = llm or LLMClient()
     ev = handoffs_only if quiet else tracer(False)
     say = (lambda *a: None) if quiet else print
     other = other if other in allowed_tenants() and other != graph else None
+    out = {}
+    if compare_no_memory:
+        banner("0. Contrast: Session 2 on a fresh seed, WITHOUT Session 1's memory")
+        load(graph, reset=True, data_package="kestrel_pay", quiet=True)
+        say(f"added {scenario.apply('session2', graph)}")
+        out["s2_nomem"] = run_team(S2_ALERT, graph, "jaya", llm, ev)
+        if not quiet:
+            print_report(out["s2_nomem"]["report"])
     if not quiet:
         banner(f"1. Re-seed {graph}" + (f" and {other}" if other else ""))
     load(graph, reset=True, data_package="kestrel_pay", quiet=True)
     if other:
         load(other, reset=True, data_package="northwind_health", quiet=True)
-    out = {}
-    if not compare_no_memory:
-        banner("2. Session 1: payments-api alert, the team investigates")
-        out["s1"] = run_team(S1_ALERT, graph, "jaya", llm, ev)
-        if not quiet:
-            print_report(out["s1"]["report"])
-        banner("3. Operator: resolved by Priya")
-        out["resolve"] = resolve_incident(out["s1"]["incident_id"], ["per:priya-nair"], FIX, graph, llm, "jaya", ev)
+    banner("2. Session 1: payments-api alert, the team investigates")
+    out["s1"] = run_team(S1_ALERT, graph, "jaya", llm, ev)
+    if not quiet:
+        print_report(out["s1"]["report"])
+    banner("3. Operator: resolved by Priya")
+    out["resolve"] = resolve_incident(out["s1"]["incident_id"], ["per:priya-nair"], FIX, graph, llm, "jaya", ev)
     if not quiet:
         banner("4. World event: risk-rules v2.8.1 ships (scenario session2)")
     say(f"added {scenario.apply('session2', graph)}")
-    banner("5. Session 2: payouts-service alert" + (" (NO memory: fresh seed)" if compare_no_memory else ""))
+    banner("5. Session 2: payouts-service alert, with memory")
     out["s2"] = run_team(S2_ALERT, graph, "jaya", llm, ev)
     if not quiet:
         print_report(out["s2"]["report"])
@@ -101,49 +109,62 @@ def story(graph="kestrel_pay", llm=None, quiet=False, compare_no_memory=False, o
     out["s2_learned_hit"] = s2_learned_hit(out["s2"])
     if other:
         out["switch_tenant"] = switch_tenant(other, llm)
-    print_summary(out, compare_no_memory)
+    print_summary(out)
     return out
 
 
 def _ttc(rec):
-    t = rec and rec.get("time_to_cause")
-    return f"{t['llm_calls']} LLM calls / {t['tool_calls']} tool calls" if t else "cause NOT found"
+    t = rec.get("time_to_cause")
+    return (f"{t['tool_calls']} total, {t['agent_tool_calls']} by {t['agent']}" if t else "cause NOT found",
+            f"{t['llm_calls']}" if t else "-")
 
 
-def print_summary(out, compare_no_memory):
-    banner("6. Summary")
-    s2 = out["s2"]
-    lc2 = (s2["report"] or {}).get("likely_cause") or {}
-    rows = [("", "Session 1 (payments-api)", "Session 2 (payouts-service)")]
-    if "s1" in out:
-        lc1 = (out["s1"]["report"] or {}).get("likely_cause") or {}
-        rows.append(("incident", out["s1"]["incident_key"], s2["incident_key"]))
-        rows.append(("cause", str(lc1.get("deploy_id")), str(lc2.get("deploy_id"))))
-        rows.append(("time to cause", _ttc(out["s1"]), _ttc(s2)))
-        rows.append(("LLM calls total", str(out["s1"]["totals"]["llm_calls"]), str(s2["totals"]["llm_calls"])))
-    else:
-        rows.append(("incident", "(skipped: no memory)", s2["incident_key"]))
-        rows.append(("cause", "-", str(lc2.get("deploy_id"))))
-        rows.append(("time to cause", "-", _ttc(s2)))
-        rows.append(("confidence", "-", str((s2["report"] or {}).get("confidence"))))
-    w = max(len(r[1]) for r in rows) + 2
-    for a, b, c in rows:
-        print(f"  {a:16s} {b:{w}s} {c}")
+def print_summary(out):
+    banner("6. Summary: before / after memory")
+    runs = [("Session 1", out["s1"]), ("Session 2", out["s2"])] + (
+        [("Session 2, no memory", out["s2_nomem"])] if "s2_nomem" in out else [])
+    rows = [("",) + tuple(n for n, _ in runs),
+            ("alert",) + tuple(svc_name(r["alert"]["service_id"]) for _, r in runs),
+            ("incident",) + tuple(str(r["incident_key"]) for _, r in runs),
+            ("cause",) + tuple(str(((r["report"] or {}).get("likely_cause") or {}).get("deploy_id") or "unknown") for _, r in runs),
+            ("confidence",) + tuple(str((r["report"] or {}).get("confidence")) for _, r in runs),
+            ("tool calls until cause",) + tuple(_ttc(r)[0] for _, r in runs),
+            ("LLM calls until cause",) + tuple(_ttc(r)[1] for _, r in runs),
+            ("LLM calls total",) + tuple(str(r["totals"]["llm_calls"]) for _, r in runs)]
+    w = [max(len(r[i]) for r in rows) + 2 for i in range(len(rows[0]))]
+    line = "  +" + "+".join("-" * x for x in w) + "+"
+    print(line)
+    for i, r in enumerate(rows):
+        print("  |" + "|".join(f" {c:{w[j] - 1}s}" for j, c in enumerate(r)) + "|")
+        if i == 0:
+            print(line)
+    print(line)
+    seen = next((h["details"].get("seen_before") for h in _handoffs(out["s2"]) if (h.get("details") or {}).get("seen_before")), None)
+    if seen:
+        print(f"\n  Session 2, from memory: {seen}")
     hit = out["s2_learned_hit"]
     if hit:
-        print(f"\n  Session 2 found {hit['neighbour']} only through the LEARNED edge "
+        print(f"  Session 2 found {hit['neighbour']} only through the LEARNED edge "
               + " -> ".join(hit["neighbour_path"]) + f" (written by Session 1, {', '.join(hit.get('learned_facts', []))}).")
-    elif compare_no_memory:
-        print("\n  Without Session 1's memory there is no risk-rules -> config-service edge, so the noisy-neighbour"
+    if "s2_nomem" in out:
+        print("  Without Session 1's memory there is no risk-rules -> config-service edge, so the noisy-neighbour"
               "\n  traversal finds nothing and the team honestly reports the cause as unknown.")
     print("\n  learned edges: " + (", ".join(f"{e['from']} -> {e['to']} ({e['fact']})" for e in out["learned_edges"]) or "none"))
     print("  agent-written nodes: " + (", ".join(f"{k}={v}" for k, v in out["agent_nodes"].items()) or "none"))
-    print(f"\n  See the memory in the FalkorDB Browser (http://localhost:3000, graph '{s2['tenant']}'):\n    {BROWSER_CYPHER}")
+    print(f"\n  See the memory in the FalkorDB Browser (http://localhost:3000, graph '{out['s2']['tenant']}'):\n    {BROWSER_CYPHER}")
     if sw := out.get("switch_tenant"):
         banner(f"7. Switch tenant: {sw['tenant']}")
         print(f"  agent-written nodes in {sw['tenant']}: {sw['agent_nodes_before']}; learned edges: {sw['learned_edges']}")
         print(f"  Brain on {sw['tenant']}: \"{sw['question']}\"\n    -> {sw['answer']}  (citations: {len(sw['citations'])})")
         print("  Each company is its own FalkorDB graph, so memory learned at Kestrel Pay cannot leak into Northwind Health.")
+
+
+def _handoffs(rec):
+    return [s["args"] for s in rec["steps"] if s["action"] == "handoff" and s["agent"] == "investigator"]
+
+
+def svc_name(sid):
+    return str(sid).split(":", 1)[-1]
 
 
 def main():

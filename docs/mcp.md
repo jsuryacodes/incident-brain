@@ -3,10 +3,10 @@
 `backend/mcp_server.py` exposes the company graph's **read-only** tools over the Model Context Protocol (stdio).
 Any MCP client (Claude Desktop, Claude Code, …) then picks tools itself, the Track 1 "tool selection via MCP" story.
 
-- **Tools:** every tool in `backend/tools/registry.py` (14 today: `find_service`, `blast_radius`,
+- **Tools:** every tool in `backend/tools/registry.py` (15 today: `find_service`, `blast_radius`,
   `recent_changes_downstream`, `shared_dependency_changes`, `dependency_path`, `who_to_call`, `decisions_about`,
   `past_incidents`, `search_knowledge`, `critical_services`, `stale_knowledge`, `node_details`, `read_source`,
-  `get_incident_state`). Names, descriptions and JSON schemas are generated from the registry, so they never drift
+  `get_incident_state`, `memory_recall`). Names, descriptions and JSON schemas are generated from the registry, so they never drift
   from what our own agents use.
 - **Output:** the tool's `result` JSON, plus a second text block **"Cypher receipt"** with the exact parameterised
   queries that produced it.
