@@ -19,4 +19,7 @@ Project: **Incident Brain** — FalkorDB hackathon entry (deadline 18 Oct 2026, 
 - FalkorDB is not Neo4j: no APOC or Neo4j-only procedures. Full-text index: `CREATE FULLTEXT INDEX FOR (n:Label) ON (n.a, n.b)`.
 - Cypher is always parameterised; only schema-validated label/type names may be interpolated.
 - Writes use `MERGE` on `id`. Times are integer epoch seconds.
+- **FalkorDB quirk:** a `MATCH` placed after `WITH … <aggregate>` silently returns no rows. Make aggregation the last step of a query (or split into two queries).
+- Hackathon track names (use exactly): "Track 1: Agents That Act on Connected Data", "Track 2: Agent Memory and Coordination", "Track 3: Company Brain".
+- API budget: ~₹500 total. Default `LLM_MODE=mock`. Live runs use `claude-haiku-5-5` unless told otherwise; `claude-sonnet-5-5` only for demo recording. Never loop live calls in tests.
 - Product LLM calls (later steps) go through ONE wrapper, have `max_tokens` set, and support a mock mode. Never call the Anthropic API during seeding or tests unless the spec says so. API keys only in `.env`.

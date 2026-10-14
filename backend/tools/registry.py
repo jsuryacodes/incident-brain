@@ -1,13 +1,14 @@
 """TOOLS: name -> {fn, description (for the LLM), input_schema (JSON Schema), track, explanation (for humans), cypher, algorithm}.
 
-`track` uses the product's three modes as placeholders; replace with the hackathon's official track names when
-confirmed (one dict, ALL_TRACKS below).
+`track` uses the hackathon's official track names (ALL_TRACKS below).
 """
 from backend.tools import graph_tools as gt
 from backend.tools.receipt import ToolContext, ToolOutput
 
-F, B, T = "Firefighter", "Brain", "Team memory"  # placeholder tracks = product modes
-ALL_TRACKS = (F, B, T)
+F = "Track 1: Agents That Act on Connected Data"  # Firefighter: traversal + algorithm tools
+T = "Track 2: Agent Memory and Coordination"  # team memory: how learned memory gets used
+B = "Track 3: Company Brain"  # Ask the Brain: company knowledge
+ALL_TRACKS = (F, T, B)
 
 
 def _obj(props, required=()):
@@ -50,7 +51,7 @@ TOOLS = {
         cypher=[gt.Q_SP], algorithm="algo.SPpaths",
         explanation="Calls FalkorDB's algo.SPpaths with relTypes ['DEPENDS_ON'] (no weight property needed; it counts hops) and tries relDirection outgoing, incoming, then both, reporting which matched. Each hop is returned with its source so answers can say 'via a dependency learned earlier'."),
     "who_to_call": dict(
-        fn=gt.who_to_call, track=[F, T],
+        fn=gt.who_to_call, track=[F, T, B],
         description="Who to page for a service. Returns the official maintainer (and whether they left), a bus_factor_risk flag, ranked active candidates with transparent signals (commits, recency, past incident resolutions) and the owning team as fallback.",
         input_schema=_obj({"service_id": _SVC}, ["service_id"]),
         cypher=[gt.Q_MAINT, gt.Q_WORKERS, gt.Q_RES_AFFECTED, gt.Q_RES_DEPLOY, gt.Q_TEAM], algorithm=None,
@@ -79,7 +80,7 @@ TOOLS = {
         cypher=[gt.Q_SEARCH], algorithm="db.idx.fulltext.queryNodes (RediSearch full-text)",
         explanation="Runs FalkorDB's full-text index per label. The query is stripped to plain words (no operator characters) and passed as a parameter. First pass requires all words (precise); if there is room, a second pass accepts any word (recall) ranked lower. Each index's scores are normalised to its best hit because scores are not comparable across indexes; ties go to raw sources (chats, docs, tickets) before derived summaries. No embeddings: the graph supplies context."),
     "critical_services": dict(
-        fn=gt.critical_services, track=[B, T],
+        fn=gt.critical_services, track=[F, B, T],
         description="Rank services by structural importance. 'pagerank' finds shared dependencies many services rely on; 'betweenness' finds chokepoints on many call paths. Returns name, tier, team and score.",
         input_schema=_obj({"algorithm": {"enum": ["pagerank", "betweenness"]}, "limit": {"type": "integer", "minimum": 1, "maximum": 27}}),
         cypher=[gt.Q_PAGERANK, gt.Q_BETWEENNESS], algorithm="algo.pageRank / algo.betweenness",

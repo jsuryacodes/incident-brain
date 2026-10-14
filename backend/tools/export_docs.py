@@ -19,7 +19,7 @@ def render():
          "- `$name` are query parameters. `N` in `*1..N` is a hop bound: variable-length bounds cannot be parameters, "
          "so it is clamped to an integer 1..6 before being written into the query.",
          "- `(a)-[:DEPENDS_ON]->(b)` means *a calls b*. `source` on that edge is `declared` (catalog) or `learned` (written by an agent).",
-         f"- Tracks are placeholders for the product modes: {', '.join(ALL_TRACKS)}.",
+         f"- Hackathon tracks: {'; '.join(ALL_TRACKS)}.",
          "- FalkorDB algorithms used: `algo.SPpaths`, `algo.pageRank`, `algo.betweenness`, and full-text `db.idx.fulltext.queryNodes`.",
          "",
          "## Contents",

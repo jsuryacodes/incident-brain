@@ -6,31 +6,31 @@ Every product answer comes from one of these 12 fixed, parameterised, **read-onl
 
 - `$name` are query parameters. `N` in `*1..N` is a hop bound: variable-length bounds cannot be parameters, so it is clamped to an integer 1..6 before being written into the query.
 - `(a)-[:DEPENDS_ON]->(b)` means *a calls b*. `source` on that edge is `declared` (catalog) or `learned` (written by an agent).
-- Tracks are placeholders for the product modes: Firefighter, Brain, Team memory.
+- Hackathon tracks: Track 1: Agents That Act on Connected Data; Track 2: Agent Memory and Coordination; Track 3: Company Brain.
 - FalkorDB algorithms used: `algo.SPpaths`, `algo.pageRank`, `algo.betweenness`, and full-text `db.idx.fulltext.queryNodes`.
 
 ## Contents
 
 | # | Tool | Track(s) | Algorithm |
 |---|---|---|---|
-| 1 | [`find_service`](#find_service) | Firefighter, Brain | — |
-| 2 | [`blast_radius`](#blast_radius) | Firefighter | — |
-| 3 | [`recent_changes_downstream`](#recent_changes_downstream) | Firefighter | algo.SPpaths (shortest path per hit) |
-| 4 | [`shared_dependency_changes`](#shared_dependency_changes) | Firefighter, Team memory | — |
-| 5 | [`dependency_path`](#dependency_path) | Firefighter, Brain | algo.SPpaths |
-| 6 | [`who_to_call`](#who_to_call) | Firefighter, Team memory | — |
-| 7 | [`decisions_about`](#decisions_about) | Brain, Team memory | — |
-| 8 | [`past_incidents`](#past_incidents) | Firefighter, Brain, Team memory | — |
-| 9 | [`search_knowledge`](#search_knowledge) | Brain, Team memory | db.idx.fulltext.queryNodes (RediSearch full-text) |
-| 10 | [`critical_services`](#critical_services) | Brain, Team memory | algo.pageRank / algo.betweenness |
-| 11 | [`stale_knowledge`](#stale_knowledge) | Brain, Team memory | — |
-| 12 | [`node_details`](#node_details) | Firefighter, Brain, Team memory | — |
+| 1 | [`find_service`](#find_service) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain | — |
+| 2 | [`blast_radius`](#blast_radius) | Track 1: Agents That Act on Connected Data | — |
+| 3 | [`recent_changes_downstream`](#recent_changes_downstream) | Track 1: Agents That Act on Connected Data | algo.SPpaths (shortest path per hit) |
+| 4 | [`shared_dependency_changes`](#shared_dependency_changes) | Track 1: Agents That Act on Connected Data, Track 2: Agent Memory and Coordination | — |
+| 5 | [`dependency_path`](#dependency_path) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain | algo.SPpaths |
+| 6 | [`who_to_call`](#who_to_call) | Track 1: Agents That Act on Connected Data, Track 2: Agent Memory and Coordination, Track 3: Company Brain | — |
+| 7 | [`decisions_about`](#decisions_about) | Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
+| 8 | [`past_incidents`](#past_incidents) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
+| 9 | [`search_knowledge`](#search_knowledge) | Track 3: Company Brain, Track 2: Agent Memory and Coordination | db.idx.fulltext.queryNodes (RediSearch full-text) |
+| 10 | [`critical_services`](#critical_services) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | algo.pageRank / algo.betweenness |
+| 11 | [`stale_knowledge`](#stale_knowledge) | Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
+| 12 | [`node_details`](#node_details) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
 
 ## find_service
 
 **Purpose:** Resolve a fuzzy service name like 'payments api' to service ids.
 
-**Track(s):** Firefighter, Brain
+**Track(s):** Track 1: Agents That Act on Connected Data, Track 3: Company Brain
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
@@ -58,7 +58,7 @@ RETURN s.id, s.name, s.tier, t.name
 
 **Purpose:** Which upstream services are hurt if this service fails (everything that transitively calls it).
 
-**Track(s):** Firefighter
+**Track(s):** Track 1: Agents That Act on Connected Data
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
@@ -87,7 +87,7 @@ RETURN DISTINCT startNode(r).id, endNode(r).id, r.source
 
 **Purpose:** Likely cause of an alert: services DOWNSTREAM of the alerting service (things it calls) that were deployed recently.
 
-**Track(s):** Firefighter
+**Track(s):** Track 1: Agents That Act on Connected Data
 
 **FalkorDB algorithm:** algo.SPpaths (shortest path per hit)
 
@@ -118,7 +118,7 @@ RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN r
 
 **Purpose:** Noisy-neighbour check: services that are NOT downstream of this one but share a dependency with it and were deployed recently.
 
-**Track(s):** Firefighter, Team memory
+**Track(s):** Track 1: Agents That Act on Connected Data, Track 2: Agent Memory and Coordination
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
@@ -152,7 +152,7 @@ LIMIT 60
 
 **Purpose:** Shortest DEPENDS_ON path between two services, trying caller->callee first, then callee->caller, then either way.
 
-**Track(s):** Firefighter, Brain
+**Track(s):** Track 1: Agents That Act on Connected Data, Track 3: Company Brain
 
 **FalkorDB algorithm:** algo.SPpaths
 
@@ -174,7 +174,7 @@ RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN r
 
 **Purpose:** Who to page for a service.
 
-**Track(s):** Firefighter, Team memory
+**Track(s):** Track 1: Agents That Act on Connected Data, Track 2: Agent Memory and Coordination, Track 3: Company Brain
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
@@ -215,7 +215,7 @@ RETURN t.id, t.name, collect(m.name)
 
 **Purpose:** Recorded decisions about a service: what was decided, why, who decided (and whether they left), and the exact quoted source (chat thread, doc or ticket) as the receipt.
 
-**Track(s):** Brain, Team memory
+**Track(s):** Track 3: Company Brain, Track 2: Agent Memory and Coordination
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
@@ -241,7 +241,7 @@ ORDER BY d.decided_at DESC
 
 **Purpose:** Past incidents that touched any of the given services (affected them, or were caused by a deploy that changed them).
 
-**Track(s):** Firefighter, Brain, Team memory
+**Track(s):** Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
@@ -279,7 +279,7 @@ RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status,
 
 **Purpose:** Full-text search over docs, tickets, chat threads, decisions, incidents and runbooks.
 
-**Track(s):** Brain, Team memory
+**Track(s):** Track 3: Company Brain, Track 2: Agent Memory and Coordination
 
 **FalkorDB algorithm:** db.idx.fulltext.queryNodes (RediSearch full-text)
 
@@ -303,7 +303,7 @@ ORDER BY score DESC LIMIT $limit
 
 **Purpose:** Rank services by structural importance.
 
-**Track(s):** Brain, Team memory
+**Track(s):** Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination
 
 **FalkorDB algorithm:** algo.pageRank / algo.betweenness
 
@@ -331,7 +331,7 @@ RETURN node.id, node.name, node.tier, t.name, score ORDER BY score DESC LIMIT $l
 
 **Purpose:** Docs and runbooks that are probably out of date, with reasons: author_left, names_departed_person, old_vs_changes (>1 year old but the service kept deploying), missing_learned_dependency (a dependency was learned after the doc was written).
 
-**Track(s):** Brain, Team memory
+**Track(s):** Track 3: Company Brain, Track 2: Agent Memory and Coordination
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
@@ -359,7 +359,7 @@ ORDER BY x.updated_at
 
 **Purpose:** Drill down into any node by id: its label, properties (long text shortened), counts of edges by type and up to 25 neighbours.
 
-**Track(s):** Firefighter, Brain, Team memory
+**Track(s):** Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination
 
 **FalkorDB algorithm:** none (plain pattern matching)
 
