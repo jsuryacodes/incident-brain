@@ -75,3 +75,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-15 — 06F: hardening pass
 - Claude Code (Opus 5.5, unattended) ran one independent reviewer subagent (read-only, no network) over the 8 areas in the spec, then fixed: `record_resolution` overwriting seed history (high), `link_similar` from seed incidents, agents quoting their own incident text, ungrounded second submits being accepted, nested schema/excerpt checks, story ids in tool descriptions and the Brain prompt, `package_for` silently defaulting to Kestrel, plus 6 low items. Remaining low items are listed in progress.md 06F. Final: fresh venv `pytest -q` 105 passed ×3, verify 14/14 + 8/8, demo box pasted into progress.md.
 - Double-check: (1) an ungrounded run now has `status: ungrounded` and `report: None`; the API/UI should show that state rather than an empty answer. (2) An agent-written incident is quotable only after "Resolution (operator): "; the resolve pass writes exactly that prefix. (3) FalkorDB is now bound to 127.0.0.1 by `scripts/setup.sh` and compose; an existing container keeps its old port binding.
+
+## 2026-10-15 — 07-0: preflight + demo script
+- Claude Code (Opus 5.5, unattended) ran the 07 preflight (Node v22.23.2 → Vite path; Docker + FalkorDB up; setup.sh clean; pytest 105 passed) and wrote `docs/demo-script.md`, a 2:45 shot list in 7 beats.
+- Double-check: (1) the narrator lines are mine; read them aloud once for timing. (2) The script assumes replay mode at 1× and a 1920×1080 window.

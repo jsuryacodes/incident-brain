@@ -1,7 +1,28 @@
 # Progress
 
-**Current task: `docs/prompts/06-overnight.md`** (parts A–F, unattended, mock only, zero live API calls).
-Resume line: "Read docs/prompts/06-overnight.md and docs/progress.md and continue."
+**Current task: `docs/prompts/07-ui.md`** (the demo console: parts 0, A–E, unattended, mock only, zero live API calls).
+Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
+
+| Part | Status | Commit |
+|---|---|---|
+| 0 Preflight + demo script | DONE | 07-0 |
+| A API additions | TODO | |
+| B Frontend (themes, shell, Story, Brain, Explorer, polish) | TODO | |
+| C Deploy-ready container | TODO | |
+| D Headless-browser self-check | TODO | |
+| E Docs | TODO | |
+
+**Total live API spend: $0.00** (0 live calls, no key).
+
+## 07-0 — Preflight + demo script
+**Status:** DONE
+- `node -v` → **v22.23.2** (npm 10.9.8, Homebrew present). Node ≥ 18, so the **Vite path** (React + Vite + TS), not the no-build fallback.
+- Docker up, `falkordb` container running; `scripts/setup.sh` clean (kestrel_pay 14/14, northwind_health 8/8); `pytest -q` → 105 passed before any change.
+- `docs/demo-script.md`: the 2:45 shot list (7 beats, screen / click / narrator / timestamp) plus the list of UI features the script needs.
+
+---
+
+# Earlier: overnight task 06 (`docs/prompts/06-overnight.md`, all DONE)
 
 | Part | Status | Commit |
 |---|---|---|
@@ -12,10 +33,9 @@ Resume line: "Read docs/prompts/06-overnight.md and docs/progress.md and continu
 | E README draft | DONE | 06E |
 | F Hardening pass | DONE | 06F |
 
-**Total live API spend: $0.00** (0 live calls, no key). **All six parts DONE.** Tests: 105 passed ×3 in a fresh
-Python 3.12 venv; `seed.verify`: kestrel_pay 14/14, northwind_health 8/8; Brain eval 15/15 + 3/3.
+Tests at the end of 06: 105 passed ×3 in a fresh Python 3.12 venv; `seed.verify`: kestrel_pay 14/14, northwind_health 8/8; Brain eval 15/15 + 3/3.
 
-## Look at these first in the morning
+## Look at these first in the morning (06)
 1. **The before/after box** below (`scripts/demo.sh --quiet`). Session 2's Investigator names the culprit on its 3rd tool call via `memory_recall`; without memory the cause isn't found.
 2. **`docs/postmortems.md`:** 21 real public postmortems with summaries written by the AI from each page. Read them; they are about real companies. No certificate-expiry entry (couldn't verify a primary page).
 3. **Two judgement calls to confirm** (06B): `memory_recall` returns only agent-written memory (so Session 1 recalls nothing), and "within 3 tool calls" is counted for the Investigator (Triage needs 5 calls first).
