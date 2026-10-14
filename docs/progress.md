@@ -11,8 +11,8 @@ Resume point for `docs/prompts/05-mega.md`. Continue from the first milestone no
 | M1 Firefighter agent | DONE (live check SKIPPED, no key) | 5f54e03 |
 | M2 Memory write-back + team + Session 2 | DONE (live check SKIPPED, no key) | 66db978 |
 | M3 Ask the Brain | DONE (live check SKIPPED, no key) | bd91e13 |
-| M4 MCP server | IN PROGRESS | — |
-| M5 Backend API | TODO | — |
+| M4 MCP server | DONE | 75f3109 |
+| M5 Backend API | IN PROGRESS | — |
 | M6 Second tenant | TODO | — |
 
 ## M1 — Firefighter agent
@@ -103,3 +103,17 @@ python -m backend.agents.brain_eval            # add --live for one Haiku pass (
 **Open issues**
 - Live eval never run (no key).
 - A "who" answer with no source mentioning the person falls back to "I don't know", because citations are mandatory. A softer fallback (cite the past incident's postmortem) could be added.
+
+## M4 — MCP server (Track 1: tool selection via MCP)
+**Status:** DONE · commit `75f3109` · no live calls involved
+
+**What was built:** `backend/mcp_server.py` (stdio). It exposes all 14 read tools from the registry: names, descriptions and JSON schemas generated from it. Each call returns the result JSON plus a "Cypher receipt" text block. Also `tests/test_mcp.py` (in-process client: tool count = registry, `recent_changes_downstream` on the test graph, errors) and `docs/mcp.md` (Claude Code + Claude Desktop config, 3 prompts).
+
+**How to run:** `python -m backend.mcp_server --tenant kestrel_pay`; for Claude Code: `claude mcp add incident-brain -e PYTHONPATH=$PWD -- $PWD/.venv/bin/python -m backend.mcp_server --tenant kestrel_pay`.
+
+**Decisions (plain language)**
+- *Read-only over MCP.* External clients can query everything our agents can read, with receipts, but can't write memory or start agent runs. That keeps it safe and keeps API spend inside our budget.
+- *The registry is the single source of truth.* The installed SDK is mcp 2.3, where FastMCP became `MCPServer`. Its decorators build schemas from Python signatures, so I used the SDK's low-level `Server`, which takes the registry's schemas as data. Adding a tool to the registry adds it to MCP automatically.
+- *One process per tenant.* `--tenant` picks the graph, so a client connected to Kestrel Pay can never see another company's graph.
+
+**Open issues:** none known. Not yet tried inside Claude Desktop itself (no GUI in this unattended run).
