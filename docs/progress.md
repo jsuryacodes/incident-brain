@@ -9,8 +9,8 @@ Resume point for `docs/prompts/05-mega.md`. Continue from the first milestone no
 | Milestone | Status | Commit |
 |---|---|---|
 | M1 Firefighter agent | DONE (live check SKIPPED, no key) | 5f54e03 |
-| M2 Memory write-back + team + Session 2 | IN PROGRESS | — |
-| M3 Ask the Brain | TODO | — |
+| M2 Memory write-back + team + Session 2 | DONE (live check SKIPPED, no key) | 66db978 |
+| M3 Ask the Brain | IN PROGRESS | — |
 | M4 MCP server | TODO | — |
 | M5 Backend API | TODO | — |
 | M6 Second tenant | TODO | — |
@@ -39,3 +39,40 @@ Add `--live` (needs `ANTHROPIC_API_KEY` in `.env`) to use Haiku; `--show-cypher`
 
 **Open issues**
 - The live Haiku check has never run (no key by instruction). Run it once when a key is added; see the commands above.
+
+## M2 — Memory write-back, three-agent team, Session 2 recall
+**Status:** DONE · commit `66db978` · live check: **SKIPPED (no key)** · live spend $0.00
+
+**What was built**
+- Read tools `read_source` (full text up to 1,800 chars + mentions/describes) and `get_incident_state` (the shared incident state: props, affected, cause, root causes, facts, handoff notes, actions, tickets, similar incidents, resolution).
+- `backend/tools/memory_tools.py`: `open_incident`, `update_incident`, `record_learned_dependency`, `record_fact`, `page_person` (simulated), `open_ticket`, `flag_stale`, `record_resolution`, `link_similar`, `write_runbook`. Same result + receipt shape as the read tools; receipts mark write queries.
+- `backend/memory/sessions.py`: `start_session`, and `StepLog`, which writes every step as a `Step` node as it happens (IN_SESSION, NEXT, CITED, cypher, params_json, summary).
+- `backend/agents/team.py`: `run_team` (Triage → Investigator → Communicator), `resolve_incident` (postmortem pass), CLI. Run records go to `runs/team-*.json` / `runs/resolve-*.json` with `time_to_cause`.
+- `seed/scenario.py session2`; `backend/demo.py story [--compare-no-memory]`.
+- Schema v1.1: optional `flagged_reason`/`flagged_at` (Doc, Runbook), `flagged_stale` (Runbook), `origin`/`created_at` on agent-written edges.
+
+**How to run**
+```
+python -m backend.demo story                       # re-seed, S1, resolve, session2 scenario, S2, summary
+python -m backend.demo story --compare-no-memory   # S2 on a fresh seed: cause unknown
+python -m backend.agents.team run --service svc:payments-api --symptom "5xx rate 12% ..."
+python -m backend.agents.team resolve INC-2026-032 --by per:priya-nair --summary "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered"
+python -m seed.scenario session2 --graph kestrel_pay
+python -m backend.agents.team run --service svc:payouts-service --symptom "payout batch API 5xx 9% ..."
+python -m backend.agents.team state INC-2026-032
+```
+Mock result: S1 finds `dep:risk-rules-v2.8.0`, learns `risk-rules → config-service` from `chat:risk-eng-config-load`, pages Priya, opens OPS-1, flags the README. Resolve writes `res:2026-032` and `rb:fraud-scoring-latency-v2` (SUPERSEDES v1), links INC-2025-031 / INC-2026-012. S2 (payouts-service) finds risk-rules **only via the learned edge**, recalls "Priya rolled back RULES_CACHE_TTL…" and "rb:fraud-scoring-latency-v2 step 2". Time to cause: **S1 7 LLM / 13 tool calls, S2 6 / 12**. Without memory, S2 reports the cause as unknown (confidence low).
+
+**Decisions (plain language)**
+- *Handoff through the graph, not through chat.* Each agent starts with an empty conversation: just the alert plus `get_incident_state`. Everything one agent tells the next is a `Step` node in the graph (note + structured details in `params_json`). So the team is crash-safe, inspectable in the FalkorDB Browser, and the same mechanism works across processes.
+- *Learning changes the structure.* When the Investigator reads the chat sentence "On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint." it writes a `Fact` (with that exact quote on `SOURCED_FROM`) and a `DEPENDS_ON {source:'learned'}` edge. Session 2's unchanged noisy-neighbour query then finds risk-rules because the graph changed, not because a prompt did.
+- *Why S2 is cheaper.* With a learned edge on the path, the Investigator doesn't re-read the decision's source: the learned Fact already cites it. It also recalls the Session 1 incident (same culprit, resolved, with a runbook) through `past_incidents`. Honest framing: the saving is one LLM call and one tool call; the big difference is that S2 finds the cause at all (see `--compare-no-memory`).
+- *Validation before every write.* Ids must exist with the right label; excerpts must be literal quotes of the source (whitespace-normalised); a learned edge is refused if any `DEPENDS_ON` already exists between the two services; paging someone who left is refused ("left the company 95 days ago"). Write tools may only use ids the agent has already seen in a tool result.
+- *Concurrency.* Incident keys (`INC-2026-0NN`), ticket keys (`OPS-n`) and the learned edge are each allocated/checked and created in ONE Cypher query. FalkorDB runs write queries one at a time per graph, so that is atomic. No retry logic was needed: 5 parallel team runs (repeated 5×) gave 5 distinct incidents and tickets, 1 learned edge, no duplicate ids and unbroken step chains.
+- *Seeded history is read-only.* `update_incident` refuses `origin:'seed'` incidents, so agents can add to the company's history but not rewrite it.
+- *Operator words become a source.* The resolve pass first appends "Resolution (operator): …" to the incident summary, so the Resolution and Runbook v2 can quote the incident verbatim like any other source.
+
+**Open issues**
+- Live run of the story never done (no key). When a key exists: `python -m backend.demo story --live` (about 30 Haiku calls).
+- `get_incident_state` may return up to 10,000 chars (≈2.5k tokens); fine for a few sessions per incident.
+- Incident keys assume < 1,000 incidents per year (3-digit sequence).
