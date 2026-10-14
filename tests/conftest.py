@@ -1,6 +1,7 @@
 """Loads the Kestrel Pay seed into throwaway graphs (never touches 'kestrel_pay').
 kestrel_pay_test: read-only tool tests. Tests that WRITE memory get their own graph from the `fresh` fixture."""
 import os
+import socket
 import time
 from contextlib import contextmanager
 
@@ -16,6 +17,21 @@ from backend.tools.receipt import ToolContext  # noqa: E402
 from seed.load import load  # noqa: E402
 
 TEST_GRAPH = "kestrel_pay_test"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def no_network():
+    """Tests never leave the machine: any socket connect to a non-local address fails (FalkorDB on localhost is fine)."""
+    real = socket.socket.connect
+
+    def guarded(self, address):
+        host = address[0] if isinstance(address, tuple) else address
+        if self.family == socket.AF_UNIX or host in ("localhost", "127.0.0.1", "::1", os.getenv("FALKORDB_HOST", "localhost")):
+            return real(self, address)
+        raise RuntimeError(f"tests must not use the network (tried to connect to {address!r})")
+    socket.socket.connect = guarded
+    yield
+    socket.socket.connect = real
 
 
 @pytest.fixture(scope="session")

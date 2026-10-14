@@ -1,6 +1,36 @@
-# Progress — mega task M1–M6
+# Progress
 
-Resume point for `docs/prompts/05-mega.md`. **All six milestones are DONE.** Continue with "Suggested next steps" below.
+**Current task: `docs/prompts/06-overnight.md`** (parts A–F, unattended, mock only, zero live API calls).
+Resume line: "Read docs/prompts/06-overnight.md and docs/progress.md and continue."
+
+| Part | Status | Commit |
+|---|---|---|
+| A Setup on a fresh Mac | DONE | 06A |
+| B Memory-first recall | todo | |
+| C Public postmortems | todo | |
+| D Brain eval 5 → 15 | todo | |
+| E README draft | todo | |
+| F Hardening pass | todo | |
+
+**Total live API spend: $0.00** (0 live calls, no key).
+
+## 06A — Setup that works on a fresh Mac
+**Status:** DONE
+
+**What was built**
+- `scripts/setup.sh`: finds Python ≥ 3.10 (tries python3.15 … python3.10, then python3; macOS's `/usr/bin/python3` is 3.9 and there is often no `python`, which is what broke the first setup), creates/repairs `.venv`, installs `requirements.txt`, copies `.env.example` → `.env` if missing (mock mode), checks Docker is installed and running, starts the `falkordb` container if stopped (creates it if missing), waits for :6379, seeds and verifies both tenants. Idempotent; each failure says what to do.
+- `scripts/demo.sh`: activates `.venv` and runs `python -m backend.demo story --compare-no-memory` (extra flags such as `--quiet` are passed through).
+- `requirements.txt`: every direct dependency pinned (`==`), incl. `pydantic` and `anyio`, which the code imports directly.
+- `python -m backend.demo story --quiet` now prints the session headers, every handoff note and the summary box (it used to print nothing). Verbose stays the default.
+- Tests now block the network: `tests/conftest.py` refuses any socket connect that isn't localhost / the FalkorDB host (+ a test proving it).
+
+**Checks:** `scripts/setup.sh` ran clean (kestrel_pay 13/13, northwind_health 7/7). Fresh Python 3.12 venv + `pip install -r requirements.txt` + `pytest -q` → 87 passed (before the network test was added); `.venv` (3.15) → 88 passed.
+
+**Decisions:** demo.sh is the literal command from the spec; `scripts/demo.sh --quiet` gives the short version. `.venv` and `.env` were already git-ignored.
+
+---
+
+# Earlier: mega task M1–M6 (`docs/prompts/05-mega.md`, all DONE)
 
 **Run constraint (from Jaya, 15 Oct 2026):** build all LLM code, but make **no live API calls** and use **no API key**. Every "Live check" is therefore `SKIPPED (no key)`, and everything was built and tested in mock mode.
 

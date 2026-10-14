@@ -137,3 +137,9 @@ def test_rate_limit(client, tenant, monkeypatch):
     codes = [client.get("/api/tenants").status_code for _ in range(5)]
     assert codes[:3] == [200, 200, 200] and codes[3:] == [429, 429]
     assert client.get("/api/health").status_code == 200  # health is never limited
+
+
+def test_network_is_blocked_in_tests():
+    import socket
+    with pytest.raises(RuntimeError, match="network"):
+        socket.create_connection(("1.1.1.1", 443), timeout=1)

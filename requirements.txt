@@ -1,8 +1,11 @@
-falkordb
-python-dotenv
-pytest
-anthropic
-mcp>=2.3,<3
-fastapi
-uvicorn
-httpx
+# Pinned, direct dependencies (Python >= 3.10). Fresh install: scripts/setup.sh
+FalkorDB==1.8.0
+python-dotenv==1.2.4
+anthropic==1.14.0
+mcp==2.3.0
+fastapi==0.143.1
+uvicorn==0.54.0
+httpx==0.28.1
+pydantic==2.14.1
+anyio==4.15.1
+pytest==9.1.1

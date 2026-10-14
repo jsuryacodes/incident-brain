@@ -7,7 +7,7 @@ import argparse
 import json
 from pathlib import Path
 
-from backend.agents.loop import BOLD, RST
+from backend.agents.loop import BOLD, CYAN, RST
 from backend.agents.firefighter import print_report
 from backend.agents.team import resolve_incident, run_team, tracer
 from backend.agents.brain import ask
@@ -65,30 +65,35 @@ def switch_tenant(other, llm):
             "answer": r["answer"], "citations": r["citations"]}
 
 
+def handoffs_only(typ, d):
+    """--quiet tracer: only the notes agents leave each other."""
+    if typ == "handoff":
+        print(f"{CYAN}  {d['agent']}: {d['note']}{RST}")
+
+
 def story(graph="kestrel_pay", llm=None, quiet=False, compare_no_memory=False, other="northwind_health"):
+    """quiet: print only session headers, handoffs and the summary box (verbose prints every step)."""
     llm = llm or LLMClient()
-    ev = None if quiet else tracer(False)
+    ev = handoffs_only if quiet else tracer(False)
     say = (lambda *a: None) if quiet else print
     other = other if other in allowed_tenants() and other != graph else None
     if not quiet:
         banner(f"1. Re-seed {graph}" + (f" and {other}" if other else ""))
-    load(graph, reset=True, data_package="kestrel_pay", quiet=quiet)
+    load(graph, reset=True, data_package="kestrel_pay", quiet=True)
     if other:
-        load(other, reset=True, data_package="northwind_health", quiet=quiet)
+        load(other, reset=True, data_package="northwind_health", quiet=True)
     out = {}
     if not compare_no_memory:
-        if not quiet:
-            banner("2. Session 1: payments-api alert, the team investigates")
+        banner("2. Session 1: payments-api alert, the team investigates")
         out["s1"] = run_team(S1_ALERT, graph, "jaya", llm, ev)
         if not quiet:
             print_report(out["s1"]["report"])
-            banner("3. Operator: resolved by Priya")
+        banner("3. Operator: resolved by Priya")
         out["resolve"] = resolve_incident(out["s1"]["incident_id"], ["per:priya-nair"], FIX, graph, llm, "jaya", ev)
     if not quiet:
         banner("4. World event: risk-rules v2.8.1 ships (scenario session2)")
     say(f"added {scenario.apply('session2', graph)}")
-    if not quiet:
-        banner("5. Session 2: payouts-service alert" + (" (NO memory: fresh seed)" if compare_no_memory else ""))
+    banner("5. Session 2: payouts-service alert" + (" (NO memory: fresh seed)" if compare_no_memory else ""))
     out["s2"] = run_team(S2_ALERT, graph, "jaya", llm, ev)
     if not quiet:
         print_report(out["s2"]["report"])
@@ -96,8 +101,7 @@ def story(graph="kestrel_pay", llm=None, quiet=False, compare_no_memory=False, o
     out["s2_learned_hit"] = s2_learned_hit(out["s2"])
     if other:
         out["switch_tenant"] = switch_tenant(other, llm)
-    if not quiet:
-        print_summary(out, compare_no_memory)
+    print_summary(out, compare_no_memory)
     return out
 
 
