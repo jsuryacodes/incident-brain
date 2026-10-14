@@ -116,42 +116,54 @@ def write(g, nodes, edges):
                     f"MERGE (a)-[r:{t}]->(b) SET r += row.props", {"rows": rows[i:i + BATCH]})
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--graph", required=True)
-    ap.add_argument("--reset", action="store_true", help="delete the graph first")
-    ap.add_argument("--now", type=int, help="override NOW (epoch seconds)")
-    args = ap.parse_args()
+def load(graph_name, reset=True, now=None, data_package=None, quiet=False):
+    """Validate + load a tenant seed into `graph_name`. data_package defaults to graph_name (seed/data/<pkg>).
+    Returns {"nodes": Counter, "edges": Counter, "now": int}. Raises ValueError listing every validation problem."""
     load_dotenv()
     t0 = time.time()
-
-    timeutil.set_now(args.now)  # BEFORE the data import: data computes times at import time
-    data = importlib.import_module(f"seed.data.{args.graph}")
+    pkg = data_package or graph_name
+    timeutil.set_now(now)  # BEFORE the data import: data computes times at import time
+    for name in [m for m in sys.modules if m == f"seed.data.{pkg}" or m.startswith(f"seed.data.{pkg}.")]:
+        del sys.modules[name]  # force re-evaluation so a new NOW takes effect when called twice in one process
+    data = importlib.import_module(f"seed.data.{pkg}")
     nodes = [dict(n) for n in data.NODES]
     for n in nodes:
         n.setdefault("origin", "seed")
         n.setdefault("created_at", timeutil.NOW)
     errs = validate(nodes, data.EDGES)
     if errs:
-        print(f"VALIDATION FAILED ({len(errs)} problems), nothing written:", file=sys.stderr)
-        for e in errs:
-            print("  -", e, file=sys.stderr)
-        sys.exit(1)
+        raise ValueError(f"VALIDATION FAILED ({len(errs)} problems), nothing written:\n" + "\n".join("  - " + e for e in errs))
 
     db = FalkorDB(host=os.getenv("FALKORDB_HOST", "localhost"), port=int(os.getenv("FALKORDB_PORT", "6379")))
-    if args.reset:
+    if reset:
         try:
-            db.select_graph(args.graph).delete()
+            db.select_graph(graph_name).delete()
         except Exception:
             pass
-    g = db.select_graph(args.graph)
+    g = db.select_graph(graph_name)
     create_indexes(g)
     write(g, nodes, data.EDGES)
 
-    print(f"\ngraph '{args.graph}' loaded (NOW={timeutil.NOW}):")
-    print("  nodes:", ", ".join(f"{k}={v}" for k, v in sorted(Counter(n['label'] for n in nodes).items())))
-    print("  edges:", ", ".join(f"{k}={v}" for k, v in sorted(Counter(e[1] for e in data.EDGES).items())))
-    print(f"  {len(nodes)} nodes, {len(data.EDGES)} edges in {time.time() - t0:.1f}s")
+    summary = {"nodes": Counter(n["label"] for n in nodes), "edges": Counter(e[1] for e in data.EDGES), "now": timeutil.NOW}
+    if not quiet:
+        print(f"\ngraph '{graph_name}' loaded (NOW={timeutil.NOW}):")
+        print("  nodes:", ", ".join(f"{k}={v}" for k, v in sorted(summary["nodes"].items())))
+        print("  edges:", ", ".join(f"{k}={v}" for k, v in sorted(summary["edges"].items())))
+        print(f"  {len(nodes)} nodes, {len(data.EDGES)} edges in {time.time() - t0:.1f}s")
+    return summary
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--graph", required=True)
+    ap.add_argument("--reset", action="store_true", help="delete the graph first")
+    ap.add_argument("--now", type=int, help="override NOW (epoch seconds)")
+    args = ap.parse_args()
+    try:
+        load(args.graph, reset=args.reset, now=args.now)
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,531 @@
+"""The 12 fixed, parameterised, read-only graph tools.  fn(ctx, **args) -> ToolOutput.
+
+Every query goes through Recorder.q -> graph.ro_query. Variable-length bounds cannot be parameters, so the only
+interpolation is `__N__`, replaced by an int clamped to 1..6. Query text lives in module constants (Q_*) so that
+registry.py / export_docs.py can print exactly what runs.
+
+FalkorDB quirk: a MATCH placed *after* `WITH ... aggregate` can silently return no rows. So every aggregation
+(min(length(p)), collect, count) is the last step in its query (in RETURN), and all MATCHes come before it.
+"""
+import re
+
+from backend.tools.receipt import Recorder, clamp, clip, days_ago, iso, minutes_ago
+from seed.schema import PREFIX_TO_LABEL
+
+MAX_HOPS = 6
+
+
+def _n(q, hops):
+    return q.replace("__N__", str(hops))
+
+
+def _deploy(now, did, version, ts, summary, by):
+    return {"id": did, "version": version, "ts": ts, "minutes_ago": minutes_ago(now, ts),
+            "summary": clip(summary, 160), "by": by}
+
+
+# ───────────── 1. find_service ─────────────
+Q_FIND = """MATCH (s:Service)<-[:OWNS]-(t:Team)
+WHERE toLower(s.name) CONTAINS $q OR toLower(s.id) CONTAINS $q
+RETURN s.id, s.name, s.tier, t.name"""
+Q_FIND_TOKENS = """MATCH (s:Service)<-[:OWNS]-(t:Team)
+WHERE all(tok IN $tokens WHERE toLower(s.name) CONTAINS tok OR toLower(s.description) CONTAINS tok)
+RETURN s.id, s.name, s.tier, t.name"""
+
+
+def find_service(ctx, query=""):
+    rec = Recorder(ctx, "find_service", {"query": query})
+    q = re.sub(r"[\s_]+", "-", str(query).strip().lower())
+    if not q:
+        return rec.error("query is empty; pass a service name such as 'payments api'")
+    rows = rec.q(Q_FIND, {"q": q})
+    if not rows:
+        tokens = re.findall(r"[a-z0-9]+", q)
+        rows = rec.q(Q_FIND_TOKENS, {"tokens": tokens}) if tokens else []
+    rows.sort(key=lambda r: (0 if r[1] == q else 1 if r[1].startswith(q) else 2, r[1]))
+    matches = [{"id": r[0], "name": r[1], "tier": r[2], "team": r[3]} for r in rows[:5]]
+    rec.hl(*[m["id"] for m in matches])
+    res = {"query": query, "matches": matches}
+    if not matches:
+        res["note"] = "no service matched; try fewer or different words"
+    return rec.done(res)
+
+
+# ───────────── 2. blast_radius ─────────────
+Q_BLAST = """MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..__N__]-(up:Service)
+MATCH (t:Team)-[:OWNS]->(up)
+RETURN up.id, up.tier, t.name, min(length(p)) AS hops
+ORDER BY up.tier, hops, up.id"""
+Q_BLAST_EDGES = """MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..__N__]-(up:Service)
+UNWIND relationships(p) AS r
+RETURN DISTINCT startNode(r).id, endNode(r).id, r.source"""
+
+
+def blast_radius(ctx, service_id, max_hops=4):
+    rec = Recorder(ctx, "blast_radius", {"service_id": service_id, "max_hops": max_hops})
+    if err := rec.check(service_id, "Service"):
+        return rec.error(err)
+    n = clamp(max_hops, 1, MAX_HOPS, 4)
+    rows = rec.q(_n(Q_BLAST, n), {"id": service_id})
+    edges = rec.q(_n(Q_BLAST_EDGES, n), {"id": service_id})
+    for a, b, _ in edges:
+        rec.hl_edge(a, "DEPENDS_ON", b)
+    rec.hl(service_id, *[r[0] for r in rows])
+    res = {"service": service_id, "max_hops": n, "upstream_count": len(rows),
+           "tier1_count": sum(1 for r in rows if r[1] == 1),
+           "upstream": [{"id": r[0], "tier": r[1], "team": r[2], "hops": r[3]} for r in rows[:22]]}
+    if len(rows) > 22:
+        res["truncated"] = True
+    learned = [{"from": a, "to": b} for a, b, src in edges if src == "learned"]
+    if learned:
+        res["learned_edges_in_paths"] = learned
+    return rec.done(res)
+
+
+# ───────────── 3. recent_changes_downstream ─────────────
+Q_RECENT = """MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*1..__N__]->(d:Service)
+MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since
+OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep)
+OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket)
+RETURN d.id, min(length(p)) AS hops, dep.id, dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title
+ORDER BY hops, dep.ts DESC"""
+# algo.SPpaths: shortest DEPENDS_ON path; $dir is one of outgoing / incoming / both
+Q_SP = """MATCH (a:Service {id:$from}), (b:Service {id:$to})
+CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path
+RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]"""
+
+
+def _sp(rec, a, b, direction, maxlen):
+    rows = rec.q(Q_SP, {"from": a, "to": b, "dir": direction, "maxlen": maxlen})
+    if not rows:
+        return None
+    ids, sources, starts, kinds = rows[0]
+    return {"ids": ids, "sources": sources, "starts": starts, "kinds": kinds}
+
+
+def recent_changes_downstream(ctx, service_id, since_minutes=120, max_hops=4):
+    rec = Recorder(ctx, "recent_changes_downstream",
+                   {"service_id": service_id, "since_minutes": since_minutes, "max_hops": max_hops})
+    if err := rec.check(service_id, "Service"):
+        return rec.error(err)
+    n = clamp(max_hops, 1, MAX_HOPS, 4)
+    mins = clamp(since_minutes, 1, 60 * 24 * 365, 120)
+    rows = rec.q(_n(Q_RECENT, n), {"id": service_id, "since": ctx.now - mins * 60})
+    hits = []
+    for svc, hops, did, ver, ts, summ, wid, wname, tid, tkey, ttitle in rows[:6]:
+        sp = _sp(rec, service_id, svc, "outgoing", n)
+        ids, sources = (sp["ids"], sp["sources"]) if sp else ([service_id, svc], [])
+        rec.hl_path(ids)
+        rec.hl_edge(did, "CHANGED", svc)
+        if wid:
+            rec.hl_edge(wid, "DEPLOYED", did)
+        if tid:
+            rec.hl_edge(did, "FOR_TICKET", tid)
+        hits.append({"service": svc, "hops": hops, "path": ids, "edge_sources": sources,
+                     "deploy": _deploy(ctx.now, did, ver, ts, summ, wname),
+                     "ticket": {"key": tkey, "title": clip(ttitle, 100)} if tkey else None})
+    res = {"service": service_id, "since_minutes": mins, "hit_count": len(rows), "hits": hits}
+    if len(rows) > 6:
+        res["truncated"] = True
+    if not rows:
+        res["note"] = "no downstream service was deployed in this window"
+    return rec.done(res)
+
+
+# ───────────── 4. shared_dependency_changes ─────────────
+Q_DOWNSTREAM = """MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id"""
+Q_SHARED = """MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..__N__]->(shared:Service),
+      p2=(shared)<-[:DEPENDS_ON*1..__N__]-(n:Service)
+MATCH (n)<-[:CHANGED]-(d:Deploy)
+WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream
+OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d)
+OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket)
+RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title,
+       [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source],
+       [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source]
+ORDER BY length(p1) + length(p2), d.ts DESC
+LIMIT 60"""
+
+
+def shared_dependency_changes(ctx, service_id, since_minutes=1440, max_hops=3):
+    rec = Recorder(ctx, "shared_dependency_changes",
+                   {"service_id": service_id, "since_minutes": since_minutes, "max_hops": max_hops})
+    if err := rec.check(service_id, "Service"):
+        return rec.error(err)
+    n = clamp(max_hops, 1, MAX_HOPS, 3)
+    mins = clamp(since_minutes, 1, 60 * 24 * 365, 1440)
+    down = [r[0] for r in rec.q(Q_DOWNSTREAM, {"id": service_id})]
+    rows = rec.q(_n(Q_SHARED, n), {"id": service_id, "since": ctx.now - mins * 60, "downstream": down})
+    best = {}  # (neighbour, deploy) -> best row; also collect the other shared services
+    for r in rows:
+        key = (r[0], r[2])
+        total = len(r[12]) + len(r[14])
+        if key not in best:
+            best[key] = {"row": r, "total": total, "others": []}
+        elif r[1] != best[key]["row"][1] and r[1] not in best[key]["others"]:
+            best[key]["others"].append(r[1])
+    hits = []
+    for (nb, did), b in sorted(best.items(), key=lambda kv: (kv[1]["total"], -kv[1]["row"][4]))[:5]:
+        (_, shared, _, ver, ts, summ, wid, wname, tid, tkey, ttitle, p1, s1, p2, s2) = b["row"]
+        p2, s2 = p2[::-1], s2[::-1]  # neighbour -> shared
+        rec.hl_path(p1)
+        rec.hl_path(p2)
+        rec.hl_edge(did, "CHANGED", nb)
+        if wid:
+            rec.hl_edge(wid, "DEPLOYED", did)
+        if tid:
+            rec.hl_edge(did, "FOR_TICKET", tid)
+        hit = {"neighbour": nb, "shared": shared, "deploy": _deploy(ctx.now, did, ver, ts, summ, wname),
+               "ticket": {"key": tkey, "title": clip(ttitle, 100)} if tkey else None,
+               "path_to_shared": p1, "path_to_shared_sources": s1,
+               "neighbour_path": p2, "neighbour_path_sources": s2,
+               "uses_learned_edge": "learned" in s1 + s2}
+        if b["others"]:
+            hit["also_shares"] = b["others"][:3]
+        hits.append(hit)
+    res = {"service": service_id, "since_minutes": mins, "hit_count": len(best), "hits": hits}
+    if len(best) > 5:
+        res["truncated"] = True
+    if not hits:
+        res["note"] = "no recently changed service shares a downstream dependency with this one"
+    return rec.done(res)
+
+
+# ───────────── 5. dependency_path ─────────────
+def dependency_path(ctx, from_id, to_id):
+    rec = Recorder(ctx, "dependency_path", {"from_id": from_id, "to_id": to_id})
+    for i in (from_id, to_id):
+        if err := rec.check(i, "Service"):
+            return rec.error(err)
+    for direction in ("outgoing", "incoming", "both"):
+        sp = _sp(rec, from_id, to_id, direction, MAX_HOPS)
+        if sp:
+            break
+    else:
+        return rec.done({"from": from_id, "to": to_id, "found": False, "tried": ["outgoing", "incoming", "both"],
+                         "note": f"no DEPENDS_ON path within {MAX_HOPS} hops in any direction"})
+    ids, hops = sp["ids"], []
+    for i, (src, start) in enumerate(zip(sp["sources"], sp["starts"])):
+        a, b = ids[i], ids[i + 1]
+        caller, callee = (a, b) if start == a else (b, a)
+        rec.hl_edge(caller, "DEPENDS_ON", callee)
+        hops.append({"caller": caller, "callee": callee, "source": src, "kind": sp["kinds"][i]})
+    rec.hl(*ids)
+    return rec.done({"from": from_id, "to": to_id, "found": True, "direction_matched": direction,
+                     "length": len(hops), "nodes": ids, "hops": hops})
+
+
+# ───────────── 6. who_to_call ─────────────
+Q_MAINT = "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at"
+Q_WORKERS = """MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id})
+RETURN p.id, p.name, p.role, w.commits, w.last_at"""
+Q_RES_AFFECTED = """MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'})
+RETURN p.id, p.name, p.role, collect(DISTINCT r.id)"""
+Q_RES_DEPLOY = """MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'})
+RETURN p.id, p.name, p.role, collect(DISTINCT r.id)"""
+Q_TEAM = """MATCH (t:Team)-[:OWNS]->(s:Service {id:$id})
+OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t)
+RETURN t.id, t.name, collect(m.name)"""
+
+
+def who_to_call(ctx, service_id):
+    rec = Recorder(ctx, "who_to_call", {"service_id": service_id})
+    if err := rec.check(service_id, "Service"):
+        return rec.error(err)
+    p = {"id": service_id}
+    maint = rec.q(Q_MAINT, p)
+    workers = rec.q(Q_WORKERS, p)
+    cand = {}  # person id -> dict
+    for pid, name, role, commits, last_at in workers:
+        cand[pid] = {"id": pid, "name": name, "role": role, "commits": commits,
+                     "last_commit_days_ago": days_ago(ctx.now, last_at), "_res": set()}
+        rec.hl_edge(pid, "WORKED_ON", service_id)
+    for q in (Q_RES_AFFECTED, Q_RES_DEPLOY):
+        for pid, name, role, rids in rec.q(q, p):
+            c = cand.setdefault(pid, {"id": pid, "name": name, "role": role, "commits": 0,
+                                      "last_commit_days_ago": None, "_res": set()})
+            c["_res"].update(rids)
+    for c in cand.values():
+        c["resolutions"] = len(c.pop("_res"))
+        c["score"] = c["commits"] + 25 * c["resolutions"]
+    ranked = sorted(cand.values(), key=lambda c: (-c["score"], c["last_commit_days_ago"] or 9999))
+    maintainers = [{"id": i, "name": nm, "status": st, "left_days_ago": days_ago(ctx.now, left)} for i, nm, st, left in maint]
+    for m in maintainers:
+        rec.hl_edge(m["id"], "MAINTAINS", service_id)
+    active_workers = len(workers)
+    reasons = [f"maintainer {m['name']} has left" for m in maintainers if m["status"] == "left"]
+    if active_workers <= 1:
+        reasons.append(f"only {active_workers} active person has worked on this service")
+    team = rec.q(Q_TEAM, p)
+    team_out = None
+    if team:
+        tid, tname, members = team[0]
+        rec.hl_edge(tid, "OWNS", service_id)
+        team_out = {"id": tid, "name": tname, "active_members": members[:6]}
+    res = {"service": service_id, "maintainers": maintainers, "bus_factor_risk": bool(reasons),
+           "bus_factor_reasons": reasons, "score_formula": "commits + 25 * resolutions",
+           "candidates": ranked[:5], "owning_team_fallback": team_out}
+    rec.hl(*[c["id"] for c in ranked[:5]])
+    return rec.done(res)
+
+
+# ───────────── 7. decisions_about ─────────────
+Q_DECISIONS = """MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id})
+OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d)
+OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src)
+RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status,
+       src.id, labels(src)[0], coalesce(src.title, src.key), src.channel,
+       coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt
+ORDER BY d.decided_at DESC"""
+
+
+def decisions_about(ctx, service_id):
+    rec = Recorder(ctx, "decisions_about", {"service_id": service_id})
+    if err := rec.check(service_id, "Service"):
+        return rec.error(err)
+    out = {}
+    for did, title, why, at, aid, aname, astat, sid, slabel, stitle, chan, sdate, exc in rec.q(Q_DECISIONS, {"id": service_id}):
+        d = out.setdefault(did, {"id": did, "title": title, "rationale": clip(why, 200), "decided": iso(at),
+                                 "decided_days_ago": days_ago(ctx.now, at), "author": aname, "author_status": astat,
+                                 "sources": []})
+        rec.hl_edge(did, "ABOUT", service_id)
+        if aid:
+            rec.hl_edge(aid, "AUTHORED", did)
+        if sid:
+            rec.hl_edge(did, "SOURCED_FROM", sid)
+            d["sources"].append({"id": sid, "label": slabel, "title": clip(stitle, 80), "channel": chan,
+                                 "date": iso(sdate), "excerpt": clip(exc, 220)})
+    res = {"service": service_id, "decisions": list(out.values())}
+    if not out:
+        res["note"] = "no recorded decisions about this service"
+    return rec.done(res)
+
+
+# ───────────── 8. past_incidents ─────────────
+Q_INC_AFFECTED = """MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids
+RETURN DISTINCT i.id, s.id"""
+Q_INC_DEPLOY = """MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids
+RETURN DISTINCT i.id, s.id, dep.id"""
+Q_INC_DETAIL = """MATCH (i:Incident) WHERE i.id IN $iids
+OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause)
+OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution)
+OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person)
+OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src)
+OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o)
+RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status,
+       collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id),
+       collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score})"""
+
+
+def past_incidents(ctx, service_ids, limit=5):
+    rec = Recorder(ctx, "past_incidents", {"service_ids": service_ids, "limit": limit})
+    if isinstance(service_ids, str):
+        service_ids = [service_ids]
+    if not isinstance(service_ids, list) or not service_ids or not all(isinstance(s, str) for s in service_ids):
+        return rec.error("service_ids must be a non-empty list of service ids; try find_service")
+    service_ids = service_ids[:10]
+    for s in service_ids:
+        if err := rec.check(s, "Service"):
+            return rec.error(err)
+    limit = clamp(limit, 1, 10, 5)
+    found = {}  # incident id -> {services, via, edges to highlight}
+    for q, via in ((Q_INC_AFFECTED, "affected"), (Q_INC_DEPLOY, "caused_by_deploy")):
+        for iid, sid, *dep in rec.q(q, {"ids": service_ids}):
+            f = found.setdefault(iid, {"services": set(), "via": set(), "edges": []})
+            f["services"].add(sid)
+            f["via"].add(via)
+            f["edges"] += [(iid, "AFFECTED", sid)] if not dep else [(iid, "CAUSED_BY", dep[0]), (dep[0], "CHANGED", sid)]
+    details = {r[0]: r for r in rec.q(Q_INC_DETAIL, {"iids": list(found)})} if found else {}
+    ranked = sorted(details.values(), key=lambda r: (-len(found[r[0]]["services"]), -(r[4] or 0)))[:limit]
+    out = []
+    for iid, key, title, sev, started, origin, status, rcs, rids, rsums, pids, pnames, srcs, sims in ranked:
+        f = found[iid]
+        rec.hl(iid, *rcs)
+        for e in f["edges"]:
+            rec.hl_edge(*e)
+        for rc in rcs:
+            rec.hl_edge(iid, "HAS_ROOT_CAUSE", rc)
+        for r in rids:
+            rec.hl_edge(iid, "RESOLVED_BY", r)
+            for pid in pids:
+                rec.hl_edge(r, "PERFORMED_BY", pid)
+            for src in srcs:
+                rec.hl_edge(r, "SOURCED_FROM", src)
+        similar = [{"id": s["id"], "score": s["score"]} for s in sims if s["id"]]
+        for s in similar:
+            rec.hl_edge(iid, "SIMILAR_TO", s["id"])
+        out.append({"id": iid, "key": key, "title": clip(title, 90), "severity": sev, "started": iso(started),
+                    "origin": origin, "status": status, "overlap": len(f["services"]), "via": sorted(f["via"]),
+                    "root_causes": rcs, "resolution": clip(rsums[0], 120) if rsums else None,
+                    "resolved_by": pnames, "resolution_sources": srcs, "similar_to": similar})
+    res = {"service_ids": service_ids, "incident_count": len(found), "incidents": out}
+    if len(found) > len(out):
+        res["truncated"] = True
+    if not found:
+        res["note"] = "no past incidents touched these services"
+    return rec.done(res)
+
+
+# ───────────── 9. search_knowledge ─────────────
+SEARCH_LABELS = ["Doc", "Ticket", "ChatThread", "Decision", "Incident", "Runbook"]
+_SOURCE_PREF = ["ChatThread", "Doc", "Ticket", "Runbook", "Decision", "Incident"]
+Q_SEARCH = """CALL db.idx.fulltext.queryNodes($label, $q) YIELD node, score
+OPTIONAL MATCH (a:Person)-[:AUTHORED]->(node)
+RETURN node.id, score, coalesce(node.title, node.key), coalesce(node.text, node.rationale, node.summary, node.steps),
+       coalesce(node.ts, node.updated_at, node.decided_at, node.started_at, node.created_at), a.name, a.status
+ORDER BY score DESC LIMIT $limit"""
+_STOP = {"the", "a", "an", "of", "to", "in", "on", "and", "or", "is", "are", "was", "we", "why", "did", "do", "how", "what", "for", "it"}
+
+
+def _snippet(text, tokens, n=200):
+    text = " ".join((text or "").split())
+    low = text.lower()
+    pos = min((p for p in (low.find(t) for t in tokens) if p >= 0), default=0)
+    start = max(0, pos - 60)
+    return ("…" if start else "") + clip(text[start:], n)
+
+
+def search_knowledge(ctx, query="", labels=None, limit=8):
+    rec = Recorder(ctx, "search_knowledge", {"query": query, "labels": labels, "limit": limit})
+    labels = labels or SEARCH_LABELS
+    bad = [l for l in labels if l not in SEARCH_LABELS] if isinstance(labels, list) else labels
+    if bad:
+        return rec.error(f"labels must be a subset of {SEARCH_LABELS}")
+    tokens = [t for t in re.findall(r"[A-Za-z0-9_]+", str(query).lower()) if len(t) > 1 and t not in _STOP][:8]
+    if not tokens:
+        return rec.error("query has no searchable words")
+    limit = clamp(limit, 1, 20, 8)
+    hits = {}
+    for label in labels:
+        # all words first (precise); if that leaves room, any word (recall) ranked below.
+        # Scores from different indexes are not comparable, so each index is normalised to its own best hit.
+        for q, weight in ((" ".join(tokens), 1.0), ("|".join(tokens), 0.1)):
+            rows = rec.q(Q_SEARCH, {"label": label, "q": q, "limit": limit})
+            top = max((r[1] for r in rows), default=1) or 1
+            for nid, score, title, text, date, aname, astat in rows:
+                if nid not in hits:
+                    hits[nid] = {"id": nid, "label": label, "title": clip(title, 90), "snippet": _snippet(text, tokens),
+                                 "date": iso(date), "author": aname, "author_status": astat,
+                                 "score": round(weight * score / top, 3)}
+            if sum(1 for h in hits.values() if h["label"] == label) >= limit:
+                break
+    # ties (every index's best hit scores 1.0): raw sources before derived summaries
+    ranked = sorted(hits.values(), key=lambda h: (-h["score"], _SOURCE_PREF.index(h["label"])))[:limit]
+    rec.hl(*[h["id"] for h in ranked])
+    return rec.done({"query": query, "terms": tokens, "hit_count": len(hits), "hits": ranked,
+                     **({"truncated": True} if len(hits) > limit else {})})
+
+
+# ───────────── 10. critical_services ─────────────
+Q_PAGERANK = """CALL algo.pageRank('Service', 'DEPENDS_ON') YIELD node, score
+MATCH (t:Team)-[:OWNS]->(node)
+RETURN node.id, node.name, node.tier, t.name, score ORDER BY score DESC LIMIT $limit"""
+Q_BETWEENNESS = """CALL algo.betweenness({nodeLabels: ['Service'], relationshipTypes: ['DEPENDS_ON'], samplingSize: 64, samplingSeed: 42}) YIELD node, score
+MATCH (t:Team)-[:OWNS]->(node)
+RETURN node.id, node.name, node.tier, t.name, score ORDER BY score DESC LIMIT $limit"""
+
+
+def critical_services(ctx, algorithm="pagerank", limit=8):
+    rec = Recorder(ctx, "critical_services", {"algorithm": algorithm, "limit": limit})
+    if algorithm not in ("pagerank", "betweenness"):
+        return rec.error("algorithm must be 'pagerank' or 'betweenness'")
+    limit = clamp(limit, 1, 27, 8)
+    q = Q_PAGERANK if algorithm == "pagerank" else Q_BETWEENNESS
+    rows = rec.q(q, {"limit": limit})
+    rec.hl(*[r[0] for r in rows])
+    meaning = ("shared dependencies: services many others call, directly or indirectly" if algorithm == "pagerank"
+               else "chokepoints: services that sit on many shortest call paths")
+    return rec.done({"algorithm": algorithm, "meaning": meaning,
+                     "services": [{"id": r[0], "name": r[1], "tier": r[2], "team": r[3], "score": round(r[4], 4)} for r in rows]})
+
+
+# ───────────── 11. stale_knowledge ─────────────
+Q_STALE = """MATCH (x)-[:DESCRIBES]->(s:Service)
+WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid)
+OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x)
+OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'})
+OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at
+OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at
+RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status,
+       collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id)
+ORDER BY x.updated_at"""
+
+
+def stale_knowledge(ctx, service_id=None):
+    rec = Recorder(ctx, "stale_knowledge", {"service_id": service_id})
+    if service_id is not None and (err := rec.check(service_id, "Service")):
+        return rec.error(err)
+    items = []
+    for xid, label, title, upd, sid, aid, aname, astat, gone, gone_ids, deploys, learned in rec.q(Q_STALE, {"sid": service_id}):
+        reasons, detail = [], {}
+        if astat == "left":
+            reasons.append("author_left")
+            detail["author"] = aname
+        if gone:
+            reasons.append("names_departed_person")
+            detail["departed_people"] = gone
+        if days_ago(ctx.now, upd) > 365 and deploys > 0:
+            reasons.append("old_vs_changes")
+            detail["deploys_since_update"] = deploys
+        if learned:
+            reasons.append("missing_learned_dependency")
+            detail["learned_dependencies"] = learned
+        if not reasons:
+            continue
+        rec.hl_edge(xid, "DESCRIBES", sid)
+        if aid and astat == "left":
+            rec.hl_edge(aid, "AUTHORED", xid)
+        for g in gone_ids:
+            rec.hl_edge(xid, "MENTIONS", g)
+        for t in learned:
+            rec.hl_edge(sid, "DEPENDS_ON", t)
+        items.append({"id": xid, "kind": label, "title": clip(title, 80), "describes": sid,
+                      "updated": iso(upd), "updated_days_ago": days_ago(ctx.now, upd), "reasons": reasons, **detail})
+    res = {"service": service_id, "stale_count": len(items), "items": items[:10]}
+    if len(items) > 10:
+        res["truncated"] = True
+    return rec.done(res)
+
+
+# ───────────── 12. node_details ─────────────
+Q_NODE = "MATCH (n:__LABEL__ {id: $id}) RETURN n"
+Q_NEIGHBOURS = """MATCH (n:__LABEL__ {id: $id})-[r]-(m)
+RETURN type(r), startNode(r).id = n.id, m.id, coalesce(m.name, m.title, m.key, m.summary, m.statement)
+LIMIT 300"""
+_SKIP_PROPS = {"id", "created_at"}
+
+
+def node_details(ctx, node_id):
+    rec = Recorder(ctx, "node_details", {"node_id": node_id})
+    prefix = node_id.split(":", 1)[0] if isinstance(node_id, str) and ":" in node_id else None
+    if prefix not in PREFIX_TO_LABEL:
+        return rec.error(f"invalid node id {node_id!r}; ids look like 'svc:payments-api' (prefixes: {sorted(PREFIX_TO_LABEL)})")
+    label = PREFIX_TO_LABEL[prefix]  # whitelisted -> safe to interpolate
+    rows = rec.q(Q_NODE.replace("__LABEL__", label), {"id": node_id})
+    if not rows:
+        return rec.error(f"unknown node id {node_id!r}")
+    props, dates = {}, {}
+    for k, v in rows[0][0].properties.items():
+        if k in _SKIP_PROPS:
+            continue
+        props[k] = clip(v, 200) if isinstance(v, str) else v
+        if (k == "ts" or k.endswith("_at")) and isinstance(v, int):
+            dates[k] = iso(v)
+    groups = {}
+    for etype, outgoing, mid, name in rec.q(Q_NEIGHBOURS.replace("__LABEL__", label), {"id": node_id}):
+        groups.setdefault((etype, "out" if outgoing else "in"), []).append({"edge": etype, "dir": "out" if outgoing else "in",
+                                                                             "id": mid, "name": clip(name, 40)})
+    counts = {f"{e} ({d})": len(v) for (e, d), v in groups.items()}
+    neighbours = []
+    while len(neighbours) < 25 and any(groups.values()):  # round-robin so rare edge types are not crowded out
+        for v in groups.values():
+            if v and len(neighbours) < 25:
+                neighbours.append(v.pop(0))
+    for nb in neighbours:
+        a, b = (node_id, nb["id"]) if nb["dir"] == "out" else (nb["id"], node_id)
+        rec.hl_edge(a, nb["edge"], b)
+    rec.hl(node_id)
+    res = {"id": node_id, "label": label, "props": props, "dates": dates, "neighbour_counts": counts, "neighbours": neighbours}
+    if sum(counts.values()) > len(neighbours):
+        res["truncated"] = True
+    return rec.done(res)

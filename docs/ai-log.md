@@ -18,3 +18,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 
 ## 2026-10-15 — Docs: data model diagrams + demo checklist
 - Claude (claude.ai, Opus 5.5) added three Mermaid diagrams to `docs/schema.md` ("Data model at a glance", v1.0.2; rendered and checked before committing) and `docs/demo-checklist.md`. No model change.
+
+## 2026-10-15 — Step 3: core graph tools
+- Claude Code (Sonnet 5.5) built `backend/` (tenant-checked `get_graph`, 12 read-only tools, registry, CLI, `docs/cypher.md` generator) and `tests/` (34 tests on a throwaway `kestrel_pay_test` graph). `seed/load.py` now exposes `load(graph, reset, now, data_package)`; CLI behaviour unchanged, verify still 13/13. No LLM calls.
+- Double-check: (1) **Hackathon track names**: the prompt didn't define them, so `track` in `registry.py` uses the product modes (Firefighter / Brain / Team memory) as placeholders; give me the real names. (2) FalkorDB quirk: a MATCH after `WITH … aggregate` silently returns nothing, so aggregations are always last (see `graph_tools.py` header). (3) `shared_dependency_changes(payouts-service)` legitimately lists payments-api (deploy 7h ago) as a neighbour even before learning; risk-rules appears only once the learned edge exists (the test asserts this). (4) `search_knowledge` normalises each index's scores to its best hit and breaks ties raw-source-first, otherwise the incident summary outranked the chat thread. (5) Tool results are capped at 2,500 chars by per-tool caps plus a generic `fit()` that drops list tails and sets `truncated`.
