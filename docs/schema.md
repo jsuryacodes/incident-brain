@@ -1,4 +1,4 @@
-# Incident Brain — Graph Schema (LOCKED v1 · 15 Oct 2026)
+# Incident Brain — Graph Schema (LOCKED v1.0.2 · 15 Oct 2026)
 
 This file is the single source of truth for the graph model. Code must follow it.
 Changing it requires a deliberate decision (bump the version + note why at the bottom).
@@ -10,6 +10,72 @@ Changing it requires a deliberate decision (bump the version + note why at the b
 - Two layers in one graph:
   - **Seeded world** (`origin: 'seed'`): the company as it exists before the demo.
   - **Agent-written memory** (`origin: 'agent'`): nodes/edges the agents create at runtime. The UI colours these differently: this is how "memory" becomes visible.
+
+## Data model at a glance
+
+GitHub renders these diagrams. Yellow = agent-written memory (`origin: 'agent'`); blue-tinted = written by both the seed and agents. Thick arrows = `SOURCED_FROM` (the receipts).
+
+**1. The company map** (who owns what, what depends on what, where knowledge lives)
+
+```mermaid
+flowchart LR
+  Person -->|MEMBER_OF| Team
+  Team -->|OWNS| Service
+  Person -->|"MAINTAINS · WORKED_ON"| Service
+  Service -->|"DEPENDS_ON (declared | learned)"| Service
+  Person -->|DEPLOYED| Deploy
+  Deploy -->|CHANGED| Service
+  Deploy -->|FOR_TICKET| Ticket
+  subgraph SRC["Sources"]
+    Doc
+    Ticket
+    ChatThread
+  end
+  Person -->|AUTHORED| SRC
+  SRC -->|MENTIONS| Service
+  Doc -->|DESCRIBES| Service
+  Decision -->|ABOUT| Service
+  Decision ==>|"SOURCED_FROM {excerpt}"| SRC
+  Person -->|AUTHORED| Decision
+```
+
+**2. Incidents and how they were fixed** (episodic + procedural memory)
+
+```mermaid
+flowchart LR
+  Incident -->|AFFECTED| Service
+  Incident -->|CAUSED_BY| Deploy
+  Deploy -->|CHANGED| Service
+  Incident -->|HAS_ROOT_CAUSE| RootCause
+  PublicPostmortem -->|HAS_ROOT_CAUSE| RootCause
+  Incident -->|RESOLVED_BY| Resolution
+  Resolution -->|PERFORMED_BY| Person
+  Resolution ==>|SOURCED_FROM| PM["Ticket (postmortem)"]
+  Incident -.->|"SIMILAR_TO {score, reason}"| PublicPostmortem
+  Runbook -->|DESCRIBES| Service
+  Runbook ==>|SOURCED_FROM| Incident
+  Runbook -.->|"SUPERSEDES (v2 → v1)"| Runbook
+  classDef both fill:#e0e7ff,stroke:#4338ca,color:#111
+  class Incident,Resolution,Runbook both
+```
+
+**3. Agent memory and sessions** (what agents write at runtime; the orange dotted edge is the dependency learned in Session 1)
+
+```mermaid
+flowchart LR
+  New["Incident · Resolution · Runbook v2 · Ticket<br/>(origin: agent)"] -->|WRITTEN_IN| Session
+  Fact -->|WRITTEN_IN| Session
+  Step -->|IN_SESSION| Session
+  Session -->|FOR_INCIDENT| Incident
+  Step -->|"NEXT (handoff)"| Step
+  Step -.->|"CITED (receipt)"| Any["any node"]
+  Fact -->|ABOUT| Service
+  Fact ==>|"SOURCED_FROM {excerpt}"| Src["Doc · Ticket · ChatThread · Incident"]
+  RR["Service: risk-rules"] -.->|"DEPENDS_ON {source: learned, learned_from: Fact}"| CS["Service: config-service"]
+  classDef agent fill:#fde68a,stroke:#b45309,color:#111
+  class Fact,Session,Step,New agent
+  linkStyle 8 stroke:#b45309,stroke-width:3px
+```
 
 ## 2. Design rules (the talking points)
 
@@ -161,5 +227,6 @@ CALL algo.pageRank('Service', 'DEPENDS_ON') YIELD node, score RETURN node.name, 
 ```
 
 ## Changelog
+- v1.0.2 (15 Oct 2026): added 'Data model at a glance' Mermaid diagrams (no model change).
 - v1.0.1 (15 Oct 2026): §6 full-text syntax corrected to CREATE FULLTEXT INDEX (no model change).
 - v1 (15 Oct 2026): locked. Added `origin` on all nodes, `FOR_TICKET` (Deploy → Ticket) and `WRITTEN_IN` (agent node → Session) to the step-1 proposal.
