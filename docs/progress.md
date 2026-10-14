@@ -12,8 +12,8 @@ Resume point for `docs/prompts/05-mega.md`. Continue from the first milestone no
 | M2 Memory write-back + team + Session 2 | DONE (live check SKIPPED, no key) | 66db978 |
 | M3 Ask the Brain | DONE (live check SKIPPED, no key) | bd91e13 |
 | M4 MCP server | DONE | 75f3109 |
-| M5 Backend API | IN PROGRESS | — |
-| M6 Second tenant | TODO | — |
+| M5 Backend API | DONE | bcaa44b |
+| M6 Second tenant | IN PROGRESS | — |
 
 ## M1 — Firefighter agent
 **Status:** DONE · commit `5f54e03` (step 0: `2f26e45`) · live check: **SKIPPED (no key)** · live spend $0.00
@@ -117,3 +117,34 @@ python -m backend.agents.brain_eval            # add --live for one Haiku pass (
 - *One process per tenant.* `--tenant` picks the graph, so a client connected to Kestrel Pay can never see another company's graph.
 
 **Open issues:** none known. Not yet tried inside Claude Desktop itself (no GUI in this unattended run).
+
+## M5 — Backend API (local)
+**Status:** DONE · commit `bcaa44b` · no live calls involved
+
+**What was built:** FastAPI app `backend/api/main.py` + `backend/api/guard.py`:
+- reads: `/api/health`, `/api/tenants`, `/api/graph` (overview / incident, ≤300 nodes; each node has id/label/name/origin, each edge from/type/to/source), `/api/node/{id}`, `/api/sessions`, `/api/sessions/{id}` (full steps with CITED ids, for replay);
+- runs: `POST /api/team/run` (SSE: `start`, `agent`, `step`, `write`, `handoff`, `report`, `done`, `error`), `POST /api/incidents/{id}/resolve`, `POST /api/brain/ask`, `POST /api/replay/{run_file}` (golden runs, no LLM);
+- admin: `POST /api/admin/reseed`.
+
+Also `Dockerfile`, `.dockerignore`, `docker-compose.yml` (falkordb + api with healthchecks, optional `.env`), golden runs in `runs/golden/`, and 9 tests. `docker compose config` parses; `docker build` succeeds and the app imports inside the image (image removed afterwards; nothing deployed).
+
+**How to run**
+```
+uvicorn backend.api.main:app --reload            # http://localhost:8000/docs
+curl -N -X POST localhost:8000/api/team/run -H 'Content-Type: application/json' \
+     -d '{"service_id":"svc:payments-api","symptom":"5xx rate 12%"}'
+curl -N -X POST 'localhost:8000/api/replay/team-session1.json?delay_ms=300'
+python -m backend.demo story --quiet --save-golden   # regenerate the golden runs
+docker compose up --build
+```
+
+**Decisions (plain language)**
+- *Free by default, live behind a code.* Every agent endpoint works without credentials in mock mode, so judges and the public can explore. The real model runs only if the request asks for `live: true` and carries the right `X-Access-Code` (constant-time compare), the server has a key, and today's cap (`DAILY_LIVE_RUNS`, a Redis counter `ib:live_runs:<date>` with a TTL) has room. Otherwise it falls back to mock and says why; over the cap returns 429.
+- *Per-IP token bucket* (`RATE_LIMIT_PER_MIN`, default 20) on everything except `/api/health`.
+- *Streaming via SSE.* The team run executes in a worker thread; every Step becomes a `step` event (plus `write` / `handoff` events) the moment it is written to the graph. Golden replays reuse the exact same step→event mapping.
+- *Admin needs the code.* Re-seeding is the only write outside agent runs and requires `X-Access-Code`. Resolve is an agent run (the postmortem pass), so it follows the agent rules.
+- *CORS allowlist* from `CORS_ORIGINS`; nothing is open by default.
+
+**Open issues**
+- The rate limiter and cap are per process / per Redis; fine for one container.
+- `/api/graph` overview hides Step/Session nodes to stay under 300 nodes; the incident view shows the memory around one incident.
