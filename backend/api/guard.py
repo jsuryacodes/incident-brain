@@ -3,7 +3,7 @@
 ACCESS_CODE        -> X-Access-Code header unlocks the live LLM and admin endpoints (constant-time compare).
                       Unset = live and admin are disabled for everyone.
 DAILY_LIVE_RUNS    -> max live runs per UTC day (default 30): Redis INCR on ib:live_runs:<YYYY-MM-DD> with a TTL.
-RATE_LIMIT_PER_MIN -> per-IP token bucket (default 20 requests/minute), in memory.
+RATE_LIMIT_PER_MIN -> per-IP token bucket on /api/* (default 60 requests/minute), in memory.
 """
 import hmac
 import os
@@ -61,7 +61,7 @@ class RateLimiter:
         self.buckets, self.lock = {}, threading.Lock()
 
     def allow(self, ip):
-        rate = max(1, int(os.getenv("RATE_LIMIT_PER_MIN", "20")))
+        rate = max(1, int(os.getenv("RATE_LIMIT_PER_MIN", "60")))
         now = time.monotonic()
         with self.lock:
             tokens, last = self.buckets.get(ip, (rate, now))

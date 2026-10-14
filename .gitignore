@@ -223,3 +223,6 @@ __marimo__/
 # agent run records (keep the golden ones)
 runs/*
 !runs/golden/
+
+# the frontend has its own src/lib (the Python lib/ rule above must not hide it)
+!frontend/src/lib/

@@ -90,8 +90,22 @@ def test_replay_json_events_and_run_graph(client):
     for st in steps:  # the run graph contains everything any step highlights
         assert set(st["highlight"]["nodes"]) <= ids
     assert not any(i.startswith(("ses:", "step:")) for i in ids)
-    assert client.get("/api/run-graph/../../.env").status_code == 404
+    leak = client.get("/api/run-graph/../../.env")  # normalised to /.env: the SPA answers with index.html or 404, never the file
+    assert "ACCESS_CODE" not in leak.text and "ANTHROPIC" not in leak.text
+    assert client.get("/api/run-graph/..%2F..%2F.env").status_code == 404
     assert client.get("/api/replay/nope").status_code == 404
+
+
+def test_spa_serves_index_for_client_routes_but_not_for_api(client, monkeypatch, tmp_path):
+    (tmp_path / "assets").mkdir()
+    (tmp_path / "index.html").write_text("<!doctype html><title>Incident Brain</title>")
+    (tmp_path / "assets" / "app.js").write_text("console.log(1)")
+    monkeypatch.setattr(main, "DIST", tmp_path)
+    assert "Incident Brain" in client.get("/explorer").text and "Incident Brain" in client.get("/").text
+    r = client.get("/assets/app.js")
+    assert r.text == "console.log(1)" and "immutable" in r.headers["cache-control"]
+    assert client.get("/api/nope").status_code == 404 and client.get("/api/nope").json()["detail"] == "not found"
+    assert "console" not in client.get("/assets/../../etc/passwd").text
 
 
 def test_subgraph(client, tenant):

@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+/* Colour meaning is fixed app-wide: amber = written by an agent (memory), red = the alerting service,
+   blue = the current step's path. Never use amber for anything else. */
+:root {
+  --bg: #f6f6f4;
+  --surface: #ffffff;
+  --surface-2: #f0f0ed;
+  --text: #1b1c1f;
+  --muted: #5d6066;
+  --border: #e2e2de;
+  --accent: #2563eb;
+  --accent-soft: #dbe6fd;
+  --alert: #dc2626;
+  --alert-soft: #fde2e2;
+  --mem-stroke: #b45309;
+  --mem-fill: #fde68a;
+  --mem-text: #713f12;
+  --ok: #15803d;
+  --ok-soft: #dcf2e3;
+  --lane-triage: #7c3aed;
+  --lane-investigator: #0369a1;
+  --lane-communicator: #047857;
+  --node: #ffffff;
+  --node-stroke: #a3a6ad;
+  --edge: #c4c6cb;
+  --label: #2b2d31;
+  --code-bg: #f3f3f0;
+  --code-kw: #9333ea;
+  --code-str: #b4235a;
+  --code-param: #0369a1;
+  --code-fn: #1d4ed8;
+  --code-num: #a16207;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 16px rgb(0 0 0 / 0.04);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0e1014;
+  --surface: #151920;
+  --surface-2: #1c212a;
+  --text: #e6e8eb;
+  --muted: #959ba4;
+  --border: #272c35;
+  --accent: #60a5fa;
+  --accent-soft: #1b2b45;
+  --alert: #f87171;
+  --alert-soft: #3a1c1f;
+  --mem-stroke: #fbbf24;
+  --mem-fill: #4a3410;
+  --mem-text: #fde68a;
+  --ok: #4ade80;
+  --ok-soft: #14301f;
+  --lane-triage: #a78bfa;
+  --lane-investigator: #38bdf8;
+  --lane-communicator: #34d399;
+  --node: #1f252f;
+  --node-stroke: #5b6270;
+  --edge: #3d4450;
+  --label: #dfe2e6;
+  --code-bg: #10141a;
+  --code-kw: #c4a5ff;
+  --code-str: #f9a8c9;
+  --code-param: #7dd3fc;
+  --code-fn: #93c5fd;
+  --code-num: #fcd34d;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.25);
+  color-scheme: dark;
+}
+
+/* No-JS fallback: follow the OS. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #0e1014; --surface: #151920; --surface-2: #1c212a; --text: #e6e8eb; --muted: #959ba4; --border: #272c35;
+    --accent: #60a5fa; --alert: #f87171; --mem-stroke: #fbbf24; --mem-fill: #4a3410; --mem-text: #fde68a; --ok: #4ade80;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-alert: var(--alert);
+  --color-alert-soft: var(--alert-soft);
+  --color-mem: var(--mem-stroke);
+  --color-mem-fill: var(--mem-fill);
+  --color-mem-text: var(--mem-text);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-triage: var(--lane-triage);
+  --color-investigator: var(--lane-investigator);
+  --color-communicator: var(--lane-communicator);
+  --color-code: var(--code-bg);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); }
+.chip-mem { background: var(--mem-fill); color: var(--mem-text); border: 1px solid var(--mem-stroke); }
+.scroll-thin { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+.cy-code, .font-mono { font-variant-ligatures: none; }
+.cy-code .kw { color: var(--code-kw); font-weight: 600; }
+.cy-code .str { color: var(--code-str); }
+.cy-code .param { color: var(--code-param); }
+.cy-code .fn { color: var(--code-fn); }
+.cy-code .num { color: var(--code-num); }
+.cy-code .label { color: var(--ok); }
+
+@keyframes ib-pulse { 0% { box-shadow: 0 0 0 0 var(--mem-stroke); } 100% { box-shadow: 0 0 0 8px transparent; } }
+.pulse-once { animation: ib-pulse 0.9s ease-out 1; }
+@keyframes ib-shimmer { 0% { opacity: 0.55; } 50% { opacity: 1; } 100% { opacity: 0.55; } }
+.skeleton { background: var(--surface-2); border-radius: 6px; animation: ib-shimmer 1.4s ease-in-out infinite; }
+@keyframes ib-fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.fade-in { animation: ib-fade-in 0.25s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

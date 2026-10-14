@@ -295,6 +295,8 @@ Q_EXPLORER_NODES = """MATCH (n) WHERE labels(n)[0] IN $labels AND ($origin IS NU
 RETURN n.id, labels(n)[0], n ORDER BY n.id LIMIT $cap"""
 Q_EXPLORER_AGENT_EDGES = """MATCH (a)-[r]->(b) WHERE (r.origin = 'agent' OR r.source = 'learned') AND NOT a:Step AND NOT a:Session
 AND NOT b:Step AND NOT b:Session RETURN a.id, b.id LIMIT $cap"""
+Q_AGENT_EDGE_COUNT = """MATCH (a)-[r]->(b) WHERE (r.origin = 'agent' OR r.source = 'learned')
+AND NOT a:Step AND NOT a:Session AND NOT b:Step AND NOT b:Session RETURN count(r)"""
 Q_PAGERANK_ALL = "CALL algo.pageRank('Service', 'DEPENDS_ON') YIELD node, score RETURN node.id, score"
 Q_COUNTS = "MATCH (n) WHERE NOT n:Step AND NOT n:Session RETURN labels(n)[0], n.origin, count(n)"
 
@@ -323,5 +325,5 @@ def explorer(tenant, labels=None, origin=None):
         counts.setdefault(label, {"seed": 0, "agent": 0})[org or "seed"] = n
     agent_total = sum(c["agent"] for c in counts.values())
     return {"tenant": tenant, "labels": labels, "origin": origin, **els, "counts": counts, "agent_nodes": agent_total,
-            "agent_edges": g.ro_query("MATCH ()-[r]->() WHERE r.origin = 'agent' OR r.source = 'learned' RETURN count(r)").result_set[0][0],
+            "agent_edges": g.ro_query(Q_AGENT_EDGE_COUNT).result_set[0][0],
             "truncated": len(ids) > EXPLORER_CAP, "pagerank": "algo.pageRank('Service', 'DEPENDS_ON')"}

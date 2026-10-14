@@ -7,7 +7,7 @@ Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
 |---|---|---|
 | 0 Preflight + demo script | DONE | 07-0 |
 | A API additions | DONE | 07A |
-| B Frontend (themes, shell, Story, Brain, Explorer, polish) | TODO | |
+| B Frontend (themes, shell, Story, Brain, Explorer, polish) | DONE (polish continues in D) | 07B |
 | C Deploy-ready container | TODO | |
 | D Headless-browser self-check | TODO | |
 | E Docs | TODO | |
@@ -39,6 +39,23 @@ Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
 - *The no-memory contrast never touches the hero graph:* a fresh compare run uses an internal twin graph `<tenant>__nomem` (seeded, run, deleted). `get_graph` accepts the twin; the HTTP tenant check does not.
 - *Run graph = snapshot taken right after the run*, so a replay looks the same whatever state the live graph is in. Session/Step nodes are not drawn (the timeline shows them).
 - *Suggested questions are templates filled by Cypher* (decision behind the most recently changed service, a departed maintainer's service, top PageRank service, a doc by someone who left, a root cause shared with public postmortems, a team named in a doc title). All 12 (both tenants) were checked against the mock Brain; that found "decide" missing from the mock's stop words (fixed).
+
+## 07B — Frontend (`frontend/`)
+**Status:** DONE (screenshot polish rounds are in 07D) · `npm test` (vitest) 17 passed · `npm run build` OK (TypeScript 7, Vite 8)
+
+**What was built**
+- Stack as specified: React 19 + Vite 8 + TypeScript 7, Tailwind 4, zustand, lucide-react, Cytoscape.js + cytoscape-fcose, self-hosted Inter + JetBrains Mono, EventSource for fresh runs, Vitest.
+- **B1 themes:** tokens on `:root` + `[data-theme="dark"]`; header toggle System → Light → Dark, stored in localStorage inside try/catch; an inline script in `index.html` sets `data-theme` before paint. The Cytoscape stylesheet is built from the computed tokens and re-applied on theme change. Amber = agent-written (double border + "AI ·" label), red = alerting service, blue = current path, dashed amber = learned edge. `prefers-reduced-motion` turns off pulses, the draw-in and transitions.
+- **B2 shell:** header (glyph, Story · Ask the Brain · Explorer, company switcher, mode badge Replay/Mock, access-code dialog with sessionStorage, theme toggle, About with the three tracks); client routes `/`, `/brain`, `/explorer`; toasts with Retry; skeletons; stacked panes below 1024 px.
+- **B3 Story:** timeline lanes with per-agent "tool call n", prominent hand-off cards, amber "wrote …" chips; graph laid out ONCE per story (fcose with a seeded RNG, positions cached per layout key; fresh-run nodes are placed beside their neighbours, existing nodes never move); the graph grows step by step, current path thick blue, earlier steps quieter; writes pulse amber; **the learned DEPENDS_ON draws itself in as a dashed amber line** (a ghost node animates from source to target); the camera smoothly frames the current step. Receipt drawer: tool + summary, highlighted Cypher per query with copy and a WRITE badge, parameters, result, source cards; node pane; final report card (cause + path, who to call + "maintainer left", the decision with its excerpt, "Seen before", industry match link, actions, confidence, mode, cost). Controls: play/pause, step, 0.5×/1×/2×, scrubber, space/←/→; deterministic dwell per step type. Story buttons from `/api/story`, ending on the before/after panel from `/api/compare/latest`.
+- **B4 Brain:** suggestions from the API, answers with source cards, honest "I don't know" styling, "How I got this" with Cypher, a mini graph of cited nodes, follow-ups (client-kept turns without a code, graph session with a code).
+- **B5 Explorer:** label filters, agent-memory-only toggle, search, "Critical hubs" sizing by `algo.pageRank`, node details pane, an empty state that explains tenant isolation.
+
+**Decisions**
+- *Replays are paced by the browser*, not the server, so a take is identical every time and the scrubber can jump anywhere.
+- *The camera follows the current step* (positions never move): fitting the whole story at once made labels unreadable.
+- *Industry-match nodes are not amber:* public postmortems are seeded data; the `SIMILAR_TO` edges the agent wrote to them are amber. Amber means "written by an agent" and nothing else.
+- Chromium 156's `scrollIntoView` returns a Promise; an arrow-bodied `useEffect` returned it and React crashed on unmount. All effects use block bodies.
 
 ---
 

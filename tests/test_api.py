@@ -117,7 +117,8 @@ def test_replay_golden(client):
     assert ev[0][1]["mode"] == "replay" and names.count("handoff") == 3 and names[-2:] == ["report", "done"]
     learned = [d for e, d in ev if e == "step" and d["tool"] == "record_learned_dependency"][0]
     assert any(w["type"] == "DEPENDS_ON" and w["origin"] == "agent" for w in learned["writes"]["edges"])
-    assert client.post("/api/replay/..%2F..%2F.env").status_code == 404
+    r = client.post("/api/replay/..%2F..%2F.env")  # never a file outside runs/golden (the SPA catch-all is GET-only)
+    assert r.status_code in (404, 405) and "ACCESS_CODE" not in r.text
     assert client.post("/api/replay/nope.json").status_code == 404
 
 

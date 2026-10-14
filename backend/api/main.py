@@ -14,7 +14,7 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from backend.agents.brain import ask, list_sessions
@@ -41,7 +41,8 @@ limiter = RateLimiter()
 
 @app.middleware("http")
 async def rate_limit(request: Request, call_next):
-    if request.url.path != "/api/health" and not limiter.allow(request.client.host if request.client else "?"):
+    path = request.url.path  # the SPA's static files are not limited, only the API
+    if path.startswith("/api/") and path != "/api/health" and not limiter.allow(request.client.host if request.client else "?"):
         return JSONResponse({"detail": "rate limit exceeded; slow down"}, status_code=429)
     return await call_next(request)
 
@@ -444,3 +445,19 @@ def explorer(tenant: str = "kestrel_pay", labels: str = "", origin: str | None =
     if origin not in (None, "", "agent"):
         raise HTTPException(400, "origin must be empty or 'agent'")
     return views.explorer(tenant_ok(tenant), [l for l in labels.split(",") if l] or None, origin or None)
+
+
+# ───────────── the SPA (frontend/dist, built by `npm run build` or the Docker image) ─────────────
+DIST = Path(os.getenv("FRONTEND_DIST", ROOT / "frontend" / "dist")).resolve()
+
+
+@app.get("/{path:path}", include_in_schema=False)
+def spa(path: str):
+    """Static files from dist/, and index.html for client routes (/brain, /explorer …). /api/* never lands here."""
+    if path.startswith("api/") or not (DIST / "index.html").is_file():
+        raise HTTPException(404, "not found" if path.startswith("api/") else "UI not built: run `npm run build` in frontend/")
+    f = (DIST / path).resolve()
+    if path and f.is_file() and f.is_relative_to(DIST):
+        cache = "public, max-age=31536000, immutable" if path.startswith("assets/") else "no-cache"
+        return FileResponse(f, headers={"Cache-Control": cache})
+    return FileResponse(DIST / "index.html", headers={"Cache-Control": "no-cache"})
