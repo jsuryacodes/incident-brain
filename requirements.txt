@@ -1,3 +1,4 @@
 falkordb
 python-dotenv
 pytest
+anthropic

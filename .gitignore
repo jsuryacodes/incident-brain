@@ -219,3 +219,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 .DS_Store
+
+# agent run records (keep the golden ones)
+runs/*
+!runs/golden/

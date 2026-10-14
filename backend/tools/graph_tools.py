@@ -331,9 +331,11 @@ def past_incidents(ctx, service_ids, limit=5):
     found = {}  # incident id -> {services, via, edges to highlight}
     for q, via in ((Q_INC_AFFECTED, "affected"), (Q_INC_DEPLOY, "caused_by_deploy")):
         for iid, sid, *dep in rec.q(q, {"ids": service_ids}):
-            f = found.setdefault(iid, {"services": set(), "via": set(), "edges": []})
+            f = found.setdefault(iid, {"services": set(), "via": set(), "edges": [], "caused": set()})
             f["services"].add(sid)
             f["via"].add(via)
+            if dep:
+                f["caused"].add(sid)
             f["edges"] += [(iid, "AFFECTED", sid)] if not dep else [(iid, "CAUSED_BY", dep[0]), (dep[0], "CHANGED", sid)]
     details = {r[0]: r for r in rec.q(Q_INC_DETAIL, {"iids": list(found)})} if found else {}
     ranked = sorted(details.values(), key=lambda r: (-len(found[r[0]]["services"]), -(r[4] or 0)))[:limit]
@@ -356,6 +358,7 @@ def past_incidents(ctx, service_ids, limit=5):
             rec.hl_edge(iid, "SIMILAR_TO", s["id"])
         out.append({"id": iid, "key": key, "title": clip(title, 90), "severity": sev, "started": iso(started),
                     "origin": origin, "status": status, "overlap": len(f["services"]), "via": sorted(f["via"]),
+                    "caused_by_change_to": sorted(f["caused"]),
                     "root_causes": rcs, "resolution": clip(rsums[0], 120) if rsums else None,
                     "resolved_by": pnames, "resolution_sources": srcs, "similar_to": similar})
     res = {"service_ids": service_ids, "incident_count": len(found), "incidents": out}
