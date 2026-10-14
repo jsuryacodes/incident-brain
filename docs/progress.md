@@ -1,10 +1,10 @@
 # Progress — mega task M1–M6
 
-Resume point for `docs/prompts/05-mega.md`. Continue from the first milestone not marked DONE.
+Resume point for `docs/prompts/05-mega.md`. **All six milestones are DONE.** Continue with "Suggested next steps" below.
 
-**Run constraint (from Jaya, 15 Oct 2026):** build all LLM code, but make **no live API calls** and use **no API key**. Every "Live check" is therefore `SKIPPED (no key)`; all runs are mock mode.
+**Run constraint (from Jaya, 15 Oct 2026):** build all LLM code, but make **no live API calls** and use **no API key**. Every "Live check" is therefore `SKIPPED (no key)`, and everything was built and tested in mock mode.
 
-**Live API spend so far: $0.00**
+**Total live API spend: $0.00** (0 live calls). Tests: `pytest -q` → 87 passed. `seed.verify`: kestrel_pay 13/13, northwind_health 7/7.
 
 | Milestone | Status | Commit |
 |---|---|---|
@@ -13,7 +13,45 @@ Resume point for `docs/prompts/05-mega.md`. Continue from the first milestone no
 | M3 Ask the Brain | DONE (live check SKIPPED, no key) | bd91e13 |
 | M4 MCP server | DONE | 75f3109 |
 | M5 Backend API | DONE | bcaa44b |
-| M6 Second tenant | IN PROGRESS | — |
+| M6 Second tenant | DONE | e00b14f |
+
+## How to run the demo story (5 commands)
+```bash
+docker start falkordb && source .venv/bin/activate && pip install -r requirements.txt
+python -m backend.demo story                       # re-seed both tenants, S1, resolve, S2, summary, switch tenant (mock, free)
+python -m backend.demo story --compare-no-memory   # the contrast: Session 2 without Session 1's memory
+python -m backend.agents.brain_eval                # Ask the Brain: 5 canned questions incl. a follow-up
+uvicorn backend.api.main:app                       # API + SSE; POST /api/replay/team-session1.json for a recorded run
+```
+Add `--live` to the first two (needs `ANTHROPIC_API_KEY` in `.env`) once you decide to spend.
+
+## Things Jaya must understand before judging
+1. **Memory changes the graph's structure, not a prompt.** In Session 1 the Investigator reads the chat line "On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint." and writes a `DEPENDS_ON {source:'learned'}` edge plus a `Fact` that quotes it. In Session 2 the *same, unchanged* noisy-neighbour query on payouts-service finds risk-rules only because that edge now exists. `--compare-no-memory` proves it: without the edge, the cause is "unknown".
+2. **Agents hand off through the graph.** Triage, Investigator and Communicator each start with an empty conversation: just the alert plus `get_incident_state`. Every note one agent leaves for the next is a `Step` node (`action:'handoff'`). So the team's reasoning is inspectable in the FalkorDB Browser, crash-safe, and replayable (`/api/sessions/{id}`).
+3. **Every step is a receipt.** Each tool call is persisted live as a `Step` with the exact Cypher, its parameters and `CITED` edges to the nodes it used, chained by `NEXT`. "How did it get the answer?" is a graph query.
+4. **Grounding.** An agent may only cite or write ids that came back from a tool in that run, and every quote must be a literal substring of its source node. Violations are rejected with the reason (one retry), then recorded as `grounding.ok = false`. This is what stops invented people, ids and quotes.
+5. **Writes are validated and atomic.** Every write checks that ids exist with the right label, quotes are literal and learned edges aren't duplicates, and refuses to page someone who left. Incident/ticket keys and the learned edge are each allocated and created in one Cypher query. FalkorDB runs write queries one at a time per graph, so 5 parallel team runs gave 5 distinct incidents and exactly 1 learned edge, with no retries needed.
+6. **Mock mode is a real "fake model", not canned output.** `mock_policy.py` reads tool results and applies rules (nearest downstream deploy = culprit; ≥2 shared words between change and decision title = conflict; resolved incidents caused by the same service = "seen before"). It solved Northwind's different story without changes. It makes development, tests and a public demo free, and the live LLM uses the identical loop, tools and checks.
+7. **Cost control is layered.** Default mock; one LLM wrapper (`backend/llm.py`) with `max_tokens`, prompt caching (system + last tool) and a per-run budget guard (`MAX_RUN_COST_USD`). The API serves live only with `live: true` plus a valid access code, a server key and room under a daily cap (Redis counter), and rate-limits per IP.
+8. **Expertise is computed, not stored.** "Who to call" ranks active people by commits + 25 × incident fixes. After Session 1 is resolved, Priya's score rises (48 → 73) because she now has another fix in the graph. The maintainer who left is flagged as a bus-factor risk.
+9. **Tenant isolation is structural.** One FalkorDB graph per company. A Kestrel Pay id doesn't exist in Northwind's graph, so tools can't reach it; the Brain on Northwind honestly answers "I don't know" about RULES_CACHE_TTL. The MCP server is pinned to one tenant per process.
+10. **Honest metrics.** Time to cause in mock: Session 1 = 7 LLM / 13 tool calls, Session 2 = 6 / 12. The saving is real but small (no need to re-read the chat: the learned Fact already cites it). The headline is that Session 2 finds the cause at all.
+
+## Known issues
+- **No live run has ever happened** (by instruction). Prompts are written for Haiku but untested against a real model; expect one round of prompt tuning on the first live run (see each milestone's "Live check" commands).
+- `get_incident_state` returns up to 10,000 chars (other tools 2,500) so handoffs are never trimmed; it grows with the number of sessions per incident.
+- Rate limiter is in-process memory; the daily cap is per Redis. Fine for one container.
+- Incident keys assume < 1,000 incidents per year per tenant (3-digit sequence).
+- `/api/graph` overview hides Step/Session nodes to stay ≤300 nodes.
+- A Brain "who" answer with no source mentioning the person falls back to "I don't know" (citations are mandatory).
+- MCP not yet tried inside the Claude Desktop GUI (verified with the SDK client over real stdio).
+
+## Suggested next steps
+1. **Live checks** (when you add a key): `python -m backend.agents.firefighter ... --live` + `check_run`, then `python -m backend.demo story --live`, then `python -m backend.agents.brain_eval --live`. Budget ≈ 50 Haiku calls total.
+2. **UI:** graph panel on `/api/graph` (colour `origin:'agent'`), an SSE trace view on `/api/team/run`, Ask-the-Brain chat on `/api/brain/ask` with session history, and replay from `/api/replay`.
+3. **Deployment:** `docker compose up --build` is ready; set `ACCESS_CODE`, `CORS_ORIGINS`, `DAILY_LIVE_RUNS`, seed via `/api/admin/reseed`.
+4. **Public postmortems** (schema's PublicPostmortem / SIMILAR_TO to `pm:`), still out of scope.
+5. **README rewrite and the demo video** (use `docs/demo-checklist.md`; record with Sonnet only).
 
 ## M1 — Firefighter agent
 **Status:** DONE · commit `5f54e03` (step 0: `2f26e45`) · live check: **SKIPPED (no key)** · live spend $0.00
@@ -148,3 +186,17 @@ docker compose up --build
 **Open issues**
 - The rate limiter and cap are per process / per Redis; fine for one container.
 - `/api/graph` overview hides Step/Session nodes to stay under 300 nodes; the incident view shows the memory around one incident.
+
+## M6 — Second tenant: tenant isolation
+**Status:** DONE · commit `e00b14f` · no live calls involved
+
+**What was built:** `seed/data/northwind_health/`: 42 fully synthetic nodes (Patient Experience + Clinical Platform, 8 people, 9 services, a planted story: notifications v3.2.0 / NW-88 contradicts `dec:sms-retry-cap`, and its maintainer has left). Also a 7-check verify set, `seed.load.package_for`, `TENANTS` default `kestrel_pay,northwind_health`, the demo's final "switch tenant" beat, and `tests/test_tenants.py` (no agent nodes leak; Brain says "I don't know" about RULES_CACHE_TTL; Kestrel ids fail cleanly in every write tool; Kestrel session ids are refused; API + MCP serve the second tenant).
+
+**How to run:** `python -m seed.load --graph northwind_health --reset && python -m seed.verify --graph northwind_health`; `python -m backend.agents.team run --tenant northwind_health --service svc:patient-portal --symptom "..."`; `python -m backend.agents.brain ask "Why are SMS retries capped?" --tenant northwind_health`.
+
+**Decisions (plain language)**
+- *Isolation by construction.* Memory lives inside each tenant's own graph, so there is no filter to forget: a query on Northwind physically cannot traverse into Kestrel Pay.
+- *A different story, the same agents.* Northwind has its own incident pattern and the unchanged mock policies solve it (the team blames NW-88 and pages Maya because Owen left). Evidence that the agents are driven by the graph, not by Kestrel-specific code.
+- *Synthetic only.* Northwind describes systems, teams and decisions; there is no patient data anywhere, and it says so in a seeded policy doc.
+
+**Open issues:** none known.
