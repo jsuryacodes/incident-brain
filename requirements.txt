@@ -2,3 +2,4 @@ falkordb
 python-dotenv
 pytest
 anthropic
+mcp>=2.3,<3
