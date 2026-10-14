@@ -72,10 +72,10 @@ TOOLS = {
         explanation="Two routes into an incident: AFFECTED (it hurt the service) and CAUSED_BY a Deploy that CHANGED the service (it came from there). Ranked by how many of the given services it touches, then recency. Detail query follows HAS_ROOT_CAUSE, RESOLVED_BY, PERFORMED_BY and SOURCED_FROM; SIMILAR_TO is read in both directions so links written by agents show up. Nothing filters on origin, so agent-written incidents are recalled too."),
     "search_knowledge": dict(
         fn=gt.search_knowledge, track=[B, T],
-        description="Full-text search over docs, tickets, chat threads, decisions, incidents and runbooks. Returns id, type, title, snippet around the match, date and author (and whether they left). Use for open questions; follow up with node_details.",
+        description="Full-text search over docs, tickets, chat threads, decisions, incidents and runbooks (also root causes and public postmortems if listed in labels). Returns id, type, title, snippet around the match, date and author (and whether they left). Use for open questions; follow up with node_details.",
         input_schema=_obj({"query": {"type": "string"},
                            "labels": {"type": "array", "items": {"enum": gt.SEARCH_LABELS},
-                                      "description": "Subset of Doc, Ticket, ChatThread, Decision, Incident, Runbook."},
+                                      "description": "Subset of Doc, Ticket, ChatThread, Decision, Incident, Runbook (the default), or RootCause / PublicPostmortem (only when listed)."},
                            "limit": {"type": "integer", "minimum": 1, "maximum": 20}}, ["query"]),
         cypher=[gt.Q_SEARCH], algorithm="db.idx.fulltext.queryNodes (RediSearch full-text)",
         explanation="Runs FalkorDB's full-text index per label. The query is stripped to plain words (no operator characters) and passed as a parameter. First pass requires all words (precise); if there is room, a second pass accepts any word (recall) ranked lower. Each index's scores are normalised to its best hit because scores are not comparable across indexes; ties go to raw sources (chats, docs, tickets) before derived summaries. No embeddings: the graph supplies context."),

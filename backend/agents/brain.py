@@ -21,7 +21,7 @@ from backend.memory.sessions import StepLog, end_session, start_session, step_id
 from backend.tools.receipt import ToolContext
 
 READ = ["search_knowledge", "decisions_about", "who_to_call", "read_source", "node_details", "stale_knowledge",
-        "find_service", "past_incidents"]
+        "find_service", "past_incidents", "blast_radius", "industry_matches"]
 _S = {"type": "string"}
 ANSWER_SCHEMA = _obj({
     "answer": {"type": "string", "description": "At most 150 words. Say plainly if the graph doesn't know."},

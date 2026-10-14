@@ -587,8 +587,16 @@ def stale_reason(item):
 
 def _intent(q):
     ql = q.lower()
+    if re.search(r"\bses:", ql):
+        return "session"
     if any(w in ql for w in ("out of date", "stale", "outdated")):
         return "stale"
+    if any(w in ql for w in ("other compan", "industry", "anyone else", "public postmortem", "elsewhere")):
+        return "industry"
+    if re.search(r"what (breaks|happens|is affected|is hit)|blast radius|\bif\b.*\b(fails|goes down|is down|dies)\b", ql):
+        return "blast"
+    if re.search(r"\bseen\b.*\bbefore\b|happened before|has this happened|have we had", ql):
+        return "seen"
     if "who" in ql.split() or ql.startswith("who"):
         return "who"
     if re.search(r"\bnew\b", ql) and any(w in ql for w in ("read", "start", "onboard")):
@@ -596,17 +604,43 @@ def _intent(q):
     return "knowledge"
 
 
+_IND_Q = {"other", "company", "companies", "industry", "anyone", "else", "had", "has", "have", "like", "ours", "outage",
+          "outages", "incident", "incidents", "public", "postmortem", "postmortems", "pattern", "elsewhere", "similar"}
+_SPECIFIC = re.compile(r"\b[A-Z][A-Z0-9]*_[A-Z0-9_]+\b|\b[a-z0-9]+(?:-[a-z0-9]+)+\b|\b[A-Z][a-z]+(?: [A-Z][a-z]+)+\b")
+_HIST_ID = re.compile(r"\b(?:svc|dec|chat|doc|tkt|inc|rb|pm|fact):[A-Za-z0-9._-]+")
+
+
+def _svc(v, q):
+    """The service a question is about: a hyphenated name, else any word that find_service resolves.
+    -> ("call", turn) | ("svc", id or None)"""
+    toks = re.findall(r"\b[a-z0-9]+(?:-[a-z0-9]+)+\b", q.lower()) or sorted(_qterms(q))[:4]
+    if not toks:
+        return "svc", None
+    if not v.called("find_service"):
+        return "call", turn(v.turns, *[("find_service", {"query": t}) for t in toks])
+    for inp, res in v.all("find_service"):
+        m = [x for x in res.get("matches", []) if x["name"] == inp["query"] or x["name"].startswith(inp["query"])]
+        if m:
+            return "svc", m[0]["id"]
+    return "svc", None
+
+
+def _dont_know(keys):
+    return ("I don't know: nothing in this company's graph answers that" + (f" (searched for {', '.join(keys)})." if keys else "."))
+
+
 def brain(v):
     q = v.payload["question"]
     intent, terms, keys = _intent(q), _qterms(q), key_terms(q)
-    svc_tokens = re.findall(r"\b[a-z0-9]+(?:-[a-z0-9]+)+\b", q.lower())
-    # follow-ups ("about that"): the subject comes from the conversation history, read back from the graph
-    hist = [i for h in v.history for i in re.findall(r"\b(?:svc|dec|chat|doc|tkt|inc|rb):[A-Za-z0-9._-]+", h)]
+    # follow-ups ("about that", "about it"): the subject comes from the conversation history, read back from the graph
+    hist = [i for h in v.history for i in _HIST_ID.findall(h)]
+    answer, cites, people, warnings = None, [], [], []
     svc = None
-    if svc_tokens and not v.called("find_service"):
-        return turn(v.turns, ("find_service", {"query": svc_tokens[0]}))
-    if (fs := v.last("find_service")) and fs.get("matches"):
-        svc = fs["matches"][0]["id"]
+    if intent in ("who", "blast", "seen"):
+        kind, x = _svc(v, q)
+        if kind == "call":
+            return x
+        svc = x
     if not svc and intent == "who":
         svc = next((i for i in hist if i.startswith("svc:")), None)
         if not svc and hist:
@@ -615,7 +649,6 @@ def brain(v):
                 return turn(v.turns, ("read_source", {"node_id": hist[0]}))
             svc = next((i for i in src.get("about", []) + src.get("describes", []) + src.get("mentions", [])
                         if i.startswith("svc:")), None)
-    answer, cites, people, warnings = None, [], [], []
     if intent == "who" and svc:
         if not v.called("who_to_call"):
             return turn(v.turns, ("who_to_call", {"service_id": svc}))
@@ -632,8 +665,80 @@ def brain(v):
             quote = best_quote(src["text"], _qterms(svc_name(svc)), contact["name"], speaker=True) if src else None
             if quote:
                 cites.append({"node_id": src["id"], "excerpt": quote})
+            team = who.get("owning_team_fallback")
             answer = (f"Talk to {contact['name']} ({contact['person_id']}) about {svc_name(svc)}: {contact['reason']}."
+                      + (f" {svc_name(svc)} is owned by {team['name']} ({team['id']})." if team else "")
                       + (f" {warn}" if warn else "") + (f" They took part in {src['id']}." if quote else ""))
+    elif intent == "blast" and svc:
+        if not v.called("blast_radius"):
+            return turn(v.turns, ("blast_radius", {"service_id": svc}),
+                        ("search_knowledge", {"query": svc_name(svc), "labels": ["Doc", "Incident"], "limit": 3}))
+        blast, hits = v.last("blast_radius"), (v.last("search_knowledge") or {}).get("hits", [])
+        if hits and not v.last("read_source", node_id=hits[0]["id"]):
+            return turn(v.turns, ("read_source", {"node_id": hits[0]["id"]}))
+        src = v.last("read_source", node_id=hits[0]["id"]) if hits else None
+        if src and (quote := best_quote(src["text"], _qterms(svc_name(svc)), svc_name(svc))):
+            cites.append({"node_id": src["id"], "excerpt": quote})
+        t1 = [svc_name(u["id"]) for u in blast["upstream"] if u["tier"] == 1]
+        rest = [svc_name(u["id"]) for u in blast["upstream"] if u["tier"] != 1]
+        answer = (f"If {svc_name(svc)} ({svc}) fails, {blast['upstream_count']} services that call it are exposed, "
+                  f"{blast['tier1_count']} of them tier-1: {', '.join(t1) or 'none'}."
+                  + (f" Also: {', '.join(rest[:6])}." if rest else "")
+                  + (" Some paths use a dependency learned by an agent." if blast.get("learned_edges_in_paths") else "")
+                  + (f" Context: {src['id']}." if cites else ""))
+    elif intent == "seen" and svc:
+        if not v.called("past_incidents"):
+            return turn(v.turns, ("past_incidents", {"service_ids": [svc]}))
+        incs = [i for i in v.last("past_incidents").get("incidents", []) if i.get("status") == "resolved"][:2]
+        unread = [i["id"] for i in incs if not v.last("read_source", node_id=i["id"])]
+        if unread:
+            return turn(v.turns, *[("read_source", {"node_id": i}) for i in unread])
+        for i in incs:
+            if quote := best_quote(v.last("read_source", node_id=i["id"])["text"], _qterms(svc_name(svc)), svc_name(svc)):
+                cites.append({"node_id": i["id"], "excerpt": quote})
+        if incs:
+            answer = (f"Yes, {svc_name(svc)} ({svc}) has been hit before: " + "; ".join(
+                f"{i['key']} \"{i['title']}\" ({i['id']}, {i['started']}), fixed by {', '.join(i.get('resolved_by') or ['?'])}: "
+                f"{i.get('resolution')}" for i in incs) + ".")
+    elif intent == "session":
+        sid = re.search(r"ses:[A-Za-z0-9._-]+", q).group(0)
+        if not v.called("node_details"):
+            return turn(v.turns, ("node_details", {"node_id": sid}))
+        nd = v.last("node_details", node_id=sid)
+        if nd:
+            written = [n for n in nd["neighbours"] if n["edge"] == "WRITTEN_IN" and n["dir"] == "in"]
+            facts = [n["id"] for n in written if n["id"].startswith("fact:")]
+            unread = [f for f in facts if not v.last("node_details", node_id=f)]
+            if unread:
+                return turn(v.turns, *[("node_details", {"node_id": f}) for f in unread])
+            learned = []
+            for f in facts:
+                stmt = v.last("node_details", node_id=f)["props"].get("statement", "")
+                if quote := best_quote(stmt, terms):
+                    cites.append({"node_id": f, "excerpt": quote})
+                    learned.append(f"\"{quote}\" ({f})")
+            inc = next((n["id"] for n in nd["neighbours"] if n["edge"] == "FOR_INCIDENT"), None)
+            other = [n["id"] for n in written if not n["id"].startswith("fact:")]
+            if learned:
+                answer = (f"Session {sid}" + (f" (incident {inc})" if inc else "") + " learned: " + "; ".join(learned) + "."
+                          + (f" It also wrote {', '.join(other)}." if other else ""))
+    elif intent == "industry":
+        words = sorted(terms - _IND_Q)
+        if not words:
+            answer = None
+        elif not v.called("search_knowledge"):
+            return turn(v.turns, ("search_knowledge", {"query": " ".join(words), "labels": ["RootCause"], "limit": 3}))
+        else:
+            hits = [h for h in v.last("search_knowledge").get("hits", []) if h["score"] >= 1.0]
+            if hits and not v.called("industry_matches"):
+                return turn(v.turns, ("industry_matches", {"root_cause_id": hits[0]["id"], "limit": 3}))
+            ms = (v.last("industry_matches") or {}).get("matches", [])[:2]
+            for m in ms:
+                if quote := best_quote(m["summary"].rstrip("…"), terms | set(m["overlap_terms"])):
+                    cites.append({"node_id": m["id"], "excerpt": quote})
+            if ms:
+                answer = (f"Yes. Our pattern \"{hits[0]['title']}\" ({hits[0]['id']}) matches public postmortems: "
+                          + "; ".join(f"{m['company']}: {m['title']} ({m['url']}, {m['id']})" for m in ms) + ".")
     elif intent == "stale":
         if not v.called("stale_knowledge"):
             return turn(v.turns, ("stale_knowledge", {"service_id": svc}))
@@ -652,13 +757,20 @@ def brain(v):
                 cites.append({"node_id": it["id"], "excerpt": quote})
             parts.append(f"{it['title']} ({it['id']}, updated {it['updated_days_ago']} days ago): {why}")
         answer = ("Out of date: " + "; ".join(parts) + ".") if parts else None
-    else:  # knowledge / onboarding: search with specific terms, read the best sources, quote them
-        if not v.called("search_knowledge"):
-            return turn(v.turns, ("search_knowledge", {"query": " ".join(keys), "limit": 6}))
-        hits = v.last("search_knowledge")["hits"]
-        first = [h for h in hits if h["score"] >= 1.0] or hits[:1]
-        pick = ([h for h in first if h["label"] == "Decision"][:1] + [h for h in first if h["label"] in ("ChatThread", "Doc")][:1]
-                if intent == "knowledge" else [h for h in first if h["label"] == "Doc"][:1]) or first[:2]
+    elif intent in ("knowledge", "onboarding"):
+        subject = None
+        if hist and not _SPECIFIC.search(q):  # "why did we decide that?": the subject is what we cited before
+            subject = next((i for i in hist if i.startswith("dec:")), None) or next(
+                (i for i in hist if i.split(":")[0] in ("chat", "doc", "tkt", "rb", "inc")), None)
+        if subject:
+            pick = [{"id": subject, "label": "Decision" if subject.startswith("dec:") else "Source"}]
+        else:
+            if not v.called("search_knowledge"):
+                return turn(v.turns, ("search_knowledge", {"query": " ".join(keys), "limit": 6}))
+            # only sources matching ALL the specific terms count; a weak any-word hit is not an answer
+            first = [h for h in v.last("search_knowledge")["hits"] if h["score"] >= 1.0]
+            pick = ([h for h in first if h["label"] == "Decision"][:1] + [h for h in first if h["label"] in ("ChatThread", "Doc")][:1]
+                    if intent == "knowledge" else [h for h in first if h["label"] == "Doc"][:1]) or first[:2]
         unread = [h["id"] for h in pick if not v.last("read_source", node_id=h["id"])]
         if unread:
             return turn(v.turns, *[("read_source", {"node_id": i}) for i in unread])
@@ -676,17 +788,17 @@ def brain(v):
                       + ("Then the decisions behind the services you'll own: " + "; ".join(f"{d['title']} ({d['id']})" for d in decs) + "." if decs else "")
                       + (f" Ask {', '.join(people)} when stuck." if people else ""))
         elif srcs:
-            for s in srcs:
-                if quote := best_quote(s["text"], terms, keys[0] if keys else None):
-                    cites.append({"node_id": s["id"], "excerpt": quote})
+            for s_ in srcs:
+                if quote := best_quote(s_["text"], terms, keys[0] if keys and not subject else None):
+                    cites.append({"node_id": s_["id"], "excerpt": quote})
             lead = srcs[0]
+            by = "decided by" if lead["label"] == "Decision" else "by"
             answer = (f"{lead['title']} ({lead['id']}"
-                      + (f", decided by {lead['author']}" + (" who has since left" if lead.get("author_status") == "left" else "") if lead.get("author") else "")
+                      + (f", {by} {lead['author']}" + (" who has since left" if lead.get("author_status") == "left" else "") if lead.get("author") else "")
                       + f"): {' '.join(re.split(r'(?<=[.!?])\s+', lead['text'])[:2])}"
                       + "".join(f" Source {c['node_id']}: \"{c['excerpt']}\"" for c in cites[1:2]))
     if not answer or not cites:
-        answer, cites, people = ("I don't know: nothing in this company's graph answers that"
-                                 + (f" (searched for {', '.join(keys)})." if keys else ".")), [], []
+        answer, cites, people, warnings = _dont_know(keys), [], [], []
     words = answer.split()
     answer = " ".join(words[:150])
     return turn(v.turns, ("submit_answer", {"answer": answer, "citations": cites, "people": people, "stale_warnings": warnings}))

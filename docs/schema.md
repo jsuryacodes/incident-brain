@@ -1,4 +1,4 @@
-# Incident Brain — Graph Schema (LOCKED v1.1 · 15 Oct 2026)
+# Incident Brain — Graph Schema (LOCKED v1.2 · 15 Oct 2026)
 
 This file is the single source of truth for the graph model. Code must follow it.
 Changing it requires a deliberate decision (bump the version + note why at the bottom).
@@ -176,6 +176,8 @@ CREATE FULLTEXT INDEX FOR (n:ChatThread) ON (n.title, n.text)
 CREATE FULLTEXT INDEX FOR (n:Decision) ON (n.title, n.rationale)
 CREATE FULLTEXT INDEX FOR (n:Incident) ON (n.title, n.summary)
 CREATE FULLTEXT INDEX FOR (n:Runbook) ON (n.title, n.steps)
+CREATE FULLTEXT INDEX FOR (n:RootCause) ON (n.name, n.description)          // v1.2
+CREATE FULLTEXT INDEX FOR (n:PublicPostmortem) ON (n.title, n.summary)      // v1.2
 ```
 Unique constraints on `id` are a nice-to-have if FalkorDB's `GRAPH.CONSTRAINT CREATE` works cleanly.
 
@@ -229,6 +231,7 @@ CALL algo.pageRank('Service', 'DEPENDS_ON') YIELD node, score RETURN node.name, 
 ```
 
 ## Changelog
+- v1.2 (15 Oct 2026): two full-text indexes only (`RootCause(name, description)`, `PublicPostmortem(title, summary)`); no label, edge or property changes. Reason: Ask the Brain must turn "a thundering herd like ours" into a root-cause id before it can find industry matches, and full-text search is how the Brain resolves words to nodes. `search_knowledge` still searches the original six labels by default; these two are opt-in via `labels`.
 - v1.1 (15 Oct 2026): optional properties only, no label/edge changes. `Doc.flagged_reason`, `Doc.flagged_at`, `Runbook.flagged_stale`, `Runbook.flagged_reason`, `Runbook.flagged_at` (set by the `flag_stale` tool); `origin` + `created_at` on every agent-written edge. Reason: the mega task requires `origin:'agent'` and `created_at` on everything agents create, and stale flags need a reason the Brain can quote.
 - v1.0.2 (15 Oct 2026): added 'Data model at a glance' Mermaid diagrams (no model change).
 - v1.0.1 (15 Oct 2026): §6 full-text syntax corrected to CREATE FULLTEXT INDEX (no model change).

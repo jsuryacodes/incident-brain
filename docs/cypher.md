@@ -284,22 +284,22 @@ RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status,
 
 ## search_knowledge
 
-**Purpose:** Full-text search over docs, tickets, chat threads, decisions, incidents and runbooks.
+**Purpose:** Full-text search over docs, tickets, chat threads, decisions, incidents and runbooks (also root causes and public postmortems if listed in labels).
 
 **Track(s):** Track 3: Company Brain, Track 2: Agent Memory and Coordination
 
 **FalkorDB algorithm:** db.idx.fulltext.queryNodes (RediSearch full-text)
 
-**Arguments:** `{"query":{"type":"string"},"labels":{"type":"array","items":{"enum":["Doc","Ticket","ChatThread","Decision","Incident","Runbook"]},"description":"Subset of Doc, Ticket, ChatThread, Decision, Incident, Runbook."},"limit":{"type":"integer","minimum":1,"maximum":20}}` (required: query)
+**Arguments:** `{"query":{"type":"string"},"labels":{"type":"array","items":{"enum":["Doc","Ticket","ChatThread","Decision","Incident","Runbook","RootCause","PublicPostmortem"]},"description":"Subset of Doc, Ticket, ChatThread, Decision, Incident, Runbook (the default), or RootCause / PublicPostmortem (only when listed)."},"limit":{"type":"integer","minimum":1,"maximum":20}}` (required: query)
 
-**LLM-facing description:** Full-text search over docs, tickets, chat threads, decisions, incidents and runbooks. Returns id, type, title, snippet around the match, date and author (and whether they left). Use for open questions; follow up with node_details.
+**LLM-facing description:** Full-text search over docs, tickets, chat threads, decisions, incidents and runbooks (also root causes and public postmortems if listed in labels). Returns id, type, title, snippet around the match, date and author (and whether they left). Use for open questions; follow up with node_details.
 
 **Cypher:**
 
 ```cypher
 CALL db.idx.fulltext.queryNodes($label, $q) YIELD node, score
 OPTIONAL MATCH (a:Person)-[:AUTHORED]->(node)
-RETURN node.id, score, coalesce(node.title, node.key), coalesce(node.text, node.rationale, node.summary, node.steps),
+RETURN node.id, score, coalesce(node.title, node.key, node.name), coalesce(node.text, node.rationale, node.summary, node.steps, node.description),
        coalesce(node.ts, node.updated_at, node.decided_at, node.started_at, node.created_at), a.name, a.status
 ORDER BY score DESC LIMIT $limit
 ```

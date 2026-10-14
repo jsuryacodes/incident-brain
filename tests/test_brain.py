@@ -17,6 +17,16 @@ def test_eval_passes_on_fresh_seed(fresh):
     assert all(r["ok"] for r in res), [(r["q"], r["problems"]) for r in res]
 
 
+def test_eval_has_15_kestrel_and_3_northwind_questions():
+    from backend.agents.brain_eval import EVAL
+    assert len(EVAL["kestrel_pay"]) == 15 and len(EVAL["northwind_health"]) == 3
+
+
+def test_northwind_eval_passes(fresh):
+    res = run_eval(fresh("northwind_test"), quiet=True)
+    assert len(res) == 3 and all(r["ok"] for r in res), [(r["q"], r["problems"]) for r in res]
+
+
 def test_eval_passes_after_story_with_learned_reason(fresh):
     g = fresh("kestrel_pay_brain")
     demo.story(g, quiet=True)

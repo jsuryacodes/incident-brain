@@ -8,11 +8,25 @@ Resume line: "Read docs/prompts/06-overnight.md and docs/progress.md and continu
 | A Setup on a fresh Mac | DONE | 06A |
 | B Memory-first recall | DONE | 06B |
 | C Public postmortems | DONE | 06C |
-| D Brain eval 5 → 15 | todo | |
+| D Brain eval 5 → 15 | DONE | 06D |
 | E README draft | todo | |
 | F Hardening pass | todo | |
 
 **Total live API spend: $0.00** (0 live calls, no key).
+
+## 06D — Ask the Brain eval: 5 → 15 (+3 Northwind)
+**Status:** DONE · **pass rate: Kestrel Pay 15/15 on a fresh seed and 15/15 after the story; Northwind Health 3/3** (mock).
+
+**What was built**
+- `backend/agents/brain_eval.py`: 15 Kestrel questions, one per intent: why-decided with an exact quote (`300s` must be in a cited excerpt), who-knows after Arjun left, onboarding, stale docs, follow-up "that", who owns config-service (must name Platform + Omar Haddad), what breaks if config-service fails, have we seen config-service overloaded before, follow-up pronoun "Who should I call about it?", what did session N learn, industry pattern for our thundering herd, another user continuing a session (must be refused), the same follow-up from a NEW Python process (restart persistence), a question with no answer (Kubernetes upgrade policy → "I don't know", no citations), and "Why did we decide that?" after onboarding. Plus 3 Northwind questions (SMS retry decision, who knows notifications after Owen left, industry pattern for retry storms). `--tenant northwind_health` runs those.
+- Brain (mock policy + prompt): new intents `blast`, `seen`, `session`, `industry`; services resolved from plain words too ("notifications"); owner team in "who" answers; pronoun follow-ups resolve from cited history; "decided by" only for Decisions.
+- **Router fix found by the eval:** the knowledge path used to fall back to the best *any-word* search hit, so "Kubernetes upgrade policy" was answered from an unrelated Kafka ticket. Now only sources matching ALL the specific terms count; otherwise "I don't know".
+- Brain tools + `blast_radius`, `industry_matches`. Schema **v1.2**: full-text indexes on `RootCause(name, description)` and `PublicPostmortem(title, summary)` (index-only; changelog in `docs/schema.md`); `search_knowledge` still searches the original six labels unless `labels` asks for these.
+- Tests: eval size, Northwind eval; existing fresh/after-story eval tests now cover all 15.
+
+**Decisions**
+- *Session question on a fresh seed:* there is no team session yet, so Q10 asks about a non-existent session and must answer "I don't know" (that also tests honesty). After the story it asks about the latest session that wrote a Fact and must cite every such Fact.
+- *Restart persistence* is checked with a real subprocess (mock only; the eval refuses that case in live mode so it never spends money twice).
 
 ## 06C — Public postmortems (industry pattern layer)
 **Status:** DONE

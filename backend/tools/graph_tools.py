@@ -379,11 +379,12 @@ def past_incidents(ctx, service_ids, limit=5):
 
 
 # ───────────── 9. search_knowledge ─────────────
-SEARCH_LABELS = ["Doc", "Ticket", "ChatThread", "Decision", "Incident", "Runbook"]
-_SOURCE_PREF = ["ChatThread", "Doc", "Ticket", "Runbook", "Decision", "Incident"]
+DEFAULT_SEARCH = ["Doc", "Ticket", "ChatThread", "Decision", "Incident", "Runbook"]
+SEARCH_LABELS = DEFAULT_SEARCH + ["RootCause", "PublicPostmortem"]  # the last two only when asked for (labels)
+_SOURCE_PREF = ["ChatThread", "Doc", "Ticket", "Runbook", "Decision", "Incident", "RootCause", "PublicPostmortem"]
 Q_SEARCH = """CALL db.idx.fulltext.queryNodes($label, $q) YIELD node, score
 OPTIONAL MATCH (a:Person)-[:AUTHORED]->(node)
-RETURN node.id, score, coalesce(node.title, node.key), coalesce(node.text, node.rationale, node.summary, node.steps),
+RETURN node.id, score, coalesce(node.title, node.key, node.name), coalesce(node.text, node.rationale, node.summary, node.steps, node.description),
        coalesce(node.ts, node.updated_at, node.decided_at, node.started_at, node.created_at), a.name, a.status
 ORDER BY score DESC LIMIT $limit"""
 _STOP = {"the", "a", "an", "of", "to", "in", "on", "and", "or", "is", "are", "was", "we", "why", "did", "do", "how", "what", "for", "it"}
@@ -399,7 +400,7 @@ def _snippet(text, tokens, n=200):
 
 def search_knowledge(ctx, query="", labels=None, limit=8):
     rec = Recorder(ctx, "search_knowledge", {"query": query, "labels": labels, "limit": limit})
-    labels = labels or SEARCH_LABELS
+    labels = labels or DEFAULT_SEARCH
     bad = [l for l in labels if l not in SEARCH_LABELS] if isinstance(labels, list) else labels
     if bad:
         return rec.error(f"labels must be a subset of {SEARCH_LABELS}")

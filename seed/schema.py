@@ -1,4 +1,4 @@
-"""Machine-readable copy of docs/schema.md (LOCKED v1.1). Change the doc first, then this file."""
+"""Machine-readable copy of docs/schema.md (LOCKED v1.2). Change the doc first, then this file."""
 
 PREFIX_TO_LABEL = {
     "team": "Team", "per": "Person", "svc": "Service", "dep": "Deploy", "doc": "Doc",
@@ -105,6 +105,7 @@ FULLTEXT_INDEXES = [
     ("Doc", ["title", "text"]), ("Ticket", ["title", "text"]), ("ChatThread", ["title", "text"]),
     ("Decision", ["title", "rationale"]), ("Incident", ["title", "summary"]),
     ("Runbook", ["title", "steps"]),
+    ("RootCause", ["name", "description"]), ("PublicPostmortem", ["title", "summary"]),  # v1.2
 ]
 
 

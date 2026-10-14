@@ -3,6 +3,17 @@
 Plain-language explanations of each piece of work, newest first. Each section: what it is, why it is built that way,
 and what to say if asked.
 
+## 06D: the Brain eval (15 questions)
+**What:** a fixed exam for Ask the Brain: 15 questions that each test one kind of company question (why did we
+decide, who knows, who owns, what breaks, seen before, what did an agent session learn, industry pattern, follow-ups
+with "that"/"it", a follow-up after a restart, someone else's conversation, and a question with no answer), plus 3
+for the second company. Each answer is graded by machine: required citations, people, quoted words, and that the
+answer is grounded.
+**What it caught:** the Brain used to answer a question it had no data for (Kubernetes policy) by quoting an
+unrelated Kafka ticket, because it fell back to a weak keyword match. Now a source must match all the specific terms,
+otherwise it says "I don't know".
+**Score:** 15/15 for Kestrel Pay (fresh and after the demo story), 3/3 for Northwind Health, in mock mode.
+
 ## 06C: public postmortems (industry pattern layer)
 **What:** 21 real outage write-ups from companies like Cloudflare, AWS, GitHub and Slack, stored in every company's
 graph as `PublicPostmortem` nodes tagged with root causes (cache stampede, bad config push, retry storm, DNS/BGP,
