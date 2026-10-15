@@ -9,7 +9,7 @@ Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
 | A API additions | DONE | 07A |
 | B Frontend (themes, shell, Story, Brain, Explorer, polish) | DONE (polish continues in D) | 07B |
 | C Deploy-ready container | TODO | |
-| D Headless-browser self-check | TODO | |
+| D Headless-browser self-check | DONE | 07D |
 | E Docs | TODO | |
 
 **Total live API spend: $0.00** (0 live calls, no key).
@@ -56,6 +56,21 @@ Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
 - *The camera follows the current step* (positions never move): fitting the whole story at once made labels unreadable.
 - *Industry-match nodes are not amber:* public postmortems are seeded data; the `SIMILAR_TO` edges the agent wrote to them are amber. Amber means "written by an agent" and nothing else.
 - Chromium 156's `scrollIntoView` returns a Promise; an arrow-bodied `useEffect` returned it and React crashed on unmount. All effects use block bodies.
+
+## 07D — Headless-browser self-check
+**Status:** DONE · Playwright **10/10** (`scripts/e2e.sh`), pytest 117, vitest 17
+
+**What was built**
+- `frontend/playwright.config.ts` + `frontend/e2e/`: theme (both themes render, persists, follows the OS), story replay (all four buttons, the learned edge appears exactly at its step and disappears when scrubbing back, the before/after numbers equal `/api/compare/latest`, keyboard, no story POSTs without a code), deterministic autoplay + pause, Brain (suggestion → answer with source cards, follow-up "Who should I call about it?", "I don't know" styled as an answer not an error, "How I got this"), Explorer (filters, hubs, search, agent-only on the hero company, zero memory on the second), the gate (403s, wrong code rejected, badge stays Replay), and the full story run fresh with the code (writes, compare source "fresh", Brain answer saved). Every test fails on any console error.
+- `docs/screenshots/`: 9 views × light/dark at 1440×900, `story-learned-edge-1920.png` (README hero) and `mobile-story.png` (390×844, no horizontal scroll).
+- `scripts/e2e.sh`: builds the frontend, re-seeds both tenants and plays the story (mock), starts the app with a test code on :8765, runs Playwright. `--no-server` tests an app that is already running.
+
+**Polish rounds (from looking at the screenshots)**
+1. *Empty graph:* Cytoscape forces `position: relative` on its container, which collapsed an `inset-0` box to 0 px height. *Unreadable labels:* fitting the whole story made 11 px labels render at ~6 px; the camera now frames the current step plus the alert (positions never move), labels 12 px. Dimmed nodes were too faint (0.4 → 0.55). Write chips were a whole Fact sentence (now "wrote Fact · learned DEPENDS_ON"); `read_source → ok` cards now say what was read; the WRITE badge overlapped the Cypher (moved to a header strip); Brain disclosure markers were doubled.
+2. *Screenshots were 1280×720:* the Playwright device preset overrode the viewport. The learned edge got a soft amber glow and a bolder label so the money shot reads at a glance; "PublicPostmortem" overflowed its filter cell; hand-off meta shortened; story toolbar no longer wraps at 1440 px (Restart is icon-only below 2xl).
+3. *Bugs the browser found:* the mock Brain answered an unrelated question ("Kubernetes upgrade policy") from the previous turn's subject; it now leans on history only when the question says "that/it/this…" (pytest case added; eval still 15/15 + 3/3). The e2e `fire` helper raced the next beat's load (waits on `aria-current`/`aria-busy` now).
+
+**Known gaps (cosmetic):** labels can still overlap where many nodes sit close (e.g. a chat title over the incident triangle); the Explorer's full company graph is dense at 1440 px.
 
 ---
 

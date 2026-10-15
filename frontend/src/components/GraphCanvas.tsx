@@ -152,8 +152,10 @@ function buildStyle(sizeByPagerank: boolean, compact: boolean): StylesheetJson {
     } as any },
     { selector: "edge.agent", style: { "line-color": v.mem, "target-arrow-color": v.mem, width: 1.8 } },
     { selector: "edge.current", style: { "line-color": v.accent, "target-arrow-color": v.accent, width: 4, "z-index": 15, label: "data(type)", opacity: 1 } },
-    { selector: "edge.learned", style: { "line-style": "dashed", "line-dash-pattern": [8, 5], "line-color": v.mem, "target-arrow-color": v.mem, width: 3, "z-index": 18 } },
-    { selector: "edge.learned.current", style: { width: 5, label: "learned DEPENDS_ON", color: v.mem, "font-weight": 600 } as any },
+    { selector: "edge.learned", style: { "line-style": "dashed", "line-dash-pattern": [8, 5], "line-color": v.mem, "target-arrow-color": v.mem, width: 3.2,
+      "z-index": 18, "underlay-color": v.mem, "underlay-opacity": 0.16, "underlay-padding": 5 } as any },
+    { selector: "edge.learned.current", style: { width: 5, label: "learned DEPENDS_ON", color: v.mem, "font-weight": 700, "font-size": 11,
+      "underlay-opacity": 0.28, "underlay-padding": 8 } as any },
     { selector: "edge.dim", style: { opacity: 0.45 } },
     { selector: "edge.hidden", style: { opacity: 0, events: "no", label: "" } },
     { selector: "edge.drawing", style: { opacity: 0 } },
@@ -254,6 +256,11 @@ export function GraphCanvas(p: GraphProps) {
     });
     if (!reducedMotion()) {
       q.fresh?.nodes.forEach((id) => cy.getElementById(id).flashClass("pulse", 650));
+    }
+    if (box.current) { // read by the end-to-end tests
+      box.current.dataset.visibleNodes = String(cy.nodes().not(".hidden").not(".ghost").length);
+      box.current.dataset.learnedEdges = String(cy.edges(".learned").not(".hidden").length);
+      box.current.dataset.agentNodes = String(cy.nodes(".agent").not(".hidden").length);
     }
     drawn.current.forEach((k) => cy.getElementById(k).hasClass("hidden") && drawn.current.delete(k)); // scrubbed back: may draw again
     for (const k of q.justLearned || []) {

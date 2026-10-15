@@ -87,3 +87,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-15 — 07B: frontend
 - Claude Code (Opus 5.5, unattended) built `frontend/` (React 19, Vite 8, TS 7, Tailwind 4, zustand, Cytoscape + fcose): theme system, app shell, Story view (timeline, growing graph with the learned-edge draw-in, receipt drawer, report card, controls, before/after), Ask the Brain, Explorer; 17 vitest tests (theme store, replay reducer). `scripts/ui.sh`; FastAPI serves `frontend/dist` with an index.html fallback. Rate limit now only on `/api/*`, default 60/min (also changed in `.env` and `.env.example`).
 - Double-check: (1) **your local `.env` was edited:** `RATE_LIMIT_PER_MIN` 20 → 60 (20/min was too low for the UI's page loads). (2) The bundle is ~850 KB (262 KB gzip), mostly Cytoscape. (3) The About dialog links to github.com/jsuryacodes/incident-brain.
+
+## 2026-10-15 — 07D: headless-browser self-check
+- Claude Code (Opus 5.5, unattended) wrote 10 Playwright tests + `scripts/e2e.sh`, generated `docs/screenshots/` (light + dark, 1920 hero, phone), looked at every screenshot and ran 3 polish rounds (fixes listed in progress.md 07D). Found and fixed a mock-Brain bug (history used for unrelated questions).
+- Double-check: (1) open `docs/screenshots/story-learned-edge-1920.png` and the two `story-before-after-*.png`. (2) `scripts/e2e.sh` re-seeds the real `kestrel_pay` and `northwind_health` graphs (then replays the story into them).

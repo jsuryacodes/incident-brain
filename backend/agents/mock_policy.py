@@ -607,6 +607,7 @@ def _intent(q):
 _IND_Q = {"other", "company", "companies", "industry", "anyone", "else", "had", "has", "have", "like", "ours", "outage",
           "outages", "incident", "incidents", "public", "postmortem", "postmortems", "pattern", "elsewhere", "similar"}
 _SPECIFIC = re.compile(r"\b[A-Z][A-Z0-9]*_[A-Z0-9_]+\b|\b[a-z0-9]+(?:-[a-z0-9]+)+\b|\b[A-Z][a-z]+(?: [A-Z][a-z]+)+\b")
+_REFERS_BACK = re.compile(r"\b(that|it|this|those|these|them)\b")  # only then does a question lean on earlier turns
 _HIST_ID = re.compile(r"\b(?:svc|dec|chat|doc|tkt|inc|rb|pm|fact):[A-Za-z0-9._-]+")
 
 
@@ -759,7 +760,7 @@ def brain(v):
         answer = ("Out of date: " + "; ".join(parts) + ".") if parts else None
     elif intent in ("knowledge", "onboarding"):
         subject = None
-        if hist and not _SPECIFIC.search(q):  # "why did we decide that?": the subject is what we cited before
+        if hist and _REFERS_BACK.search(q.lower()) and not _SPECIFIC.search(q):  # "why did we decide that?": what we cited before
             subject = next((i for i in hist if i.startswith("dec:")), None) or next(
                 (i for i in hist if i.split(":")[0] in ("chat", "doc", "tkt", "rb", "inc")), None)
         if subject:

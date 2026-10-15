@@ -56,7 +56,7 @@ export function Timeline({ run, beat, idx, onSeek }: { run: Run | null; beat: Be
                   <ArrowRight size={13} className="text-muted" />
                   <span className={next ? (AGENT_LANE[next]?.cls || "") : ""}>{next ? AGENT_LANE[next]?.name : s.tool === "submit_report" ? "Final report" : "Done"}</span>
                 </div>
-                <div className="text-[11px] text-muted">hand-off via incident state (a Step node in the graph)</div>
+                <div className="text-[11px] text-muted">via incident state (a Step node)</div>
                 <p className="mt-1 line-clamp-3 text-[12.5px] leading-snug">{s.summary}</p>
               </button>
             ) : (

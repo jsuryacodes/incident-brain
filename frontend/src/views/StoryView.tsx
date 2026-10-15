@@ -109,6 +109,7 @@ export function StoryView() {
             const isDone = !!s.done[b.id];
             return (
               <button key={b.id} disabled={!enabled(i) || !!s.loading} data-testid={`beat-${b.id}`}
+                aria-current={cur ? "true" : undefined} aria-busy={s.loading === b.id}
                 onClick={() => (s.runs[b.id] && isDone && !cur ? s.show(b.id) : fire(b.id))}
                 className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium ring-1 disabled:opacity-40 ${
                   cur ? "bg-text text-bg ring-text" : isDone ? "bg-surface-2 ring-border" : enabled(i) ? "bg-accent text-white ring-accent" : "bg-surface ring-border"}`}>

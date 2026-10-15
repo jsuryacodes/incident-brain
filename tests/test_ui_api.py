@@ -144,6 +144,9 @@ def test_brain_without_code_writes_nothing_but_follow_ups_work(client, tenant):
     f = client.post("/api/brain/ask", json={"tenant": tenant, "user": "v", "question": "Who should I talk to about that?",
                                             "turns": [turn]}).json()
     assert "per:priya-nair" in f["people"] and f["turn"] == 2 and f["cited_graph"]["nodes"]
+    unrelated = client.post("/api/brain/ask", json={"tenant": tenant, "user": "v", "turns": [turn],
+                                                    "question": "What is our policy for Kubernetes cluster upgrades?"}).json()
+    assert unrelated["citations"] == [] and "don't know" in unrelated["answer"]  # history is only for "that"/"it"
     stale = client.post("/api/brain/ask", json={"tenant": tenant, "user": "v", "question": "Which docs about risk-rules are out of date, and why?"}).json()
     assert stale["citations"]
     assert agent_nodes(tenant) == before  # no Session, no Step, no flag

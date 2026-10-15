@@ -10,6 +10,8 @@ import { NodePane } from "./story/Drawer";
 const LABELS = ["Service", "Team", "Person", "Deploy", "Incident", "Decision", "Doc", "Ticket", "ChatThread", "Runbook",
   "Resolution", "RootCause", "PublicPostmortem", "Fact"];
 
+const NAMES: Record<string, string> = { PublicPostmortem: "Postmortem", ChatThread: "Chat" };
+
 export default function ExplorerView() {
   const { tenant, meta, toast } = useApp();
   const [labels, setLabels] = useState<string[]>(["Service", "Team", "Person"]);
@@ -58,7 +60,7 @@ export default function ExplorerView() {
           <div className="grid grid-cols-2 gap-x-2 gap-y-1">
             {LABELS.map((l) => (
               <label key={l} className="flex items-center gap-1.5 text-[13px]">
-                <input type="checkbox" checked={labels.includes(l)} onChange={() => toggle(l)} data-testid={`label-${l}`} /> {l}
+                <input type="checkbox" checked={labels.includes(l)} onChange={() => toggle(l)} data-testid={`label-${l}`} /> {NAMES[l] || l}
               </label>
             ))}
           </div>
