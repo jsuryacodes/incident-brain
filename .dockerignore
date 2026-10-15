@@ -1,6 +1,7 @@
 .git
 .venv
 .env
+.env.*
 .pytest_cache
 **/__pycache__
 .DS_Store
@@ -8,3 +9,7 @@ runs/*
 !runs/golden
 docs
 tests
+frontend/node_modules
+frontend/dist
+frontend/test-results
+frontend/playwright-report

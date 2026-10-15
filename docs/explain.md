@@ -3,6 +3,13 @@
 Plain-language explanations of each piece of work, newest first. Each section: what it is, why it is built that way,
 and what to say if asked.
 
+## 07C: one container
+**What:** a single Docker image that serves both the web page and the API on one port. On first start it fills an
+empty database with the two demo companies, checks them, and plays the demo story once (free mock mode), so a fresh
+deployment shows memory straight away. A restart never wipes anything.
+**If asked "where is it hosted?":** it isn't yet; the image is host-agnostic and only needs a FalkorDB address
+(`docs/deploy.md`). We tested it locally with Docker Compose, including the full browser test suite against it.
+
 ## 07A: the API the web UI reads
 **What:** a handful of read endpoints that turn the graph and the recorded runs into what a browser can draw: the
 story's buttons, every step of a run (with its Cypher, sources and what it wrote), the nodes and edges a run touches,

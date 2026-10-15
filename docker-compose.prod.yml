@@ -1,0 +1,25 @@
+# The app alone; FalkorDB comes from the environment (FalkorDB Cloud, or a sibling container).
+#   FALKORDB_HOST=... FALKORDB_PASSWORD=... ACCESS_CODE=... docker compose -f docker-compose.prod.yml up --build -d
+# Host-specific config (domains, TLS termination, secrets store) is deliberately not here: see docs/deploy.md.
+services:
+  app:
+    build: .
+    ports: ["${PORT:-8000}:${PORT:-8000}"]
+    restart: unless-stopped
+    environment:
+      PORT: "${PORT:-8000}"
+      FALKORDB_HOST: "${FALKORDB_HOST:?set FALKORDB_HOST}"
+      FALKORDB_PORT: "${FALKORDB_PORT:-6379}"
+      FALKORDB_USERNAME: "${FALKORDB_USERNAME:-}"
+      FALKORDB_PASSWORD: "${FALKORDB_PASSWORD:-}"
+      FALKORDB_TLS: "${FALKORDB_TLS:-0}"
+      TENANTS: "${TENANTS:-kestrel_pay,northwind_health}"
+      SEED_ON_START: "${SEED_ON_START:-1}"
+      ACCESS_CODE: "${ACCESS_CODE:-}"
+      LLM_MODE: "${LLM_MODE:-mock}"
+      LLM_MODEL: "${LLM_MODEL:-claude-haiku-5-5}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      MAX_RUN_COST_USD: "${MAX_RUN_COST_USD:-0.05}"
+      DAILY_LIVE_RUNS: "${DAILY_LIVE_RUNS:-30}"
+      RATE_LIMIT_PER_MIN: "${RATE_LIMIT_PER_MIN:-60}"
+      CORS_ORIGINS: "${CORS_ORIGINS:-}"

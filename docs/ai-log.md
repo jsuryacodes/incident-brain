@@ -91,3 +91,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-15 — 07D: headless-browser self-check
 - Claude Code (Opus 5.5, unattended) wrote 10 Playwright tests + `scripts/e2e.sh`, generated `docs/screenshots/` (light + dark, 1920 hero, phone), looked at every screenshot and ran 3 polish rounds (fixes listed in progress.md 07D). Found and fixed a mock-Brain bug (history used for unrelated questions).
 - Double-check: (1) open `docs/screenshots/story-learned-edge-1920.png` and the two `story-before-after-*.png`. (2) `scripts/e2e.sh` re-seeds the real `kestrel_pay` and `northwind_health` graphs (then replays the story into them).
+
+## 2026-10-15 — 07C: deploy-ready container
+- Claude Code (Opus 5.5, unattended) wrote the multi-stage Dockerfile, `SEED_ON_START` (seed + verify + mock story, only for empty graphs), `docker-compose.yml` (app + FalkorDB) and `docker-compose.prod.yml` (app only, FalkorDB from env), `docs/deploy.md`; verified `docker build`, `docker compose up` and Playwright 10/10 against the container; removed the test stack afterwards. Nothing deployed.
+- Double-check: (1) compose's app port is now bound to 127.0.0.1 (was 0.0.0.0). (2) The compose service was renamed `api` → `app`. (3) `docker-compose.prod.yml` publishes `${PORT}` on all interfaces, as a host would.

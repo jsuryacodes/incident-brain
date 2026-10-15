@@ -199,3 +199,24 @@ def test_story_fresh_beats_end_to_end(client, tenant, other):
     assert agent_nodes(other) == before_other  # the other tenant never sees any of it
     e = client.get("/api/explorer", params={"tenant": tenant, "origin": "agent"}).json()
     assert e["agent_nodes"] > 0 and any(x["type"] == "DEPENDS_ON" and x["origin"] == "agent" for x in e["edges"])
+
+
+def test_seed_on_start_seeds_empty_graphs_once(monkeypatch, capsys):
+    g = "kestrel_pay_iso"
+    if not main.is_empty(g):
+        get_graph(g).delete()
+    monkeypatch.setattr(main, "allowed_tenants", lambda: [g])
+    monkeypatch.delenv("SEED_ON_START", raising=False)
+    main.seed_on_start()
+    assert main.is_empty(g)  # off unless asked
+    monkeypatch.setenv("SEED_ON_START", "1")
+    try:
+        main.seed_on_start()
+        out = capsys.readouterr().out
+        assert "14/14 checks passed" in out and "demo story played" in out
+        memory = agent_nodes(g)
+        assert memory > 0
+        main.seed_on_start()  # a restart: the graph has data, so nothing is reseeded and memory survives
+        assert agent_nodes(g) == memory and "seeded" not in capsys.readouterr().out
+    finally:
+        get_graph(g).delete()

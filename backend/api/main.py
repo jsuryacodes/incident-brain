@@ -7,9 +7,12 @@ import json
 import os
 import queue
 import secrets
+import subprocess
+import sys
 import threading
 import time
 from collections import OrderedDict
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -33,7 +36,40 @@ GOLDEN = ROOT / "runs" / "golden"
 GRAPH_CAP, EDGE_CAP = 300, 1500
 
 VERSION = "1.1"
-app = FastAPI(title="Incident Brain API", version=VERSION)
+
+
+def is_empty(tenant):
+    try:
+        return get_graph(tenant).ro_query("MATCH (n) RETURN count(n)").result_set[0][0] == 0
+    except Exception:  # the graph key doesn't exist yet
+        return True
+
+
+def seed_on_start():
+    """SEED_ON_START=1 (the container): seed every EMPTY tenant graph (company + public postmortems), run seed.verify
+    on it, then play the demo story once in mock mode so the Explorer and the Brain have agent memory to show.
+    Graphs that already have data are left alone, so a restart never wipes memory."""
+    if os.getenv("SEED_ON_START", "").lower() not in ("1", "true", "yes"):
+        return
+    empty = [t for t in allowed_tenants() if is_empty(t)]
+    for t in empty:
+        load(t, reset=True, quiet=True)
+        v = subprocess.run([sys.executable, "-m", "seed.verify", "--graph", t, "--data", demo.package_for(t)],
+                           capture_output=True, text=True)
+        print(f"seed on start: {t} seeded; verify: {(v.stdout.strip().splitlines() or ['?'])[-1]}", flush=True)
+    hero = next((t for t in empty if demo.has_story(t)), None)
+    if hero:
+        demo.story(hero, LLMClient(mode="mock"), quiet=True)  # mock only: never a paid call at start-up
+        print(f"seed on start: demo story played on {hero} (mock)", flush=True)
+
+
+@asynccontextmanager
+async def lifespan(_app):
+    seed_on_start()
+    yield
+
+
+app = FastAPI(title="Incident Brain API", version=VERSION, lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=[o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()],
                    allow_methods=["GET", "POST"], allow_headers=["Content-Type", "X-Access-Code"])
 limiter = RateLimiter()

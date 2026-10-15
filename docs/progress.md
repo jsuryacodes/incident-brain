@@ -8,7 +8,7 @@ Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
 | 0 Preflight + demo script | DONE | 07-0 |
 | A API additions | DONE | 07A |
 | B Frontend (themes, shell, Story, Brain, Explorer, polish) | DONE (polish continues in D) | 07B |
-| C Deploy-ready container | TODO | |
+| C Deploy-ready container | DONE (nothing deployed) | 07C |
 | D Headless-browser self-check | DONE | 07D |
 | E Docs | TODO | |
 
@@ -71,6 +71,18 @@ Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
 3. *Bugs the browser found:* the mock Brain answered an unrelated question ("Kubernetes upgrade policy") from the previous turn's subject; it now leans on history only when the question says "that/it/this…" (pytest case added; eval still 15/15 + 3/3). The e2e `fire` helper raced the next beat's load (waits on `aria-current`/`aria-busy` now).
 
 **Known gaps (cosmetic):** labels can still overlap where many nodes sit close (e.g. a chat title over the incident triangle); the Explorer's full company graph is dense at 1440 px.
+
+## 07C — One deploy-ready container (nothing deployed)
+**Status:** DONE · `docker build` OK · `docker compose up` served UI + API, seeded itself (kestrel_pay 14/14, northwind_health 8/8, story played) · **Playwright 10/10 against the container** · restart kept memory (no reseed)
+
+**What was built**
+- Multi-stage `Dockerfile` (Node 22 builds `frontend/dist` → Python 3.12 slim; non-root; `PORT` env; `HEALTHCHECK` on `/api/health`; golden replays baked in).
+- `SEED_ON_START=1`: empty tenant graphs are seeded (+ public postmortems) and verified with `seed.verify`, then the story is played once in mock mode so memory exists; graphs with data are left alone (pytest covers both).
+- `docker-compose.yml` (FalkorDB + app, both bound to 127.0.0.1) and `docker-compose.prod.yml` (app only; FalkorDB host/port/user/password/TLS from env).
+- `seed/conn.py` gives every connection the same env (incl. `FALKORDB_USERNAME`, `FALKORDB_PASSWORD`, `FALKORDB_TLS`); `.env.example` updated.
+- `docs/deploy.md`: env var table, generic steps for any container host, and a clear note that the host is still to be chosen.
+
+**How it was verified:** the local compose stack ran as a separate project on 127.0.0.1:8001 with FalkorDB unpublished (so the dev `falkordb` container on :6379 was untouched), `scripts/e2e.sh --no-server` ran against it, then the test stack, its volume and images were removed. No registry, no host account, no deploy.
 
 ---
 
