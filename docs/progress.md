@@ -10,9 +10,34 @@ Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
 | B Frontend (themes, shell, Story, Brain, Explorer, polish) | DONE (polish continues in D) | 07B |
 | C Deploy-ready container | DONE (nothing deployed) | 07C |
 | D Headless-browser self-check | DONE | 07D |
-| E Docs | TODO | |
+| E Docs | DONE | 07E |
 
-**Total live API spend: $0.00** (0 live calls, no key).
+**Total live API spend: $0.00** (0 live calls, no key). **All parts DONE; nothing deployed.**
+Tests: `pytest -q` **118 passed** · `npm test` (vitest) **17 passed** · Playwright **10/10** (`scripts/e2e.sh`, also 10/10
+against the `docker compose` container) · `seed.verify` 14/14 + 8/8 on a fresh seed · Brain eval 15/15 + 3/3.
+Preflight path: **Vite** (Node v22.23.2), not the no-build fallback.
+
+## Look at these first in the morning
+1. **Run it:** `scripts/ui.sh` → http://localhost:8000 → Story → *Fire alert*. Watch step 15 (the learned edge draws in), then Resolve → Fire Session 2 → Compare without memory → the before/after panel.
+2. **Screenshots** in `docs/screenshots/`: `story-learned-edge-1920.png` (README hero), `story-before-after-light.png`, `story-session2-recall-dark.png`, `mobile-story.png`.
+3. **One command for the whole UI check:** `scripts/e2e.sh` (≈1 min; it re-seeds `kestrel_pay` + `northwind_health` and replays the story into them).
+4. **Behaviour changes to confirm:** every write now needs the access code (incl. `POST /api/team/run` and resolve, which M5 left open in mock mode); Brain answers without a code are not saved; your local `.env` `RATE_LIMIT_PER_MIN` was raised 20 → 60.
+5. **`docs/demo-script.md`:** the 2:45 shot list with measured replay lengths (Session 1 at 1×, the rest at 2×).
+6. **Deploy:** `docs/deploy.md` has the env table and generic steps; the host is still your call. Set `ACCESS_CODE` to a long random string before anything goes public.
+
+## Decisions taken in 07 (details in each part below)
+- Replays are JSON paced by the browser (deterministic, scrubbable); fresh runs stream over EventSource with a one-time token.
+- No code → no writes anywhere; the no-memory contrast runs on a temporary twin graph, never the hero graph.
+- One layout per story (seeded fcose, cached); the camera, not the nodes, follows the current step.
+- Amber only ever means "written by an agent" (industry-match postmortems are seeded, so only their links are amber).
+- Container seeds only EMPTY graphs, verifies them and plays the story once (mock); restarts keep memory.
+
+## Known gaps
+- Labels can overlap where many nodes sit close; the full Explorer graph is dense at 1440 px.
+- The bundle is ~850 KB (262 KB gzip), mostly Cytoscape.
+- The UI never offers live mode (by design for this run); live is reachable over the API with code + key.
+- Rate limiter and the fresh-run lock are per process: run one replica (see `docs/deploy.md`).
+- Not tried on a real phone or Safari/Firefox; Playwright covers Chromium (desktop + a 390×844 viewport).
 
 ## 07-0 — Preflight + demo script
 **Status:** DONE
@@ -83,6 +108,12 @@ Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
 - `docs/deploy.md`: env var table, generic steps for any container host, and a clear note that the host is still to be chosen.
 
 **How it was verified:** the local compose stack ran as a separate project on 127.0.0.1:8001 with FalkorDB unpublished (so the dev `falkordb` container on :6379 was untouched), `scripts/e2e.sh --no-server` ran against it, then the test stack, its volume and images were removed. No registry, no host account, no deploy.
+
+## 07E — Docs
+**Status:** DONE
+- `README.md`: hero screenshot (light, 1920) + dark and before/after in a fold-out; "Run the UI locally" (`scripts/setup.sh` → `scripts/ui.sh`, or `docker compose up --build`); the three views mapped to the tracks; architecture diagram gains the Web UI; test counts and repo map updated. Video/live-URL `TODO:`s kept.
+- `docs/explain.md`: how the UI gets its data, why the layout is stable, the learned-edge animation, the access-code gate, likely judge questions; plus 07A and 07C sections.
+- `docs/demo-script.md`: timings measured from the recordings; beat 3 wording made accurate (amber = the links, not the postmortems).
 
 ---
 

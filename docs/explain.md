@@ -3,6 +3,41 @@
 Plain-language explanations of each piece of work, newest first. Each section: what it is, why it is built that way,
 and what to say if asked.
 
+## 07B/07D: the web UI (demo console)
+**How the UI gets its data.** The browser never talks to FalkorDB. It asks the API for: the company list and the story
+(`/api/meta`, `/api/story`), a recorded run as a list of step events (`/api/replay/<name>`), the nodes and edges that
+run touches (`/api/run-graph/<run>`), the before/after numbers (`/api/compare/latest`), suggested questions and Brain
+answers, and the Explorer graph. Every step event carries what the drawer and the graph need: the tool, a one-line
+summary, the exact Cypher and parameters, a result preview, the ids to highlight, the sources it quoted, and what it
+wrote (with `origin: agent`). Recorded runs and fresh runs produce the same event shape.
+
+**How the graph stays still.** When the Story view opens, it fetches the run graphs of the whole story and computes
+one layout (fcose force layout with a fixed random seed), then caches the positions. Playing a run only changes what
+is visible and highlighted; nodes never move. A fresh run that touches a node the recording didn't is placed beside
+its neighbours. Only the camera moves, to frame the current step.
+
+**The learned edge.** When a step writes a `DEPENDS_ON` edge, the graph hides the real edge, animates a dashed amber
+line from the source service to the target, then shows the real (dashed, amber, glowing) edge. Scrub back and it
+disappears; play forward and it draws again.
+
+**The access-code gate.** No code: everything works on recorded runs, the Brain answers but saves nothing, and the
+server refuses every write with 403. With the code (kept in the browser tab only, sent as a header): the story
+buttons start fresh mock runs that write to the graph. Browsers can't add headers to a live event stream, so the code
+is checked when the run is created and the stream URL carries a random one-time token that expires in a minute.
+
+**Likely judge questions**
+- *"Is the replay real?"* It is the record of a real mock run, including a snapshot of the graph right after it.
+  Enter the code and the same button runs it fresh; the before/after panel then says "from your fresh runs".
+- *"Why mock and not the real model?"* Free, deterministic, and the same loop, tools and checks as live mode. Live
+  mode exists behind the code, a key, a budget guard and a daily cap; it hasn't been run yet.
+- *"What does amber mean?"* Only one thing: written by an agent. Red is the alerting service, blue the current step.
+  Colour is never the only signal: agent nodes have a double border and an "AI ·" label, learned edges are dashed.
+- *"How do you know the UI works?"* `scripts/e2e.sh`: 10 headless-browser tests (theme, the full story, the learned
+  edge appearing at the right step, numbers matching the API, Brain, Explorer, the gate, fresh runs, zero console
+  errors), plus screenshots in both themes that were reviewed and fixed in three rounds.
+- *"Does the frontend know the story?"* No. No company ids, names, people or tickets in `frontend/`; button labels,
+  alerts and questions all come from the API (`backend/demo.py` is the only story code).
+
 ## 07C: one container
 **What:** a single Docker image that serves both the web page and the API on one port. On first start it fills an
 empty database with the two demo companies, checks them, and plays the demo story once (free mock mode), so a fresh

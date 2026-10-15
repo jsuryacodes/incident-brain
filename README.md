@@ -14,7 +14,15 @@ postmortems from other companies.
 
 - Demo video: `TODO: link`
 - Live URL: `TODO: link`
-- Screenshots: `TODO: graph view with agent-written memory highlighted; Session 1 vs Session 2 trace`
+
+![The Story view: the Investigator has just learned the hidden dependency risk-rules → config-service (dashed amber), with the chat quote that proves it in the receipt drawer](docs/screenshots/story-learned-edge-1920.png)
+
+<details>
+<summary>Dark theme, and the before/after panel</summary>
+
+![Session 2 recalls Session 1's memory (dark theme)](docs/screenshots/story-session2-recall-dark.png)
+![Before / after memory: 8 → 3 Investigator tool calls, and "not found" without memory](docs/screenshots/story-before-after-light.png)
+</details>
 
 ## 3-minute quickstart
 
@@ -29,8 +37,31 @@ scripts/demo.sh --quiet   # the whole story: Session 2 without memory, Session 1
 Then look at the memory in the FalkorDB Browser (http://localhost:3000, graph `kestrel_pay`):
 `MATCH (n {origin:'agent'})-[r]-(m) RETURN n,r,m`.
 
+## Run the UI locally
+
+```bash
+scripts/setup.sh   # once (venv, FalkorDB, seed)
+scripts/ui.sh      # builds the frontend if needed and serves UI + API on http://localhost:8000
+```
+Or everything in Docker: `docker compose up --build` (FalkorDB + the app; it seeds itself and plays the story once).
+Needs Node ≥ 18 for `scripts/ui.sh`. One command checks the whole UI in a headless browser: `scripts/e2e.sh`.
+
+**Three views, mapped to the tracks**
+- **Story** (Track 1 + Track 2): press *Fire alert* and watch Triage → Investigator → Communicator walk the graph.
+  Every step is a receipt (Cypher, parameters, result, quoted sources); the current path is blue, anything an agent
+  wrote is amber, and the learned dependency draws itself in as a dashed amber edge. Then *Resolve*, *Fire Session 2*
+  (cause named on the Investigator's 3rd tool call, from memory) and *Compare without memory* (cause not found),
+  ending on the before/after panel. Without an access code it plays the recorded runs; with the code the same buttons
+  start fresh mock runs that write to the graph.
+- **Ask the Brain** (Track 3): suggested questions built from the graph, answers with verbatim source cards, follow-ups
+  ("Who should I call about it?"), an honest "I don't know", and "How I got this" with the Cypher.
+- **Explorer** (Track 2 + 3): the whole company graph, agent memory only (amber), critical hubs sized by
+  `algo.pageRank`; switch to the second company and its agent memory is empty.
+
+Light and dark themes (System → Light → Dark in the header). Deploying the container: [`docs/deploy.md`](docs/deploy.md).
+
 More: `scripts/demo.sh` (every tool call), `python -m backend.agents.brain_eval` (15 company questions),
-`uvicorn backend.api.main:app` (API + live trace over SSE), `pytest -q` (≈100 tests, network blocked).
+`pytest -q` (118 tests, network blocked), `cd frontend && npm test` (vitest).
 
 ## Architecture
 
@@ -45,7 +76,7 @@ flowchart LR
   RP["RulePlanner<br/>(mock policy, free)"]
   LP["LLMPlanner<br/>(Claude via backend/llm.py)"]
   CLI["CLI<br/>backend.demo / agents"]
-  API["FastAPI<br/>SSE traces, replay"]
+  API["FastAPI<br/>UI + API, SSE, replays"]
   MCP["MCP server<br/>read tools only"]
   FDB <--> REG
   REG <--> LOOP
@@ -53,6 +84,8 @@ flowchart LR
   LP --> LOOP
   LOOP --> CLI
   LOOP --> API
+  UI["Web UI<br/>React + Cytoscape<br/>Story · Brain · Explorer"]
+  API --> UI
   REG --> MCP
 ```
 
@@ -195,9 +228,10 @@ public postmortems are the only real-world data, and they are copied into every 
 |---|---|
 | `backend/tools/` | graph read tools, memory write tools, registry, receipts, doc export |
 | `backend/agents/` | agent loop, team, Firefighter, Brain, mock planner, prompts, evals |
-| `backend/api/`, `backend/mcp_server.py` | FastAPI app, MCP server |
+| `backend/api/`, `backend/mcp_server.py` | FastAPI app (API + the built UI), UI read models (`views.py`), MCP server |
+| `frontend/` | React + Vite + TypeScript UI (Cytoscape graph), vitest, Playwright e2e |
 | `seed/` | schema, loader, verify checks, Kestrel Pay + Northwind Health data, public postmortems |
-| `docs/` | schema, Cypher, postmortems, MCP, live mode, progress, AI log |
+| `docs/` | schema, Cypher, postmortems, MCP, live mode, deploy, demo script, screenshots, progress, AI log |
 
 ## Built with an AI assistant
 This project was built with Claude Code (Anthropic), with Jaya directing, reviewing and deciding. Each step's spec is

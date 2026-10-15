@@ -95,3 +95,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-15 — 07C: deploy-ready container
 - Claude Code (Opus 5.5, unattended) wrote the multi-stage Dockerfile, `SEED_ON_START` (seed + verify + mock story, only for empty graphs), `docker-compose.yml` (app + FalkorDB) and `docker-compose.prod.yml` (app only, FalkorDB from env), `docs/deploy.md`; verified `docker build`, `docker compose up` and Playwright 10/10 against the container; removed the test stack afterwards. Nothing deployed.
 - Double-check: (1) compose's app port is now bound to 127.0.0.1 (was 0.0.0.0). (2) The compose service was renamed `api` → `app`. (3) `docker-compose.prod.yml` publishes `${PORT}` on all interfaces, as a host would.
+
+## 2026-10-15 — 07E: docs
+- Claude Code (Opus 5.5, unattended) updated README (screenshots, run-the-UI, three views ↔ tracks), `docs/explain.md` (UI data flow, stable layout, gate, judge Q&A), `docs/demo-script.md` (measured replay lengths), `docs/progress.md` (final status, morning list, decisions, gaps).
+- Double-check: (1) the README still says "Draft" and keeps the video / live URL / official-track-bullet `TODO:`s. (2) Commit `c4a4a1b`'s message says "pytest 119"; the real count is 118 (history not rewritten).
