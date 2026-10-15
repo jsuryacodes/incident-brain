@@ -83,4 +83,7 @@ def fresh():
         return name
     yield make
     for n in set(made):
-        get_graph(n).delete()
+        try:
+            get_graph(n).delete()
+        except Exception:  # a test already deleted it
+            pass
