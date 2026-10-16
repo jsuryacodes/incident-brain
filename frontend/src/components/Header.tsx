@@ -7,6 +7,8 @@ import { Dialog } from "./ui";
 const REPO = "https://github.com/jsuryacodes/incident-brain";
 const TABS: { id: View; label: string }[] = [
   { id: "story", label: "Story" },
+  { id: "firefighter", label: "Firefighter" },
+  { id: "eval", label: "Eval" },
   { id: "brain", label: "Ask the Brain" },
   { id: "explorer", label: "Explorer" },
 ];

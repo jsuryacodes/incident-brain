@@ -19,6 +19,8 @@ export type GraphProps = {
   fresh?: { nodes: Set<string>; edges: Set<string> };
   justLearned?: string[];
   alertId?: string | null;
+  alertIds?: string[]; // several alerting services at once (an alert storm)
+  rootId?: string | null; // a storm's shared root (ringed)
   selected?: string | null;
   onSelect?: (id: string | null) => void;
   sizeByPagerank?: boolean;
@@ -26,6 +28,8 @@ export type GraphProps = {
   ariaLabel: string;
   compact?: boolean;
 };
+
+const isAlert = (q: GraphProps, id: string) => id === q.alertId || !!q.alertIds?.includes(id);
 
 const reducedMotion = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -135,6 +139,8 @@ function buildStyle(sizeByPagerank: boolean, compact: boolean): StylesheetJson {
     { selector: "node.svc", style: { label: "data(name)" } },
     { selector: "node.label-on", style: { label: "data(name)" } },
     { selector: "node.agent", style: { "background-color": v.memFill, "border-color": v.mem, "border-width": 4, "border-style": "double" } },
+    { selector: "node.root", style: { "border-color": v.accent, "border-width": 6, "border-style": "double", "font-weight": 700,
+      "font-size": 14, "z-index": 30, label: "data(name)" } as any },
     { selector: "node.alert", style: { "border-color": v.alert, "border-width": 4, "background-color": v.alertSoft, color: v.alert, "font-weight": 700 } },
     { selector: "node.current", style: { "border-color": v.accent, "border-width": 3.5, label: "data(name)", "z-index": 20 } },
     { selector: "node.current.agent", style: { "border-color": v.mem, "border-width": 5 } },
@@ -193,7 +199,7 @@ export function GraphCanvas(p: GraphProps) {
 
   const isLabelled = (id: string) => {
     const q = props.current;
-    return !!(q.current?.nodes.has(id) || q.selected === id || q.match?.has(id) || id === q.alertId);
+    return !!(q.current?.nodes.has(id) || q.selected === id || q.match?.has(id) || isAlert(q, id) || id === q.rootId);
   };
 
   // elements + positions
@@ -237,8 +243,9 @@ export function GraphCanvas(p: GraphProps) {
         const cur = !!q.current?.nodes.has(id);
         n.toggleClass("hidden", !shown);
         n.toggleClass("current", shown && cur);
-        n.toggleClass("dim", shown && hasCurrent && !cur && id !== q.alertId);
-        n.toggleClass("alert", id === q.alertId);
+        n.toggleClass("dim", shown && hasCurrent && !cur && !isAlert(q, id) && id !== q.rootId);
+        n.toggleClass("alert", isAlert(q, id));
+        n.toggleClass("root", id === q.rootId);
         n.toggleClass("selected", id === q.selected);
         n.toggleClass("match", !!q.match?.has(id));
         n.toggleClass("label-on", shown && isLabelled(id));
@@ -278,6 +285,7 @@ export function GraphCanvas(p: GraphProps) {
     const q = props.current;
     const focus = new Set<string>([...(q.current?.nodes || []), ...(q.fresh?.nodes || [])]);
     if (focus.size && q.alertId) focus.add(q.alertId);
+    if (focus.size && q.alertIds) q.alertIds.forEach((a) => focus.add(a));
     const shown = cy.nodes().not(".hidden").not(".ghost");
     let eles: cytoscape.NodeCollection = focus.size ? shown.filter((n) => focus.has(n.id())) : shown;
     if (eles.empty()) eles = shown.nonempty() ? shown : cy.nodes();
@@ -300,7 +308,7 @@ export function GraphCanvas(p: GraphProps) {
       framed.current = sig;
       frame(true);
     }
-  }, [p.visible, p.visibleEdges, p.current, p.fresh, p.justLearned, p.alertId, p.selected, p.match]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [p.visible, p.visibleEdges, p.current, p.fresh, p.justLearned, p.alertId, p.alertIds, p.rootId, p.selected, p.match]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // theme / sizing → restyle without reload
   useEffect(() => {

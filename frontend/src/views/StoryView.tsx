@@ -1,4 +1,4 @@
-import { Check, ChevronLeft, ChevronRight, Loader2, Pause, Play, RotateCcw, Siren, Table2 } from "lucide-react";
+import { BarChart3, Check, ChevronLeft, ChevronRight, Flame, Loader2, Pause, Play, RotateCcw, Siren, Table2 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { GraphCanvas } from "../components/GraphCanvas";
 import { Empty, Skeleton } from "../components/ui";
@@ -11,7 +11,13 @@ import { groupOf, useStory } from "./story/store";
 import { Timeline } from "./story/Timeline";
 
 export function StoryView() {
-  const { tenant, unlocked, meta, toast } = useApp();
+  const { tenant, unlocked, meta, toast, setView } = useApp();
+  const goto = (view: "firefighter" | "eval", scenario?: string) => {
+    const u = new URL(location.href);
+    if (scenario) u.searchParams.set("scenario", scenario);
+    history.replaceState({}, "", u);
+    setView(view);
+  };
   const s = useStory();
   const fresh = unlocked && !!meta?.code_configured;
 
@@ -124,6 +130,16 @@ export function StoryView() {
               <Table2 size={14} /> Before / after
             </button>
           )}
+          {s.story.storm?.scenario && (
+            <button onClick={() => goto("firefighter", s.story!.storm!.scenario)} data-testid="go-storm"
+              className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium ring-1 ring-alert/40 hover:bg-alert-soft">
+              <Flame size={14} className="text-alert" /> {s.story.storm.label}
+            </button>
+          )}
+          <button onClick={() => goto("eval")} data-testid="go-why"
+            className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium ring-1 ring-border hover:bg-surface-2">
+            <BarChart3 size={14} /> Why a graph?
+          </button>
           {s.beat && (
             <button onClick={s.restart} className="ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-sm text-muted hover:text-text" aria-label="Restart the story">
               <RotateCcw size={14} /> <span className="hidden 2xl:inline">Restart</span>

@@ -4,7 +4,7 @@ import { initialPlayer, playerReducer, type Player, type PlayerAction } from "..
 import type { Beat, Compare, Elements, NodeEl, Run, RunGraph, StepEvent, Story } from "../../lib/types";
 import { edgeKey } from "../../lib/types";
 
-export type DrawerTab = "step" | "node" | "report";
+export type DrawerTab = "step" | "node" | "report" | "board";
 
 /** Beats that share one layout (a beat with memory:false runs on a fresh copy of the company, so it gets its own). */
 export const groupOf = (b: Beat) => (b.memory === false ? `nomem:${b.id}` : "story");

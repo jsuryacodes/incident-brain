@@ -107,4 +107,5 @@ export const AGENT_LANE: Record<string, { name: string; cls: string; dot: string
   investigator: { name: "Investigator", cls: "text-investigator", dot: "bg-investigator" },
   communicator: { name: "Communicator", cls: "text-communicator", dot: "bg-communicator" },
   brain: { name: "Brain", cls: "text-investigator", dot: "bg-investigator" },
+  firefighter: { name: "Firefighter", cls: "text-investigator", dot: "bg-investigator" },
 };

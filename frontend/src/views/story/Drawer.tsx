@@ -4,6 +4,7 @@ import { callNumbers } from "../../lib/replay";
 import type { Elements, Run, Source, StepEvent } from "../../lib/types";
 import { AGENT_LANE, CypherBlock, Empty, JsonBlock, Skeleton, SourceCard } from "../../components/ui";
 import type { DrawerTab } from "./store";
+import { Board } from "../ff/Panels";
 import { ReportCard } from "./ReportCard";
 
 export function Drawer(p: {
@@ -11,8 +12,10 @@ export function Drawer(p: {
   universe: Elements | undefined; tenant: string; onOpen: (id: string) => void; beatKind?: string;
 }) {
   const step = p.run && p.idx >= 0 ? p.run.steps[p.idx] : null;
+  const board = (p.run?.steps || []).slice(0, p.idx + 1).map((s) => (s.args as any)?.details?.hypotheses).filter(Boolean).at(-1);
   const tabs: { id: DrawerTab; label: string; show: boolean }[] = [
     { id: "step", label: "Receipt", show: true },
+    { id: "board", label: "Hypotheses", show: !!board },
     { id: "node", label: "Node", show: !!p.selected },
     { id: "report", label: p.beatKind === "resolve" ? "Resolution" : "Report", show: !!p.run?.report && p.idx === (p.run?.steps.length ?? 0) - 1 },
   ];
@@ -27,7 +30,9 @@ export function Drawer(p: {
         ))}
       </div>
       <div className="scroll-thin min-h-0 flex-1 overflow-y-auto p-4" data-testid="drawer">
-        {p.tab === "node" && p.selected ? (
+        {p.tab === "board" && board ? (
+          <Board hypotheses={board} onOpen={p.onOpen} />
+        ) : p.tab === "node" && p.selected ? (
           <NodePane id={p.selected} universe={p.universe} tenant={p.tenant} onOpen={p.onOpen} />
         ) : p.tab === "report" && p.run?.report ? (
           <ReportCard run={p.run} universe={p.universe} kind={p.beatKind} />
@@ -44,7 +49,7 @@ export function Drawer(p: {
   );
 }
 
-function StepPane({ step, n, onOpen }: { step: StepEvent; n: number; onOpen: (id: string) => void }) {
+export function StepPane({ step, n, onOpen }: { step: StepEvent; n: number; onOpen: (id: string) => void }) {
   const lane = AGENT_LANE[step.agent] || AGENT_LANE.brain;
   return (
     <div className="space-y-4" data-testid="receipt">
@@ -55,6 +60,7 @@ function StepPane({ step, n, onOpen }: { step: StepEvent; n: number; onOpen: (id
           <span className="text-muted">· step {step.seq} · tool call {n}</span>
         </div>
         <h3 className="mt-1 font-mono text-[15px] font-semibold">{step.tool}</h3>
+        {step.why && <p className="mt-1 text-[12.5px] leading-snug text-accent" data-testid="why"><b>Why this tool:</b> {step.why}</p>}
         <p className="mt-1 text-[13px] leading-snug">{step.summary}</p>
       </div>
       {step.cited.length > 0 && (

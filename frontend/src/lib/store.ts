@@ -2,9 +2,11 @@ import { create } from "zustand";
 import { api, getCode, setCode } from "./api";
 import type { Meta } from "./types";
 
-export type View = "story" | "brain" | "explorer";
-const PATHS: Record<View, string> = { story: "/", brain: "/brain", explorer: "/explorer" };
-export const viewFromPath = (p: string): View => (p.startsWith("/brain") ? "brain" : p.startsWith("/explorer") ? "explorer" : "story");
+export type View = "story" | "firefighter" | "eval" | "brain" | "explorer";
+const PATHS: Record<View, string> = { story: "/", firefighter: "/firefighter", eval: "/eval", brain: "/brain", explorer: "/explorer" };
+export const viewFromPath = (p: string): View =>
+  p.startsWith("/brain") ? "brain" : p.startsWith("/explorer") ? "explorer" : p.startsWith("/firefighter") ? "firefighter"
+    : p.startsWith("/eval") ? "eval" : "story";
 
 export type Toast = { id: number; text: string; kind: "error" | "info"; retry?: () => void };
 

@@ -66,6 +66,7 @@ export function Timeline({ run, beat, idx, onSeek }: { run: Run | null; beat: Be
                   <span className="truncate font-mono text-[12px] font-medium">{s.tool}</span>
                   <span className="ml-auto shrink-0 text-[11px] text-muted">tool call {nums[i]}</span>
                 </div>
+                {s.why && <p className="mt-0.5 line-clamp-2 text-[11.5px] italic leading-snug text-accent">why: {s.why}</p>}
                 <p className="mt-0.5 line-clamp-2 text-[12px] leading-snug text-muted">{oneLine(s)}</p>
                 {(s.writes.nodes.length > 0 || s.writes.edges.length > 0) && (
                   <span className="chip-mem mt-1 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium">

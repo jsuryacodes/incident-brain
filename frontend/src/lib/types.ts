@@ -24,6 +24,7 @@ export type StepEvent = {
   mode: string;
   ms?: number;
   llm_call?: number;
+  why?: string | null;
 };
 
 export type Report = Record<string, any>;
@@ -37,13 +38,28 @@ export type Run = {
   incidentKey?: string | null;
   status?: string;
   totals?: Record<string, number>;
-  alert?: { service_id: string; symptom: string } | null;
+  alert?: { service_id: string; symptom: string } | { service_id: string; symptom: string }[] | null;
+  execution?: Execution | null;
 };
+
+export type Evidence = { node_id: string; claim: string };
+export type Hypothesis = { id: string; claim: string; status: "open" | "confirmed" | "rejected"; supporting: Evidence[]; contradicting: Evidence[]; reason: string };
+export type Action = {
+  id: string; incident: number; kind: string; target: string; title: string;
+  justification: { why: string; node_ids: string[]; path: string[] };
+  safety: { verdict: string; reasons: string[]; dependents?: number; later_deploys?: string[]; blast?: string } | null;
+};
+export type Execution = {
+  session_id: string; already_executed: boolean; incidents?: string[];
+  results: { action?: string; kind?: string; title?: string; ok?: boolean; summary: string }[];
+  verification: { checks: { incident: number; cleared: boolean; summary: string; tool?: string }[]; all_cleared: boolean; simulated: boolean } | null;
+};
+export type Scenario = { id: string; tenant: string; shape: string; why: string; alerts: { service_id: string; symptom: string }[]; replay: string | null };
 
 export type Beat = {
   id: string;
   label: string;
-  kind: "team" | "resolve";
+  kind: "team" | "resolve" | "firefighter";
   title: string;
   caption: string;
   replay: string;
@@ -52,9 +68,10 @@ export type Beat = {
   memory?: boolean;
   resolver?: { ids: string[]; name: string };
   summary?: string;
+  scenario?: string;
 };
 
-export type Story = { tenant: string; name: string; has_story: boolean; beats: Beat[]; intro?: string };
+export type Story = { tenant: string; name: string; has_story: boolean; beats: Beat[]; intro?: string; storm?: Beat };
 export type Meta = {
   version: string;
   tenants: { id: string; name: string; has_story: boolean }[];

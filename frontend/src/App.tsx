@@ -7,7 +7,9 @@ import { StoryView } from "./views/StoryView";
 
 const BrainView = lazy(() => import("./views/BrainView"));
 const ExplorerView = lazy(() => import("./views/ExplorerView"));
-const TITLES = { story: "Story", brain: "Ask the Brain", explorer: "Explorer" };
+const FirefighterView = lazy(() => import("./views/FirefighterView"));
+const EvalView = lazy(() => import("./views/EvalView"));
+const TITLES = { story: "Story", firefighter: "Firefighter", eval: "Eval", brain: "Ask the Brain", explorer: "Explorer" };
 
 export function App() {
   const { view, meta, tenant, loadMeta } = useApp();
@@ -26,6 +28,8 @@ export function App() {
         ) : (
           <Suspense fallback={<div className="p-4"><Skeleton className="h-64" /></div>}>
             {view === "story" && <StoryView key={tenant} />}
+            {view === "firefighter" && <FirefighterView key={tenant} />}
+            {view === "eval" && <EvalView />}
             {view === "brain" && <BrainView key={tenant} />}
             {view === "explorer" && <ExplorerView key={tenant} />}
           </Suspense>

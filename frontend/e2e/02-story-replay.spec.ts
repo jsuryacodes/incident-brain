@@ -31,7 +31,7 @@ test("the whole story replays: four beats, the learned edge, and the before/afte
 
   // keyboard
   await page.keyboard.press("ArrowLeft");
-  await expect(page.getByTestId("step-count")).toHaveText(/step 23 \//);
+  await expect(page.getByTestId("step-count")).toHaveText(/step 24 \//);
   await page.keyboard.press("ArrowRight");
 
   // Resolve, Session 2, Compare

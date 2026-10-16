@@ -1,4 +1,4 @@
-import type { Compare, Elements, Meta, RunGraph, Story } from "./types";
+import type { Compare, Elements, Execution, Meta, RunGraph, Scenario, Story } from "./types";
 
 const CODE_KEY = "ib.code";
 
@@ -62,4 +62,11 @@ export const api = {
   explorer: (tenant: string, labels: string[], origin?: string) =>
     req<any>(`/api/explorer?${q({ tenant, labels: labels.join(","), origin })}`),
   node: (tenant: string, id: string) => req<any>(`/api/node/${encodeURIComponent(id)}?${q({ tenant })}`),
+  playground: (tenant: string) => req<{ scenarios: Scenario[]; services: { id: string; name: string }[] }>(`/api/playground?${q({ tenant })}`),
+  startFirefighter: (body: Record<string, unknown>) =>
+    req<{ stream: string; mode: string; mode_reason: string }>("/api/firefighter/run", { method: "POST", body: JSON.stringify(body) }),
+  execute: (runId: string, actionIds: string[] | null) =>
+    req<Execution>("/api/actions/execute", { method: "POST", body: JSON.stringify({ run_id: runId, action_ids: actionIds }) }),
+  evalLatest: () => req<any>("/api/eval/latest"),
+  stormLatest: (tenant: string) => req<any>(`/api/storm/latest?${q({ tenant })}`),
 };

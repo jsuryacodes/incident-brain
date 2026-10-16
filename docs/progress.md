@@ -20,7 +20,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | D Actions + safety check + approval | DONE (backend; UI in G) | 08D1–08D2 |
 | E MCP for real | todo | |
 | F Scale proof | todo | |
-| G UI | todo | |
+| G UI | DONE (benchmark panel comes with F) | 08G1–08G2 |
 | H Live-readiness | todo | |
 | I Docs | todo | |
 | J Review + final verification | todo | |
@@ -163,6 +163,23 @@ that explains most alerts" finds nothing and only correlation over the graph poi
   now the rollback; for a storm root it says plainly that a page can't clear a saturation signal.
 - `POST /api/actions/execute` (access code; fresh runs only; recordings are replays). The storm recording now includes
   an approved execution + verification for visitors.
+
+## 08G — UI
+- **Firefighter view** (`/firefighter`): the scenario library of the current company (recordings for visitors, fresh
+  mock runs with the access code, or your own alert), the graph growing step by step with every alerting service red
+  and a storm's shared root ringed and labelled, a step list with "why: …" on every card, and a drawer with Receipt
+  (+ why this tool), Hypotheses (board + confidence breakdown), Actions (plan, justification, safety check, Approve
+  (simulated, code-gated, fresh runs only), verification) and Report (incidents, suppressed pages, ruled-out changes).
+  Each recording (`runs/golden/ff-<scenario>.json`, `python -m backend.agents.playground --record`) includes an
+  approved execution + verification. API: `GET /api/playground`, `POST /api/firefighter/run` (code).
+- **Eval view** (`/eval`): "Why a graph?" bars (causes, false leads, right person, wrong actions per profile), the
+  scoreboard per set, per-scenario table linking to the Firefighter.
+- **Story view**: "Alert storm" and "Why a graph?" buttons (the storm's scenario id comes from the API), "why:" on step
+  cards, a Hypotheses tab in the receipt drawer (the Investigator's board).
+- Playwright: new `07-firefighter.spec.ts` (storm collapse, hypotheses, risky hold, eval + story buttons, fresh run +
+  approve + verification with the code, screenshots both themes + `ff-storm-1920.png`). **18/18 passed.** Looked at the
+  storm hero, hypotheses and safety screenshots; fixed: end-of-run camera framing, chip wrapping, duplicated reasons,
+  step list following the current step, a missing why, a truncated result line.
 
 ---
 

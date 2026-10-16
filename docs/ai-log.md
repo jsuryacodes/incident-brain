@@ -139,3 +139,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08D: action plan, safety check, approval
 - Claude Code (Opus 5.5, unattended) added `rollback_safety`, the Firefighter `action_plan`, `backend/agents/actions.py` (simulated, idempotent execution on twins + verification), `POST /api/actions/execute`, tests; re-recorded the storm replay with an approved execution.
 - Double-check: the "hard to undo" word list in `graph_tools.rollback_safety` (IRREVERSIBLE).
+
+## 2026-10-16 — 08G: UI for A-D
+- Claude Code (Opus 5.5, unattended) built the Firefighter view, the Eval view, Story hooks (storm, why a graph, why lines, hypotheses tab), playground API + 15 recordings, a Playwright spec with screenshots.
+- Double-check: open `docs/screenshots/ff-storm-1920.png`, `ff-hypotheses-*.png`, `ff-safety-hold-*.png`, `eval-why-a-graph-*.png`.
