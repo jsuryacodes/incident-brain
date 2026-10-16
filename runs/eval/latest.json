@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-16 18:02 UTC",
+ "generated_at": "2026-10-16 18:07 UTC",
  "mode": "mock",
  "profiles": {
   "full": {
@@ -8,7 +8,7 @@
   },
   "no_algo": {
    "title": "Graph, no algorithms",
-   "about": "traversals and full-text only: no PageRank, betweenness, shortest-path or other algo.* procedure (removed: dependency_path; shortest paths become plain Cypher; instead of PageRank, critical_services can only count how many services reach each one)"
+   "about": "traversals and full-text only: no PageRank, betweenness, shortest-path or other algo.* procedure (removed: blast_tiers, connected_impact, correlate_alerts, dependency_path, failure_domains; shortest paths become plain Cypher; instead of PageRank, critical_services can only count how many services reach each one)"
   },
   "no_graph": {
    "title": "No graph (full-text + change log)",
@@ -910,7 +910,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 21 hit(s): chat:payouts-bank-cutoff"
+        "summary": "search_knowledge → 22 hit(s): chat:payments-core-ledger-dupes"
        },
        {
         "tool": "submit_report",
@@ -1372,7 +1372,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 29 hit(s): chat:platform-kafka-retention"
+        "summary": "search_knowledge → 29 hit(s): chat:payments-core-ledger-dupes"
        },
        {
         "tool": "submit_report",
@@ -1910,12 +1910,14 @@
      "wrong_actions": 0,
      "look_first_ok": null,
      "pages_sent": 1,
-     "pages_suppressed": 0,
-     "tool_calls": 12,
-     "llm_calls": 5,
+     "pages_suppressed": 1,
+     "tool_calls": 16,
+     "llm_calls": 6,
      "grounding_ok": true,
      "used_algorithms": [
-      "SPpaths"
+      "BFS",
+      "SPpaths",
+      "WCC"
      ],
      "passed": true,
      "run": {
@@ -1962,6 +1964,14 @@
         "summary": "shared_dependency_changes → no noisy neighbours"
        },
        {
+        "tool": "correlate_alerts",
+        "summary": "correlate_alerts → shared root notifications reached by 2 of 2 alerts"
+       },
+       {
+        "tool": "connected_impact",
+        "summary": "connected_impact → 1 group(s) that cannot share a cause: appointments, lab-results"
+       },
+       {
         "tool": "blast_radius",
         "summary": "blast_radius → 1 upstream (1 tier-1)"
        },
@@ -1972,6 +1982,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 90)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 135)"
        },
        {
         "tool": "past_incidents",
@@ -2002,8 +2020,8 @@
      "wrong_actions": 0,
      "look_first_ok": null,
      "pages_sent": 1,
-     "pages_suppressed": 0,
-     "tool_calls": 12,
+     "pages_suppressed": 1,
+     "tool_calls": 14,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -2062,6 +2080,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 90)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 135)"
        },
        {
         "tool": "past_incidents",
@@ -2194,11 +2220,13 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 15,
-     "llm_calls": 4,
+     "tool_calls": 17,
+     "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
-      "SPpaths"
+      "BFS",
+      "SPpaths",
+      "WCC"
      ],
      "passed": true,
      "run": {
@@ -2238,6 +2266,14 @@
        {
         "tool": "shared_dependency_changes",
         "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "correlate_alerts",
+        "summary": "correlate_alerts → the alerts share no dependency"
+       },
+       {
+        "tool": "connected_impact",
+        "summary": "connected_impact → 2 group(s) that cannot share a cause: appointments | identity"
        },
        {
         "tool": "blast_radius",
@@ -2895,6 +2931,1578 @@
        {
         "tool": "submit_report",
         "summary": "appointments alert most likely caused by dep:sms-gateway-v1.8.0 on sms-gateway, deployed 15 min ago. Escalate to team:clinical-platform."
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "k-storm",
+   "set": "dev",
+   "tenant": "kestrel_pay",
+   "shape": "alert storm: 5 alerts, one shared root, plus 1 unrelated alert",
+   "why": "auth-service, payouts-service, merchant-onboarding, webhook-dispatcher and notifications-service all call config-service (1 hop each); nothing changed there: it is saturated. card-processor-adapter calls nothing the others call and changed itself 25 min ago: a separate incident. email-sender (12 min ago) is on the path of 2 of the 5 alerts only. One page to config-service's top person instead of five.",
+   "alerts": [
+    {
+     "service_id": "svc:auth-service",
+     "symptom": "token validation p99 2.4s, 4% 5xx"
+    },
+    {
+     "service_id": "svc:payouts-service",
+     "symptom": "payout batch API p99 3.1s"
+    },
+    {
+     "service_id": "svc:merchant-onboarding",
+     "symptom": "signup step 2 timing out for 9% of merchants"
+    },
+    {
+     "service_id": "svc:webhook-dispatcher",
+     "symptom": "webhook delivery lag 6 min and climbing"
+    },
+    {
+     "service_id": "svc:notifications-service",
+     "symptom": "notification send latency p99 5s"
+    },
+    {
+     "service_id": "svc:card-processor-adapter",
+     "symptom": "TLS handshake errors to the acquirer, 35% of authorisations failing"
+    }
+   ],
+   "expect": {
+    "incidents": [
+     {
+      "alerts": [
+       "svc:auth-service",
+       "svc:payouts-service",
+       "svc:merchant-onboarding",
+       "svc:webhook-dispatcher",
+       "svc:notifications-service"
+      ],
+      "cause_service": null,
+      "cause_deploy": null,
+      "path": null,
+      "root": "svc:config-service",
+      "contact": "per:omar-haddad"
+     },
+     {
+      "alerts": [
+       "svc:card-processor-adapter"
+      ],
+      "cause_service": "svc:card-processor-adapter",
+      "cause_deploy": "dep:card-processor-adapter-v2.9.0",
+      "path": [
+       "svc:card-processor-adapter"
+      ],
+      "contact": "per:sofia-alvarez"
+     }
+    ],
+    "false_leads": [
+     "dep:email-sender-v1.15.0"
+    ],
+    "look_first": null,
+    "never_page": []
+   },
+   "results": {
+    "full": {
+     "cause_correct": 2,
+     "path_correct": 2,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 2,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 2,
+     "pages_suppressed": 5,
+     "tool_calls": 35,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [
+      "BFS",
+      "SPpaths",
+      "SSpaths",
+      "WCC",
+      "labelPropagation"
+     ],
+     "passed": true,
+     "run": {
+      "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
+      "status": "ok",
+      "causes": [
+       null,
+       "dep:card-processor-adapter-v2.9.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v1.15.0",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is on merchant-onboarding's call path (2 hops), but no change explains this storm: 5 alerts all call config-service (correlate_alerts), this change explains 2 of them"
+       }
+      ],
+      "look_first": {
+       "service_ids": [
+        "svc:config-service",
+        "svc:config-db"
+       ],
+       "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+       "reason": "config-service is reached by 5 of the alerting services (5 hops in total); config-db right behind it is reached by as many: check its load first."
+      },
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 12 min ago, card-processor-adapter 25 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): card-processor-adapter (deployed 25 min ago by Sofia Alvarez)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "correlate_alerts",
+        "summary": "correlate_alerts → shared root config-service reached by 5 of 6 alerts"
+       },
+       {
+        "tool": "connected_impact",
+        "summary": "connected_impact → 2 group(s) that cannot share a cause: auth-service, merchant-onboarding, notifications-service, payouts-service, webhook-dispatcher | card-processor-adapter"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (2 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Omar Haddad (score 95)"
+       },
+       {
+        "tool": "blast_tiers",
+        "summary": "blast_tiers → 12 caller(s) in 2 tier(s); 7 silent so far"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Elena Petrova (score 130)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 140)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Kenji Watanabe (score 120)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ben Walker (score 95)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Fatima Zahra (score 60)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 4 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2026-031 (fixed by Ben Walker), INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 4 upstream (3 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 120)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)"
+       },
+       {
+        "tool": "failure_domains",
+        "summary": "failure_domains → 2 communities; the given services span 2"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:ca"
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 2,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": false,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 5,
+     "look_first_ok": null,
+     "pages_sent": 4,
+     "pages_suppressed": 1,
+     "tool_calls": 44,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "6 alerts, 5 separate incidents: merchant-onboarding, notifications-service -> dep:email-sender-v1.15.0; card-processor-adapter -> dep:card-processor-adapter-v2.9.0; auth-service -> cause unknown; payouts-service -> cause unknown; webhook-dispatcher -> cause unknown.",
+      "status": "ok",
+      "causes": [
+       "dep:email-sender-v1.15.0",
+       "dep:card-processor-adapter-v2.9.0",
+       null,
+       null,
+       null
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 12 min ago, card-processor-adapter 25 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): card-processor-adapter (deployed 25 min ago by Sofia Alvarez)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Kenji Watanabe (score 33)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Kenji Watanabe (score 120)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Fatima Zahra (score 60)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2026-012 (fixed by Priya Nair)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 4 upstream (3 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 120)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (2 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Elena Petrova (score 130)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 0 incident(s)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 140)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ben Walker (score 95)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2026-031 (fixed by Ben Walker)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: config-db, config-service"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: config-db, config-service, kafka-events, audit-log"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: config-db, config-service, kafka-events"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "6 alerts, 5 separate incidents: merchant-onboarding, notifications-service -> dep:email-sender-v1.15.0; card-processor-adapter -> dep:card-processor-adapter-v2.9.0; auth-service -> cause unknown; payo"
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": false,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 7,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "6 alerts, 6 separate incidents: auth-service -> cause unknown; payouts-service -> cause unknown; merchant-onboarding -> cause unknown; webhook-dispatcher -> cause unknown; notifications-service -> cause unknown; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
+      "status": "ok",
+      "causes": [
+       null,
+       null,
+       null,
+       null,
+       null,
+       "dep:card-processor-adapter-v2.9.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v1.15.0",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 6 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 12 min ago, card-processor-adapter 25 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 27 hit(s): chat:risk-eng-config-load"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-config-load"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 28 hit(s): chat:risk-eng-sanctions-refresh"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 13 hit(s): chat:platform-kafka-retention"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 27 hit(s): chat:merchant-exp-onboarding-cache"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 12 hit(s): chat:payments-card-timeouts"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "6 alerts, 6 separate incidents: auth-service -> cause unknown; payouts-service -> cause unknown; merchant-onboarding -> cause unknown; webhook-dispatcher -> cause unknown; notifications-service -> cau"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "k-storm-hub",
+   "set": "dev",
+   "tenant": "kestrel_pay",
+   "shape": "alert storm next to an alert that only shares a hub",
+   "why": "The same five config-service callers, plus reporting-service, which changed itself 8 min ago. reporting-service reaches kafka-events like three of the five, so a 'one hub explains everything' rule would swallow it; it does not reach config-service, so it is a separate incident with its own cause.",
+   "alerts": [
+    {
+     "service_id": "svc:auth-service",
+     "symptom": "token validation p99 2.4s, 4% 5xx"
+    },
+    {
+     "service_id": "svc:payouts-service",
+     "symptom": "payout batch API p99 3.1s"
+    },
+    {
+     "service_id": "svc:merchant-onboarding",
+     "symptom": "signup step 2 timing out for 9% of merchants"
+    },
+    {
+     "service_id": "svc:webhook-dispatcher",
+     "symptom": "webhook delivery lag 6 min and climbing"
+    },
+    {
+     "service_id": "svc:notifications-service",
+     "symptom": "notification send latency p99 5s"
+    },
+    {
+     "service_id": "svc:reporting-service",
+     "symptom": "report downloads timing out, p99 9s"
+    }
+   ],
+   "expect": {
+    "incidents": [
+     {
+      "alerts": [
+       "svc:auth-service",
+       "svc:payouts-service",
+       "svc:merchant-onboarding",
+       "svc:webhook-dispatcher",
+       "svc:notifications-service"
+      ],
+      "cause_service": null,
+      "cause_deploy": null,
+      "path": null,
+      "root": "svc:config-service",
+      "contact": "per:omar-haddad"
+     },
+     {
+      "alerts": [
+       "svc:reporting-service"
+      ],
+      "cause_service": "svc:reporting-service",
+      "cause_deploy": "dep:reporting-service-v1.4.0",
+      "path": [
+       "svc:reporting-service"
+      ],
+      "contact": "per:ben-walker"
+     }
+    ],
+    "false_leads": [],
+    "look_first": null,
+    "never_page": [
+     "per:carlos-mendes"
+    ]
+   },
+   "results": {
+    "full": {
+     "cause_correct": 2,
+     "path_correct": 2,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 2,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 2,
+     "pages_suppressed": 5,
+     "tool_calls": 35,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [
+      "BFS",
+      "SPpaths",
+      "SSpaths",
+      "WCC",
+      "labelPropagation"
+     ],
+     "passed": true,
+     "run": {
+      "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; reporting-service -> dep:reporting-service-v1.4.0.",
+      "status": "ok",
+      "causes": [
+       null,
+       "dep:reporting-service-v1.4.0"
+      ],
+      "rejected_leads": [],
+      "look_first": {
+       "service_ids": [
+        "svc:config-service",
+        "svc:kafka-events"
+       ],
+       "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+       "reason": "config-service is reached by 5 of the alerting services (5 hops in total); kafka-events right behind it is reached by as many: check its load first."
+      },
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: reporting-service 8 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): reporting-service via shared ledger-service, deployed 8 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): reporting-service via shared kafka-events, deployed 8 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): reporting-service via shared kafka-events, deployed 8 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): reporting-service via shared kafka-events, deployed 8 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): reporting-service (deployed 8 min ago by Ben Walker)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "correlate_alerts",
+        "summary": "correlate_alerts → shared root config-service reached by 5 of 6 alerts"
+       },
+       {
+        "tool": "connected_impact",
+        "summary": "connected_impact → 1 group(s) that cannot share a cause: auth-service, merchant-onboarding, notifications-service, payouts-service, reporting-service, webhook-dispatcher"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (2 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Omar Haddad (score 95)"
+       },
+       {
+        "tool": "blast_tiers",
+        "summary": "blast_tiers → 12 caller(s) in 2 tier(s); 7 silent so far"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Elena Petrova (score 130)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 140)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Kenji Watanabe (score 120)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ben Walker (score 95)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Fatima Zahra (score 60)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 4 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2026-031 (fixed by Ben Walker), INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ben Walker (score 15); maintainer Carlos Mendes LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 0 incident(s)"
+       },
+       {
+        "tool": "failure_domains",
+        "summary": "failure_domains → 2 communities; the given services span 1"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; reporting-service -> dep:reporti"
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 2,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": false,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 5,
+     "look_first_ok": null,
+     "pages_sent": 5,
+     "pages_suppressed": 0,
+     "tool_calls": 48,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "6 alerts, 6 separate incidents: reporting-service -> dep:reporting-service-v1.4.0; auth-service -> cause unknown; payouts-service -> cause unknown; merchant-onboarding -> cause unknown; webhook-dispatcher -> cause unknown; notifications-service -> cause unknown.",
+      "status": "ok",
+      "causes": [
+       "dep:reporting-service-v1.4.0",
+       null,
+       null,
+       null,
+       null,
+       null
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: reporting-service 8 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): reporting-service via shared ledger-service, deployed 8 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): reporting-service via shared kafka-events, deployed 8 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): reporting-service via shared kafka-events, deployed 8 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): reporting-service via shared kafka-events, deployed 8 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): reporting-service (deployed 8 min ago by Ben Walker)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ben Walker (score 15); maintainer Carlos Mendes LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 0 incident(s)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (2 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Elena Petrova (score 130)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 0 incident(s)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 140)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Kenji Watanabe (score 120)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2026-012 (fixed by Priya Nair)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ben Walker (score 95)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2026-031 (fixed by Ben Walker)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Fatima Zahra (score 60)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 0 incident(s)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: config-db, config-service"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: config-db, config-service, kafka-events, audit-log"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: config-db, config-service, kafka-events, sanctions-screening"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: config-db, config-service, kafka-events"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: config-db, config-service, kafka-events, email-sender"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "6 alerts, 6 separate incidents: reporting-service -> dep:reporting-service-v1.4.0; auth-service -> cause unknown; payouts-service -> cause unknown; merchant-onboarding -> cause unknown; webhook-dispat"
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": false,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 7,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service, reporting-service alerts most likely caused by dep:reporting-service-v1.4.0 on reporting-service, deployed 8 min ago. Contact Ben Walker.",
+      "status": "ok",
+      "causes": [
+       "dep:reporting-service-v1.4.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: reporting-service 8 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 27 hit(s): chat:risk-eng-config-load"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-config-load"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 28 hit(s): chat:risk-eng-sanctions-refresh"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 13 hit(s): chat:platform-kafka-retention"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 27 hit(s): chat:merchant-exp-onboarding-cache"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 29 hit(s): chat:payments-card-timeouts"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service, reporting-service alerts most likely caused by dep:reporting-service-v1.4.0 on reporting-service, deploye"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "n-storm",
+   "set": "dev",
+   "tenant": "northwind_health",
+   "shape": "alert storm on a small company: 4 alerts, one alerting root",
+   "why": "patient-portal, appointments, lab-results and notifications all alert; all of them reach notifications (it alerts too) and nothing changed there. identity changed itself 15 min ago: patient-portal also calls it, but that change explains 2 alerts, the shared root 4.",
+   "alerts": [
+    {
+     "service_id": "svc:patient-portal",
+     "symptom": "portal page loads p99 7s"
+    },
+    {
+     "service_id": "svc:appointments",
+     "symptom": "booking API p99 4s"
+    },
+    {
+     "service_id": "svc:lab-results",
+     "symptom": "result alerts delayed 20 min"
+    },
+    {
+     "service_id": "svc:notifications",
+     "symptom": "SMS queue depth 40k and rising"
+    },
+    {
+     "service_id": "svc:identity",
+     "symptom": "sign-in failures 12%"
+    }
+   ],
+   "expect": {
+    "incidents": [
+     {
+      "alerts": [
+       "svc:patient-portal",
+       "svc:appointments",
+       "svc:lab-results",
+       "svc:notifications"
+      ],
+      "cause_service": null,
+      "cause_deploy": null,
+      "path": null,
+      "root": "svc:notifications",
+      "contact": "per:maya-okoro"
+     },
+     {
+      "alerts": [
+       "svc:identity"
+      ],
+      "cause_service": "svc:identity",
+      "cause_deploy": "dep:identity-v5.4.0",
+      "path": [
+       "svc:identity"
+      ],
+      "contact": "per:hana-sato"
+     }
+    ],
+    "false_leads": [],
+    "look_first": null,
+    "never_page": [
+     "per:owen-bryce"
+    ]
+   },
+   "results": {
+    "full": {
+     "cause_correct": 2,
+     "path_correct": 2,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 2,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 2,
+     "pages_suppressed": 2,
+     "tool_calls": 30,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [
+      "BFS",
+      "SPpaths",
+      "SSpaths",
+      "WCC",
+      "labelPropagation"
+     ],
+     "passed": true,
+     "run": {
+      "summary": "5 alerts, 2 separate incidents: patient-portal, appointments, lab-results, notifications -> shared root notifications, no change; identity -> dep:identity-v5.4.0.",
+      "status": "ok",
+      "causes": [
+       null,
+       "dep:identity-v5.4.0"
+      ],
+      "rejected_leads": [],
+      "look_first": {
+       "service_ids": [
+        "svc:notifications",
+        "svc:sms-gateway"
+       ],
+       "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+       "reason": "notifications is reached by 4 of the alerting services (4 hops in total); sms-gateway right behind it is reached by as many: check its load first."
+      },
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: identity 15 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): identity (deployed 15 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): identity via shared audit-trail, deployed 15 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): identity (deployed 15 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "correlate_alerts",
+        "summary": "correlate_alerts → shared root notifications reached by 4 of 5 alerts"
+       },
+       {
+        "tool": "connected_impact",
+        "summary": "connected_impact → 1 group(s) that cannot share a cause: appointments, identity, lab-results, notifications, patient-portal"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "blast_tiers",
+        "summary": "blast_tiers → 3 caller(s) in 2 tier(s); 0 silent so far"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ines Moreau (score 140)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 90)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 135)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Hana Sato (score 70)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 0 incident(s)"
+       },
+       {
+        "tool": "failure_domains",
+        "summary": "failure_domains → 2 communities; the given services span 2"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "5 alerts, 2 separate incidents: patient-portal, appointments, lab-results, notifications -> shared root notifications, no change; identity -> dep:identity-v5.4.0."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": false,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 3,
+     "look_first_ok": null,
+     "pages_sent": 3,
+     "pages_suppressed": 2,
+     "tool_calls": 32,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "5 alerts, 3 separate incidents: patient-portal, lab-results, identity -> dep:identity-v5.4.0; appointments -> cause unknown; notifications -> cause unknown.",
+      "status": "ok",
+      "causes": [
+       "dep:identity-v5.4.0",
+       null,
+       null
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: identity 15 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): identity (deployed 15 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): identity via shared audit-trail, deployed 15 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): identity (deployed 15 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Hana Sato (score 70)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ines Moreau (score 140)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 135)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 90)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (3 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: sms-gateway, notifications, scheduler-db"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: sms-gateway"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "5 alerts, 3 separate incidents: patient-portal, lab-results, identity -> dep:identity-v5.4.0; appointments -> cause unknown; notifications -> cause unknown."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": false,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 6,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal, appointments, lab-results, notifications, identity alerts most likely caused by dep:identity-v5.4.0 on identity, deployed 15 min ago. Contact Hana Sato.",
+      "status": "ok",
+      "causes": [
+       "dep:identity-v5.4.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: identity 15 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 7 hit(s): chat:platform-sms-retries"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 2 hit(s): chat:platform-sms-retries"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal, appointments, lab-results, notifications, identity alerts most likely caused by dep:identity-v5.4.0 on identity, deployed 15 min ago. Contact Hana Sato."
        }
       ]
      }
@@ -5223,7 +6831,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 6 hit(s): doc:patient-experience-onboarding"
+        "summary": "search_knowledge → 7 hit(s): chat:platform-sms-retries"
        },
        {
         "tool": "submit_report",
@@ -7795,7 +9403,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 22 hit(s): chat:eng-all-release-freeze"
+        "summary": "search_knowledge → 22 hit(s): chat:oncall-handoff-week-41"
        },
        {
         "tool": "submit_report",
@@ -8663,17 +10271,19 @@
      }
     },
     "no_graph": {
-     "cause_correct": 1,
+     "cause_correct": 0,
      "path_correct": 0,
      "incidents_expected": 1,
      "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
-     "false_leads_rejected": 1,
-     "cause_also_rejected": [],
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:config-service-v9.54.0"
+     ],
      "paged_right": 0,
      "paged_left_person": [],
-     "wrong_actions": 1,
+     "wrong_actions": 2,
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
@@ -8683,16 +10293,16 @@
      "used_algorithms": [],
      "passed": false,
      "run": {
-      "summary": "payouts-service alert most likely caused by dep:config-service-v9.54.0 on config-service, deployed 56 min ago. Contact Nikhil Rao.",
+      "summary": "payouts-service alert most likely caused by dep:sanctions-screening-v9.54.1 on sanctions-screening, deployed 26 min ago. Contact Mei Lin Chen.",
       "status": "ok",
       "causes": [
-       "dep:config-service-v9.54.0"
+       "dep:sanctions-screening-v9.54.1"
       ],
       "rejected_leads": [
        {
-        "deploy_id": "dep:sanctions-screening-v9.54.1",
-        "service_id": "svc:sanctions-screening",
-        "reason": "1 word(s) in common with the alert vs 2 for the change picked; no dependency data to check it"
+        "deploy_id": "dep:config-service-v9.54.0",
+        "service_id": "svc:config-service",
+        "reason": "2 word(s) in common with the alert vs 2 for the change picked (a tie: the newer change was picked); no dependency data to check it"
        }
       ],
       "look_first": null,
@@ -8703,11 +10313,11 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 29 hit(s): chat:oncall-handoff-week-41"
+        "summary": "search_knowledge → 29 hit(s): chat:payouts-bank-cutoff"
        },
        {
         "tool": "submit_report",
-        "summary": "payouts-service alert most likely caused by dep:config-service-v9.54.0 on config-service, deployed 56 min ago. Contact Nikhil Rao."
+        "summary": "payouts-service alert most likely caused by dep:sanctions-screening-v9.54.1 on sanctions-screening, deployed 26 min ago. Contact Mei Lin Chen."
        }
       ]
      }
@@ -9620,17 +11230,19 @@
      }
     },
     "no_graph": {
-     "cause_correct": 1,
+     "cause_correct": 0,
      "path_correct": 0,
      "incidents_expected": 1,
      "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
-     "false_leads_rejected": 1,
-     "cause_also_rejected": [],
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:ledger-db-v9.58.0"
+     ],
      "paged_right": 0,
      "paged_left_person": [],
-     "wrong_actions": 1,
+     "wrong_actions": 2,
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
@@ -9640,16 +11252,16 @@
      "used_algorithms": [],
      "passed": false,
      "run": {
-      "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.58.0 on ledger-db, deployed 74 min ago. Contact Grace Liu.",
+      "summary": "web-checkout alert most likely caused by dep:email-sender-v9.58.1 on email-sender, deployed 28 min ago. Contact Aiko Tanaka.",
       "status": "ok",
       "causes": [
-       "dep:ledger-db-v9.58.0"
+       "dep:email-sender-v9.58.1"
       ],
       "rejected_leads": [
        {
-        "deploy_id": "dep:email-sender-v9.58.1",
-        "service_id": "svc:email-sender",
-        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+        "deploy_id": "dep:ledger-db-v9.58.0",
+        "service_id": "svc:ledger-db",
+        "reason": "1 word(s) in common with the alert vs 1 for the change picked (a tie: the newer change was picked); no dependency data to check it"
        }
       ],
       "look_first": null,
@@ -9660,11 +11272,11 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 19 hit(s): chat:payouts-bank-cutoff"
+        "summary": "search_knowledge → 18 hit(s): chat:incidents-2025-031-war-room"
        },
        {
         "tool": "submit_report",
-        "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.58.0 on ledger-db, deployed 74 min ago. Contact Grace Liu."
+        "summary": "web-checkout alert most likely caused by dep:email-sender-v9.58.1 on email-sender, deployed 28 min ago. Contact Aiko Tanaka."
        }
       ]
      }
@@ -10862,7 +12474,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
+        "summary": "search_knowledge → 7 hit(s): chat:pe-portal-slow-results"
        },
        {
         "tool": "submit_report",
@@ -12028,7 +13640,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 30 hit(s): chat:platform-kafka-retention"
+        "summary": "search_knowledge → 30 hit(s): chat:payments-core-ledger-dupes"
        },
        {
         "tool": "submit_report",
@@ -13920,7 +15532,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 17 hit(s): chat:eng-all-release-freeze"
+        "summary": "search_knowledge → 19 hit(s): chat:eng-all-release-freeze"
        },
        {
         "tool": "submit_report",
@@ -14641,7 +16253,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 6 hit(s): doc:patient-experience-onboarding"
+        "summary": "search_knowledge → 7 hit(s): chat:platform-sms-retries"
        },
        {
         "tool": "submit_report",
@@ -14889,7 +16501,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 16 hit(s): chat:eng-all-release-freeze"
+        "summary": "search_knowledge → 17 hit(s): chat:payments-card-timeouts"
        },
        {
         "tool": "submit_report",
@@ -15383,12 +16995,14 @@
      "wrong_actions": 0,
      "look_first_ok": null,
      "pages_sent": 1,
-     "pages_suppressed": 0,
-     "tool_calls": 11,
-     "llm_calls": 4,
+     "pages_suppressed": 1,
+     "tool_calls": 15,
+     "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
-      "SPpaths"
+      "BFS",
+      "SPpaths",
+      "WCC"
      ],
      "passed": true,
      "run": {
@@ -15435,6 +17049,14 @@
         "summary": "shared_dependency_changes → no noisy neighbours"
        },
        {
+        "tool": "correlate_alerts",
+        "summary": "correlate_alerts → shared root appointments reached by 2 of 2 alerts"
+       },
+       {
+        "tool": "connected_impact",
+        "summary": "connected_impact → 1 group(s) that cannot share a cause: appointments, patient-portal"
+       },
+       {
         "tool": "blast_radius",
         "summary": "blast_radius → 1 upstream (1 tier-1)"
        },
@@ -15445,6 +17067,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 90)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ines Moreau (score 140)"
        },
        {
         "tool": "past_incidents",
@@ -15471,8 +17101,8 @@
      "wrong_actions": 0,
      "look_first_ok": null,
      "pages_sent": 1,
-     "pages_suppressed": 0,
-     "tool_calls": 11,
+     "pages_suppressed": 1,
+     "tool_calls": 13,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -15531,6 +17161,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 90)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ines Moreau (score 140)"
        },
        {
         "tool": "past_incidents",
@@ -16055,7 +17693,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 26 hit(s): chat:eval-reporting-settlement"
+        "summary": "search_knowledge → 27 hit(s): chat:eval-reporting-settlement"
        },
        {
         "tool": "submit_report",
@@ -16067,50 +17705,50 @@
    }
   }
  ],
- "seconds": 7.7,
+ "seconds": 7.0,
  "totals": {
   "dev": {
    "full": {
-    "passed": 12,
-    "cause_correct": 13,
-    "incidents_expected": 13,
-    "path_correct": 13,
-    "false_leads_rejected": 7,
-    "false_leads": 7,
-    "paged_right": 13,
+    "passed": 15,
+    "cause_correct": 19,
+    "incidents_expected": 19,
+    "path_correct": 19,
+    "false_leads_rejected": 8,
+    "false_leads": 8,
+    "paged_right": 19,
     "wrong_actions": 0,
-    "tool_calls": 106,
-    "scenarios": 12,
+    "tool_calls": 212,
+    "scenarios": 15,
     "paged_left_person": 0,
-    "grounding_ok": 12
+    "grounding_ok": 15
    },
    "no_algo": {
     "passed": 12,
-    "cause_correct": 13,
-    "incidents_expected": 13,
-    "path_correct": 13,
+    "cause_correct": 16,
+    "incidents_expected": 19,
+    "path_correct": 17,
     "false_leads_rejected": 7,
-    "false_leads": 7,
-    "paged_right": 13,
-    "wrong_actions": 0,
-    "tool_calls": 108,
-    "scenarios": 12,
+    "false_leads": 8,
+    "paged_right": 16,
+    "wrong_actions": 13,
+    "tool_calls": 234,
+    "scenarios": 15,
     "paged_left_person": 0,
-    "grounding_ok": 12
+    "grounding_ok": 15
    },
    "no_graph": {
     "passed": 0,
-    "cause_correct": 10,
-    "incidents_expected": 13,
-    "path_correct": 2,
-    "false_leads_rejected": 4,
-    "false_leads": 7,
-    "paged_right": 4,
-    "wrong_actions": 11,
-    "tool_calls": 27,
-    "scenarios": 12,
+    "cause_correct": 13,
+    "incidents_expected": 19,
+    "path_correct": 5,
+    "false_leads_rejected": 5,
+    "false_leads": 8,
+    "paged_right": 7,
+    "wrong_actions": 15,
+    "tool_calls": 47,
+    "scenarios": 15,
     "paged_left_person": 0,
-    "grounding_ok": 12
+    "grounding_ok": 15
    }
   },
   "generated": {
@@ -16144,13 +17782,13 @@
    },
    "no_graph": {
     "passed": 0,
-    "cause_correct": 40,
+    "cause_correct": 38,
     "incidents_expected": 50,
     "path_correct": 0,
-    "false_leads_rejected": 33,
+    "false_leads_rejected": 31,
     "false_leads": 40,
     "paged_right": 6,
-    "wrong_actions": 48,
+    "wrong_actions": 50,
     "tool_calls": 100,
     "scenarios": 50,
     "paged_left_person": 0,
@@ -16167,7 +17805,7 @@
     "false_leads": 3,
     "paged_right": 6,
     "wrong_actions": 0,
-    "tool_calls": 51,
+    "tool_calls": 55,
     "scenarios": 6,
     "paged_left_person": 0,
     "grounding_ok": 6
@@ -16181,7 +17819,7 @@
     "false_leads": 3,
     "paged_right": 6,
     "wrong_actions": 0,
-    "tool_calls": 52,
+    "tool_calls": 54,
     "scenarios": 6,
     "paged_left_person": 0,
     "grounding_ok": 6

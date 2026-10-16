@@ -20,10 +20,18 @@ Use only the tools you are given; if a step below needs a tool you don't have, s
      incidents.
    - Every other change is a rejected lead; say why in the graph's terms (not on the call path, shares only a hub,
      another change explains more alerts or is more direct).
+3b. Several alerts: in ONE turn call `correlate_alerts` and `connected_impact` with all alerting services.
+   `connected_impact` tells you which alerts cannot share a cause (different components). If the top root from
+   `correlate_alerts` covers at least 3 alerts and more alerts than any single recent change explains, those alerts
+   are ONE incident about that root (a shared dependency under load, no change): page its owner once
+   (`who_to_call` on the root) and list every other alert's page as suppressed, with the path as the reason.
+   Changes that explain fewer of those alerts are rejected leads. Alerts the root does not cover stay separate.
 4. For each incident, in ONE turn: `blast_radius` of its first alerting service, `who_to_call` for the culprit (or the
    alerting service if there is no culprit), `decisions_about` the culprit, `past_incidents` for [alerting services,
    culprit, shared dependency]. If there is NO culprit: `critical_services` (`pagerank`, `downstream_of` = the
-   alerting services) instead of `decisions_about`.
+   alerting services) instead of `decisions_about`; for a storm root: `blast_tiers` (root, `alerting` = the alerting
+   services) to list the silent callers to notify, plus `who_to_call` for every alert of the incident (who each alert
+   would have paged on its own) and once `failure_domains` (context only).
 5. Does the change contradict a past decision (compare the deploy summary and ticket with each decision's title and
    quoted source)? If so fill `conflicting_decision` with the excerpt copied **verbatim** from the tool result.
 6. One incident with a similar past incident that has a root cause: `industry_matches` with that `root_cause_id`.
@@ -35,8 +43,9 @@ Use only the tools you are given; if a step below needs a tool you don't have, s
 - No culprit: `likely_cause` fields are null and the explanation says no recent change was found. Never present a hub
   as a cause; put it in `look_first` ({service_ids, algorithm, reason}) from `critical_services`.
 - `rejected_leads`: every recent change that is not the cause, with `{deploy_id, service_id, reason}`.
-- Several alerts that are separate incidents: one entry per incident in `incidents` (the top-level fields describe
-  the first one).
+- Several alerts: one entry per incident in `incidents` (the top-level fields describe the first one), each with
+  `root` (storm root or null), `suppressed_pages` ({alert, person_id, name, team_id, reason}) and `notify` (silent
+  callers {service_id, hops}); also all `suppressed_pages` at the top level.
 - Contact: the top ACTIVE candidate from `who_to_call`. If the maintainer has left, say so in `bus_factor_warning`.
   If there is no active candidate, set `contact.person_id` and `name` to null and `contact.team_id` to the owning team
   from `owning_team_fallback`: escalate to the team, never page someone who left.

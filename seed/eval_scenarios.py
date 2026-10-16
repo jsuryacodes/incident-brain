@@ -13,8 +13,9 @@ Fixture keys (all optional):
   nodes/edges extra seed-shaped nodes and edges (e.g. a chat thread a learned fact quotes)
 
 `alerts` fire together. `expect`:
-  incidents   [{alerts, cause_service, cause_deploy, path, contact}]  path = alerting -> culprit service ids;
-              contact = the person to page ('per:...') or the team to escalate to ('team:...')
+  incidents   [{alerts, cause_service, cause_deploy, path, contact, root?}]  path = alerting -> culprit service ids;
+              contact = the person to page ('per:...') or the team to escalate to ('team:...');
+              root = (alert storms) the shared dependency these alerts all call when no change explains them
   false_leads deploys that are recent but must NOT be named as a cause or rolled back
   look_first  when nothing changed: the shared hubs on the alert's call path (top PageRank) the report may point at,
               else None. A list: a hub and the database right behind it score within a few percent of each other, and
@@ -178,6 +179,59 @@ SCENARIOS = [
                                      cause_deploy="dep:sms-gateway-v1.8.0",
                                      path=["svc:appointments", "svc:notifications", "svc:sms-gateway"],
                                      contact="team:clinical-platform")],
+                     false_leads=[], look_first=None, never_page=["per:owen-bryce"])),
+]
+_STORM5 = [{"service_id": "svc:auth-service", "symptom": "token validation p99 2.4s, 4% 5xx"},
+           {"service_id": "svc:payouts-service", "symptom": "payout batch API p99 3.1s"},
+           {"service_id": "svc:merchant-onboarding", "symptom": "signup step 2 timing out for 9% of merchants"},
+           {"service_id": "svc:webhook-dispatcher", "symptom": "webhook delivery lag 6 min and climbing"},
+           {"service_id": "svc:notifications-service", "symptom": "notification send latency p99 5s"}]
+_STORM5_IDS = [a["service_id"] for a in _STORM5]
+SCENARIOS += [
+    dict(id="k-storm", tenant="kestrel_pay", shape="alert storm: 5 alerts, one shared root, plus 1 unrelated alert",
+         why="auth-service, payouts-service, merchant-onboarding, webhook-dispatcher and notifications-service all call "
+             "config-service (1 hop each); nothing changed there: it is saturated. card-processor-adapter calls nothing the "
+             "others call and changed itself 25 min ago: a separate incident. email-sender (12 min ago) is on the path of "
+             "2 of the 5 alerts only. One page to config-service's top person instead of five.",
+         fixture=dict(quiet=True, deploys=[
+             ("card-processor-adapter", "2.9.0", 25, "sofia-alvarez", "Rotate the acquirer client certificate bundle", None),
+             ("email-sender", "1.15.0", 12, "kenji-watanabe", "Switch to the new transactional template engine", None)]),
+         alerts=_STORM5 + [{"service_id": "svc:card-processor-adapter", "symptom": "TLS handshake errors to the acquirer, 35% of authorisations failing"}],
+         expect=dict(incidents=[dict(alerts=_STORM5_IDS, cause_service=None, cause_deploy=None, path=None,
+                                     root="svc:config-service", contact="per:omar-haddad"),
+                                dict(alerts=["svc:card-processor-adapter"], cause_service="svc:card-processor-adapter",
+                                     cause_deploy="dep:card-processor-adapter-v2.9.0", path=["svc:card-processor-adapter"],
+                                     contact="per:sofia-alvarez")],
+                     false_leads=["dep:email-sender-v1.15.0"], look_first=None, never_page=[])),
+    dict(id="k-storm-hub", tenant="kestrel_pay", shape="alert storm next to an alert that only shares a hub",
+         why="The same five config-service callers, plus reporting-service, which changed itself 8 min ago. reporting-service "
+             "reaches kafka-events like three of the five, so a 'one hub explains everything' rule would swallow it; it does "
+             "not reach config-service, so it is a separate incident with its own cause.",
+         fixture=dict(quiet=True, deploys=[
+             ("reporting-service", "1.4.0", 8, "ben-walker", "Render monthly PDFs synchronously in the request", None)]),
+         alerts=_STORM5 + [{"service_id": "svc:reporting-service", "symptom": "report downloads timing out, p99 9s"}],
+         expect=dict(incidents=[dict(alerts=_STORM5_IDS, cause_service=None, cause_deploy=None, path=None,
+                                     root="svc:config-service", contact="per:omar-haddad"),
+                                dict(alerts=["svc:reporting-service"], cause_service="svc:reporting-service",
+                                     cause_deploy="dep:reporting-service-v1.4.0", path=["svc:reporting-service"],
+                                     contact="per:ben-walker")],
+                     false_leads=[], look_first=None, never_page=["per:carlos-mendes"])),
+    dict(id="n-storm", tenant="northwind_health", shape="alert storm on a small company: 4 alerts, one alerting root",
+         why="patient-portal, appointments, lab-results and notifications all alert; all of them reach notifications (it "
+             "alerts too) and nothing changed there. identity changed itself 15 min ago: patient-portal also calls it, but "
+             "that change explains 2 alerts, the shared root 4.",
+         fixture=dict(quiet=True, deploys=[
+             ("identity", "5.4.0", 15, "hana-sato", "Session tokens signed with the new key service", None)]),
+         alerts=[{"service_id": "svc:patient-portal", "symptom": "portal page loads p99 7s"},
+                 {"service_id": "svc:appointments", "symptom": "booking API p99 4s"},
+                 {"service_id": "svc:lab-results", "symptom": "result alerts delayed 20 min"},
+                 {"service_id": "svc:notifications", "symptom": "SMS queue depth 40k and rising"},
+                 {"service_id": "svc:identity", "symptom": "sign-in failures 12%"}],
+         expect=dict(incidents=[dict(alerts=["svc:patient-portal", "svc:appointments", "svc:lab-results", "svc:notifications"],
+                                     cause_service=None, cause_deploy=None, path=None, root="svc:notifications",
+                                     contact="per:maya-okoro"),
+                                dict(alerts=["svc:identity"], cause_service="svc:identity", cause_deploy="dep:identity-v5.4.0",
+                                     path=["svc:identity"], contact="per:hana-sato")],
                      false_leads=[], look_first=None, never_page=["per:owen-bryce"])),
 ]
 BY_ID = {s["id"]: s for s in SCENARIOS}

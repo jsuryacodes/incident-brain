@@ -34,6 +34,8 @@ REPORT_PROPS = {
                                                 "industry_matches, or null if nothing matched."},
 }
 _LC = REPORT_PROPS["likely_cause"]
+_SUPPRESSED = {"type": "array", "description": "Pages NOT sent because another page covers the same incident, each with the graph's reason.",
+               "items": _obj({"alert": _S, "person_id": _SN, "name": _SN, "team_id": _SN, "reason": _S})}
 FIREFIGHTER_EXTRA = {  # optional: the Firefighter's leads, its pointer when nothing changed, and several incidents
     "rejected_leads": {"type": "array", "description": "Every recent change that is NOT the cause, with the graph's reason.",
                        "items": _obj({"deploy_id": _S, "service_id": _S, "reason": _S})},
@@ -43,7 +45,14 @@ FIREFIGHTER_EXTRA = {  # optional: the Firefighter's leads, its pointer when not
                   "items": _obj({"alerts": _IDS, "summary": _S, "likely_cause": _LC, "contact": REPORT_PROPS["contact"],
                                  "bus_factor_warning": REPORT_PROPS["bus_factor_warning"], "blast_radius": _IDS,
                                  "recommended_actions": REPORT_PROPS["recommended_actions"],
-                                 "confidence": REPORT_PROPS["confidence"], "look_first": {"type": ["object", "null"]}})},
+                                 "confidence": REPORT_PROPS["confidence"], "look_first": {"type": ["object", "null"]},
+                                 "root": {"type": ["object", "null"], "description": "Alert storm: the shared dependency these alerts all call (no change explains them)."},
+                                 "suppressed_pages": _SUPPRESSED,
+                                 "notify": {"type": "array", "description": "Silent callers of a storm root: notify, don't page.",
+                                            "items": _obj({"service_id": _S, "hops": {"type": "integer"}})}},
+                                ["alerts", "summary", "likely_cause", "contact", "bus_factor_warning", "blast_radius",
+                                 "recommended_actions", "confidence", "look_first"])},
+    "suppressed_pages": _SUPPRESSED,
 }
 SUBMIT_REPORT = {
     "description": "Submit the final incident report. Call exactly once, at the end. Every id must have come back "

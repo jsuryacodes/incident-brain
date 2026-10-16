@@ -96,21 +96,51 @@ def _key(mine, covered):
             min(c["deploy"]["minutes_ago"] for c in mine))
 
 
-def group(alerts, cands):
-    """Greedy: the change explaining the most still-unexplained alerts first. -> [{alerts, cause or None}]"""
+ROOT_MIN = 3  # a shared root (no change) opens one incident only when it explains at least this many alerts
+
+
+def storm_root(alerts, cands, corr):
+    """The top shared dependency from correlate_alerts, if it explains more alerts (>= ROOT_MIN) than any single
+    change does: then these alerts are one incident about that root (saturation), not one each. -> (root, covered)"""
+    roots = (corr or {}).get("roots") or []
+    if not roots:
+        return None, []
+    ids = [a["service_id"] for a in alerts]
+    covered = [x for x in ids if x in roots[0]["covers"]]
+    by_change = {}
+    for x in ids:
+        for c in cands[x]:
+            by_change.setdefault(c["deploy"]["id"], set()).add(x)
+    best = max((len(v) for v in by_change.values()), default=0)
+    return (roots[0], covered) if len(covered) >= ROOT_MIN and len(covered) > best else (None, [])
+
+
+def group(alerts, cands, corr=None):
+    """Greedy: the explanation covering the most still-unexplained alerts first: a recent change, or (several alerts)
+    a shared root that explains more alerts than any change. -> [{alerts, cause or None, root or None}]"""
+    root, covered = storm_root(alerts, cands, corr)
+    pool = {x: list(cs) for x, cs in cands.items()}
+    if root:
+        root = {**root, "tied": [r["id"] for r in corr["roots"][1:] if r["coverage"] == root["coverage"]]}
+        for x in covered:
+            path = root["paths"].get(x) or [x, root["id"]]
+            pool[x].append({"deploy": {"id": "root:" + root["id"], "minutes_ago": 10 ** 6}, "service": root["id"],
+                            "path": path, "hops": len(path) - 1, "kind": "root", "shared": None, "learned_hop": False})
     left, incidents = [a["service_id"] for a in alerts], []
     while left:
         best = None
-        for d in sorted({c["deploy"]["id"] for s in left for c in cands[s]}):
-            covered = [s for s in left if any(c["deploy"]["id"] == d for c in cands[s])]
-            mine = [next(c for c in cands[s] if c["deploy"]["id"] == d) for s in covered]
-            if best is None or _key(mine, covered) < best[0]:
-                best = (_key(mine, covered), covered, mine[0])
+        for d in sorted({c["deploy"]["id"] for x in left for c in pool[x]}):
+            cov = [x for x in left if any(c["deploy"]["id"] == d for c in pool[x])]
+            mine = [next(c for c in pool[x] if c["deploy"]["id"] == d) for x in cov]
+            if best is None or _key(mine, cov) < best[0]:
+                best = (_key(mine, cov), cov, mine[0])
         if best is None:
-            incidents += [{"alerts": [s], "cause": None} for s in left]
+            incidents += [{"alerts": [x], "cause": None, "root": None} for x in left]
             break
-        incidents.append({"alerts": best[1], "cause": best[2]})
-        left = [s for s in left if s not in best[1]]
+        c = best[2]
+        incidents.append({"alerts": best[1], "cause": None if c["kind"] == "root" else c,
+                          "root": root if c["kind"] == "root" else None})
+        left = [x for x in left if x not in best[1]]
     return incidents
 
 
@@ -160,8 +190,14 @@ def rejected_leads(changes, incidents, cands, weak, cut, tools=frozenset({"recen
         if hit:
             s, c = hit
             inc = next(i for i in incidents if s in i["alerts"])
-            reason = (f"{svc_name(svc)} {_where(c, s)}, but " + _why_lost(c, s, inc, cands)) if inc["cause"] else \
-                f"{svc_name(svc)} {_where(c, s)}"
+            if inc.get("root"):
+                mine = sum(1 for x in inc["alerts"] if any(k["deploy"]["id"] == d for k in cands.get(x, [])))
+                reason = (f"{svc_name(svc)} {_where(c, s)}, but no change explains this storm: {len(inc['alerts'])} alerts "
+                          f"all call {svc_name(inc['root']['id'])} (correlate_alerts), this change explains {mine} of them")
+            elif inc["cause"]:
+                reason = f"{svc_name(svc)} {_where(c, s)}, but " + _why_lost(c, s, inc, cands)
+            else:
+                reason = f"{svc_name(svc)} {_where(c, s)}"
         elif d in weak:
             s, c = weak[d]
             reason = (f"{svc_name(svc)} is not called by {svc_name(s)}; it only shares hubs with it ({_shares(c)}; "
@@ -194,6 +230,15 @@ def contact_or_team(who):
         f" and no active person has worked on {svc_name(who['service'])}. Do not page {', '.join(left) or 'anyone'}" \
         f"; escalate to {team['name']}."
     return contact, warn
+
+
+def root_pointer(root, crit):
+    """Where to look in a storm: the correlated root (and a runner-up the algorithms can't separate from it)."""
+    ids = [root["id"]] + [r for r in (root.get("tied") or [])][:1]
+    return {"service_ids": ids, "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+            "reason": f"{svc_name(root['id'])} is reached by {root['coverage']} of the alerting services "
+                      f"({root['total_hops']} hops in total)" + (f"; {svc_name(ids[1])} right behind it is reached by "
+                                                                 "as many" if len(ids) > 1 else "") + ": check its load first."}
 
 
 def look_first_from(crit, alert_svcs):
@@ -240,7 +285,13 @@ def incident_report(alerts, inc, who, blast, dec, past, crit, text_only=False, e
                                  "data nothing more can be checked; not guessing a cause.") if text_only else
                                 ("No recent change found on the call path of " + ", ".join(map(svc_name, inc["alerts"]))
                                  + " or in a corroborated shared dependency; not inventing a cause.")}
-        look = look_first_from(crit, inc["alerts"])
+        root = inc.get("root")
+        look = root_pointer(root, crit) if root else look_first_from(crit, inc["alerts"])
+        if root:
+            cause["explanation"] = (f"No recent change explains these {len(inc['alerts'])} alerts, and all of them call "
+                                    f"{svc_name(root['id'])} ({root['total_hops']} hops in total; it is "
+                                    + ("alerting itself" if root["alerting"] else "not alerting itself") + "): one shared "
+                                    "dependency under load, so one incident, not " + str(len(inc["alerts"])) + ".")
         if look:
             evidence += [{"node_id": s, "claim": f"most depended-on service on the call path ({look['algorithm']})"}
                          for s in look["service_ids"]]
@@ -282,11 +333,15 @@ def incident_report(alerts, inc, who, blast, dec, past, crit, text_only=False, e
         if contact:
             summary += (f" Contact {contact['name']}." if contact.get("person_id") else f" Escalate to {contact['team_id']}.")
     else:
-        summary = f"No recent change explains the {names} alert; the cause is unknown." + (
-            f" Look at {', '.join(map(svc_name, look['service_ids']))} first." if look else "")
+        root = inc.get("root")
+        summary = (f"{len(inc['alerts'])} alerts ({names}) are one incident: they all call {svc_name(root['id'])}, and no "
+                   f"recent change explains them. Page {contact['name'] if contact and contact.get('person_id') else 'the owning team'} "
+                   f"once instead of {len(inc['alerts'])} times." if root else
+                   f"No recent change explains the {names} alert; the cause is unknown." + (
+                       f" Look at {', '.join(map(svc_name, look['service_ids']))} first." if look else ""))
     sims = [{"incident_id": i["id"], "what_fixed_it": i.get("resolution") or "unknown",
              "resolved_by": ", ".join(i.get("resolved_by") or []) or "unknown"} for i in similar]
-    confidence = "low" if text_only else ["low", "medium", "medium", "high"][score]
+    confidence = "low" if text_only else "medium" if inc.get("root") else ["low", "medium", "medium", "high"][score]
     return {"alerts": inc["alerts"], "summary": summary, "likely_cause": cause,
             "blast_radius": [u["id"] for u in (blast or {}).get("upstream", [])],
             "contact": contact or {"person_id": None, "name": None, "reason": "no candidate found"},
@@ -412,19 +467,31 @@ def firefighter(v):
                                   for s in svcs for t in ("recent_changes_downstream", "shared_dependency_changes")])
         if scans:
             return turn(v.turns, *scans)
+    if len(svcs) > 1:  # several alerts: which share dependencies, and which cannot share a cause at all
+        corr_calls = _calls_needed(v, [("correlate_alerts", {"service_ids": svcs}), ("connected_impact", {"service_ids": svcs})])
+        if corr_calls:
+            return turn(v.turns, *corr_calls)
+    corr = v.last("correlate_alerts", service_ids=svcs) if len(svcs) > 1 else None
     cands, weak, cut = candidates(v, alerts)
-    incidents = group(alerts, cands)
+    incidents = group(alerts, cands, corr)
     detail = []
     for inc in incidents:
-        c = inc["cause"]
-        focus = c["service"] if c else inc["alerts"][0]
+        c, root = inc["cause"], inc.get("root")
+        focus = c["service"] if c else root["id"] if root else inc["alerts"][0]
         detail += [("blast_radius", {"service_id": inc["alerts"][0]}), ("who_to_call", {"service_id": focus})]
         if c:
             detail.append(("decisions_about", {"service_id": c["service"]}))
+        elif root:
+            detail.append(("blast_tiers", {"service_id": root["id"], "alerting": svcs}))
         else:
             detail.append(("critical_services", {"algorithm": "pagerank", "limit": 5, "downstream_of": inc["alerts"]}))
-        ids = list(dict.fromkeys(inc["alerts"] + ([c["service"]] + ([c["shared"]] if c["shared"] else []) if c else [])))
+        if len(inc["alerts"]) > 1:  # who each alert would page on its own: the pages this incident replaces
+            detail += [("who_to_call", {"service_id": x}) for x in inc["alerts"]]
+        ids = list(dict.fromkeys(inc["alerts"] + ([c["service"]] + ([c["shared"]] if c["shared"] else []) if c else [])
+                                 + ([root["id"]] if root else [])))
         detail.append(("past_incidents", {"service_ids": ids[:10]}))
+    if any(i.get("root") for i in incidents):
+        detail.append(("failure_domains", {"service_ids": svcs}))
     detail = _calls_needed(v, detail)
     if not detail:  # PageRank refused (no algorithms): fall back to the plain count of services that reach each one
         detail = _calls_needed(v, [("critical_services", {"algorithm": "fan_in", "limit": 5, "downstream_of": i["alerts"]})
@@ -435,9 +502,10 @@ def firefighter(v):
         return turn(v.turns, *detail)
     reps = []
     for inc in incidents:
-        c = inc["cause"]
-        focus = c["service"] if c else inc["alerts"][0]
-        ids = list(dict.fromkeys(inc["alerts"] + ([c["service"]] + ([c["shared"]] if c["shared"] else []) if c else [])))
+        c, root = inc["cause"], inc.get("root")
+        focus = c["service"] if c else root["id"] if root else inc["alerts"][0]
+        ids = list(dict.fromkeys(inc["alerts"] + ([c["service"]] + ([c["shared"]] if c["shared"] else []) if c else [])
+                                 + ([root["id"]] if root else [])))
         reps.append(incident_report(alerts, inc, v.last("who_to_call", service_id=focus),
                                     v.last("blast_radius", service_id=inc["alerts"][0]),
                                     v.last("decisions_about", service_id=c["service"]) if c else None,
@@ -447,6 +515,7 @@ def firefighter(v):
                                     + leads + [{"node_id": u["id"], "claim": "upstream of the alert (exposed)"} for u in
                                                (v.last("blast_radius", service_id=inc["alerts"][0]) or {}).get("upstream", [])]
                                     + checked))
+        reps[-1].update(pages_for(v, inc, reps[-1], focus))
     if len(incidents) == 1 and incidents[0]["cause"]:
         c = incidents[0]["cause"]
         ids = list(dict.fromkeys(incidents[0]["alerts"] + [c["service"]] + ([c["shared"]] if c["shared"] else [])))
@@ -459,20 +528,52 @@ def firefighter(v):
 
 
 INCIDENT_KEYS = ("alerts", "summary", "likely_cause", "contact", "bus_factor_warning", "blast_radius",
-                 "recommended_actions", "confidence", "look_first")
+                 "recommended_actions", "confidence", "look_first", "root", "suppressed_pages", "notify")
+
+
+def pages_for(v, inc, rep, focus):
+    """One page per incident. For every other alert of the incident: who it would have paged on its own, suppressed
+    with the graph's reason. Silent callers of a storm root: notify, don't page."""
+    out = {"root": None, "suppressed_pages": [], "notify": []}
+    root = inc.get("root")
+    if root:
+        out["root"] = {"service_id": root["id"], "covers": root["covers"], "alerting": root["alerting"],
+                       "total_hops": root["total_hops"], "tied": root.get("tied", [])}
+        tiers = next((r for i, r in v.all("blast_tiers") if i.get("service_id") == root["id"]), {})
+        out["notify"] = [{"service_id": x, "hops": t["hops"]} for t in tiers.get("tiers", []) for x in t["silent"]][:8]
+    if len(inc["alerts"]) < 2:
+        return out
+    me = (rep.get("contact") or {}).get("person_id")
+    target = root["id"] if root else (inc["cause"] or {}).get("service")
+    for x in inc["alerts"]:
+        naive, _ = contact_or_team(v.last("who_to_call", service_id=x))
+        pid = (naive or {}).get("person_id")
+        if not naive or (pid and pid == me) or (not pid and naive.get("team_id") == (rep.get("contact") or {}).get("team_id")):
+            continue
+        path = (root["paths"].get(x) if root else (inc["cause"] or {}).get("path")) or []
+        out["suppressed_pages"].append({
+            "alert": x, "person_id": pid, "name": naive.get("name"), "team_id": naive.get("team_id"),
+            "reason": f"{svc_name(x)} is part of this incident: " + (" -> ".join(map(svc_name, path)) if len(path) > 1 else
+                                                                     f"{svc_name(x)} ({svc_name(target)})") + "; one page goes to "
+                      + ((rep.get("contact") or {}).get("name") or (rep.get("contact") or {}).get("team_id") or "the owner")
+                      + " instead"})
+    return out
 
 
 def assemble(alerts, incidents, reps, rejected, industry, notes=()):
     """The submitted report: the first incident's fields at the top, plus leads and (several alerts) every incident."""
-    report = {k: val for k, val in reps[0].items() if k != "alerts"}
+    report = {k: val for k, val in reps[0].items() if k not in ("alerts", "root", "suppressed_pages", "notify")}
     report["industry_pattern"] = industry
     report["rejected_leads"] = rejected
     if len(alerts) > 1:
-        report["incidents"] = [{k: r[k] for k in INCIDENT_KEYS} for r in reps]
+        report["incidents"] = [{k: r.get(k) for k in INCIDENT_KEYS} for r in reps]
+        report["suppressed_pages"] = [p for r in reps for p in r.get("suppressed_pages") or []]
     if len(incidents) > 1:
         report["summary"] = (f"{len(alerts)} alerts, {len(incidents)} separate incidents: "
                              + "; ".join(f"{', '.join(map(svc_name, r['alerts']))} -> "
-                                         + (r["likely_cause"]["deploy_id"] or "cause unknown") for r in reps) + ".")
+                                         + (r["likely_cause"]["deploy_id"] or (f"shared root {svc_name(r['root']['service_id'])}, "
+                                                                               "no change" if r.get("root") else "cause unknown"))
+                                         for r in reps) + ".")
     if notes:  # summary stays <= 3 sentences
         report["summary"] = " ".join(re.split(r"(?<=[.!?])\s+", report["summary"])[:3 - len(notes)] + list(notes))
     return report
