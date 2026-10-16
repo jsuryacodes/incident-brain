@@ -16,6 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend backend
 COPY seed seed
 COPY runs/golden runs/golden
+COPY runs/eval runs/eval
+COPY docs/schema.md docs/cypher.md docs/
 COPY --from=ui /ui/dist frontend/dist
 RUN useradd --create-home --uid 10001 app && chown -R app /app/runs
 USER app

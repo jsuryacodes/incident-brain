@@ -7,7 +7,10 @@
 .DS_Store
 runs/*
 !runs/golden
-docs
+!runs/eval
+docs/*
+!docs/schema.md
+!docs/cypher.md
 tests
 frontend/node_modules
 frontend/dist
