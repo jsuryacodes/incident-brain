@@ -20,7 +20,7 @@ class McpToolbox:
         self.tenant, self.calls = tenant, 0
         self._portal_cm = anyio.from_thread.start_blocking_portal()
         self.portal = self._portal_cm.__enter__()
-        self._client_cm = self.portal.wrap_async_context_manager(Client(url or build_server(tenant)))
+        self._client_cm = self.portal.wrap_async_context_manager(Client(url or build_server(tenant, internal=True)))
         self.client = self._client_cm.__enter__()
         listed = self.portal.call(self.client.list_tools).tools
         self.listed = [t.name for t in listed]

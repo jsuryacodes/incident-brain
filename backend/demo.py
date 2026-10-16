@@ -108,6 +108,8 @@ def run_storm(tenant, llm=None, on_step=None, keep=False):
         rec = run_firefighter(STORM["alerts"], ToolContext(tenant=twin, now=summary["now"]), llm or LLMClient(),
                               on_step=on_step, save=False)
         rec["twin"] = twin  # where the plan can be approved and executed (kept only when keep=True)
+        from backend.agents.playground import LIVE_TWINS
+        LIVE_TWINS[twin] = rec["run_id"]
         return snap(twin, rec)
     finally:
         if not keep:

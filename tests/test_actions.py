@@ -28,7 +28,7 @@ def test_safe_rollback_executes_once_and_verifies():
         rb = next(a for a in plan if a["kind"] == "rollback")
         assert rb["safety"]["verdict"] == "safe" and rb["justification"]["path"] == ["svc:payouts-service", "svc:bank-connector"]
         out = execute(name, rec, None, "test")
-        assert all(r["ok"] for r in out["results"]) and out["verification"]["all_cleared"] is True
+        assert all(r["ok"] for r in out["results"]) and out["verification"]["all_reverted"] is True
         g = get_graph(name)
         assert g.ro_query("MATCH (d:Deploy {id:'dep:bank-connector-v1.20.0-rollback', origin:'agent'}) RETURN count(d)").result_set[0][0] == 1
         again = execute(name, rec, None, "test")
@@ -44,7 +44,7 @@ def test_risky_rollback_becomes_hold_and_does_not_clear():
         assert hold["kind"] == "hold" and "hard to undo" in hold["safety"]["reasons"][0]
         assert any(a.startswith("Hold the rollback") for a in rec["report"]["recommended_actions"])
         out = execute(name, rec, None, "test")
-        assert out["verification"]["all_cleared"] is False
+        assert out["verification"]["all_reverted"] is False
     finally:
         get_graph(name).delete()
 
@@ -61,3 +61,21 @@ def test_execute_endpoint_needs_the_code(monkeypatch):
     c = TestClient(main.app)
     assert c.post("/api/actions/execute", json={"run_id": "nope"}).status_code == 403
     assert c.post("/api/actions/execute", json={"run_id": "nope"}, headers={"X-Access-Code": "c0de"}).status_code == 404
+
+
+def test_partial_approvals_add_up_and_an_empty_one_is_refused():
+    name, rec = run("k-falselead")
+    try:
+        ids = [a["id"] for a in rec["report"]["action_plan"]]
+        with pytest.raises(ValueError):
+            execute(name, rec, [], "test")
+        first = execute(name, rec, ids[:1], "test")
+        rec["execution"] = first
+        second = execute(name, rec, ids[1:], "test")
+        assert {r["action"] for r in second["results"]} == set(ids) and not second["already_executed"]
+        rec["execution"] = second
+        assert execute(name, rec, None, "test")["already_executed"]
+        g = get_graph(name)
+        assert g.ro_query("MATCH (i:Incident {origin:'agent'}) RETURN count(i)").result_set[0][0] == 1  # one incident, reused
+    finally:
+        get_graph(name).delete()

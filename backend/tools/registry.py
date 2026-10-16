@@ -141,8 +141,8 @@ TOOLS["rollback_safety"] = dict(
     fn=gt.rollback_safety, track=[F],
     description="Before recommending a rollback: is it safe? Shows later deploys to the same service (they would be rolled back too), whether the change looks irreversible (migration, schema, drop, rebuild...), and how many services depend on the changed one. Verdict 'safe' or 'risky' with reasons; risky means hold and page the owner instead.",
     input_schema=_obj({"deploy_id": {"type": "string", "description": "'dep:<service>-v<version>' from a tool result."}}, ["deploy_id"]),
-    cypher=[gt.Q_RB, gt.Q_RB_LATER, gt.Q_RB_CALLERS], algorithm=None,
-    explanation="Three small reads around the Deploy: the service it CHANGED, any later Deploy that CHANGED the same service (a rollback would take those with it), and how many services reach the changed one over DEPENDS_ON (who briefly sees the old version). The deploy summary is checked for words that mean the change touched data (migration, schema, drop, rebuild, delete, backfill, truncate, reindex): rolling back code does not undo those. Any later deploy or such a word makes the verdict 'risky'.")
+    cypher=[gt.Q_RB, gt.Q_RB_LATER, gt.Q_RB_CALLERS, gt.Q_RB_CALLER_LATER], algorithm=None,
+    explanation="Three small reads around the Deploy: the service it CHANGED, any later Deploy that CHANGED the same service (a rollback would take those with it), and how many services reach the changed one over DEPENDS_ON (who briefly sees the old version). The deploy summary is checked for words that mean the change touched data (migration, schema, drop, rebuild, delete, backfill, truncate, reindex): rolling back code does not undo those. A fourth read finds services that call the changed one and shipped AFTER it (they may already rely on the new version). Any of these makes the verdict 'risky'; each reason says whether it came from the graph or from the deploy's summary text.")
 _ALERTS = {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 12,
            "description": "The alerting service ids, e.g. ['svc:<name>', 'svc:<other>']."}
 TOOLS.update({

@@ -25,7 +25,7 @@ import mcp_types as types
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
-from backend.db import allowed_tenants
+from backend.db import allowed_tenants, base_tenant
 from backend.tools.receipt import ToolContext
 from backend.tools.registry import TOOLS, call
 
@@ -62,8 +62,10 @@ RESOURCES = {
 }
 
 
-def build_server(tenant):
-    if tenant not in allowed_tenants():
+def build_server(tenant, internal=False):
+    """internal=True (in-process only, our own agents): may bind to an internal twin of an allowed company. The stdio and
+    HTTP transports never pass it, so outside clients only ever reach the real companies' graphs."""
+    if tenant not in allowed_tenants() and not (internal and base_tenant(tenant) in allowed_tenants()):
         raise ValueError(f"unknown tenant {tenant!r}; allowed: {allowed_tenants()}")
 
     async def list_prompts(ctx, params):

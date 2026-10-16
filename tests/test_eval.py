@@ -20,7 +20,7 @@ def test_eval_scores_and_cleans_up(twins):
     assert all(r["passed"] for r in full.values()), {k: v for k, v in full.items() if not v["passed"]}
     assert full["k-falselead"]["false_leads_rejected"] == 2 and full["k-falselead"]["wrong_actions"] == 0
     assert res["totals"]["dev"]["full"]["passed"] == 3 and res["totals"]["generated"]["full"]["scenarios"] == 3
-    assert not [g for g in client().list_graphs() if "__eval_" in g]  # every twin deleted
+    assert not [g for g in client().list_graphs() if g.startswith(("kestrel_pay_test__eval_", "northwind_test__eval_"))]  # every twin deleted
 
 
 def test_api_eval_latest(monkeypatch, tmp_path):

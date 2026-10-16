@@ -411,7 +411,7 @@ def replay_json(name: str):
     return {"run_id": Path(name).stem, "mode": "replay", "alert": rec.get("alert"), "incident_id": rec.get("incident_id"),
             "incident_key": rec.get("incident_key"), "status": rec.get("status"), "report": rec.get("report"),
             "time_to_cause": rec.get("time_to_cause"), "totals": rec.get("totals"),
-            "execution": rec.get("execution"),
+            "execution": rec.get("execution"), "tools_via": rec.get("tools_via"),
             "events": [{"event": t, "data": d} for t, d in views.replay_events(rec)]}
 
 
@@ -495,7 +495,7 @@ def firefighter_stream(job):
             rec = pg.run(tenant, job["ff"]["scenario_id"], job["ff"]["alerts"], make_llm(mode), on_step=lambda st: on("step", st))
             remember(tenant, "ff", rec)
             ev("report", {"report": rec["report"], "incident_id": None, "time_to_cause": None})
-            ev("run", {"run_id": rec["run_id"], "beat": "firefighter", "status": rec["status"]})
+            ev("run", {"run_id": rec["run_id"], "beat": "firefighter", "status": rec["status"], "tools_via": rec.get("tools_via")})
         except LookupError as e:
             ev("error", {"error": str(e)})
         finally:
@@ -545,11 +545,22 @@ def actions_execute(body: Execute):
     job = RUNS.get(body.run_id)
     if not job or not job["record"].get("twin"):
         raise HTTPException(404, "unknown run or not executable: approve a fresh Firefighter run (recordings are replays)")
+    from backend.agents import playground as pg
     from backend.agents.actions import execute
+    twin = job["record"]["twin"]
+    if pg.LIVE_TWINS.get(twin) != body.run_id:
+        raise HTTPException(409, "a newer run replaced this run's copy of the company: run it again to approve its plan")
+    lock = BUSY.setdefault(job["tenant"], threading.Lock())
+    if not lock.acquire(blocking=False):
+        raise HTTPException(409, "a run is in progress on this company; try again in a moment")
     try:
-        out = execute(job["record"]["twin"], job["record"], body.action_ids, body.user)
+        out = execute(twin, job["record"], body.action_ids, body.user)
     except PermissionError as e:
         raise HTTPException(403, str(e))
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    finally:
+        lock.release()
     out.pop("steps", None)
     job["record"]["execution"] = out
     return out
@@ -580,6 +591,8 @@ def firefighter_run(body: FirefighterRun, request: Request):
     if not body.scenario_id and not [a for a in alerts if a["service_id"]]:
         raise HTTPException(400, "pick a scenario_id or give alerts [{service_id, symptom}]")
     mode, reason = decide_mode(request, body.live)
+    for k in [k for k, j in STREAMS.items() if time.time() - j["at"] > STREAM_TTL]:
+        STREAMS.pop(k, None)
     token = secrets.token_urlsafe(16)
     STREAMS[token] = {"tenant": body.tenant, "beat": "firefighter", "mode": mode, "reason": reason, "at": time.time(),
                       "ff": {"scenario_id": body.scenario_id, "alerts": [a for a in alerts if a["service_id"]] or None}}

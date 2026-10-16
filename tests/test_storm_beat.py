@@ -27,5 +27,5 @@ def test_playground_lists_scenarios_with_recordings(monkeypatch):
     ids = {s["id"]: s for s in p["scenarios"]}
     assert "k-storm" in ids and ids["k-storm"]["replay"] == "ff-k-storm" and len(p["services"]) == 27
     r = c.get("/api/replay/ff-k-falselead").json()
-    assert r["execution"]["verification"]["all_cleared"] is True and r["report"]["action_plan"]
+    assert r["execution"]["verification"]["all_reverted"] is True and r["report"]["action_plan"]
     assert c.post("/api/firefighter/run", json={"tenant": "kestrel_pay_test", "scenario_id": "k-deep"}).status_code == 403

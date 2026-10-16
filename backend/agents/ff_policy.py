@@ -534,6 +534,8 @@ def firefighter(v):
         if safety and safety.get("verdict") == "risky":
             rep["recommended_actions"] = [f"Hold the rollback of {safety['deploy']}: {safety['reasons'][0]}; page the owner first."
                                           if a.startswith("Roll back") else a for a in rep["recommended_actions"]]
+    for inc, rep in zip(incidents, reps):
+        rep["confidence_breakdown"] = confidence_breakdown(inc, rep)
     report = assemble(alerts, incidents, reps, rejected, industry_line(v.last("industry_matches")), notes)
     report["action_plan"] = action_plan(v, incidents, reps)
     report["hypotheses"] = hypotheses(incidents, reps, rejected, changes, cands, weak)
@@ -667,7 +669,8 @@ def confidence_breakdown(inc, rep):
 
 
 INCIDENT_KEYS = ("alerts", "summary", "likely_cause", "contact", "bus_factor_warning", "blast_radius",
-                 "recommended_actions", "confidence", "look_first", "root", "suppressed_pages", "notify")
+                 "recommended_actions", "confidence", "look_first", "root", "suppressed_pages", "notify",
+                 "confidence_breakdown")
 
 
 def pages_for(v, inc, rep, focus):
@@ -701,7 +704,7 @@ def pages_for(v, inc, rep, focus):
 
 def assemble(alerts, incidents, reps, rejected, industry, notes=()):
     """The submitted report: the first incident's fields at the top, plus leads and (several alerts) every incident."""
-    report = {k: val for k, val in reps[0].items() if k not in ("alerts", "root", "suppressed_pages", "notify")}
+    report = {k: val for k, val in reps[0].items() if k not in ("alerts", "root", "suppressed_pages", "notify", "confidence_breakdown")}
     report["industry_pattern"] = industry
     report["rejected_leads"] = rejected
     if len(alerts) > 1:

@@ -19,6 +19,7 @@ from backend.tools.graph_tools import MAX_HOPS, _sp
 from backend.tools.receipt import Recorder, clamp
 
 MAX_ALERTS = 12
+MAX_PROJECTION = 3000
 
 
 def _alerts(rec, service_ids):
@@ -108,6 +109,8 @@ def connected_impact(ctx, service_ids):
     if err:
         return rec.error(err)
     nodes = sorted(set(ids) | {r[0] for r in rec.q(Q_CLOSURE, {"ids": ids})})
+    if len(nodes) > MAX_PROJECTION:  # bounds the scratch graph an anonymous MCP caller can make
+        return rec.error(f"the alerts reach {len(nodes)} services; projections are capped at {MAX_PROJECTION}")
     pairs = [[a, b] for a, b in rec.q(Q_EDGES_AMONG, {"ids": nodes})]
     name = f"{ctx.tenant}__proj_{secrets.token_hex(4)}"
     g = client().select_graph(name)

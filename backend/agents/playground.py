@@ -17,6 +17,7 @@ from seed.eval_scenarios import BY_ID, SCENARIOS, fixture
 from seed.load import load, package_for
 
 GOLDEN_PREFIX = "ff-"
+LIVE_TWINS = {}  # twin graph -> run_id of the run whose copy of the company it holds (only that run may be approved)
 
 
 def twin(tenant):
@@ -41,9 +42,11 @@ def run(tenant, scenario_id=None, alerts=None, llm=None, on_step=None):
     name = twin(tenant)
     summary = load(name, reset=True, data_package=package_for(tenant), quiet=True, transform=fixture(sc) if sc else None)
     a = sc["alerts"] if sc else alerts
+    # the playground always selects its tools THROUGH MCP (an MCP client session to our server, pinned to this copy)
     rec = run_firefighter(a[0] if len(a) == 1 else a, ToolContext(tenant=name, now=summary["now"]), llm or LLMClient(),
-                          on_step=on_step, save=False)
+                          on_step=on_step, save=False, tools_via="mcp")
     rec.update(twin=name, scenario=scenario_id)
+    LIVE_TWINS[name] = rec["run_id"]
     rec["graph"] = run_graph(name, rec)
     return rec
 
