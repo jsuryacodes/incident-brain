@@ -140,7 +140,7 @@ function buildStyle(sizeByPagerank: boolean, compact: boolean): StylesheetJson {
     { selector: "node.label-on", style: { label: "data(name)" } },
     { selector: "node.agent", style: { "background-color": v.memFill, "border-color": v.mem, "border-width": 4, "border-style": "double" } },
     { selector: "node.root", style: { "border-color": v.accent, "border-width": 6, "border-style": "double", "font-weight": 700,
-      "font-size": 14, "z-index": 30, label: "data(name)" } as any },
+      "font-size": 14, "z-index": 30, label: "data(name)", "text-wrap": "none", "text-max-width": "400px" } as any },
     { selector: "node.alert", style: { "border-color": v.alert, "border-width": 4, "background-color": v.alertSoft, color: v.alert, "font-weight": 700 } },
     { selector: "node.current", style: { "border-color": v.accent, "border-width": 3.5, label: "data(name)", "z-index": 20 } },
     { selector: "node.current.agent", style: { "border-color": v.mem, "border-width": 5 } },

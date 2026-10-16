@@ -8,6 +8,7 @@ export type FFRun = {
   runId: string; mode: "replay" | "mock" | "live"; steps: StepEvent[]; report: Report | null; status?: string;
   execution: Execution | null; alerts: { service_id: string; symptom: string }[]; scenario: string | null;
   totals?: Record<string, number>;
+  toolsVia?: { transport: string; tools_listed: number; mcp_calls: number } | null;
 };
 
 type FFState = {
@@ -46,6 +47,7 @@ function streamRun(start: { stream: string; mode: string }, alerts: { service_id
       const d = JSON.parse((e as MessageEvent).data);
       run.runId = d.run_id;
       run.status = d.status;
+      run.toolsVia = d.tools_via;
       es.close();
       resolve(run);
     });
@@ -86,7 +88,8 @@ export const useFF = create<FFState>((set, get) => ({
         if (!sc.replay) throw new Error("no recording for this scenario: enter the access code to run it fresh");
         const r = await api.replay(sc.replay);
         run = { runId: r.run_id, mode: "replay", steps: r.events.filter((e: any) => e.event === "step").map((e: any) => e.data),
-          report: r.report, status: r.status, execution: r.execution || null, alerts: asList(r.alert), scenario: id, totals: r.totals };
+          report: r.report, status: r.status, execution: r.execution || null, alerts: asList(r.alert), scenario: id, totals: r.totals,
+          toolsVia: r.tools_via };
         graph = await api.runGraph(sc.replay);
       }
       set({ run, graph, loading: false, tab: "step", selected: null,

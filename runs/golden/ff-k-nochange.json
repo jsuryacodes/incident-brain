@@ -1,5 +1,5 @@
 {
- "run_id": "run-daee3ed44db5",
+ "run_id": "run-450fe9097cc3",
  "agent": "firefighter",
  "tenant": "kestrel_pay__eval_play",
  "alert": {
@@ -8,7 +8,7 @@
  },
  "mode": "mock",
  "model": "mock",
- "started_at": 1792175204,
+ "started_at": 1792176225,
  "status": "ok",
  "report": {
   "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db, config-service first.",
@@ -147,7 +147,7 @@
   "cost_usd": 0.0,
   "llm_calls": 3,
   "tool_calls": 6,
-  "duration_ms": 9
+  "duration_ms": 13
  },
  "steps": [
   {
@@ -188,7 +188,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.41
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -204,7 +205,8 @@
         "svc:ledger-db",
         "svc:audit-log"
        ]
-      }
+      },
+      "ms": 0.45
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -221,7 +223,8 @@
         "svc:audit-log"
        ],
        "skip": []
-      }
+      },
+      "ms": 0.39
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -237,9 +240,11 @@
         "svc:ledger-db",
         "svc:audit-log"
        ]
-      }
+      },
+      "ms": 0.55
      }
     ],
+    "ms": 1.8,
     "highlight": {
      "nodes": [
       "svc:payouts-service"
@@ -249,7 +254,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792175204,
+   "ts": 1792176225,
    "ms": 2,
    "llm_call": 1
   },
@@ -278,11 +283,13 @@
      {
       "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
       "params": {
-       "since": 1792168004,
+       "since": 1792169025,
        "limit": 31
-      }
+      },
+      "ms": 0.44
      }
     ],
+    "ms": 0.44,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -290,7 +297,7 @@
    },
    "why": "list every recent change in the company: each one is a lead",
    "summary": "recent_changes → 0 change(s) in 120 min",
-   "ts": 1792175204,
+   "ts": 1792176225,
    "ms": 0,
    "llm_call": 1
   },
@@ -320,15 +327,18 @@
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.54
      },
      {
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.41
      }
     ],
+    "ms": 0.95,
     "highlight": {
      "nodes": [
       "svc:payouts-service"
@@ -338,7 +348,7 @@
    },
    "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 0 upstream (0 tier-1)",
-   "ts": 1792175204,
+   "ts": 1792176225,
    "ms": 1,
    "llm_call": 2
   },
@@ -423,33 +433,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.4
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.39
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.57
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.51
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.42
      }
     ],
+    "ms": 2.29,
     "highlight": {
      "nodes": [
       "per:priya-nair",
@@ -490,8 +506,8 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Sofia Alvarez (score 140)",
-   "ts": 1792175204,
-   "ms": 2,
+   "ts": 1792176225,
+   "ms": 3,
    "llm_call": 2
   },
   {
@@ -567,15 +583,18 @@
        "ids": [
         "svc:payouts-service"
        ]
-      }
+      },
+      "ms": 0.38
      },
      {
       "cypher": "CALL algo.pageRank('Service', 'DEPENDS_ON') YIELD node, score MATCH (t:Team)-[:OWNS]->(node) RETURN node.id, node.name, node.tier, t.name, score ORDER BY score DESC LIMIT $limit",
       "params": {
        "limit": 1000
-      }
+      },
+      "ms": 1.0
      }
     ],
+    "ms": 1.38,
     "highlight": {
      "nodes": [
       "svc:config-db",
@@ -589,8 +608,8 @@
    },
    "why": "nothing changed: rank the call path by structure to know where to look first",
    "summary": "critical_services → pagerank: config-db, config-service, kafka-events, ledger-service",
-   "ts": 1792175204,
-   "ms": 1,
+   "ts": 1792176225,
+   "ms": 2,
    "llm_call": 2
   },
   {
@@ -651,7 +670,8 @@
        "ids": [
         "svc:payouts-service"
        ]
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
@@ -659,7 +679,8 @@
        "ids": [
         "svc:payouts-service"
        ]
-      }
+      },
+      "ms": 0.39
      },
      {
       "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
@@ -667,9 +688,11 @@
        "iids": [
         "inc:2025-044"
        ]
-      }
+      },
+      "ms": 0.68
      }
     ],
+    "ms": 1.41,
     "highlight": {
      "nodes": [
       "inc:2025-044",
@@ -710,8 +733,8 @@
    },
    "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)",
-   "ts": 1792175204,
-   "ms": 1,
+   "ts": 1792176225,
+   "ms": 2,
    "llm_call": 2
   },
   {
@@ -986,11 +1009,16 @@
    },
    "why": "the evidence is in: submit the grounded report",
    "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db, config-service first.",
-   "ts": 1792175204,
+   "ts": 1792176225,
    "ms": 0,
    "llm_call": 3
   }
  ],
+ "tools_via": {
+  "transport": "mcp",
+  "tools_listed": 22,
+  "mcp_calls": 6
+ },
  "twin": "kestrel_pay__eval_play",
  "scenario": "k-nochange",
  "graph": {
@@ -1016,7 +1044,7 @@
      "name": "Priya Nair",
      "role": "Senior Engineer",
      "email": "priya.nair@kestrelpay.example",
-     "joined_at": 1662575204
+     "joined_at": 1662576225
     }
    },
    {
@@ -1030,7 +1058,7 @@
      "name": "Marcus Webb",
      "role": "Staff Engineer",
      "email": "marcus.webb@kestrelpay.example",
-     "joined_at": 1593455204
+     "joined_at": 1593456225
     }
    },
    {
@@ -1044,7 +1072,7 @@
      "name": "Sofia Alvarez",
      "role": "Engineer",
      "email": "sofia.alvarez@kestrelpay.example",
-     "joined_at": 1714415204
+     "joined_at": 1714416225
     }
    },
    {
@@ -1058,7 +1086,7 @@
      "name": "Tomasz Kowalski",
      "role": "Engineer",
      "email": "tomasz.kowalski@kestrelpay.example",
-     "joined_at": 1731695204
+     "joined_at": 1731696225
     }
    },
    {
@@ -1205,7 +1233,7 @@
     "name": "INC-2025-044",
     "origin": "seed",
     "props": {
-     "started_at": 1758047204,
+     "started_at": 1758048225,
      "status": "resolved",
      "origin": "seed",
      "title": "ledger-service connection pool exhausted during payout run",
@@ -1213,7 +1241,7 @@
      "key": "INC-2025-044",
      "severity": 2,
      "symptom": "payout run stalled; payment captures failing with pool timeout errors",
-     "resolved_at": 1758058004
+     "resolved_at": 1758059025
     }
    },
    {
@@ -1243,7 +1271,7 @@
     "origin": "seed",
     "props": {
      "commits": 12,
-     "last_at": 1787423204
+     "last_at": 1787424225
     }
    },
    {
@@ -1260,7 +1288,7 @@
     "origin": "seed",
     "props": {
      "commits": 140,
-     "last_at": 1791743204
+     "last_at": 1791744225
     }
    },
    {
@@ -1270,7 +1298,7 @@
     "origin": "seed",
     "props": {
      "commits": 37,
-     "last_at": 1790533604
+     "last_at": 1790534625
     }
    },
    {
@@ -1372,7 +1400,7 @@
   "alert": "svc:payouts-service"
  },
  "execution": {
-  "session_id": "ses:exec-run-daee3ed44db5",
+  "session_id": "ses:exec-run-450fe9097cc3",
   "already_executed": false,
   "results": [
    {
@@ -1390,6 +1418,9 @@
     "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: payouts-service"
    }
   ],
+  "incident_ids": [
+   "inc:2026-032"
+  ],
   "incidents": [
    "inc:2026-032"
   ],
@@ -1397,11 +1428,11 @@
    "checks": [
     {
      "incident": 0,
-     "cleared": false,
-     "summary": "no change to roll back (a shared root under load): paging its owner is the action; the signal stays until they relieve the load"
+     "reverted": false,
+     "summary": "no change to roll back (a shared dependency under load): paging its owner is the action; the graph can't show the load going down"
     }
    ],
-   "all_cleared": false,
+   "all_reverted": false,
    "simulated": true
   }
  }

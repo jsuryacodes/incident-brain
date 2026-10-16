@@ -36,7 +36,7 @@ export default function FirefighterView() {
   const alerts = run?.alerts.map((a) => a.service_id) || [];
   const rootAll = (run?.report?.incidents || []).map((i: any) => i.root?.service_id).find(Boolean) as string | undefined;
   const universe: Elements | undefined = useMemo(() => s.graph ? {
-    nodes: s.graph.nodes.map((n) => (n.id === rootAll ? { ...n, name: `SHARED ROOT · ${n.name}` } : n)), edges: s.graph.edges } : undefined,
+    nodes: s.graph.nodes.map((n) => (n.id === rootAll ? { ...n, name: `ROOT · ${n.name}` } : n)), edges: s.graph.edges } : undefined,
   [s.graph, rootAll]);
   useEffect(() => {
     document.querySelector('[data-testid="ff-timeline"] [aria-current="step"]')?.scrollIntoView({ block: "nearest" });
@@ -79,7 +79,7 @@ export default function FirefighterView() {
   return (
     <div className="grid h-full min-h-0 grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)_440px]">
       <aside className="order-2 flex min-h-0 flex-col border-border bg-surface lg:order-1 lg:border-r">
-        <div className="scroll-thin max-h-[46%] overflow-y-auto border-b border-border p-3" data-testid="scenarios">
+        <div className={`scroll-thin overflow-y-auto border-b-2 border-border p-3 shadow-sm ${run ? "max-h-[32%]" : "max-h-[60%]"}`} data-testid="scenarios">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted">Scenarios {fresh ? "(fresh mock runs)" : "(recorded)"}</p>
           {!s.scenarios.length ? <Skeleton className="mt-2 h-40" /> : (
             <ul className="mt-2 space-y-1.5">
@@ -130,7 +130,13 @@ export default function FirefighterView() {
             <div className="pointer-events-none absolute left-3 top-3 max-w-[70%] space-y-1.5">
               <p className="rounded-md bg-surface/95 px-3 py-2 text-[13px] shadow-sm ring-1 ring-border" data-testid="ff-caption">
                 <b className="text-alert">{alerts.length} alert{alerts.length > 1 ? "s" : ""}</b>{sc ? ` · ${sc.shape}` : " · your alert"}
-                <span className="ml-2 text-[11px] uppercase tracking-wide text-muted">{run.mode === "replay" ? "recorded run" : `fresh ${run.mode} run`}</span>
+                <span className="ml-2 text-[11px] uppercase tracking-wide text-muted">{run.mode === "replay" ? "recorded run" : `fresh ${run.mode} run`}
+                  {" · mock planner (scripted, no LLM)"}</span>
+                {run.toolsVia?.transport === "mcp" && (
+                  <span className="mt-0.5 block text-[12px] text-accent" data-testid="via-mcp">
+                    Tools selected through MCP: {run.toolsVia.tools_listed} tools listed by the MCP server, {run.toolsVia.mcp_calls} tools/call requests
+                  </span>
+                )}
               </p>
               {atEnd && <Outcome report={run.report} alerts={alerts.length} />}
             </div>

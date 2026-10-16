@@ -23,7 +23,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | G UI | DONE (benchmark panel comes with F) | 08G1–08G2 |
 | H Live-readiness | DONE (no calls) | 08H |
 | I Docs | DONE | 08I |
-| J Review + final verification | todo | |
+| J Review + final verification | DONE | 08J1–08J3 |
 
 **Total live API spend in 08: $0.00** (0 live calls, no key).
 
@@ -200,6 +200,29 @@ that explains most alerts" finds nothing and only correlation over the graph poi
   are the path-enumerating ones (~140–165 ms); whole-graph algorithms take ≤ 7 ms; **algo.BFS vs variable-length
   Cypher reachability is a tie at this size** (written down as such; eval.md's earlier "speed at scale" sentence was
   corrected).
+
+## 08J — Independent review + final verification
+**Fresh clone** (`.scratch/fresh`, `scripts/setup.sh` from scratch): kestrel_pay 14/14, northwind_health 8/8, scale_demo
+seeded; pytest **188 passed**; firefighter_eval full 15/15 · 50/50 · 6/6; Brain eval 15/15 + 3/3; vitest 17; Playwright
+**18/18**; `docker build` OK (08J1 then put the eval/benchmark JSON and the docs MCP serves into the image).
+
+**One independent reviewer + judge pass** (lean, instead of 5 judges; see the usage note). No gate bypass, no tenant
+isolation breach, schema rule kept, no story leaks in agent code/prompts/frontend. Its findings and what was done:
+1. An old run could be approved after a newer run replaced its copy of the company → fixed: only the run that owns the
+   twin can be approved (409 otherwise); 2. partial approval worked once → approvals now add up, derived from the graph
+   (each executed Step is tagged with its action id), an empty choice is refused; 3. approval didn't take the
+   per-company lock → it does; 4. verification overclaimed ("signal should clear") → it now says what the graph shows
+   ("rollback in place … whether the alert clears would show in real metrics") and catches a missing deploy;
+   5. the HOLD verdict came only from text → `rollback_safety` now also checks a graph fact (callers that shipped after
+   the change and may rely on it) and labels every reason "graph:" or "deploy summary:"; 6. anonymous MCP callers
+   could make large scratch projections → capped at 3,000 services; 7. stale/clipped screenshots → re-shot, root label
+   no longer clipped, scenario list shrinks once a run starts; 8. confidence breakdown per incident; 10. expired stream
+   tokens are cleaned on the Firefighter endpoint. Not changed: CLI/doc tooling uses story ids as examples (allowed: it
+   is not agent code).
+**Judge scores (one reviewer, before the fixes):** multi-hop 8 · algorithms as tools 8 · tool selection through MCP 6
+· actions 7 · explainable 9 · wow 7 · graph drives decisions 8. Weakest: MCP not visible in the UI (fixed: the
+playground now selects every tool through an MCP session and the caption says so, honestly labelled "mock planner
+(scripted, no LLM)"), act path rigor (fixed above), screenshots (re-shot).
 
 ---
 

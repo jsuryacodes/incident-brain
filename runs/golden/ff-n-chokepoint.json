@@ -1,5 +1,5 @@
 {
- "run_id": "run-c9f5b2b0a60d",
+ "run_id": "run-7335de7ba0f0",
  "agent": "firefighter",
  "tenant": "northwind_health__eval_play",
  "alert": [
@@ -14,7 +14,7 @@
  ],
  "mode": "mock",
  "model": "mock",
- "started_at": 1792175205,
+ "started_at": 1792176226,
  "status": "ok",
  "report": {
   "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
@@ -121,7 +121,24 @@
       "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
      }
     ],
-    "notify": []
+    "notify": [],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "the change is on the alert's call path (1 hop)",
+      "node_id": "dep:notifications-v3.3.0"
+     },
+     {
+      "effect": "-",
+      "factor": "no recorded decision says it is risky",
+      "node_id": null
+     },
+     {
+      "effect": "+",
+      "factor": "a past incident had the same cause",
+      "node_id": "inc:nw-2025-14"
+     }
+    ]
    }
   ],
   "suppressed_pages": [
@@ -318,7 +335,7 @@
   "cost_usd": 0.0,
   "llm_calls": 6,
   "tool_calls": 18,
-  "duration_ms": 38
+  "duration_ms": 53
  },
  "steps": [
   {
@@ -354,7 +371,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:appointments"
-      }
+      },
+      "ms": 0.38
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -365,7 +383,8 @@
         "svc:scheduler-db",
         "svc:sms-gateway"
        ]
-      }
+      },
+      "ms": 0.45
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -377,7 +396,8 @@
         "svc:sms-gateway"
        ],
        "skip": []
-      }
+      },
+      "ms": 0.41
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -388,9 +408,11 @@
         "svc:scheduler-db",
         "svc:sms-gateway"
        ]
-      }
+      },
+      "ms": 0.51
      }
     ],
+    "ms": 1.75,
     "highlight": {
      "nodes": [
       "svc:appointments"
@@ -400,8 +422,8 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792175205,
-   "ms": 2,
+   "ts": 1792176226,
+   "ms": 3,
    "llm_call": 1
   },
   {
@@ -438,7 +460,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:lab-results"
-      }
+      },
+      "ms": 0.33
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -450,7 +473,8 @@
         "svc:audit-trail",
         "svc:sms-gateway"
        ]
-      }
+      },
+      "ms": 0.35
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -463,7 +487,8 @@
         "svc:sms-gateway"
        ],
        "skip": []
-      }
+      },
+      "ms": 0.33
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -475,9 +500,11 @@
         "svc:audit-trail",
         "svc:sms-gateway"
        ]
-      }
+      },
+      "ms": 0.4
      }
     ],
+    "ms": 1.41,
     "highlight": {
      "nodes": [
       "svc:lab-results"
@@ -487,8 +514,8 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792175205,
-   "ms": 1,
+   "ts": 1792176226,
+   "ms": 2,
    "llm_call": 1
   },
   {
@@ -510,7 +537,7 @@
       "deploy": {
        "id": "dep:records-db-v15.2.0",
        "version": "15.2.0",
-       "ts": 1792174845,
+       "ts": 1792175866,
        "minutes_ago": 6,
        "summary": "PostgreSQL minor upgrade 15.1 -> 15.2",
        "by": "Hana Sato"
@@ -525,7 +552,7 @@
       "deploy": {
        "id": "dep:notifications-v3.3.0",
        "version": "3.3.0",
-       "ts": 1792173885,
+       "ts": 1792174906,
        "minutes_ago": 22,
        "summary": "Send SMS synchronously inside the request (no queue)",
        "by": "Sam Reyes"
@@ -546,11 +573,13 @@
      {
       "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
       "params": {
-       "since": 1792168005,
+       "since": 1792169026,
        "limit": 31
-      }
+      },
+      "ms": 0.56
      }
     ],
+    "ms": 0.56,
     "highlight": {
      "nodes": [
       "dep:records-db-v15.2.0",
@@ -586,8 +615,8 @@
    },
    "why": "list every recent change in the company: each one is a lead",
    "summary": "recent_changes → 2 change(s) in 120 min: records-db 6 min ago, notifications 22 min ago",
-   "ts": 1792175205,
-   "ms": 0,
+   "ts": 1792176226,
+   "ms": 1,
    "llm_call": 1
   },
   {
@@ -618,7 +647,7 @@
       "deploy": {
        "id": "dep:notifications-v3.3.0",
        "version": "3.3.0",
-       "ts": 1792173885,
+       "ts": 1792174906,
        "minutes_ago": 22,
        "summary": "Send SMS synchronously inside the request (no queue)",
        "by": "Sam Reyes"
@@ -639,8 +668,9 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:appointments",
-       "since": 1792168005
-      }
+       "since": 1792169026
+      },
+      "ms": 0.52
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -649,9 +679,11 @@
        "to": "svc:notifications",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.43
      }
     ],
+    "ms": 0.95,
     "highlight": {
      "nodes": [
       "svc:appointments",
@@ -680,7 +712,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 22 min ago by Sam Reyes)",
-   "ts": 1792175205,
+   "ts": 1792176226,
    "ms": 1,
    "llm_call": 2
   },
@@ -712,21 +744,24 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
       "params": {
        "id": "svc:appointments"
-      }
+      },
+      "ms": 0.38
      },
      {
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:appointments",
-       "since": 1792168005,
+       "since": 1792169026,
        "downstream": [
         "svc:notifications",
         "svc:scheduler-db",
         "svc:sms-gateway"
        ]
-      }
+      },
+      "ms": 0.62
      }
     ],
+    "ms": 1.0,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -734,7 +769,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792175205,
+   "ts": 1792176226,
    "ms": 1,
    "llm_call": 2
   },
@@ -766,7 +801,7 @@
       "deploy": {
        "id": "dep:records-db-v15.2.0",
        "version": "15.2.0",
-       "ts": 1792174845,
+       "ts": 1792175866,
        "minutes_ago": 6,
        "summary": "PostgreSQL minor upgrade 15.1 -> 15.2",
        "by": "Hana Sato"
@@ -786,7 +821,7 @@
       "deploy": {
        "id": "dep:notifications-v3.3.0",
        "version": "3.3.0",
-       "ts": 1792173885,
+       "ts": 1792174906,
        "minutes_ago": 22,
        "summary": "Send SMS synchronously inside the request (no queue)",
        "by": "Sam Reyes"
@@ -807,8 +842,9 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:lab-results",
-       "since": 1792168005
-      }
+       "since": 1792169026
+      },
+      "ms": 0.44
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -817,7 +853,8 @@
        "to": "svc:records-db",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.38
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -826,9 +863,11 @@
        "to": "svc:notifications",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.32
      }
     ],
+    "ms": 1.14,
     "highlight": {
      "nodes": [
       "svc:lab-results",
@@ -875,8 +914,8 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 2 hit(s): records-db (deployed 6 min ago by Hana Sato)",
-   "ts": 1792175205,
-   "ms": 1,
+   "ts": 1792176226,
+   "ms": 2,
    "llm_call": 2
   },
   {
@@ -907,22 +946,25 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
       "params": {
        "id": "svc:lab-results"
-      }
+      },
+      "ms": 0.37
      },
      {
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:lab-results",
-       "since": 1792168005,
+       "since": 1792169026,
        "downstream": [
         "svc:notifications",
         "svc:records-db",
         "svc:audit-trail",
         "svc:sms-gateway"
        ]
-      }
+      },
+      "ms": 0.49
      }
     ],
+    "ms": 0.86,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -930,7 +972,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792175205,
+   "ts": 1792176226,
    "ms": 1,
    "llm_call": 2
   },
@@ -1018,7 +1060,8 @@
         "svc:lab-results"
        ],
        "depth": 6
-      }
+      },
+      "ms": 0.5
      },
      {
       "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
@@ -1027,7 +1070,8 @@
         "svc:notifications",
         "svc:sms-gateway"
        ]
-      }
+      },
+      "ms": 0.37
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -1036,7 +1080,8 @@
        "to": "svc:notifications",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.49
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -1045,7 +1090,8 @@
        "to": "svc:notifications",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.43
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -1054,7 +1100,8 @@
        "to": "svc:sms-gateway",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.42
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -1063,9 +1110,11 @@
        "to": "svc:sms-gateway",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.44
      }
     ],
+    "ms": 2.65,
     "highlight": {
      "nodes": [
       "svc:appointments",
@@ -1094,8 +1143,8 @@
    },
    "why": "several alerts at once: which dependency do most of them share?",
    "summary": "correlate_alerts → shared root notifications reached by 2 of 2 alerts",
-   "ts": 1792175205,
-   "ms": 3,
+   "ts": 1792176226,
+   "ms": 4,
    "llm_call": 3
   },
   {
@@ -1146,7 +1195,8 @@
         "svc:appointments",
         "svc:lab-results"
        ]
-      }
+      },
+      "ms": 0.54
      },
      {
       "cypher": "MATCH (a:Service)-[:DEPENDS_ON]->(b:Service) WHERE a.id IN $ids AND b.id IN $ids RETURN a.id, b.id",
@@ -1160,7 +1210,8 @@
         "svc:scheduler-db",
         "svc:sms-gateway"
        ]
-      }
+      },
+      "ms": 0.48
      },
      {
       "cypher": "UNWIND $ids AS i CREATE (:Service {id: i})",
@@ -1184,6 +1235,7 @@
       "graph": "scratch projection"
      }
     ],
+    "ms": 1.02,
     "highlight": {
      "nodes": [
       "svc:appointments",
@@ -1194,8 +1246,8 @@
    },
    "why": "several alerts at once: which of them cannot share a cause at all?",
    "summary": "connected_impact → 1 group(s) that cannot share a cause: appointments, lab-results",
-   "ts": 1792175205,
-   "ms": 3,
+   "ts": 1792176226,
+   "ms": 4,
    "llm_call": 3
   },
   {
@@ -1231,15 +1283,18 @@
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
       "params": {
        "id": "svc:appointments"
-      }
+      },
+      "ms": 0.45
      },
      {
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
       "params": {
        "id": "svc:appointments"
-      }
+      },
+      "ms": 0.39
      }
     ],
+    "ms": 0.84,
     "highlight": {
      "nodes": [
       "svc:patient-portal",
@@ -1256,8 +1311,8 @@
    },
    "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 1 upstream (1 tier-1)",
-   "ts": 1792175205,
-   "ms": 1,
+   "ts": 1792176226,
+   "ms": 2,
    "llm_call": 4
   },
   {
@@ -1324,33 +1379,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:notifications"
-      }
+      },
+      "ms": 0.44
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:notifications"
-      }
+      },
+      "ms": 0.44
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:notifications"
-      }
+      },
+      "ms": 0.46
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:notifications"
-      }
+      },
+      "ms": 0.43
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:notifications"
-      }
+      },
+      "ms": 0.45
      }
     ],
+    "ms": 2.22,
     "highlight": {
      "nodes": [
       "per:maya-okoro",
@@ -1385,8 +1446,8 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT",
-   "ts": 1792175205,
-   "ms": 2,
+   "ts": 1792176226,
+   "ms": 3,
    "llm_call": 4
   },
   {
@@ -1431,9 +1492,11 @@
       "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
       "params": {
        "id": "svc:notifications"
-      }
+      },
+      "ms": 0.61
      }
     ],
+    "ms": 0.61,
     "highlight": {
      "nodes": [
       "dec:sms-retry-cap",
@@ -1462,7 +1525,7 @@
    },
    "why": "does the change contradict a recorded decision?",
    "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff",
-   "ts": 1792175205,
+   "ts": 1792176226,
    "ms": 1,
    "llm_call": 4
   },
@@ -1480,6 +1543,7 @@
     "service_tier": 2,
     "version": "3.3.0",
     "later_deploys": [],
+    "callers_changed_since": [],
     "dependents": 3,
     "tier1_dependents": 3,
     "hard_to_undo_terms": [],
@@ -1499,22 +1563,34 @@
       "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
       "params": {
        "id": "dep:notifications-v3.3.0"
-      }
+      },
+      "ms": 0.4
      },
      {
       "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
       "params": {
        "sid": "svc:notifications",
-       "ts": 1792173885
-      }
+       "ts": 1792174906
+      },
+      "ms": 0.38
      },
      {
       "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
       "params": {
        "sid": "svc:notifications"
-      }
+      },
+      "ms": 0.34
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON]->(:Service {id:$sid}) MATCH (x:Deploy)-[:CHANGED]->(c) WHERE x.ts > $ts RETURN c.id, x.id ORDER BY x.ts",
+      "params": {
+       "sid": "svc:notifications",
+       "ts": 1792174906
+      },
+      "ms": 0.37
      }
     ],
+    "ms": 1.49,
     "highlight": {
      "nodes": [
       "dep:notifications-v3.3.0",
@@ -1531,8 +1607,8 @@
    },
    "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
    "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible",
-   "ts": 1792175205,
-   "ms": 1,
+   "ts": 1792176226,
+   "ms": 2,
    "llm_call": 4
   },
   {
@@ -1589,9 +1665,11 @@
       "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
       "params": {
        "sid": "svc:notifications"
-      }
+      },
+      "ms": 0.83
      }
     ],
+    "ms": 0.83,
     "highlight": {
      "nodes": [
       "doc:notifications-readme",
@@ -1630,8 +1708,8 @@
    },
    "why": "which docs and runbooks are out of date?",
    "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery",
-   "ts": 1792175205,
-   "ms": 1,
+   "ts": 1792176226,
+   "ms": 2,
    "llm_call": 4
   },
   {
@@ -1695,33 +1773,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:appointments"
-      }
+      },
+      "ms": 0.39
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:appointments"
-      }
+      },
+      "ms": 0.46
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:appointments"
-      }
+      },
+      "ms": 0.38
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:appointments"
-      }
+      },
+      "ms": 0.42
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:appointments"
-      }
+      },
+      "ms": 0.42
      }
     ],
+    "ms": 2.07,
     "highlight": {
      "nodes": [
       "per:ines-moreau",
@@ -1755,8 +1839,8 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Tariq Hassan (score 90)",
-   "ts": 1792175205,
-   "ms": 2,
+   "ts": 1792176226,
+   "ms": 3,
    "llm_call": 4
   },
   {
@@ -1814,33 +1898,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:lab-results"
-      }
+      },
+      "ms": 0.36
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:lab-results"
-      }
+      },
+      "ms": 0.38
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:lab-results"
-      }
+      },
+      "ms": 0.43
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:lab-results"
-      }
+      },
+      "ms": 0.38
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:lab-results"
-      }
+      },
+      "ms": 0.39
      }
     ],
+    "ms": 1.94,
     "highlight": {
      "nodes": [
       "per:maya-okoro",
@@ -1868,8 +1958,8 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Maya Okoro (score 135)",
-   "ts": 1792175205,
-   "ms": 2,
+   "ts": 1792176226,
+   "ms": 3,
    "llm_call": 4
   },
   {
@@ -1966,7 +2056,8 @@
         "svc:lab-results",
         "svc:notifications"
        ]
-      }
+      },
+      "ms": 0.44
      },
      {
       "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
@@ -1976,7 +2067,8 @@
         "svc:lab-results",
         "svc:notifications"
        ]
-      }
+      },
+      "ms": 0.52
      },
      {
       "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
@@ -1985,9 +2077,11 @@
         "inc:nw-2025-14",
         "inc:nw-2026-03"
        ]
-      }
+      },
+      "ms": 1.59
      }
     ],
+    "ms": 2.55,
     "highlight": {
      "nodes": [
       "inc:nw-2025-14",
@@ -2076,8 +2170,8 @@
    },
    "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 2 incident(s): INC-NW-2025-14 (fixed by Owen Bryce), INC-NW-2026-03 (fixed by Maya Okoro)",
-   "ts": 1792175205,
-   "ms": 2,
+   "ts": 1792176226,
+   "ms": 4,
    "llm_call": 4
   },
   {
@@ -2134,9 +2228,11 @@
        "rcs": [
         "rc:retry-storm"
        ]
-      }
+      },
+      "ms": 0.51
      }
     ],
+    "ms": 0.51,
     "highlight": {
      "nodes": [
       "pm:gcp-2025-06-12",
@@ -2159,8 +2255,8 @@
    },
    "why": "has another company had the same root cause?",
    "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues",
-   "ts": 1792175205,
-   "ms": 0,
+   "ts": 1792176226,
+   "ms": 2,
    "llm_call": 5
   },
   {
@@ -2273,7 +2369,24 @@
         "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
        }
       ],
-      "notify": []
+      "notify": [],
+      "confidence_breakdown": [
+       {
+        "effect": "+",
+        "factor": "the change is on the alert's call path (1 hop)",
+        "node_id": "dep:notifications-v3.3.0"
+       },
+       {
+        "effect": "-",
+        "factor": "no recorded decision says it is risky",
+        "node_id": null
+       },
+       {
+        "effect": "+",
+        "factor": "a past incident had the same cause",
+        "node_id": "inc:nw-2025-14"
+       }
+      ]
      }
     ],
     "suppressed_pages": [
@@ -2568,7 +2681,24 @@
          "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
         }
        ],
-       "notify": []
+       "notify": [],
+       "confidence_breakdown": [
+        {
+         "effect": "+",
+         "factor": "the change is on the alert's call path (1 hop)",
+         "node_id": "dep:notifications-v3.3.0"
+        },
+        {
+         "effect": "-",
+         "factor": "no recorded decision says it is risky",
+         "node_id": null
+        },
+        {
+         "effect": "+",
+         "factor": "a past incident had the same cause",
+         "node_id": "inc:nw-2025-14"
+        }
+       ]
       }
      ],
      "suppressed_pages": [
@@ -2773,11 +2903,16 @@
    },
    "why": "the evidence is in: submit the grounded report",
    "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
-   "ts": 1792175205,
+   "ts": 1792176226,
    "ms": 1,
    "llm_call": 6
   }
  ],
+ "tools_via": {
+  "transport": "mcp",
+  "tools_listed": 22,
+  "mcp_calls": 18
+ },
  "twin": "northwind_health__eval_play",
  "scenario": "n-chokepoint",
  "graph": {
@@ -2813,7 +2948,7 @@
      "name": "Ines Moreau",
      "role": "Staff Engineer",
      "email": "ines.moreau@northwind.example",
-     "joined_at": 1653935205
+     "joined_at": 1653936226
     }
    },
    {
@@ -2827,7 +2962,7 @@
      "name": "Tariq Hassan",
      "role": "Engineer",
      "email": "tariq.hassan@northwind.example",
-     "joined_at": 1748975205
+     "joined_at": 1748976226
     }
    },
    {
@@ -2841,8 +2976,8 @@
      "name": "Owen Bryce",
      "role": "Senior Engineer",
      "email": "owen.bryce@northwind.example",
-     "joined_at": 1628015205,
-     "left_at": 1781807205
+     "joined_at": 1628016226,
+     "left_at": 1781808226
     }
    },
    {
@@ -2856,7 +2991,7 @@
      "name": "Maya Okoro",
      "role": "Senior Engineer",
      "email": "maya.okoro@northwind.example",
-     "joined_at": 1697135205
+     "joined_at": 1697136226
     }
    },
    {
@@ -2870,7 +3005,7 @@
      "name": "Sam Reyes",
      "role": "Engineer",
      "email": "sam.reyes@northwind.example",
-     "joined_at": 1788287205
+     "joined_at": 1788288226
     }
    },
    {
@@ -2884,7 +3019,7 @@
      "name": "Hana Sato",
      "role": "Site Reliability Engineer",
      "email": "hana.sato@northwind.example",
-     "joined_at": 1723055205
+     "joined_at": 1723056226
     }
    },
    {
@@ -2977,10 +3112,10 @@
     "name": "Why are SMS retries capped?",
     "origin": "seed",
     "props": {
-     "ts": 1767119205,
+     "ts": 1767120226,
      "origin": "seed",
      "title": "Why are SMS retries capped?",
-     "text": "[2025-12-30 18:26] Maya Okoro: Post-incident question: why did notifications hammer the SMS provider? [2025-12-30 18:28] Owen Bryce: Every provider timeout triggered an immediate retry, forever. The provider throttled our whole account. [2025-12-30 18:30] Owen Bryce: Decision: SMS retries stay capped at 3 attempts with exponential backoff; more than that floods the provider and gets us throttled.…",
+     "text": "[2025-12-30 18:43] Maya Okoro: Post-incident question: why did notifications hammer the SMS provider? [2025-12-30 18:45] Owen Bryce: Every provider timeout triggered an immediate retry, forever. The provider throttled our whole account. [2025-12-30 18:47] Owen Bryce: Decision: SMS retries stay capped at 3 attempts with exponential backoff; more than that floods the provider and gets us throttled.…",
      "channel": "#platform"
     }
    },
@@ -2993,7 +3128,7 @@
      "origin": "seed",
      "title": "notifications README",
      "text": "# notifications Sends appointment reminders and result alerts. SMS goes through sms-gateway; email through the mail provider. Owner: Owen Bryce. Retries: at most 3 SMS attempts with exponential backoff (see #platform).",
-     "updated_at": 1767983205,
+     "updated_at": 1767984226,
      "flagged_stale": false
     }
    },
@@ -3036,7 +3171,7 @@
      "origin": "seed",
      "title": "SMS retries are capped at 3 attempts with backoff",
      "rationale": "Unbounded or immediate SMS retries flood the provider, which throttles the whole account.",
-     "decided_at": 1767119205
+     "decided_at": 1767120226
     }
    },
    {
@@ -3067,7 +3202,7 @@
     "name": "INC-NW-2025-14",
     "origin": "seed",
     "props": {
-     "started_at": 1766255205,
+     "started_at": 1766256226,
      "status": "resolved",
      "origin": "seed",
      "title": "Appointment reminders stopped: SMS provider throttled us",
@@ -3075,7 +3210,7 @@
      "key": "INC-NW-2025-14",
      "severity": 2,
      "symptom": "appointment reminder SMS not sent; provider 429s",
-     "resolved_at": 1766258805
+     "resolved_at": 1766259826
     }
    },
    {
@@ -3084,7 +3219,7 @@
     "name": "INC-NW-2026-03",
     "origin": "seed",
     "props": {
-     "started_at": 1786991205,
+     "started_at": 1786992226,
      "status": "resolved",
      "origin": "seed",
      "title": "Results page timeouts after records migration",
@@ -3092,7 +3227,7 @@
      "key": "INC-NW-2026-03",
      "severity": 3,
      "symptom": "portal results page timing out",
-     "resolved_at": 1786994805
+     "resolved_at": 1786995826
     }
    },
    {
@@ -3126,7 +3261,7 @@
      "origin": "seed",
      "title": "Runbook: notification delivery failures",
      "steps": "1. Check the sms-gateway error rate. 2. Check provider status. 3. Pause reminder batches if throttled.",
-     "updated_at": 1767983205,
+     "updated_at": 1767984226,
      "version": 1
     }
    },
@@ -3136,7 +3271,7 @@
     "name": "3.1.0",
     "origin": "seed",
     "props": {
-     "ts": 1766255205,
+     "ts": 1766256226,
      "origin": "seed",
      "summary": "Unbounded SMS retries on provider timeout",
      "version": "3.1.0"
@@ -3148,7 +3283,7 @@
     "name": "3.3.0",
     "origin": "seed",
     "props": {
-     "ts": 1792173885,
+     "ts": 1792174906,
      "origin": "seed",
      "summary": "Send SMS synchronously inside the request (no queue)",
      "version": "3.3.0"
@@ -3160,7 +3295,7 @@
     "name": "15.2.0",
     "origin": "seed",
     "props": {
-     "ts": 1792174845,
+     "ts": 1792175866,
      "origin": "seed",
      "summary": "PostgreSQL minor upgrade 15.1 -> 15.2",
      "version": "15.2.0"
@@ -3224,7 +3359,7 @@
     "origin": "seed",
     "props": {
      "commits": 25,
-     "last_at": 1788719205
+     "last_at": 1788720226
     }
    },
    {
@@ -3241,7 +3376,7 @@
     "origin": "seed",
     "props": {
      "commits": 90,
-     "last_at": 1792002405
+     "last_at": 1792003426
     }
    },
    {
@@ -3286,7 +3421,7 @@
     "origin": "seed",
     "props": {
      "commits": 110,
-     "last_at": 1791656805
+     "last_at": 1791657826
     }
    },
    {
@@ -3296,7 +3431,7 @@
     "origin": "seed",
     "props": {
      "commits": 18,
-     "last_at": 1789583205
+     "last_at": 1789584226
     }
    },
    {
@@ -3306,7 +3441,7 @@
     "origin": "seed",
     "props": {
      "commits": 4,
-     "last_at": 1792175205
+     "last_at": 1792176226
     }
    },
    {
@@ -3545,7 +3680,7 @@
   ]
  },
  "execution": {
-  "session_id": "ses:exec-run-c9f5b2b0a60d",
+  "session_id": "ses:exec-run-7335de7ba0f0",
   "already_executed": false,
   "results": [
    {
@@ -3591,6 +3726,9 @@
     "summary": "flagged rb:notifications-delivery stale: author_left"
    }
   ],
+  "incident_ids": [
+   "inc:2026-001"
+  ],
   "incidents": [
    "inc:2026-001"
   ],
@@ -3598,15 +3736,16 @@
    "checks": [
     {
      "incident": 0,
-     "cleared": true,
+     "reverted": true,
      "tool": "recent_changes_downstream",
      "queries": [
       {
        "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
        "params": {
         "id": "svc:appointments",
-        "since": 1792168005
-       }
+        "since": 1792169026
+       },
+       "ms": 0.67
       },
       {
        "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -3615,7 +3754,8 @@
         "to": "svc:notifications",
         "dir": "outgoing",
         "maxlen": 6
-       }
+       },
+       "ms": 0.49
       },
       {
        "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -3624,13 +3764,14 @@
         "to": "svc:notifications",
         "dir": "outgoing",
         "maxlen": 6
-       }
+       },
+       "ms": 0.38
       }
      ],
-     "summary": "the newest change on svc:notifications is now the rollback (dep:notifications-v3.3.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+     "summary": "re-ran recent_changes_downstream: the newest change on svc:notifications is now the rollback of dep:notifications-v3.3.0 (simulated), so the lead is neutralised in the graph; whether the alert clears would show in real metrics"
     }
    ],
-   "all_cleared": true,
+   "all_reverted": true,
    "simulated": true
   }
  }

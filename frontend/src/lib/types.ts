@@ -52,7 +52,7 @@ export type Action = {
 export type Execution = {
   session_id: string; already_executed: boolean; incidents?: string[];
   results: { action?: string; kind?: string; title?: string; ok?: boolean; summary: string }[];
-  verification: { checks: { incident: number; cleared: boolean; summary: string; tool?: string }[]; all_cleared: boolean; simulated: boolean } | null;
+  verification: { checks: { incident: number; reverted: boolean; summary: string; tool?: string }[]; all_reverted: boolean; simulated: boolean } | null;
 };
 export type Scenario = { id: string; tenant: string; shape: string; why: string; alerts: { service_id: string; symptom: string }[]; replay: string | null };
 

@@ -32,13 +32,14 @@ async function shot(page: Page, name: string, theme: string, ms = 1300) {
 test("alert storm: six alerts collapse into two incidents, pages suppressed with reasons", async ({ page }) => {
   await openScenario(page, "k-storm");
   await expect(page.getByTestId("ff-caption")).toContainText("6 alerts");
+  await expect(page.getByTestId("via-mcp")).toContainText("through MCP");
   await seekFF(page, "end");
   await expect(page.getByTestId("outcome")).toContainText("6 alerts → 2 incidents · 2 pages");
   await page.getByTestId("tab-report").click();
   await expect(page.getByTestId("suppressed").locator("li")).toHaveCount(5);
   await page.getByTestId("tab-actions").click();
   await expect(page.getByTestId("action-suppress_page")).toHaveCount(5);
-  await expect(page.getByTestId("verification")).toContainText("Cleared");
+  await expect(page.getByTestId("verification")).toContainText("Rollback in place");
   await expect(page.getByTestId("approve")).toHaveCount(0); // recordings can't be approved
 });
 
@@ -79,7 +80,7 @@ test("with the access code: a fresh run, approve, verification", async ({ page }
   await seekFF(page, "end");
   await page.getByTestId("tab-actions").click();
   await page.getByTestId("approve").click();
-  await expect(page.getByTestId("verification")).toContainText("Cleared", { timeout: 20_000 });
+  await expect(page.getByTestId("verification")).toContainText("Rollback in place", { timeout: 20_000 });
 });
 
 for (const theme of ["light", "dark"] as const) {

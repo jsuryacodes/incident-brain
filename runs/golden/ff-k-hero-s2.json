@@ -1,5 +1,5 @@
 {
- "run_id": "run-aac170a592c3",
+ "run_id": "run-b34e8ca38afa",
  "agent": "firefighter",
  "tenant": "kestrel_pay__eval_play",
  "alert": {
@@ -8,7 +8,7 @@
  },
  "mode": "mock",
  "model": "mock",
- "started_at": 1792175205,
+ "started_at": 1792176225,
  "status": "ok",
  "report": {
   "summary": "payouts-service alert most likely caused by dep:risk-rules-v2.8.1 on risk-rules, deployed 5 min ago. The change contradicts decision dec:rules-cache-ttl. Contact Priya Nair.",
@@ -227,7 +227,7 @@
   "cost_usd": 0.0,
   "llm_calls": 5,
   "tool_calls": 11,
-  "duration_ms": 28
+  "duration_ms": 38
  },
  "steps": [
   {
@@ -294,7 +294,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.52
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -310,7 +311,8 @@
         "svc:ledger-db",
         "svc:audit-log"
        ]
-      }
+      },
+      "ms": 0.59
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -329,7 +331,8 @@
        "skip": [
         "fact:risk-rules-polls-config"
        ]
-      }
+      },
+      "ms": 0.46
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -345,9 +348,11 @@
         "svc:ledger-db",
         "svc:audit-log"
        ]
-      }
+      },
+      "ms": 0.56
      }
     ],
+    "ms": 2.13,
     "highlight": {
      "nodes": [
       "svc:risk-rules",
@@ -372,8 +377,8 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → 1 learned edge(s), 0 fact(s), 0 resolved incident(s); suspect: risk-rules",
-   "ts": 1792175205,
-   "ms": 2,
+   "ts": 1792176225,
+   "ms": 4,
    "llm_call": 1
   },
   {
@@ -395,7 +400,7 @@
       "deploy": {
        "id": "dep:risk-rules-v2.8.1",
        "version": "2.8.1",
-       "ts": 1792174905,
+       "ts": 1792175925,
        "minutes_ago": 5,
        "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
        "by": "Leo Park"
@@ -419,11 +424,13 @@
      {
       "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
       "params": {
-       "since": 1792168005,
+       "since": 1792169025,
        "limit": 31
-      }
+      },
+      "ms": 0.74
      }
     ],
+    "ms": 0.74,
     "highlight": {
      "nodes": [
       "dep:risk-rules-v2.8.1",
@@ -446,8 +453,8 @@
    },
    "why": "list every recent change in the company: each one is a lead",
    "summary": "recent_changes → 1 change(s) in 120 min: risk-rules 5 min ago",
-   "ts": 1792175205,
-   "ms": 0,
+   "ts": 1792176225,
+   "ms": 1,
    "llm_call": 1
   },
   {
@@ -479,10 +486,12 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792168005
-      }
+       "since": 1792169025
+      },
+      "ms": 0.58
      }
     ],
+    "ms": 0.58,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -490,8 +499,8 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → no recent downstream deploys",
-   "ts": 1792175205,
-   "ms": 0,
+   "ts": 1792176225,
+   "ms": 1,
    "llm_call": 2
   },
   {
@@ -514,7 +523,7 @@
       "deploy": {
        "id": "dep:risk-rules-v2.8.1",
        "version": "2.8.1",
-       "ts": 1792174905,
+       "ts": 1792175925,
        "minutes_ago": 5,
        "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
        "by": "Leo Park"
@@ -563,13 +572,14 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.45
      },
      {
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792168005,
+       "since": 1792169025,
        "downstream": [
         "svc:ledger-service",
         "svc:bank-connector",
@@ -580,7 +590,8 @@
         "svc:ledger-db",
         "svc:audit-log"
        ]
-      }
+      },
+      "ms": 1.49
      },
      {
       "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
@@ -589,9 +600,11 @@
         "svc:config-db",
         "svc:config-service"
        ]
-      }
+      },
+      "ms": 0.47
      }
     ],
+    "ms": 2.41,
     "highlight": {
      "nodes": [
       "svc:payouts-service",
@@ -632,7 +645,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → 1 hit(s): risk-rules via shared config-service (LEARNED edge), deployed 5 min ago",
-   "ts": 1792175205,
+   "ts": 1792176225,
    "ms": 3,
    "llm_call": 2
   },
@@ -662,15 +675,18 @@
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.56
      },
      {
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.44
      }
     ],
+    "ms": 1.0,
     "highlight": {
      "nodes": [
       "svc:payouts-service"
@@ -680,8 +696,8 @@
    },
    "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 0 upstream (0 tier-1)",
-   "ts": 1792175205,
-   "ms": 1,
+   "ts": 1792176225,
+   "ms": 2,
    "llm_call": 3
   },
   {
@@ -757,33 +773,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:risk-rules"
-      }
+      },
+      "ms": 0.47
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:risk-rules"
-      }
+      },
+      "ms": 0.51
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:risk-rules"
-      }
+      },
+      "ms": 0.49
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:risk-rules"
-      }
+      },
+      "ms": 0.5
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:risk-rules"
-      }
+      },
+      "ms": 0.46
      }
     ],
+    "ms": 2.43,
     "highlight": {
      "nodes": [
       "per:priya-nair",
@@ -824,8 +846,8 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Priya Nair (score 48); maintainer Arjun Mehta LEFT",
-   "ts": 1792175205,
-   "ms": 3,
+   "ts": 1792176225,
+   "ms": 4,
    "llm_call": 3
   },
   {
@@ -870,9 +892,11 @@
       "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
       "params": {
        "id": "svc:risk-rules"
-      }
+      },
+      "ms": 0.65
      }
     ],
+    "ms": 0.65,
     "highlight": {
      "nodes": [
       "dec:rules-cache-ttl",
@@ -901,8 +925,8 @@
    },
    "why": "does the change contradict a recorded decision?",
    "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s",
-   "ts": 1792175205,
-   "ms": 1,
+   "ts": 1792176225,
+   "ms": 2,
    "llm_call": 3
   },
   {
@@ -919,6 +943,7 @@
     "service_tier": 1,
     "version": "2.8.1",
     "later_deploys": [],
+    "callers_changed_since": [],
     "dependents": 5,
     "tier1_dependents": 4,
     "hard_to_undo_terms": [],
@@ -938,22 +963,34 @@
       "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
       "params": {
        "id": "dep:risk-rules-v2.8.1"
-      }
+      },
+      "ms": 0.48
      },
      {
       "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
       "params": {
        "sid": "svc:risk-rules",
-       "ts": 1792174905
-      }
+       "ts": 1792175925
+      },
+      "ms": 0.41
      },
      {
       "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
       "params": {
        "sid": "svc:risk-rules"
-      }
+      },
+      "ms": 0.43
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON]->(:Service {id:$sid}) MATCH (x:Deploy)-[:CHANGED]->(c) WHERE x.ts > $ts RETURN c.id, x.id ORDER BY x.ts",
+      "params": {
+       "sid": "svc:risk-rules",
+       "ts": 1792175925
+      },
+      "ms": 0.39
      }
     ],
+    "ms": 1.71,
     "highlight": {
      "nodes": [
       "dep:risk-rules-v2.8.1",
@@ -970,8 +1007,8 @@
    },
    "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
    "summary": "rollback_safety → rollback safe: nothing shipped to risk-rules after it and nothing in the change looks irreversible",
-   "ts": 1792175205,
-   "ms": 2,
+   "ts": 1792176225,
+   "ms": 3,
    "llm_call": 3
   },
   {
@@ -1021,9 +1058,11 @@
       "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
       "params": {
        "sid": "svc:risk-rules"
-      }
+      },
+      "ms": 0.79
      }
     ],
+    "ms": 0.79,
     "highlight": {
      "nodes": [
       "doc:risk-rules-readme",
@@ -1057,8 +1096,8 @@
    },
    "why": "which docs and runbooks are out of date?",
    "summary": "stale_knowledge → 1 stale: doc:risk-rules-readme",
-   "ts": 1792175205,
-   "ms": 1,
+   "ts": 1792176225,
+   "ms": 2,
    "llm_call": 3
   },
   {
@@ -1181,7 +1220,8 @@
         "svc:risk-rules",
         "svc:config-service"
        ]
-      }
+      },
+      "ms": 0.46
      },
      {
       "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
@@ -1191,7 +1231,8 @@
         "svc:risk-rules",
         "svc:config-service"
        ]
-      }
+      },
+      "ms": 0.52
      },
      {
       "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
@@ -1201,9 +1242,11 @@
         "inc:2025-031",
         "inc:2026-012"
        ]
-      }
+      },
+      "ms": 1.11
      }
     ],
+    "ms": 2.09,
     "highlight": {
      "nodes": [
       "inc:2025-031",
@@ -1321,7 +1364,7 @@
    },
    "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 3 incident(s): INC-2025-031 (fixed by Priya Nair, Arjun Mehta), INC-2026-012 (fixed by Priya Nair), INC-2025-044 (fixed by Marcus Webb)",
-   "ts": 1792175205,
+   "ts": 1792176225,
    "ms": 4,
    "llm_call": 3
   },
@@ -1379,9 +1422,11 @@
        "rcs": [
         "rc:cache-ttl-thundering-herd"
        ]
-      }
+      },
+      "ms": 0.59
      }
     ],
+    "ms": 0.59,
     "highlight": {
      "nodes": [
       "pm:slack-2022-02-22",
@@ -1404,8 +1449,8 @@
    },
    "why": "has another company had the same root cause?",
    "summary": "industry_matches → 2 public postmortem(s): Slack — Slack's Incident on 2-22-22",
-   "ts": 1792175205,
-   "ms": 1,
+   "ts": 1792176225,
+   "ms": 2,
    "llm_call": 4
   },
   {
@@ -1845,11 +1890,16 @@
    },
    "why": "the evidence is in: submit the grounded report",
    "summary": "payouts-service alert most likely caused by dep:risk-rules-v2.8.1 on risk-rules, deployed 5 min ago. The change contradicts decision dec:rules-cache-ttl. Contact Priya Nair.",
-   "ts": 1792175205,
-   "ms": 2,
+   "ts": 1792176225,
+   "ms": 1,
    "llm_call": 5
   }
  ],
+ "tools_via": {
+  "transport": "mcp",
+  "tools_listed": 22,
+  "mcp_calls": 11
+ },
  "twin": "kestrel_pay__eval_play",
  "scenario": "k-hero-s2",
  "graph": {
@@ -1875,7 +1925,7 @@
      "name": "Priya Nair",
      "role": "Senior Engineer",
      "email": "priya.nair@kestrelpay.example",
-     "joined_at": 1662575205
+     "joined_at": 1662576225
     }
    },
    {
@@ -1889,7 +1939,7 @@
      "name": "Marcus Webb",
      "role": "Staff Engineer",
      "email": "marcus.webb@kestrelpay.example",
-     "joined_at": 1593455205
+     "joined_at": 1593456225
     }
    },
    {
@@ -1903,8 +1953,8 @@
      "name": "Arjun Mehta",
      "role": "Staff Engineer",
      "email": "arjun.mehta@kestrelpay.example",
-     "joined_at": 1602095205,
-     "left_at": 1783967205
+     "joined_at": 1602096225,
+     "left_at": 1783968225
     }
    },
    {
@@ -1918,7 +1968,7 @@
      "name": "Leo Park",
      "role": "Engineer",
      "email": "leo.park@kestrelpay.example",
-     "joined_at": 1786991205
+     "joined_at": 1786992225
     }
    },
    {
@@ -1932,7 +1982,7 @@
      "name": "Dana Okafor",
      "role": "Engineering Manager",
      "email": "dana.okafor@kestrelpay.example",
-     "joined_at": 1757615205
+     "joined_at": 1757616225
     }
    },
    {
@@ -2039,7 +2089,7 @@
     "name": "2.3.0",
     "origin": "seed",
     "props": {
-     "ts": 1752852405,
+     "ts": 1752853425,
      "origin": "seed",
      "summary": "Lower RULES_CACHE_TTL to 10s",
      "version": "2.3.0"
@@ -2051,7 +2101,7 @@
     "name": "2.8.1",
     "origin": "seed",
     "props": {
-     "ts": 1792174905,
+     "ts": 1792175925,
      "origin": "seed",
      "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
      "version": "2.8.1"
@@ -2063,10 +2113,10 @@
     "name": "How does risk-rules get its rules? (config load)",
     "origin": "seed",
     "props": {
-     "ts": 1755023205,
+     "ts": 1755024225,
      "origin": "seed",
      "title": "How does risk-rules get its rules? (config load)",
-     "text": "[2025-08-12 18:26] Priya Nair: Arjun, quick one while I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 18:29] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just the source of truth for the rule editor. On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint. [2025-08-12 18:30]…",
+     "text": "[2025-08-12 18:43] Priya Nair: Arjun, quick one while I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 18:46] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just the source of truth for the rule editor. On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint. [2025-08-12 18:47]…",
      "channel": "#risk-eng"
     }
    },
@@ -2079,7 +2129,7 @@
      "origin": "seed",
      "title": "risk-rules README",
      "text": "# risk-rules risk-rules is the fraud rule engine. It evaluates analyst-authored rules (velocity limits, geo mismatches, device reputation, BIN blocklists) against the feature vector that fraud-scoring sends for every payment, and returns a list of rule verdicts in under 20 ms. ## Ownership Owner and primary contact: Arjun Mehta (Risk & Fraud). Page the Risk & Fraud on-call if Arjun is unavailable…",
-     "updated_at": 1740335205,
+     "updated_at": 1740336225,
      "flagged_stale": false
     }
    },
@@ -2152,7 +2202,7 @@
      "origin": "seed",
      "title": "RULES_CACHE_TTL must stay ≥ 300s",
      "rationale": "Below ~30s config-service saturates at checkout peak, because risk-rules refetches rulesets from it on every cache miss. This is what caused INC-2025-031.",
-     "decided_at": 1755023205
+     "decided_at": 1755024225
     }
    },
    {
@@ -2183,7 +2233,7 @@
     "name": "INC-2025-031",
     "origin": "seed",
     "props": {
-     "started_at": 1752863205,
+     "started_at": 1752864225,
      "status": "resolved",
      "origin": "seed",
      "title": "fraud-scoring timeouts during checkout peak",
@@ -2191,7 +2241,7 @@
      "key": "INC-2025-031",
      "severity": 2,
      "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%",
-     "resolved_at": 1752870405
+     "resolved_at": 1752871425
     }
    },
    {
@@ -2200,7 +2250,7 @@
     "name": "INC-2026-012",
     "origin": "seed",
     "props": {
-     "started_at": 1779215205,
+     "started_at": 1779216225,
      "status": "resolved",
      "origin": "seed",
      "title": "merchant-onboarding config reads timing out",
@@ -2208,7 +2258,7 @@
      "key": "INC-2026-012",
      "severity": 3,
      "symptom": "merchant signups slow or failing; config-service latency elevated",
-     "resolved_at": 1779218805
+     "resolved_at": 1779219825
     }
    },
    {
@@ -2217,7 +2267,7 @@
     "name": "INC-2025-044",
     "origin": "seed",
     "props": {
-     "started_at": 1758047205,
+     "started_at": 1758048225,
      "status": "resolved",
      "origin": "seed",
      "title": "ledger-service connection pool exhausted during payout run",
@@ -2225,7 +2275,7 @@
      "key": "INC-2025-044",
      "severity": 2,
      "symptom": "payout run stalled; payment captures failing with pool timeout errors",
-     "resolved_at": 1758058005
+     "resolved_at": 1758059025
     }
    },
    {
@@ -2316,7 +2366,7 @@
     "origin": "seed",
     "props": {
      "commits": 23,
-     "last_at": 1788719205
+     "last_at": 1788720225
     }
    },
    {
@@ -2347,7 +2397,7 @@
     "origin": "seed",
     "props": {
      "commits": 3,
-     "last_at": 1792088805
+     "last_at": 1792089825
     }
    },
    {
@@ -2364,7 +2414,7 @@
     "origin": "seed",
     "props": {
      "commits": 2,
-     "last_at": 1781807205
+     "last_at": 1781808225
     }
    },
    {
@@ -2426,7 +2476,7 @@
      "origin": "agent",
      "kind": "sync",
      "source": "learned",
-     "learned_at": 1791916005,
+     "learned_at": 1791917025,
      "learned_from": "fact:risk-rules-polls-config"
     }
    },
@@ -2642,7 +2692,7 @@
   "alert": "svc:payouts-service"
  },
  "execution": {
-  "session_id": "ses:exec-run-aac170a592c3",
+  "session_id": "ses:exec-run-b34e8ca38afa",
   "already_executed": false,
   "results": [
    {
@@ -2674,6 +2724,9 @@
     "summary": "flagged doc:risk-rules-readme stale: author_left, names_departed_person, old_vs_changes, missing_learned_dependency"
    }
   ],
+  "incident_ids": [
+   "inc:2026-032"
+  ],
   "incidents": [
    "inc:2026-032"
   ],
@@ -2681,21 +2734,22 @@
    "checks": [
     {
      "incident": 0,
-     "cleared": false,
+     "reverted": false,
      "tool": "recent_changes_downstream",
      "queries": [
       {
        "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
        "params": {
         "id": "svc:payouts-service",
-        "since": 1792168005
-       }
+        "since": 1792169025
+       },
+       "ms": 0.53
       }
      ],
-     "summary": "dep:risk-rules-v2.8.1 is still the newest change on svc:risk-rules: not cleared"
+     "summary": "dep:risk-rules-v2.8.1 is no longer in this graph (its copy of the company was replaced)"
     }
    ],
-   "all_cleared": false,
+   "all_reverted": false,
    "simulated": true
   }
  }

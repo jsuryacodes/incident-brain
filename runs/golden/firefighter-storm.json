@@ -1,5 +1,5 @@
 {
- "run_id": "run-f9b00a2eb57d",
+ "run_id": "run-9245cc08f141",
  "agent": "firefighter",
  "tenant": "kestrel_pay__eval_story_storm",
  "alert": [
@@ -30,7 +30,7 @@
  ],
  "mode": "mock",
  "model": "mock",
- "started_at": 1792175206,
+ "started_at": 1792176227,
  "status": "ok",
  "report": {
   "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
@@ -215,6 +215,18 @@
       "service_id": "svc:web-checkout",
       "hops": 2
      }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "5 alerts share config-service",
+      "node_id": "svc:config-service"
+     },
+     {
+      "effect": "-",
+      "factor": "no change on it: saturation is inferred from structure",
+      "node_id": null
+     }
     ]
    },
    {
@@ -251,7 +263,24 @@
     "look_first": null,
     "root": null,
     "suppressed_pages": [],
-    "notify": []
+    "notify": [],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "the alerting service itself changed",
+      "node_id": "dep:card-processor-adapter-v2.9.0"
+     },
+     {
+      "effect": "-",
+      "factor": "no recorded decision says it is risky",
+      "node_id": null
+     },
+     {
+      "effect": "-",
+      "factor": "no past incident with the same cause",
+      "node_id": null
+     }
+    ]
    }
   ],
   "suppressed_pages": [
@@ -595,7 +624,7 @@
   "cost_usd": 0.0,
   "llm_calls": 5,
   "tool_calls": 37,
-  "duration_ms": 75
+  "duration_ms": 73
  },
  "steps": [
   {
@@ -630,7 +659,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:auth-service"
-      }
+      },
+      "ms": 0.46
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -640,7 +670,8 @@
         "svc:config-service",
         "svc:config-db"
        ]
-      }
+      },
+      "ms": 0.47
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -651,7 +682,8 @@
         "svc:config-db"
        ],
        "skip": []
-      }
+      },
+      "ms": 0.48
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -661,9 +693,11 @@
         "svc:config-service",
         "svc:config-db"
        ]
-      }
+      },
+      "ms": 0.48
      }
     ],
+    "ms": 1.89,
     "highlight": {
      "nodes": [
       "svc:auth-service"
@@ -673,7 +707,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 2,
    "llm_call": 1
   },
@@ -715,7 +749,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.32
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -731,7 +766,8 @@
         "svc:ledger-db",
         "svc:audit-log"
        ]
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -748,7 +784,8 @@
         "svc:audit-log"
        ],
        "skip": []
-      }
+      },
+      "ms": 0.31
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -764,9 +801,11 @@
         "svc:ledger-db",
         "svc:audit-log"
        ]
-      }
+      },
+      "ms": 0.37
      }
     ],
+    "ms": 1.34,
     "highlight": {
      "nodes": [
       "svc:payouts-service"
@@ -776,7 +815,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 1
   },
@@ -817,7 +856,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:merchant-onboarding"
-      }
+      },
+      "ms": 0.32
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -832,7 +872,8 @@
         "svc:config-db",
         "svc:sanctions-screening"
        ]
-      }
+      },
+      "ms": 0.35
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -848,7 +889,8 @@
         "svc:sanctions-screening"
        ],
        "skip": []
-      }
+      },
+      "ms": 0.29
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -863,9 +905,11 @@
         "svc:config-db",
         "svc:sanctions-screening"
        ]
-      }
+      },
+      "ms": 0.34
      }
     ],
+    "ms": 1.3,
     "highlight": {
      "nodes": [
       "svc:merchant-onboarding"
@@ -875,7 +919,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 1
   },
@@ -912,7 +956,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:webhook-dispatcher"
-      }
+      },
+      "ms": 0.3
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -923,7 +968,8 @@
         "svc:kafka-events",
         "svc:config-db"
        ]
-      }
+      },
+      "ms": 0.33
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -935,7 +981,8 @@
         "svc:config-db"
        ],
        "skip": []
-      }
+      },
+      "ms": 0.29
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -946,9 +993,11 @@
         "svc:kafka-events",
         "svc:config-db"
        ]
-      }
+      },
+      "ms": 0.34
      }
     ],
+    "ms": 1.26,
     "highlight": {
      "nodes": [
       "svc:webhook-dispatcher"
@@ -958,7 +1007,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 1
   },
@@ -996,7 +1045,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:notifications-service"
-      }
+      },
+      "ms": 0.44
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -1008,7 +1058,8 @@
         "svc:email-sender",
         "svc:config-db"
        ]
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -1021,7 +1072,8 @@
         "svc:config-db"
        ],
        "skip": []
-      }
+      },
+      "ms": 0.3
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -1033,9 +1085,11 @@
         "svc:email-sender",
         "svc:config-db"
        ]
-      }
+      },
+      "ms": 0.35
      }
     ],
+    "ms": 1.43,
     "highlight": {
      "nodes": [
       "svc:notifications-service"
@@ -1045,7 +1099,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 1
   },
@@ -1079,7 +1133,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.29
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -1087,7 +1142,8 @@
        "ids": [
         "svc:card-processor-adapter"
        ]
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -1096,7 +1152,8 @@
         "svc:card-processor-adapter"
        ],
        "skip": []
-      }
+      },
+      "ms": 0.32
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -1104,9 +1161,11 @@
        "ids": [
         "svc:card-processor-adapter"
        ]
-      }
+      },
+      "ms": 0.37
      }
     ],
+    "ms": 1.32,
     "highlight": {
      "nodes": [
       "svc:card-processor-adapter"
@@ -1116,7 +1175,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 1
   },
@@ -1139,7 +1198,7 @@
       "deploy": {
        "id": "dep:email-sender-v1.15.0",
        "version": "1.15.0",
-       "ts": 1792174486,
+       "ts": 1792175507,
        "minutes_ago": 12,
        "summary": "Switch to the new transactional template engine",
        "by": "Kenji Watanabe"
@@ -1154,7 +1213,7 @@
       "deploy": {
        "id": "dep:card-processor-adapter-v2.9.0",
        "version": "2.9.0",
-       "ts": 1792173706,
+       "ts": 1792174727,
        "minutes_ago": 25,
        "summary": "Rotate the acquirer client certificate bundle",
        "by": "Sofia Alvarez"
@@ -1175,11 +1234,13 @@
      {
       "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
       "params": {
-       "since": 1792168006,
+       "since": 1792169027,
        "limit": 31
-      }
+      },
+      "ms": 0.51
      }
     ],
+    "ms": 0.51,
     "highlight": {
      "nodes": [
       "dep:email-sender-v1.15.0",
@@ -1215,7 +1276,7 @@
    },
    "why": "list every recent change in the company: each one is a lead",
    "summary": "recent_changes → 2 change(s) in 120 min: email-sender 12 min ago, card-processor-adapter 25 min ago",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 0,
    "llm_call": 1
   },
@@ -1248,10 +1309,12 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:auth-service",
-       "since": 1792168006
-      }
+       "since": 1792169027
+      },
+      "ms": 0.49
      }
     ],
+    "ms": 0.49,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -1259,7 +1322,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → no recent downstream deploys",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 0,
    "llm_call": 2
   },
@@ -1291,20 +1354,23 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
       "params": {
        "id": "svc:auth-service"
-      }
+      },
+      "ms": 0.36
      },
      {
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:auth-service",
-       "since": 1792168006,
+       "since": 1792169027,
        "downstream": [
         "svc:config-service",
         "svc:config-db"
        ]
-      }
+      },
+      "ms": 0.65
      }
     ],
+    "ms": 1.01,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -1312,7 +1378,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 2
   },
@@ -1345,10 +1411,12 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792168006
-      }
+       "since": 1792169027
+      },
+      "ms": 0.35
      }
     ],
+    "ms": 0.35,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -1356,7 +1424,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → no recent downstream deploys",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 0,
    "llm_call": 2
   },
@@ -1388,13 +1456,14 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.31
      },
      {
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792168006,
+       "since": 1792169027,
        "downstream": [
         "svc:ledger-service",
         "svc:bank-connector",
@@ -1405,9 +1474,11 @@
         "svc:ledger-db",
         "svc:audit-log"
        ]
-      }
+      },
+      "ms": 0.5
      }
     ],
+    "ms": 0.81,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -1415,7 +1486,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 2
   },
@@ -1449,7 +1520,7 @@
       "deploy": {
        "id": "dep:email-sender-v1.15.0",
        "version": "1.15.0",
-       "ts": 1792174486,
+       "ts": 1792175507,
        "minutes_ago": 12,
        "summary": "Switch to the new transactional template engine",
        "by": "Kenji Watanabe"
@@ -1470,8 +1541,9 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:merchant-onboarding",
-       "since": 1792168006
-      }
+       "since": 1792169027
+      },
+      "ms": 0.4
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -1480,9 +1552,11 @@
        "to": "svc:email-sender",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.41
      }
     ],
+    "ms": 0.81,
     "highlight": {
      "nodes": [
       "svc:merchant-onboarding",
@@ -1517,7 +1591,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 2
   },
@@ -1549,13 +1623,14 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
       "params": {
        "id": "svc:merchant-onboarding"
-      }
+      },
+      "ms": 0.31
      },
      {
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:merchant-onboarding",
-       "since": 1792168006,
+       "since": 1792169027,
        "downstream": [
         "svc:kyc-service",
         "svc:config-service",
@@ -1565,9 +1640,11 @@
         "svc:config-db",
         "svc:sanctions-screening"
        ]
-      }
+      },
+      "ms": 0.46
      }
     ],
+    "ms": 0.77,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -1575,7 +1652,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 2
   },
@@ -1608,10 +1685,12 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:webhook-dispatcher",
-       "since": 1792168006
-      }
+       "since": 1792169027
+      },
+      "ms": 0.38
      }
     ],
+    "ms": 0.38,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -1619,7 +1698,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → no recent downstream deploys",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 0,
    "llm_call": 2
   },
@@ -1651,21 +1730,24 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
       "params": {
        "id": "svc:webhook-dispatcher"
-      }
+      },
+      "ms": 0.31
      },
      {
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:webhook-dispatcher",
-       "since": 1792168006,
+       "since": 1792169027,
        "downstream": [
         "svc:config-service",
         "svc:kafka-events",
         "svc:config-db"
        ]
-      }
+      },
+      "ms": 0.47
      }
     ],
+    "ms": 0.78,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -1673,7 +1755,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 2
   },
@@ -1705,7 +1787,7 @@
       "deploy": {
        "id": "dep:email-sender-v1.15.0",
        "version": "1.15.0",
-       "ts": 1792174486,
+       "ts": 1792175507,
        "minutes_ago": 12,
        "summary": "Switch to the new transactional template engine",
        "by": "Kenji Watanabe"
@@ -1726,8 +1808,9 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:notifications-service",
-       "since": 1792168006
-      }
+       "since": 1792169027
+      },
+      "ms": 0.39
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -1736,9 +1819,11 @@
        "to": "svc:email-sender",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.32
      }
     ],
+    "ms": 0.71,
     "highlight": {
      "nodes": [
       "svc:notifications-service",
@@ -1767,7 +1852,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 2
   },
@@ -1799,22 +1884,25 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
       "params": {
        "id": "svc:notifications-service"
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:notifications-service",
-       "since": 1792168006,
+       "since": 1792169027,
        "downstream": [
         "svc:config-service",
         "svc:kafka-events",
         "svc:email-sender",
         "svc:config-db"
        ]
-      }
+      },
+      "ms": 0.48
      }
     ],
+    "ms": 0.82,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -1822,7 +1910,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 2
   },
@@ -1851,7 +1939,7 @@
       "deploy": {
        "id": "dep:card-processor-adapter-v2.9.0",
        "version": "2.9.0",
-       "ts": 1792173706,
+       "ts": 1792174727,
        "minutes_ago": 25,
        "summary": "Rotate the acquirer client certificate bundle",
        "by": "Sofia Alvarez"
@@ -1872,10 +1960,12 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:card-processor-adapter",
-       "since": 1792168006
-      }
+       "since": 1792169027
+      },
+      "ms": 0.39
      }
     ],
+    "ms": 0.39,
     "highlight": {
      "nodes": [
       "dep:card-processor-adapter-v2.9.0",
@@ -1898,7 +1988,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): card-processor-adapter (deployed 25 min ago by Sofia Alvarez)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 0,
    "llm_call": 2
   },
@@ -1930,17 +2020,20 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
       "params": {
        "id": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.27
      },
      {
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:card-processor-adapter",
-       "since": 1792168006,
+       "since": 1792169027,
        "downstream": []
-      }
+      },
+      "ms": 0.46
      }
     ],
+    "ms": 0.73,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -1948,7 +2041,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 2
   },
@@ -2120,7 +2213,8 @@
         "svc:card-processor-adapter"
        ],
        "depth": 6
-      }
+      },
+      "ms": 0.62
      },
      {
       "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
@@ -2130,7 +2224,8 @@
         "svc:config-service",
         "svc:kafka-events"
        ]
-      }
+      },
+      "ms": 0.37
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2139,7 +2234,8 @@
        "to": "svc:config-db",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.33
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2148,7 +2244,8 @@
        "to": "svc:config-db",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2157,7 +2254,8 @@
        "to": "svc:config-db",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2166,7 +2264,8 @@
        "to": "svc:config-db",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.32
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2175,7 +2274,8 @@
        "to": "svc:config-db",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.32
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2184,7 +2284,8 @@
        "to": "svc:config-service",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.35
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2193,7 +2294,8 @@
        "to": "svc:config-service",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.67
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2202,7 +2304,8 @@
        "to": "svc:config-service",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.31
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2211,7 +2314,8 @@
        "to": "svc:config-service",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2220,7 +2324,8 @@
        "to": "svc:config-service",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2229,7 +2334,8 @@
        "to": "svc:kafka-events",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2238,7 +2344,8 @@
        "to": "svc:kafka-events",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.33
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2247,7 +2354,8 @@
        "to": "svc:kafka-events",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.31
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -2256,9 +2364,11 @@
        "to": "svc:kafka-events",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.31
      }
     ],
+    "ms": 5.94,
     "highlight": {
      "nodes": [
       "svc:auth-service",
@@ -2327,7 +2437,7 @@
    },
    "why": "several alerts at once: which dependency do most of them share?",
    "summary": "correlate_alerts → shared root config-service reached by 5 of 6 alerts",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 7,
    "llm_call": 3
   },
@@ -2404,7 +2514,8 @@
         "svc:notifications-service",
         "svc:card-processor-adapter"
        ]
-      }
+      },
+      "ms": 0.56
      },
      {
       "cypher": "MATCH (a:Service)-[:DEPENDS_ON]->(b:Service) WHERE a.id IN $ids AND b.id IN $ids RETURN a.id, b.id",
@@ -2428,7 +2539,8 @@
         "svc:sanctions-screening",
         "svc:webhook-dispatcher"
        ]
-      }
+      },
+      "ms": 0.48
      },
      {
       "cypher": "UNWIND $ids AS i CREATE (:Service {id: i})",
@@ -2452,6 +2564,7 @@
       "graph": "scratch projection"
      }
     ],
+    "ms": 1.04,
     "highlight": {
      "nodes": [
       "svc:auth-service",
@@ -2466,7 +2579,7 @@
    },
    "why": "several alerts at once: which of them cannot share a cause at all?",
    "summary": "connected_impact → 2 group(s) that cannot share a cause: auth-service, merchant-onboarding, notifications-service, payouts-service, webhook-dispatcher | card-processor-adapter",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 4,
    "llm_call": 3
   },
@@ -2515,15 +2628,18 @@
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
       "params": {
        "id": "svc:auth-service"
-      }
+      },
+      "ms": 0.56
      },
      {
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
       "params": {
        "id": "svc:auth-service"
-      }
+      },
+      "ms": 0.38
      }
     ],
+    "ms": 0.94,
     "highlight": {
      "nodes": [
       "svc:api-gateway",
@@ -2552,7 +2668,7 @@
    },
    "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 3 upstream (2 tier-1)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 4
   },
@@ -2637,33 +2753,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:config-service"
-      }
+      },
+      "ms": 0.35
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:config-service"
-      }
+      },
+      "ms": 0.39
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:config-service"
-      }
+      },
+      "ms": 0.39
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:config-service"
-      }
+      },
+      "ms": 0.41
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:config-service"
-      }
+      },
+      "ms": 0.36
      }
     ],
+    "ms": 1.9,
     "highlight": {
      "nodes": [
       "per:nikhil-rao",
@@ -2704,7 +2826,7 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Omar Haddad (score 95)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 2,
    "llm_call": 4
   },
@@ -2786,31 +2908,33 @@
       "params": {
        "id": "svc:config-service",
        "depth": 4
-      }
+      },
+      "ms": 0.43
      }
     ],
+    "ms": 0.43,
     "highlight": {
      "nodes": [
       "svc:config-service",
+      "svc:reconciliation-job",
       "svc:web-checkout",
       "svc:merchant-dashboard",
-      "svc:reconciliation-job",
       "svc:feature-flags",
       "svc:api-gateway",
+      "svc:payouts-service",
       "svc:bank-connector",
-      "svc:auth-service",
       "svc:notifications-service",
       "svc:payments-api",
-      "svc:webhook-dispatcher",
       "svc:merchant-onboarding",
-      "svc:payouts-service"
+      "svc:auth-service",
+      "svc:webhook-dispatcher"
      ],
      "edges": []
     }
    },
    "why": "which callers of the root are already alerting and which will be next (notify, don't page)",
    "summary": "blast_tiers → 12 caller(s) in 2 tier(s); 7 silent so far",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 0,
    "llm_call": 4
   },
@@ -2877,33 +3001,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:auth-service"
-      }
+      },
+      "ms": 0.29
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:auth-service"
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:auth-service"
-      }
+      },
+      "ms": 0.35
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:auth-service"
-      }
+      },
+      "ms": 0.36
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:auth-service"
-      }
+      },
+      "ms": 0.32
      }
     ],
+    "ms": 1.66,
     "highlight": {
      "nodes": [
       "per:nikhil-rao",
@@ -2937,7 +3067,7 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Elena Petrova (score 130)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 2,
    "llm_call": 4
   },
@@ -3022,33 +3152,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.3
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.43
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.45
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.42
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:payouts-service"
-      }
+      },
+      "ms": 0.34
      }
     ],
+    "ms": 1.94,
     "highlight": {
      "nodes": [
       "per:priya-nair",
@@ -3089,7 +3225,7 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Sofia Alvarez (score 140)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 2,
    "llm_call": 4
   },
@@ -3164,33 +3300,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:merchant-onboarding"
-      }
+      },
+      "ms": 0.3
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:merchant-onboarding"
-      }
+      },
+      "ms": 0.35
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:merchant-onboarding"
-      }
+      },
+      "ms": 0.37
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:merchant-onboarding"
-      }
+      },
+      "ms": 0.36
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:merchant-onboarding"
-      }
+      },
+      "ms": 0.34
      }
     ],
+    "ms": 1.72,
     "highlight": {
      "nodes": [
       "per:priya-nair",
@@ -3230,8 +3372,8 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Kenji Watanabe (score 120)",
-   "ts": 1792175206,
-   "ms": 1,
+   "ts": 1792176227,
+   "ms": 2,
    "llm_call": 4
   },
   {
@@ -3296,33 +3438,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:webhook-dispatcher"
-      }
+      },
+      "ms": 0.31
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:webhook-dispatcher"
-      }
+      },
+      "ms": 0.31
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:webhook-dispatcher"
-      }
+      },
+      "ms": 0.36
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:webhook-dispatcher"
-      }
+      },
+      "ms": 0.37
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:webhook-dispatcher"
-      }
+      },
+      "ms": 0.34
      }
     ],
+    "ms": 1.69,
     "highlight": {
      "nodes": [
       "per:ben-walker",
@@ -3356,7 +3504,7 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Ben Walker (score 95)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 2,
    "llm_call": 4
   },
@@ -3422,33 +3570,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:notifications-service"
-      }
+      },
+      "ms": 0.31
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:notifications-service"
-      }
+      },
+      "ms": 0.32
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:notifications-service"
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:notifications-service"
-      }
+      },
+      "ms": 0.35
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:notifications-service"
-      }
+      },
+      "ms": 0.31
      }
     ],
+    "ms": 1.63,
     "highlight": {
      "nodes": [
       "per:fatima-zahra",
@@ -3482,7 +3636,7 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Fatima Zahra (score 60)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 4
   },
@@ -3643,7 +3797,8 @@
         "svc:notifications-service",
         "svc:config-service"
        ]
-      }
+      },
+      "ms": 0.36
      },
      {
       "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
@@ -3656,7 +3811,8 @@
         "svc:notifications-service",
         "svc:config-service"
        ]
-      }
+      },
+      "ms": 0.33
      },
      {
       "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
@@ -3667,9 +3823,11 @@
         "inc:2026-012",
         "inc:2026-031"
        ]
-      }
+      },
+      "ms": 0.69
      }
     ],
+    "ms": 1.38,
     "highlight": {
      "nodes": [
       "inc:2026-012",
@@ -3823,7 +3981,7 @@
    },
    "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 4 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2026-031 (fixed by Ben Walker), INC-2025-044 (fixed by Marcus Webb)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 3,
    "llm_call": 4
   },
@@ -3878,15 +4036,18 @@
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
       "params": {
        "id": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.48
      },
      {
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
       "params": {
        "id": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.34
      }
     ],
+    "ms": 0.82,
     "highlight": {
      "nodes": [
       "svc:payments-api",
@@ -3921,7 +4082,7 @@
    },
    "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 4 upstream (3 tier-1)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 4
   },
@@ -3988,33 +4149,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.33
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.33
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.36
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.34
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.32
      }
     ],
+    "ms": 1.68,
     "highlight": {
      "nodes": [
       "per:marcus-webb",
@@ -4048,8 +4215,8 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Sofia Alvarez (score 120)",
-   "ts": 1792175206,
-   "ms": 1,
+   "ts": 1792176227,
+   "ms": 2,
    "llm_call": 4
   },
   {
@@ -4094,9 +4261,11 @@
       "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
       "params": {
        "id": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.48
      }
     ],
+    "ms": 0.48,
     "highlight": {
      "nodes": [
       "dec:card-processor-timeout-budget",
@@ -4125,7 +4294,7 @@
    },
    "why": "does the change contradict a recorded decision?",
    "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 0,
    "llm_call": 4
   },
@@ -4143,6 +4312,7 @@
     "service_tier": 1,
     "version": "2.9.0",
     "later_deploys": [],
+    "callers_changed_since": [],
     "dependents": 4,
     "tier1_dependents": 3,
     "hard_to_undo_terms": [],
@@ -4162,22 +4332,34 @@
       "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
       "params": {
        "id": "dep:card-processor-adapter-v2.9.0"
-      }
+      },
+      "ms": 0.36
      },
      {
       "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
       "params": {
        "sid": "svc:card-processor-adapter",
-       "ts": 1792173706
-      }
+       "ts": 1792174727
+      },
+      "ms": 0.39
      },
      {
       "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
       "params": {
        "sid": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.34
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON]->(:Service {id:$sid}) MATCH (x:Deploy)-[:CHANGED]->(c) WHERE x.ts > $ts RETURN c.id, x.id ORDER BY x.ts",
+      "params": {
+       "sid": "svc:card-processor-adapter",
+       "ts": 1792174727
+      },
+      "ms": 0.39
      }
     ],
+    "ms": 1.48,
     "highlight": {
      "nodes": [
       "dep:card-processor-adapter-v2.9.0",
@@ -4194,7 +4376,7 @@
    },
    "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
    "summary": "rollback_safety → rollback safe: nothing shipped to card-processor-adapter after it and nothing in the change looks irreversible",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 4
   },
@@ -4221,9 +4403,11 @@
       "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
       "params": {
        "sid": "svc:card-processor-adapter"
-      }
+      },
+      "ms": 0.51
      }
     ],
+    "ms": 0.51,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -4231,7 +4415,7 @@
    },
    "why": "which docs and runbooks are out of date?",
    "summary": "stale_knowledge → 0 stale: ",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 0,
    "llm_call": 4
   },
@@ -4294,7 +4478,8 @@
        "ids": [
         "svc:card-processor-adapter"
        ]
-      }
+      },
+      "ms": 0.3
      },
      {
       "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
@@ -4302,7 +4487,8 @@
        "ids": [
         "svc:card-processor-adapter"
        ]
-      }
+      },
+      "ms": 0.29
      },
      {
       "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
@@ -4310,9 +4496,11 @@
        "iids": [
         "inc:2025-067"
        ]
-      }
+      },
+      "ms": 0.47
      }
     ],
+    "ms": 1.06,
     "highlight": {
      "nodes": [
       "inc:2025-067",
@@ -4359,7 +4547,7 @@
    },
    "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 1 incident(s): INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 1,
    "llm_call": 4
   },
@@ -4435,9 +4623,11 @@
     "queries": [
      {
       "cypher": "CALL algo.labelPropagation({nodeLabels: ['Service'], relationshipTypes: ['DEPENDS_ON'], maxIterations: 20}) YIELD node, communityId RETURN node.id, communityId",
-      "params": {}
+      "params": {},
+      "ms": 3.0
      }
     ],
+    "ms": 3.0,
     "highlight": {
      "nodes": [
       "svc:auth-service",
@@ -4452,7 +4642,7 @@
    },
    "why": "context: which part of the system the alerts fall in",
    "summary": "failure_domains → 2 communities; the given services span 2",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 4,
    "llm_call": 4
   },
@@ -4644,6 +4834,18 @@
         "service_id": "svc:web-checkout",
         "hops": 2
        }
+      ],
+      "confidence_breakdown": [
+       {
+        "effect": "+",
+        "factor": "5 alerts share config-service",
+        "node_id": "svc:config-service"
+       },
+       {
+        "effect": "-",
+        "factor": "no change on it: saturation is inferred from structure",
+        "node_id": null
+       }
       ]
      },
      {
@@ -4680,7 +4882,24 @@
       "look_first": null,
       "root": null,
       "suppressed_pages": [],
-      "notify": []
+      "notify": [],
+      "confidence_breakdown": [
+       {
+        "effect": "+",
+        "factor": "the alerting service itself changed",
+        "node_id": "dep:card-processor-adapter-v2.9.0"
+       },
+       {
+        "effect": "-",
+        "factor": "no recorded decision says it is risky",
+        "node_id": null
+       },
+       {
+        "effect": "-",
+        "factor": "no past incident with the same cause",
+        "node_id": null
+       }
+      ]
      }
     ],
     "suppressed_pages": [
@@ -5200,6 +5419,18 @@
          "service_id": "svc:web-checkout",
          "hops": 2
         }
+       ],
+       "confidence_breakdown": [
+        {
+         "effect": "+",
+         "factor": "5 alerts share config-service",
+         "node_id": "svc:config-service"
+        },
+        {
+         "effect": "-",
+         "factor": "no change on it: saturation is inferred from structure",
+         "node_id": null
+        }
        ]
       },
       {
@@ -5236,7 +5467,24 @@
        "look_first": null,
        "root": null,
        "suppressed_pages": [],
-       "notify": []
+       "notify": [],
+       "confidence_breakdown": [
+        {
+         "effect": "+",
+         "factor": "the alerting service itself changed",
+         "node_id": "dep:card-processor-adapter-v2.9.0"
+        },
+        {
+         "effect": "-",
+         "factor": "no recorded decision says it is risky",
+         "node_id": null
+        },
+        {
+         "effect": "-",
+         "factor": "no past incident with the same cause",
+         "node_id": null
+        }
+       ]
       }
      ],
      "suppressed_pages": [
@@ -5600,7 +5848,7 @@
    },
    "why": "the evidence is in: submit the grounded report",
    "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
-   "ts": 1792175206,
+   "ts": 1792176227,
    "ms": 0,
    "llm_call": 5
   }
@@ -5649,7 +5897,7 @@
      "name": "Priya Nair",
      "role": "Senior Engineer",
      "email": "priya.nair@kestrelpay.example",
-     "joined_at": 1662575206
+     "joined_at": 1662576227
     }
    },
    {
@@ -5663,7 +5911,7 @@
      "name": "Marcus Webb",
      "role": "Staff Engineer",
      "email": "marcus.webb@kestrelpay.example",
-     "joined_at": 1593455206
+     "joined_at": 1593456227
     }
    },
    {
@@ -5677,7 +5925,7 @@
      "name": "Sofia Alvarez",
      "role": "Engineer",
      "email": "sofia.alvarez@kestrelpay.example",
-     "joined_at": 1714415206
+     "joined_at": 1714416227
     }
    },
    {
@@ -5691,7 +5939,7 @@
      "name": "Tomasz Kowalski",
      "role": "Engineer",
      "email": "tomasz.kowalski@kestrelpay.example",
-     "joined_at": 1731695206
+     "joined_at": 1731696227
     }
    },
    {
@@ -5705,8 +5953,8 @@
      "name": "Arjun Mehta",
      "role": "Staff Engineer",
      "email": "arjun.mehta@kestrelpay.example",
-     "joined_at": 1602095206,
-     "left_at": 1783967206
+     "joined_at": 1602096227,
+     "left_at": 1783968227
     }
    },
    {
@@ -5720,7 +5968,7 @@
      "name": "Nikhil Rao",
      "role": "Staff Engineer",
      "email": "nikhil.rao@kestrelpay.example",
-     "joined_at": 1610735206
+     "joined_at": 1610736227
     }
    },
    {
@@ -5734,7 +5982,7 @@
      "name": "Elena Petrova",
      "role": "Senior Engineer",
      "email": "elena.petrova@kestrelpay.example",
-     "joined_at": 1679855206
+     "joined_at": 1679856227
     }
    },
    {
@@ -5748,7 +5996,7 @@
      "name": "Omar Haddad",
      "role": "Engineer",
      "email": "omar.haddad@kestrelpay.example",
-     "joined_at": 1723055206
+     "joined_at": 1723056227
     }
    },
    {
@@ -5762,7 +6010,7 @@
      "name": "Jonas Eriksson",
      "role": "Site Reliability Engineer",
      "email": "jonas.eriksson@kestrelpay.example",
-     "joined_at": 1736879206
+     "joined_at": 1736880227
     }
    },
    {
@@ -5776,7 +6024,7 @@
      "name": "Ben Walker",
      "role": "Senior Engineer",
      "email": "ben.walker@kestrelpay.example",
-     "joined_at": 1645295206
+     "joined_at": 1645296227
     }
    },
    {
@@ -5790,7 +6038,7 @@
      "name": "Fatima Zahra",
      "role": "Engineer",
      "email": "fatima.zahra@kestrelpay.example",
-     "joined_at": 1710095206
+     "joined_at": 1710096227
     }
    },
    {
@@ -5804,7 +6052,7 @@
      "name": "Kenji Watanabe",
      "role": "Engineer",
      "email": "kenji.watanabe@kestrelpay.example",
-     "joined_at": 1740335206
+     "joined_at": 1740336227
     }
    },
    {
@@ -6051,7 +6299,7 @@
     "name": "2.11.0",
     "origin": "seed",
     "props": {
-     "ts": 1779211606,
+     "ts": 1779212627,
      "origin": "seed",
      "summary": "Disable local config cache; read config on every request",
      "version": "2.11.0"
@@ -6063,7 +6311,7 @@
     "name": "2.9.0",
     "origin": "seed",
     "props": {
-     "ts": 1792173706,
+     "ts": 1792174727,
      "origin": "seed",
      "summary": "Rotate the acquirer client certificate bundle",
      "version": "2.9.0"
@@ -6075,7 +6323,7 @@
     "name": "1.15.0",
     "origin": "seed",
     "props": {
-     "ts": 1792174486,
+     "ts": 1792175507,
      "origin": "seed",
      "summary": "Switch to the new transactional template engine",
      "version": "1.15.0"
@@ -6087,10 +6335,10 @@
     "name": "Card processor timeout budget",
     "origin": "seed",
     "props": {
-     "ts": 1759343206,
+     "ts": 1759344227,
      "origin": "seed",
      "title": "Card processor timeout budget",
-     "text": "[2025-10-01 18:26] Marcus Webb: We keep arguing about timeouts for the acquirer. Proposal: one number for the whole authorisation, not per-call. [2025-10-01 18:30] Sofia Alvarez: Today we do 3s then retry 3s, so customers can wait 6s plus 3DS. Too long. [2025-10-01 18:32] Priya Nair: Retries inside a 3DS challenge also risk double authorisations, ledger saw some of those. [2025-10-01 18:35] Marcu…",
+     "text": "[2025-10-01 18:43] Marcus Webb: We keep arguing about timeouts for the acquirer. Proposal: one number for the whole authorisation, not per-call. [2025-10-01 18:47] Sofia Alvarez: Today we do 3s then retry 3s, so customers can wait 6s plus 3DS. Too long. [2025-10-01 18:49] Priya Nair: Retries inside a 3DS challenge also risk double authorisations, ledger saw some of those. [2025-10-01 18:52] Marcu…",
      "channel": "#payments-core"
     }
    },
@@ -6178,7 +6426,7 @@
      "origin": "seed",
      "title": "Card processor gets a 2.5s total budget per authorisation",
      "rationale": "A single end-to-end budget keeps customers from waiting 6s and avoids double authorisations during 3DS.",
-     "decided_at": 1759343206
+     "decided_at": 1759344227
     }
    },
    {
@@ -6231,7 +6479,7 @@
     "name": "INC-2025-031",
     "origin": "seed",
     "props": {
-     "started_at": 1752863206,
+     "started_at": 1752864227,
      "status": "resolved",
      "origin": "seed",
      "title": "fraud-scoring timeouts during checkout peak",
@@ -6239,7 +6487,7 @@
      "key": "INC-2025-031",
      "severity": 2,
      "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%",
-     "resolved_at": 1752870406
+     "resolved_at": 1752871427
     }
    },
    {
@@ -6248,7 +6496,7 @@
     "name": "INC-2026-012",
     "origin": "seed",
     "props": {
-     "started_at": 1779215206,
+     "started_at": 1779216227,
      "status": "resolved",
      "origin": "seed",
      "title": "merchant-onboarding config reads timing out",
@@ -6256,7 +6504,7 @@
      "key": "INC-2026-012",
      "severity": 3,
      "symptom": "merchant signups slow or failing; config-service latency elevated",
-     "resolved_at": 1779218806
+     "resolved_at": 1779219827
     }
    },
    {
@@ -6265,7 +6513,7 @@
     "name": "INC-2025-044",
     "origin": "seed",
     "props": {
-     "started_at": 1758047206,
+     "started_at": 1758048227,
      "status": "resolved",
      "origin": "seed",
      "title": "ledger-service connection pool exhausted during payout run",
@@ -6273,7 +6521,7 @@
      "key": "INC-2025-044",
      "severity": 2,
      "symptom": "payout run stalled; payment captures failing with pool timeout errors",
-     "resolved_at": 1758058006
+     "resolved_at": 1758059027
     }
    },
    {
@@ -6282,7 +6530,7 @@
     "name": "INC-2025-067",
     "origin": "seed",
     "props": {
-     "started_at": 1762799206,
+     "started_at": 1762800227,
      "status": "resolved",
      "origin": "seed",
      "title": "card-processor-adapter TLS handshake failures",
@@ -6290,7 +6538,7 @@
      "key": "INC-2025-067",
      "severity": 1,
      "symptom": "all card authorisations failing; TLS handshake errors in card-processor-adapter",
-     "resolved_at": 1762802806
+     "resolved_at": 1762803827
     }
    },
    {
@@ -6299,7 +6547,7 @@
     "name": "INC-2026-031",
     "origin": "seed",
     "props": {
-     "started_at": 1785263206,
+     "started_at": 1785264227,
      "status": "resolved",
      "origin": "seed",
      "title": "webhook-dispatcher retry storm after merchant outage",
@@ -6307,7 +6555,7 @@
      "key": "INC-2026-031",
      "severity": 3,
      "symptom": "merchant endpoint repeatedly overloaded; kafka-events consumer lag growing",
-     "resolved_at": 1785270406
+     "resolved_at": 1785271427
     }
    },
    {
@@ -6423,7 +6671,7 @@
     "origin": "seed",
     "props": {
      "commits": 12,
-     "last_at": 1787423206
+     "last_at": 1787424227
     }
    },
    {
@@ -6433,7 +6681,7 @@
     "origin": "seed",
     "props": {
      "commits": 6,
-     "last_at": 1779388006
+     "last_at": 1779389027
     }
    },
    {
@@ -6443,7 +6691,7 @@
     "origin": "seed",
     "props": {
      "commits": 40,
-     "last_at": 1790360806
+     "last_at": 1790361827
     }
    },
    {
@@ -6467,7 +6715,7 @@
     "origin": "seed",
     "props": {
      "commits": 95,
-     "last_at": 1791829606
+     "last_at": 1791830627
     }
    },
    {
@@ -6484,7 +6732,7 @@
     "origin": "seed",
     "props": {
      "commits": 140,
-     "last_at": 1791743206
+     "last_at": 1791744227
     }
    },
    {
@@ -6501,7 +6749,7 @@
     "origin": "seed",
     "props": {
      "commits": 37,
-     "last_at": 1790533606
+     "last_at": 1790534627
     }
    },
    {
@@ -6511,7 +6759,7 @@
     "origin": "seed",
     "props": {
      "commits": 35,
-     "last_at": 1786991206
+     "last_at": 1786992227
     }
    },
    {
@@ -6521,7 +6769,7 @@
     "origin": "seed",
     "props": {
      "commits": 70,
-     "last_at": 1785263206
+     "last_at": 1785264227
     }
    },
    {
@@ -6538,7 +6786,7 @@
     "origin": "seed",
     "props": {
      "commits": 130,
-     "last_at": 1791570406
+     "last_at": 1791571427
     }
    },
    {
@@ -6555,7 +6803,7 @@
     "origin": "seed",
     "props": {
      "commits": 95,
-     "last_at": 1790706406
+     "last_at": 1790707427
     }
    },
    {
@@ -6565,7 +6813,7 @@
     "origin": "seed",
     "props": {
      "commits": 15,
-     "last_at": 1788287206
+     "last_at": 1788288227
     }
    },
    {
@@ -6582,7 +6830,7 @@
     "origin": "seed",
     "props": {
      "commits": 70,
-     "last_at": 1790965606
+     "last_at": 1790966627
     }
    },
    {
@@ -6592,7 +6840,7 @@
     "origin": "seed",
     "props": {
      "commits": 34,
-     "last_at": 1787855206
+     "last_at": 1787856227
     }
    },
    {
@@ -6609,7 +6857,7 @@
     "origin": "seed",
     "props": {
      "commits": 60,
-     "last_at": 1791397606
+     "last_at": 1791398627
     }
    },
    {
@@ -6626,7 +6874,7 @@
     "origin": "seed",
     "props": {
      "commits": 120,
-     "last_at": 1791138406
+     "last_at": 1791139427
     }
    },
    {
@@ -6636,7 +6884,7 @@
     "origin": "seed",
     "props": {
      "commits": 28,
-     "last_at": 1788719206
+     "last_at": 1788720227
     }
    },
    {
@@ -6646,7 +6894,7 @@
     "origin": "seed",
     "props": {
      "commits": 25,
-     "last_at": 1785263206
+     "last_at": 1785264227
     }
    },
    {
@@ -7086,7 +7334,7 @@
   ]
  },
  "execution": {
-  "session_id": "ses:exec-run-f9b00a2eb57d",
+  "session_id": "ses:exec-run-9245cc08f141",
   "already_executed": false,
   "results": [
    {
@@ -7167,6 +7415,10 @@
     "summary": "opened OPS-2 (tkt:OPS-2): Follow-up: card-processor-adapter"
    }
   ],
+  "incident_ids": [
+   "inc:2026-032",
+   "inc:2026-033"
+  ],
   "incidents": [
    "inc:2026-032",
    "inc:2026-033"
@@ -7175,26 +7427,27 @@
    "checks": [
     {
      "incident": 0,
-     "cleared": false,
-     "summary": "no change to roll back (a shared root under load): paging its owner is the action; the signal stays until they relieve the load"
+     "reverted": false,
+     "summary": "no change to roll back (a shared dependency under load): paging its owner is the action; the graph can't show the load going down"
     },
     {
      "incident": 1,
-     "cleared": true,
+     "reverted": true,
      "tool": "recent_changes_downstream",
      "queries": [
       {
        "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
        "params": {
         "id": "svc:card-processor-adapter",
-        "since": 1792168006
-       }
+        "since": 1792169027
+       },
+       "ms": 0.57
       }
      ],
-     "summary": "the newest change on svc:card-processor-adapter is now the rollback (dep:card-processor-adapter-v2.9.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+     "summary": "re-ran recent_changes_downstream: the newest change on svc:card-processor-adapter is now the rollback of dep:card-processor-adapter-v2.9.0 (simulated), so the lead is neutralised in the graph; whether the alert clears would show in real metrics"
     }
    ],
-   "all_cleared": false,
+   "all_reverted": false,
    "simulated": true
   }
  }

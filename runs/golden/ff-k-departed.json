@@ -1,5 +1,5 @@
 {
- "run_id": "run-ed23576e8228",
+ "run_id": "run-5030a23d6b35",
  "agent": "firefighter",
  "tenant": "kestrel_pay__eval_play",
  "alert": {
@@ -8,7 +8,7 @@
  },
  "mode": "mock",
  "model": "mock",
- "started_at": 1792175204,
+ "started_at": 1792176225,
  "status": "ok",
  "report": {
   "summary": "merchant-dashboard alert most likely caused by dep:reporting-service-v1.4.0 on reporting-service, deployed 18 min ago. Escalate to team:merchant-exp.",
@@ -165,7 +165,7 @@
   "cost_usd": 0.0,
   "llm_calls": 4,
   "tool_calls": 10,
-  "duration_ms": 17
+  "duration_ms": 35
  },
  "steps": [
   {
@@ -211,7 +211,8 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
       "params": {
        "id": "svc:merchant-dashboard"
-      }
+      },
+      "ms": 0.58
      },
      {
       "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
@@ -232,7 +233,8 @@
         "svc:fx-rates-service",
         "svc:fraud-scoring"
        ]
-      }
+      },
+      "ms": 0.58
      },
      {
       "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
@@ -254,7 +256,8 @@
         "svc:fraud-scoring"
        ],
        "skip": []
-      }
+      },
+      "ms": 0.54
      },
      {
       "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
@@ -275,9 +278,11 @@
         "svc:fx-rates-service",
         "svc:fraud-scoring"
        ]
-      }
+      },
+      "ms": 0.63
      }
     ],
+    "ms": 2.33,
     "highlight": {
      "nodes": [
       "svc:merchant-dashboard"
@@ -287,8 +292,8 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792175204,
-   "ms": 2,
+   "ts": 1792176225,
+   "ms": 4,
    "llm_call": 1
   },
   {
@@ -310,7 +315,7 @@
       "deploy": {
        "id": "dep:reporting-service-v1.4.0",
        "version": "1.4.0",
-       "ts": 1792174124,
+       "ts": 1792175145,
        "minutes_ago": 18,
        "summary": "Automated dependency bump: PDF renderer 3.9 -> 4.0",
        "by": null
@@ -331,11 +336,13 @@
      {
       "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
       "params": {
-       "since": 1792168004,
+       "since": 1792169025,
        "limit": 31
-      }
+      },
+      "ms": 0.71
      }
     ],
+    "ms": 0.71,
     "highlight": {
      "nodes": [
       "dep:reporting-service-v1.4.0",
@@ -352,8 +359,8 @@
    },
    "why": "list every recent change in the company: each one is a lead",
    "summary": "recent_changes → 1 change(s) in 120 min: reporting-service 18 min ago",
-   "ts": 1792175204,
-   "ms": 0,
+   "ts": 1792176225,
+   "ms": 2,
    "llm_call": 1
   },
   {
@@ -384,7 +391,7 @@
       "deploy": {
        "id": "dep:reporting-service-v1.4.0",
        "version": "1.4.0",
-       "ts": 1792174124,
+       "ts": 1792175145,
        "minutes_ago": 18,
        "summary": "Automated dependency bump: PDF renderer 3.9 -> 4.0",
        "by": null
@@ -405,8 +412,9 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:merchant-dashboard",
-       "since": 1792168004
-      }
+       "since": 1792169025
+      },
+      "ms": 0.69
      },
      {
       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -415,9 +423,11 @@
        "to": "svc:reporting-service",
        "dir": "outgoing",
        "maxlen": 6
-      }
+      },
+      "ms": 0.56
      }
     ],
+    "ms": 1.25,
     "highlight": {
      "nodes": [
       "svc:merchant-dashboard",
@@ -440,8 +450,8 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): reporting-service (deployed 18 min ago by None)",
-   "ts": 1792175204,
-   "ms": 1,
+   "ts": 1792176225,
+   "ms": 3,
    "llm_call": 2
   },
   {
@@ -472,13 +482,14 @@
       "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
       "params": {
        "id": "svc:merchant-dashboard"
-      }
+      },
+      "ms": 0.57
      },
      {
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:merchant-dashboard",
-       "since": 1792168004,
+       "since": 1792169025,
        "downstream": [
         "svc:api-gateway",
         "svc:reporting-service",
@@ -498,9 +509,11 @@
         "svc:sanctions-screening",
         "svc:rules-store-db"
        ]
-      }
+      },
+      "ms": 0.72
      }
     ],
+    "ms": 1.29,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -508,8 +521,8 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792175204,
-   "ms": 1,
+   "ts": 1792176225,
+   "ms": 3,
    "llm_call": 2
   },
   {
@@ -538,15 +551,18 @@
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
       "params": {
        "id": "svc:merchant-dashboard"
-      }
+      },
+      "ms": 0.64
      },
      {
       "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
       "params": {
        "id": "svc:merchant-dashboard"
-      }
+      },
+      "ms": 0.44
      }
     ],
+    "ms": 1.08,
     "highlight": {
      "nodes": [
       "svc:merchant-dashboard"
@@ -556,8 +572,8 @@
    },
    "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 0 upstream (0 tier-1)",
-   "ts": 1792175204,
-   "ms": 1,
+   "ts": 1792176225,
+   "ms": 2,
    "llm_call": 3
   },
   {
@@ -606,33 +622,39 @@
       "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
       "params": {
        "id": "svc:reporting-service"
-      }
+      },
+      "ms": 0.46
      },
      {
       "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
       "params": {
        "id": "svc:reporting-service"
-      }
+      },
+      "ms": 0.45
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:reporting-service"
-      }
+      },
+      "ms": 0.51
      },
      {
       "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
       "params": {
        "id": "svc:reporting-service"
-      }
+      },
+      "ms": 0.53
      },
      {
       "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
       "params": {
        "id": "svc:reporting-service"
-      }
+      },
+      "ms": 0.49
      }
     ],
+    "ms": 2.44,
     "highlight": {
      "nodes": [
       "per:carlos-mendes",
@@ -655,8 +677,8 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: None (score None); maintainer Carlos Mendes LEFT",
-   "ts": 1792175204,
-   "ms": 2,
+   "ts": 1792176225,
+   "ms": 4,
    "llm_call": 3
   },
   {
@@ -682,9 +704,11 @@
       "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
       "params": {
        "id": "svc:reporting-service"
-      }
+      },
+      "ms": 0.62
      }
     ],
+    "ms": 0.62,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -692,8 +716,8 @@
    },
    "why": "does the change contradict a recorded decision?",
    "summary": "decisions_about → 0 decision(s)",
-   "ts": 1792175204,
-   "ms": 0,
+   "ts": 1792176225,
+   "ms": 2,
    "llm_call": 3
   },
   {
@@ -710,6 +734,7 @@
     "service_tier": 3,
     "version": "1.4.0",
     "later_deploys": [],
+    "callers_changed_since": [],
     "dependents": 1,
     "tier1_dependents": 0,
     "hard_to_undo_terms": [],
@@ -729,22 +754,34 @@
       "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
       "params": {
        "id": "dep:reporting-service-v1.4.0"
-      }
+      },
+      "ms": 0.49
      },
      {
       "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
       "params": {
        "sid": "svc:reporting-service",
-       "ts": 1792174124
-      }
+       "ts": 1792175145
+      },
+      "ms": 0.43
      },
      {
       "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
       "params": {
        "sid": "svc:reporting-service"
-      }
+      },
+      "ms": 0.41
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON]->(:Service {id:$sid}) MATCH (x:Deploy)-[:CHANGED]->(c) WHERE x.ts > $ts RETURN c.id, x.id ORDER BY x.ts",
+      "params": {
+       "sid": "svc:reporting-service",
+       "ts": 1792175145
+      },
+      "ms": 0.41
      }
     ],
+    "ms": 1.74,
     "highlight": {
      "nodes": [
       "dep:reporting-service-v1.4.0",
@@ -761,8 +798,8 @@
    },
    "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
    "summary": "rollback_safety → rollback safe: nothing shipped to reporting-service after it and nothing in the change looks irreversible",
-   "ts": 1792175204,
-   "ms": 1,
+   "ts": 1792176225,
+   "ms": 3,
    "llm_call": 3
   },
   {
@@ -788,9 +825,11 @@
       "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
       "params": {
        "sid": "svc:reporting-service"
-      }
+      },
+      "ms": 0.69
      }
     ],
+    "ms": 0.69,
     "highlight": {
      "nodes": [],
      "edges": []
@@ -798,8 +837,8 @@
    },
    "why": "which docs and runbooks are out of date?",
    "summary": "stale_knowledge → 0 stale: ",
-   "ts": 1792175204,
-   "ms": 0,
+   "ts": 1792176225,
+   "ms": 2,
    "llm_call": 3
   },
   {
@@ -865,7 +904,8 @@
         "svc:merchant-dashboard",
         "svc:reporting-service"
        ]
-      }
+      },
+      "ms": 0.5
      },
      {
       "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
@@ -874,7 +914,8 @@
         "svc:merchant-dashboard",
         "svc:reporting-service"
        ]
-      }
+      },
+      "ms": 0.42
      },
      {
       "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
@@ -882,9 +923,11 @@
        "iids": [
         "inc:2025-089"
        ]
-      }
+      },
+      "ms": 0.84
      }
     ],
+    "ms": 1.76,
     "highlight": {
      "nodes": [
       "inc:2025-089",
@@ -931,8 +974,8 @@
    },
    "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)",
-   "ts": 1792175204,
-   "ms": 2,
+   "ts": 1792176225,
+   "ms": 4,
    "llm_call": 3
   },
   {
@@ -1243,11 +1286,16 @@
    },
    "why": "the evidence is in: submit the grounded report",
    "summary": "merchant-dashboard alert most likely caused by dep:reporting-service-v1.4.0 on reporting-service, deployed 18 min ago. Escalate to team:merchant-exp.",
-   "ts": 1792175204,
+   "ts": 1792176225,
    "ms": 0,
    "llm_call": 4
   }
  ],
+ "tools_via": {
+  "transport": "mcp",
+  "tools_listed": 22,
+  "mcp_calls": 10
+ },
  "twin": "kestrel_pay__eval_play",
  "scenario": "k-departed",
  "graph": {
@@ -1273,7 +1321,7 @@
      "name": "Nikhil Rao",
      "role": "Staff Engineer",
      "email": "nikhil.rao@kestrelpay.example",
-     "joined_at": 1610735204
+     "joined_at": 1610736225
     }
    },
    {
@@ -1287,7 +1335,7 @@
      "name": "Elena Petrova",
      "role": "Senior Engineer",
      "email": "elena.petrova@kestrelpay.example",
-     "joined_at": 1679855204
+     "joined_at": 1679856225
     }
    },
    {
@@ -1301,8 +1349,8 @@
      "name": "Carlos Mendes",
      "role": "Engineer",
      "email": "carlos.mendes@kestrelpay.example",
-     "joined_at": 1628015204,
-     "left_at": 1774031204
+     "joined_at": 1628016225,
+     "left_at": 1774032225
     }
    },
    {
@@ -1353,7 +1401,7 @@
     "name": "1.4.0",
     "origin": "seed",
     "props": {
-     "ts": 1792174124,
+     "ts": 1792175145,
      "origin": "seed",
      "summary": "Automated dependency bump: PDF renderer 3.9 -> 4.0",
      "version": "1.4.0"
@@ -1391,7 +1439,7 @@
     "name": "INC-2025-089",
     "origin": "seed",
     "props": {
-     "started_at": 1766687204,
+     "started_at": 1766688225,
      "status": "resolved",
      "origin": "seed",
      "title": "api-gateway routing misconfiguration after config push",
@@ -1399,7 +1447,7 @@
      "key": "INC-2025-089",
      "severity": 2,
      "symptom": "EU traffic returning 404 on web-checkout and merchant dashboard",
-     "resolved_at": 1766690804
+     "resolved_at": 1766691825
     }
    },
    {
@@ -1509,7 +1557,7 @@
   "alert": "svc:merchant-dashboard"
  },
  "execution": {
-  "session_id": "ses:exec-run-ed23576e8228",
+  "session_id": "ses:exec-run-5030a23d6b35",
   "already_executed": false,
   "results": [
    {
@@ -1534,6 +1582,9 @@
     "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: reporting-service"
    }
   ],
+  "incident_ids": [
+   "inc:2026-032"
+  ],
   "incidents": [
    "inc:2026-032"
   ],
@@ -1541,15 +1592,16 @@
    "checks": [
     {
      "incident": 0,
-     "cleared": true,
+     "reverted": true,
      "tool": "recent_changes_downstream",
      "queries": [
       {
        "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
        "params": {
         "id": "svc:merchant-dashboard",
-        "since": 1792168005
-       }
+        "since": 1792169025
+       },
+       "ms": 0.93
       },
       {
        "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -1558,7 +1610,8 @@
         "to": "svc:reporting-service",
         "dir": "outgoing",
         "maxlen": 6
-       }
+       },
+       "ms": 0.61
       },
       {
        "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
@@ -1567,13 +1620,14 @@
         "to": "svc:reporting-service",
         "dir": "outgoing",
         "maxlen": 6
-       }
+       },
+       "ms": 0.53
       }
      ],
-     "summary": "the newest change on svc:reporting-service is now the rollback (dep:reporting-service-v1.4.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+     "summary": "re-ran recent_changes_downstream: the newest change on svc:reporting-service is now the rollback of dep:reporting-service-v1.4.0 (simulated), so the lead is neutralised in the graph; whether the alert clears would show in real metrics"
     }
    ],
-   "all_cleared": true,
+   "all_reverted": true,
    "simulated": true
   }
  }

@@ -84,7 +84,7 @@ export function Actions({ plan, execution, canApprove, approving, onApprove, onO
     <div className="space-y-3" data-testid="actions">
       <div className="rounded-lg bg-surface-2 p-3 text-[12.5px] leading-snug">
         {execution ? (
-          <p><b>{execution.already_executed ? "Already approved earlier." : "Approved and executed (simulated)."}</b> Each action wrote to the
+          <p><b>{execution.already_executed ? "Already approved earlier." : `Approved and executed (simulated): ${done.size} of ${plan.length} actions.`}</b> Each action wrote to the
             company's copy of the graph with origin "agent" ({execution.session_id}).</p>
         ) : canApprove ? (
           <p>Nothing has run yet. Approving executes the checked actions <b>in simulation</b> (no real pager or deploy) on this run's copy of
@@ -102,7 +102,7 @@ export function Actions({ plan, execution, canApprove, approving, onApprove, onO
             return (
               <article key={a.id} className="rounded-lg border border-border p-2.5" data-testid={`action-${a.kind}`}>
                 <div className="flex items-start gap-2">
-                  {canApprove && !execution && (
+                  {canApprove && !r && (
                     <input type="checkbox" className="mt-1" aria-label={`approve ${a.title}`} checked={!off.has(a.id)}
                       onChange={() => setOff((s) => { const n = new Set(s); n.has(a.id) ? n.delete(a.id) : n.add(a.id); return n; })} />
                   )}
@@ -137,18 +137,18 @@ export function Actions({ plan, execution, canApprove, approving, onApprove, onO
           })}
         </section>
       ))}
-      {canApprove && !execution && (
-        <button disabled={approving} onClick={() => onApprove(off.size ? plan.filter((a) => !off.has(a.id)).map((a) => a.id) : null)}
+      {canApprove && plan.some((a) => !done.has(a.id)) && (
+        <button disabled={approving} onClick={() => onApprove(plan.filter((a) => !done.has(a.id) && !off.has(a.id)).map((a) => a.id))}
           className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-[13px] font-medium text-white disabled:opacity-50" data-testid="approve">
-          {approving && <Loader2 size={14} className="animate-spin" />} Approve {off.size ? `${plan.length - off.size} of ${plan.length}` : "all"} (simulated)
+          {approving && <Loader2 size={14} className="animate-spin" />} Approve {(() => { const left = plan.filter((a) => !done.has(a.id)); const n = left.filter((a) => !off.has(a.id)).length; return n === left.length ? (done.size ? "the rest" : "all") : `${n} of ${left.length}`; })()} (simulated)
         </button>
       )}
       {execution?.verification && (
         <section className="space-y-1.5" data-testid="verification">
           <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">Verification: the checks, run again</h4>
           {execution.verification.checks.map((c, i) => (
-            <p key={i} className={`rounded-md p-2 text-[12.5px] ring-1 ${c.cleared ? "bg-ok-soft ring-ok/30" : "bg-surface-2 ring-border"}`}>
-              <b>{c.cleared ? "Cleared" : "Not cleared"}</b>{incidents > 1 ? ` (incident ${c.incident + 1})` : ""}: {c.summary}
+            <p key={i} className={`rounded-md p-2 text-[12.5px] ring-1 ${c.reverted ? "bg-ok-soft ring-ok/30" : "bg-surface-2 ring-border"}`}>
+              <b>{c.reverted ? "Rollback in place (simulated)" : "Not reverted"}</b>{incidents > 1 ? ` (incident ${c.incident + 1})` : ""}: {c.summary}
             </p>
           ))}
         </section>
