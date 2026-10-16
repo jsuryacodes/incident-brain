@@ -1,13 +1,12 @@
 """Independent oracle for the eval scenarios (seed/eval_scenarios.py).
 
-Every expected answer is re-derived here from the fixture's own node/edge lists with plain Python (BFS, a small
-PageRank, the who-to-call formula written out by hand). No Cypher and no agent tool is used, so the eval's ground truth
-does not come from the code it grades.
+Every expected answer is re-derived here from the fixture's own node/edge lists with plain Python (seed/eval_oracle.py:
+BFS, a small PageRank, the who-to-call formula written out by hand). No Cypher and no agent tool is used, so the eval's
+ground truth does not come from the code it grades.
 """
-from collections import deque
-
 import pytest
 
+from seed.eval_oracle import contact, deps, dist_from, pagerank, shortest_count
 from seed.eval_scenarios import SCENARIOS, fixture
 from seed.load import build
 
@@ -17,78 +16,6 @@ WINDOW = 120 * 60
 def world(sc, now=1_800_000_000):
     nodes, edges = build(sc["tenant"], now, fixture(sc))
     return {n["id"]: n for n in nodes}, edges, now
-
-
-def deps(edges):
-    out = {}
-    for a, t, b, _ in edges:
-        if t == "DEPENDS_ON":
-            out.setdefault(a, set()).add(b)
-    return out
-
-
-def dist_from(src, adj):
-    d, q = {src: 0}, deque([src])
-    while q:
-        x = q.popleft()
-        for y in sorted(adj.get(x, ())):
-            if y not in d:
-                d[y] = d[x] + 1
-                q.append(y)
-    return d
-
-
-def shortest_count(src, dst, adj):
-    """Number of distinct shortest DEPENDS_ON paths src -> dst."""
-    d, n, q = {src: 0}, {src: 1}, deque([src])
-    while q:
-        x = q.popleft()
-        for y in adj.get(x, ()):
-            if y not in d:
-                d[y], n[y] = d[x] + 1, n[x]
-                q.append(y)
-            elif d[y] == d[x] + 1:
-                n[y] += n[x]
-    return n.get(dst, 0)
-
-
-def pagerank(services, adj, damping=0.85, iters=100):
-    """Credit flows from caller to callee (like algo.pageRank over DEPENDS_ON); dangling nodes spread evenly."""
-    n = len(services)
-    pr = dict.fromkeys(services, 1 / n)
-    for _ in range(iters):
-        nxt = dict.fromkeys(services, (1 - damping) / n)
-        dangling = sum(pr[s] for s in services if not adj.get(s))
-        for s in services:
-            outs = adj.get(s) or ()
-            for t in outs:
-                nxt[t] += damping * pr[s] / len(outs)
-            nxt[s] += 0
-        for s in services:
-            nxt[s] += damping * dangling / n
-        pr = nxt
-    return pr
-
-
-def contact(svc, nodes, edges):
-    """Top active person by commits + 25 x incident fixes on the service; else the owning team."""
-    active = lambda p: nodes.get(p, {}).get("status") == "active"
-    score = {}
-    for a, t, b, props in edges:
-        if t == "WORKED_ON" and b == svc and active(a):
-            score[a] = score.get(a, 0) + props["commits"]
-    changed = {a for a, t, b, _ in edges if t == "CHANGED" and b == svc}
-    incs = {a for a, t, b, _ in edges if (t == "AFFECTED" and b == svc) or (t == "CAUSED_BY" and b in changed)}
-    res = {b for a, t, b, _ in edges if t == "RESOLVED_BY" and a in incs}
-    fixers = {}
-    for a, t, b, _ in edges:
-        if t == "PERFORMED_BY" and a in res and active(b):
-            fixers.setdefault(b, set()).add(a)
-    for p, rs in fixers.items():
-        score[p] = score.get(p, 0) + 25 * len(rs)
-    if score:
-        return max(sorted(score), key=lambda p: score[p])
-    return next(a for a, t, b, _ in edges if t == "OWNS" and b == svc)
 
 
 @pytest.mark.parametrize("sc", SCENARIOS, ids=[s["id"] for s in SCENARIOS])
@@ -108,7 +35,19 @@ def test_expectations_hold_in_the_fixture(sc):
     alerts = [a["service_id"] for a in sc["alerts"]]
     assert sorted(a for i in exp["incidents"] for a in i["alerts"]) == sorted(alerts)
     for inc in exp["incidents"]:
-        assert contact(inc["cause_service"] or inc["alerts"][0], nodes, edges) == inc["contact"], inc
+        assert contact(inc["cause_service"] or inc.get("root") or inc["alerts"][0], nodes, edges) == inc["contact"], inc
+        if inc.get("root"):  # storm: the top shared dependency (coverage, alerting first, hops) explains these alerts
+            reach = {a: dist_from(a, adj) for a in alerts}
+            cover = {}
+            for a, d in reach.items():
+                for x in d:
+                    cover.setdefault(x, set()).add(a)
+            rank = sorted((x for x in cover if len(cover[x]) >= 2),
+                          key=lambda x: (-len(cover[x]), x not in alerts, sum(reach[a][x] for a in cover[x]), x))
+            assert rank[0] == inc["root"] and sorted(cover[inc["root"]]) == sorted(inc["alerts"]), (rank[:3], inc)
+            by_change = [len([a for a in alerts if changed[x] in reach[a]]) for x in recent]
+            assert len(inc["alerts"]) > max(by_change, default=0)  # no single change explains as many alerts
+            continue
         if not inc["cause_deploy"]:
             continue
         cs = inc["cause_service"]
@@ -134,18 +73,19 @@ def test_expectations_hold_in_the_fixture(sc):
     for lead in exp["false_leads"]:
         svc = changed[lead]
         explained = [a for a in alerts if svc in dist_from(a, adj)]
-        best = max((len([a for a in alerts if i["cause_service"] in dist_from(a, adj)]) for i in exp["incidents"]
-                    if i["cause_service"]), default=0)
+        best = max([len([a for a in alerts if i["cause_service"] in dist_from(a, adj)]) for i in exp["incidents"]
+                    if i["cause_service"]] + [len(i["alerts"]) for i in exp["incidents"] if i.get("root")], default=0)
         assert not explained or len(explained) < best, (lead, explained)
         for inc in exp["incidents"]:
             a0 = inc["alerts"][0]
             shares = (set(dist_from(a0, adj)) & set(dist_from(svc, adj))) - {a0, svc}
             if not shares:
                 continue
-            # a neighbour lead (shares a dependency): only rejected because a direct downstream change explains it
-            assert inc["cause_service"] and inc["cause_service"] in dist_from(a0, adj), (lead, sorted(shares))
+            # a neighbour lead (shares a dependency): only rejected because a direct downstream change (or a storm root
+            # explaining more alerts) explains it
+            assert inc.get("root") or (inc["cause_service"] and inc["cause_service"] in dist_from(a0, adj)), (lead, sorted(shares))
     for inc in exp["incidents"]:
-        if not inc["cause_deploy"]:  # "not found" must really mean nothing downstream and no neighbour changed
+        if not inc["cause_deploy"] and not inc.get("root"):  # "not found": nothing downstream and no neighbour changed
             for x in recent:
                 d = dist_from(inc["alerts"][0], adj)
                 assert changed[x] not in d, x
@@ -183,3 +123,11 @@ def test_twin_graphs_are_internal_only(monkeypatch):
         get_graph("other__eval_x")
     with pytest.raises(HTTPException):
         tenant_ok(eval_twin("kestrel_pay", "k_deep"))  # never over HTTP
+
+
+def test_generated_scenarios_are_sound():
+    from seed.eval_generator import scenarios
+    gen = scenarios(50)
+    assert len({s["id"] for s in gen}) == 50 and {s["tenant"] for s in gen} == {"kestrel_pay", "northwind_health"}
+    for sc in gen:
+        test_expectations_hold_in_the_fixture(sc)
