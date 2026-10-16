@@ -49,7 +49,8 @@ def test_tools_via_mcp_parity(ctx):
     strip = lambda r: {k: v for k, v in r.items() if k not in ("deploy",)}  # minutes_ago may tick between runs
     assert [strip(s["result"]) for s in via["steps"][:3]] == [strip(s["result"]) for s in direct["steps"][:3]]
     assert via["report"]["likely_cause"] == direct["report"]["likely_cause"]
-    assert via["steps"][2]["receipt"]["queries"] == direct["steps"][2]["receipt"]["queries"]
+    cy = lambda s: [q["cypher"] for q in s["receipt"]["queries"]]  # params hold `since`: the server uses its own clock
+    assert all(cy(a) == cy(b) for a, b in zip(via["steps"], direct["steps"]))
 
 
 def test_prompts_resources_and_structured_receipts(ctx):
