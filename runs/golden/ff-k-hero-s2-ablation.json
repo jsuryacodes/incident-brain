@@ -1,0 +1,1672 @@
+{
+ "run_id": "run-b54cdc1fac11",
+ "agent": "firefighter",
+ "tenant": "kestrel_pay__eval_play",
+ "alert": {
+  "service_id": "svc:payouts-service",
+  "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes"
+ },
+ "mode": "mock",
+ "model": "mock",
+ "started_at": 1792175205,
+ "status": "ok",
+ "report": {
+  "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db, config-service first.",
+  "likely_cause": {
+   "service_id": null,
+   "deploy_id": null,
+   "ticket_key": null,
+   "path": [],
+   "explanation": "No recent change found on the call path of payouts-service or in a corroborated shared dependency; not inventing a cause."
+  },
+  "blast_radius": [],
+  "contact": {
+   "person_id": "per:sofia-alvarez",
+   "name": "Sofia Alvarez",
+   "reason": "140 commits on payouts-service (score 140)"
+  },
+  "bus_factor_warning": null,
+  "conflicting_decision": null,
+  "similar_past_incidents": [],
+  "evidence": [
+   {
+    "node_id": "svc:config-db",
+    "claim": "most depended-on service on the call path (pagerank)"
+   },
+   {
+    "node_id": "svc:config-service",
+    "claim": "most depended-on service on the call path (pagerank)"
+   },
+   {
+    "node_id": "per:sofia-alvarez",
+    "claim": "Best active contact: 140 commits on payouts-service (score 140)."
+   },
+   {
+    "node_id": "svc:payouts-service",
+    "claim": "0 upstream services (0 tier-1) are exposed."
+   }
+  ],
+  "recommended_actions": [
+   "Page Sofia Alvarez (per:sofia-alvarez).",
+   "Check config-db, config-service capacity and saturation first."
+  ],
+  "confidence": "low",
+  "look_first": {
+   "service_ids": [
+    "svc:config-db",
+    "svc:config-service"
+   ],
+   "algorithm": "pagerank",
+   "reason": "No recent change explains the alert. config-db and config-service are the most depended-on services on the call path (pagerank 0.1215): check their capacity first."
+  },
+  "industry_pattern": null,
+  "rejected_leads": [
+   {
+    "deploy_id": "dep:risk-rules-v2.8.1",
+    "service_id": "svc:risk-rules",
+    "reason": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+   }
+  ],
+  "action_plan": [
+   {
+    "id": "A1",
+    "incident": 0,
+    "kind": "page",
+    "target": "per:sofia-alvarez",
+    "title": "Page Sofia Alvarez",
+    "justification": {
+     "why": "140 commits on payouts-service (score 140)",
+     "node_ids": [
+      "per:sofia-alvarez",
+      "svc:payouts-service"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A2",
+    "incident": 0,
+    "kind": "open_ticket",
+    "target": "svc:payouts-service",
+    "title": "Open a follow-up ticket for payouts-service",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:payouts-service"
+     ],
+     "path": []
+    },
+    "safety": null
+   }
+  ],
+  "hypotheses": [
+   {
+    "id": "H1",
+    "claim": "a recent change caused the payouts-service alert",
+    "status": "rejected",
+    "supporting": [],
+    "contradicting": [
+     {
+      "node_id": "svc:payouts-service",
+      "claim": "no change on its call path or in a corroborated shared dependency"
+     }
+    ],
+    "reason": "nothing that changed in the window is connected to it"
+   },
+   {
+    "id": "H2",
+    "claim": "load on config-db, config-service (the most depended-on services on the call path)",
+    "status": "open",
+    "supporting": [
+     {
+      "node_id": "svc:config-db",
+      "claim": "top of pagerank on the call path"
+     },
+     {
+      "node_id": "svc:config-service",
+      "claim": "top of pagerank on the call path"
+     }
+    ],
+    "contradicting": [],
+    "reason": "where to look first; not a confirmed cause"
+   },
+   {
+    "id": "H3",
+    "claim": "dep:risk-rules-v2.8.1 on risk-rules caused it",
+    "status": "rejected",
+    "supporting": [
+     {
+      "node_id": "dep:risk-rules-v2.8.1",
+      "claim": "deployed 5 min ago: RISK-412 follow-up: re-enable 5s TTL for EU ruleset"
+     }
+    ],
+    "contradicting": [
+     {
+      "node_id": "svc:risk-rules",
+      "claim": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+     }
+    ],
+    "reason": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+   }
+  ],
+  "confidence_breakdown": [
+   {
+    "effect": "-",
+    "factor": "no recent change is connected to the alert",
+    "node_id": null
+   }
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "ungrounded_ids": [],
+  "errors": []
+ },
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 4,
+  "tool_calls": 8,
+  "duration_ms": 19
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:payouts-service"
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "scope": [
+     "svc:payouts-service",
+     "svc:ledger-service",
+     "svc:bank-connector",
+     "svc:fx-rates-service",
+     "svc:config-service",
+     "svc:kafka-events",
+     "svc:config-db",
+     "svc:ledger-db",
+     "svc:audit-log"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175205,
+   "ms": 3,
+   "llm_call": 1
+  },
+  {
+   "seq": 2,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120,
+    "limit": 30
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 1,
+    "changes": [
+     {
+      "service": "svc:risk-rules",
+      "tier": 1,
+      "deploy": {
+       "id": "dep:risk-rules-v2.8.1",
+       "version": "2.8.1",
+       "ts": 1792174905,
+       "minutes_ago": 5,
+       "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
+       "by": "Leo Park"
+      },
+      "deployer_id": "per:leo-park",
+      "deployer_status": "active",
+      "ticket": {
+       "key": "RISK-412",
+       "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"
+      }
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 30
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792168005,
+       "limit": 31
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:risk-rules-v2.8.1",
+      "svc:risk-rules",
+      "per:leo-park"
+     ],
+     "edges": [
+      {
+       "from": "dep:risk-rules-v2.8.1",
+       "type": "CHANGED",
+       "to": "svc:risk-rules"
+      },
+      {
+       "from": "per:leo-park",
+       "type": "DEPLOYED",
+       "to": "dep:risk-rules-v2.8.1"
+      }
+     ]
+    }
+   },
+   "why": "list every recent change in the company: each one is a lead",
+   "summary": "recent_changes → 1 change(s) in 120 min: risk-rules 5 min ago",
+   "ts": 1792175205,
+   "ms": 0,
+   "llm_call": 1
+  },
+  {
+   "seq": 3,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:payouts-service",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "neither this service nor anything it calls was deployed in this window"
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:payouts-service",
+       "since": 1792168005
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → no recent downstream deploys",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 4,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:payouts-service",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:payouts-service",
+       "since": 1792168005,
+       "downstream": [
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 5,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:payouts-service"
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "max_hops": 4,
+    "upstream_count": 0,
+    "tier1_count": 0,
+    "upstream": []
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service"
+     ],
+     "edges": []
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 0 upstream (0 tier-1)",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 6,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:payouts-service"
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "maintainers": [
+     {
+      "id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "role": "Engineer",
+      "commits": 140,
+      "last_commit_days_ago": 5,
+      "resolutions": 0,
+      "score": 140
+     },
+     {
+      "id": "per:tomasz-kowalski",
+      "name": "Tomasz Kowalski",
+      "role": "Engineer",
+      "commits": 37,
+      "last_commit_days_ago": 19,
+      "resolutions": 0,
+      "score": 37
+     },
+     {
+      "id": "per:marcus-webb",
+      "name": "Marcus Webb",
+      "role": "Staff Engineer",
+      "commits": 0,
+      "last_commit_days_ago": null,
+      "resolutions": 1,
+      "score": 25
+     },
+     {
+      "id": "per:priya-nair",
+      "name": "Priya Nair",
+      "role": "Senior Engineer",
+      "commits": 12,
+      "last_commit_days_ago": 55,
+      "resolutions": 0,
+      "score": 12
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:payments-core",
+     "name": "Payments Core",
+     "active_members": [
+      "Priya Nair",
+      "Marcus Webb",
+      "Sofia Alvarez",
+      "Tomasz Kowalski",
+      "Aiko Tanaka"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:payouts-service"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:priya-nair",
+      "svc:payouts-service",
+      "per:sofia-alvarez",
+      "per:tomasz-kowalski",
+      "team:payments-core",
+      "per:marcus-webb"
+     ],
+     "edges": [
+      {
+       "from": "per:priya-nair",
+       "type": "WORKED_ON",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "per:sofia-alvarez",
+       "type": "WORKED_ON",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "WORKED_ON",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "per:sofia-alvarez",
+       "type": "MAINTAINS",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "team:payments-core",
+       "type": "OWNS",
+       "to": "svc:payouts-service"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Sofia Alvarez (score 140)",
+   "ts": 1792175205,
+   "ms": 3,
+   "llm_call": 3
+  },
+  {
+   "seq": 7,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "critical_services",
+   "args": {
+    "algorithm": "pagerank",
+    "limit": 5,
+    "downstream_of": [
+     "svc:payouts-service"
+    ]
+   },
+   "result": {
+    "algorithm": "pagerank",
+    "meaning": "shared dependencies: services many others call, directly or indirectly",
+    "services": [
+     {
+      "id": "svc:config-db",
+      "name": "config-db",
+      "tier": 1,
+      "team": "Platform",
+      "score": 0.1215
+     },
+     {
+      "id": "svc:config-service",
+      "name": "config-service",
+      "tier": 1,
+      "team": "Platform",
+      "score": 0.1213
+     },
+     {
+      "id": "svc:kafka-events",
+      "name": "kafka-events",
+      "tier": 1,
+      "team": "Platform",
+      "score": 0.089
+     },
+     {
+      "id": "svc:ledger-service",
+      "name": "ledger-service",
+      "tier": 1,
+      "team": "Payments Core",
+      "score": 0.0532
+     },
+     {
+      "id": "svc:audit-log",
+      "name": "audit-log",
+      "tier": 2,
+      "team": "Platform",
+      "score": 0.0335
+     }
+    ],
+    "downstream_of": [
+     "svc:payouts-service"
+    ],
+    "note": "ranked over the whole company, then limited to services the given ones call (directly or not)"
+   },
+   "receipt": {
+    "tool": "critical_services",
+    "args": {
+     "algorithm": "pagerank",
+     "limit": 5,
+     "downstream_of": [
+      "svc:payouts-service"
+     ]
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service)-[:DEPENDS_ON*1..6]->(d:Service) WHERE s.id IN $ids RETURN DISTINCT d.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service"
+       ]
+      }
+     },
+     {
+      "cypher": "CALL algo.pageRank('Service', 'DEPENDS_ON') YIELD node, score MATCH (t:Team)-[:OWNS]->(node) RETURN node.id, node.name, node.tier, t.name, score ORDER BY score DESC LIMIT $limit",
+      "params": {
+       "limit": 1000
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:config-db",
+      "svc:config-service",
+      "svc:kafka-events",
+      "svc:ledger-service",
+      "svc:audit-log"
+     ],
+     "edges": []
+    }
+   },
+   "why": "nothing changed: rank the call path by structure to know where to look first",
+   "summary": "critical_services → pagerank: config-db, config-service, kafka-events, ledger-service",
+   "ts": 1792175205,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 8,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:payouts-service"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:payouts-service"
+    ],
+    "incident_count": 1,
+    "incidents": [
+     {
+      "id": "inc:2025-044",
+      "key": "INC-2025-044",
+      "title": "ledger-service connection pool exhausted during payout run",
+      "severity": 2,
+      "started": "2025-09-16",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:connection-pool-exhaustion"
+      ],
+      "resolution": "Raised pool ceiling and capped payout writer concurrency",
+      "resolved_by": [
+       "Marcus Webb"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2025-044"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:payouts-service"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:2025-044"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2025-044",
+      "rc:connection-pool-exhaustion",
+      "svc:payouts-service",
+      "res:2025-044",
+      "per:marcus-webb",
+      "tkt:PM-2025-044"
+     ],
+     "edges": [
+      {
+       "from": "inc:2025-044",
+       "type": "AFFECTED",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:connection-pool-exhaustion"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "RESOLVED_BY",
+       "to": "res:2025-044"
+      },
+      {
+       "from": "res:2025-044",
+       "type": "PERFORMED_BY",
+       "to": "per:marcus-webb"
+      },
+      {
+       "from": "res:2025-044",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2025-044"
+      }
+     ]
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)",
+   "ts": 1792175205,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 9,
+   "agent": "firefighter",
+   "action": "answer",
+   "tool": "submit_report",
+   "args": {
+    "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db, config-service first.",
+    "likely_cause": {
+     "service_id": null,
+     "deploy_id": null,
+     "ticket_key": null,
+     "path": [],
+     "explanation": "No recent change found on the call path of payouts-service or in a corroborated shared dependency; not inventing a cause."
+    },
+    "blast_radius": [],
+    "contact": {
+     "person_id": "per:sofia-alvarez",
+     "name": "Sofia Alvarez",
+     "reason": "140 commits on payouts-service (score 140)"
+    },
+    "bus_factor_warning": null,
+    "conflicting_decision": null,
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "svc:config-db",
+      "claim": "most depended-on service on the call path (pagerank)"
+     },
+     {
+      "node_id": "svc:config-service",
+      "claim": "most depended-on service on the call path (pagerank)"
+     },
+     {
+      "node_id": "per:sofia-alvarez",
+      "claim": "Best active contact: 140 commits on payouts-service (score 140)."
+     },
+     {
+      "node_id": "svc:payouts-service",
+      "claim": "0 upstream services (0 tier-1) are exposed."
+     }
+    ],
+    "recommended_actions": [
+     "Page Sofia Alvarez (per:sofia-alvarez).",
+     "Check config-db, config-service capacity and saturation first."
+    ],
+    "confidence": "low",
+    "look_first": {
+     "service_ids": [
+      "svc:config-db",
+      "svc:config-service"
+     ],
+     "algorithm": "pagerank",
+     "reason": "No recent change explains the alert. config-db and config-service are the most depended-on services on the call path (pagerank 0.1215): check their capacity first."
+    },
+    "industry_pattern": null,
+    "rejected_leads": [
+     {
+      "deploy_id": "dep:risk-rules-v2.8.1",
+      "service_id": "svc:risk-rules",
+      "reason": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+     }
+    ],
+    "action_plan": [
+     {
+      "id": "A1",
+      "incident": 0,
+      "kind": "page",
+      "target": "per:sofia-alvarez",
+      "title": "Page Sofia Alvarez",
+      "justification": {
+       "why": "140 commits on payouts-service (score 140)",
+       "node_ids": [
+        "per:sofia-alvarez",
+        "svc:payouts-service"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A2",
+      "incident": 0,
+      "kind": "open_ticket",
+      "target": "svc:payouts-service",
+      "title": "Open a follow-up ticket for payouts-service",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:payouts-service"
+       ],
+       "path": []
+      },
+      "safety": null
+     }
+    ],
+    "hypotheses": [
+     {
+      "id": "H1",
+      "claim": "a recent change caused the payouts-service alert",
+      "status": "rejected",
+      "supporting": [],
+      "contradicting": [
+       {
+        "node_id": "svc:payouts-service",
+        "claim": "no change on its call path or in a corroborated shared dependency"
+       }
+      ],
+      "reason": "nothing that changed in the window is connected to it"
+     },
+     {
+      "id": "H2",
+      "claim": "load on config-db, config-service (the most depended-on services on the call path)",
+      "status": "open",
+      "supporting": [
+       {
+        "node_id": "svc:config-db",
+        "claim": "top of pagerank on the call path"
+       },
+       {
+        "node_id": "svc:config-service",
+        "claim": "top of pagerank on the call path"
+       }
+      ],
+      "contradicting": [],
+      "reason": "where to look first; not a confirmed cause"
+     },
+     {
+      "id": "H3",
+      "claim": "dep:risk-rules-v2.8.1 on risk-rules caused it",
+      "status": "rejected",
+      "supporting": [
+       {
+        "node_id": "dep:risk-rules-v2.8.1",
+        "claim": "deployed 5 min ago: RISK-412 follow-up: re-enable 5s TTL for EU ruleset"
+       }
+      ],
+      "contradicting": [
+       {
+        "node_id": "svc:risk-rules",
+        "claim": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "reason": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+     }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "-",
+      "factor": "no recent change is connected to the alert",
+      "node_id": null
+     }
+    ]
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db, config-service first.",
+     "likely_cause": {
+      "service_id": null,
+      "deploy_id": null,
+      "ticket_key": null,
+      "path": [],
+      "explanation": "No recent change found on the call path of payouts-service or in a corroborated shared dependency; not inventing a cause."
+     },
+     "blast_radius": [],
+     "contact": {
+      "person_id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "reason": "140 commits on payouts-service (score 140)"
+     },
+     "bus_factor_warning": null,
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "evidence": [
+      {
+       "node_id": "svc:config-db",
+       "claim": "most depended-on service on the call path (pagerank)"
+      },
+      {
+       "node_id": "svc:config-service",
+       "claim": "most depended-on service on the call path (pagerank)"
+      },
+      {
+       "node_id": "per:sofia-alvarez",
+       "claim": "Best active contact: 140 commits on payouts-service (score 140)."
+      },
+      {
+       "node_id": "svc:payouts-service",
+       "claim": "0 upstream services (0 tier-1) are exposed."
+      }
+     ],
+     "recommended_actions": [
+      "Page Sofia Alvarez (per:sofia-alvarez).",
+      "Check config-db, config-service capacity and saturation first."
+     ],
+     "confidence": "low",
+     "look_first": {
+      "service_ids": [
+       "svc:config-db",
+       "svc:config-service"
+      ],
+      "algorithm": "pagerank",
+      "reason": "No recent change explains the alert. config-db and config-service are the most depended-on services on the call path (pagerank 0.1215): check their capacity first."
+     },
+     "industry_pattern": null,
+     "rejected_leads": [
+      {
+       "deploy_id": "dep:risk-rules-v2.8.1",
+       "service_id": "svc:risk-rules",
+       "reason": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+      }
+     ],
+     "action_plan": [
+      {
+       "id": "A1",
+       "incident": 0,
+       "kind": "page",
+       "target": "per:sofia-alvarez",
+       "title": "Page Sofia Alvarez",
+       "justification": {
+        "why": "140 commits on payouts-service (score 140)",
+        "node_ids": [
+         "per:sofia-alvarez",
+         "svc:payouts-service"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A2",
+       "incident": 0,
+       "kind": "open_ticket",
+       "target": "svc:payouts-service",
+       "title": "Open a follow-up ticket for payouts-service",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:payouts-service"
+        ],
+        "path": []
+       },
+       "safety": null
+      }
+     ],
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "a recent change caused the payouts-service alert",
+       "status": "rejected",
+       "supporting": [],
+       "contradicting": [
+        {
+         "node_id": "svc:payouts-service",
+         "claim": "no change on its call path or in a corroborated shared dependency"
+        }
+       ],
+       "reason": "nothing that changed in the window is connected to it"
+      },
+      {
+       "id": "H2",
+       "claim": "load on config-db, config-service (the most depended-on services on the call path)",
+       "status": "open",
+       "supporting": [
+        {
+         "node_id": "svc:config-db",
+         "claim": "top of pagerank on the call path"
+        },
+        {
+         "node_id": "svc:config-service",
+         "claim": "top of pagerank on the call path"
+        }
+       ],
+       "contradicting": [],
+       "reason": "where to look first; not a confirmed cause"
+      },
+      {
+       "id": "H3",
+       "claim": "dep:risk-rules-v2.8.1 on risk-rules caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:risk-rules-v2.8.1",
+         "claim": "deployed 5 min ago: RISK-412 follow-up: re-enable 5s TTL for EU ruleset"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:risk-rules",
+         "claim": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+        }
+       ],
+       "reason": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+      }
+     ],
+     "confidence_breakdown": [
+      {
+       "effect": "-",
+       "factor": "no recent change is connected to the alert",
+       "node_id": null
+      }
+     ]
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "dep:risk-rules-v2.8.1",
+      "per:sofia-alvarez",
+      "svc:config-db",
+      "svc:config-service",
+      "svc:payouts-service",
+      "svc:risk-rules"
+     ],
+     "edges": []
+    }
+   },
+   "why": "the evidence is in: submit the grounded report",
+   "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db, config-service first.",
+   "ts": 1792175205,
+   "ms": 0,
+   "llm_call": 4
+  }
+ ],
+ "twin": "kestrel_pay__eval_play",
+ "scenario": "k-hero-s2-ablation",
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:payments-core",
+    "label": "Team",
+    "name": "Payments Core",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Payments Core"
+    }
+   },
+   {
+    "id": "per:priya-nair",
+    "label": "Person",
+    "name": "Priya Nair",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Priya Nair",
+     "role": "Senior Engineer",
+     "email": "priya.nair@kestrelpay.example",
+     "joined_at": 1662575205
+    }
+   },
+   {
+    "id": "per:marcus-webb",
+    "label": "Person",
+    "name": "Marcus Webb",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Marcus Webb",
+     "role": "Staff Engineer",
+     "email": "marcus.webb@kestrelpay.example",
+     "joined_at": 1593455205
+    }
+   },
+   {
+    "id": "per:sofia-alvarez",
+    "label": "Person",
+    "name": "Sofia Alvarez",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Sofia Alvarez",
+     "role": "Engineer",
+     "email": "sofia.alvarez@kestrelpay.example",
+     "joined_at": 1714415205
+    }
+   },
+   {
+    "id": "per:tomasz-kowalski",
+    "label": "Person",
+    "name": "Tomasz Kowalski",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Tomasz Kowalski",
+     "role": "Engineer",
+     "email": "tomasz.kowalski@kestrelpay.example",
+     "joined_at": 1731695205
+    }
+   },
+   {
+    "id": "per:leo-park",
+    "label": "Person",
+    "name": "Leo Park",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Leo Park",
+     "role": "Engineer",
+     "email": "leo.park@kestrelpay.example",
+     "joined_at": 1786991205
+    }
+   },
+   {
+    "id": "svc:ledger-service",
+    "label": "Service",
+    "name": "ledger-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "ledger-service",
+     "description": "Double-entry ledger; the system of record for every money movement.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/ledger-service"
+    }
+   },
+   {
+    "id": "svc:bank-connector",
+    "label": "Service",
+    "name": "bank-connector",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "bank-connector",
+     "description": "Connects to partner banks for settlement files and instant-payout rails.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/bank-connector"
+    }
+   },
+   {
+    "id": "svc:payouts-service",
+    "label": "Service",
+    "name": "payouts-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "payouts-service",
+     "description": "Schedules and executes merchant payouts in batches.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/payouts-service"
+    }
+   },
+   {
+    "id": "svc:fx-rates-service",
+    "label": "Service",
+    "name": "fx-rates-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "fx-rates-service",
+     "description": "Serves cached foreign-exchange rates and applies the margin policy.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/fx-rates-service"
+    }
+   },
+   {
+    "id": "svc:risk-rules",
+    "label": "Service",
+    "name": "risk-rules",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "risk-rules",
+     "description": "Rule engine evaluating analyst-authored fraud rules against payment features.",
+     "tier": 1,
+     "language": "Kotlin",
+     "repo_url": "https://git.kestrelpay.example/risk-rules"
+    }
+   },
+   {
+    "id": "svc:config-service",
+    "label": "Service",
+    "name": "config-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "config-service",
+     "description": "Central configuration and ruleset distribution service used by many backends.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/config-service"
+    }
+   },
+   {
+    "id": "svc:config-db",
+    "label": "Service",
+    "name": "config-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "config-db",
+     "description": "PostgreSQL store for config-service.",
+     "tier": 1,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.kestrelpay.example/config-db"
+    }
+   },
+   {
+    "id": "svc:kafka-events",
+    "label": "Service",
+    "name": "kafka-events",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "kafka-events",
+     "description": "Shared Kafka cluster carrying payment, ledger and notification events.",
+     "tier": 1,
+     "language": "Kafka",
+     "repo_url": "https://git.kestrelpay.example/kafka-events"
+    }
+   },
+   {
+    "id": "svc:audit-log",
+    "label": "Service",
+    "name": "audit-log",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "audit-log",
+     "description": "Append-only audit trail of administrative and money-moving actions.",
+     "tier": 2,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/audit-log"
+    }
+   },
+   {
+    "id": "dep:risk-rules-v2.8.1",
+    "label": "Deploy",
+    "name": "2.8.1",
+    "origin": "seed",
+    "props": {
+     "ts": 1792174905,
+     "origin": "seed",
+     "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
+     "version": "2.8.1"
+    }
+   },
+   {
+    "id": "tkt:PM-2025-044",
+    "label": "Ticket",
+    "name": "PM-2025-044",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: ledger connection pool exhausted during payout run",
+     "text": "INC-2025-044, sev 2. Impact: payouts were delayed by three hours and some payment captures failed. Timeline: ledger-service v3.4.0 added a parallel payout journal writer. During the daily payout run it opened more connections than the database pool allowed, starving payments-api requests. Root cause: database connection pool exhaustion. Follow-up: load-test payout runs against the pool limit. Res…",
+     "key": "PM-2025-044",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "rc:connection-pool-exhaustion",
+    "label": "RootCause",
+    "name": "Database connection pool exhaustion",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Database connection pool exhaustion",
+     "description": "More concurrent work than the connection pool allows, so requests queue or fail."
+    }
+   },
+   {
+    "id": "inc:2025-044",
+    "label": "Incident",
+    "name": "INC-2025-044",
+    "origin": "seed",
+    "props": {
+     "started_at": 1758047205,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "ledger-service connection pool exhausted during payout run",
+     "summary": "ledger-service v3.4.0 added a parallel payout journal writer that opened more connections than the ledger-db pool allowed, starving payment captures. Raised the pool ceiling and capped writer concurrency.",
+     "key": "INC-2025-044",
+     "severity": 2,
+     "symptom": "payout run stalled; payment captures failing with pool timeout errors",
+     "resolved_at": 1758058005
+    }
+   },
+   {
+    "id": "res:2025-044",
+    "label": "Resolution",
+    "name": "Raised pool ceiling and capped payout writer concurrency",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Raised pool ceiling and capped payout writer concurrency",
+     "steps": "1. Reduce payout writer concurrency to 4. 2. Raise the ledger-db connection pool limit. 3. Re-run the stalled payout batch."
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:payments-core",
+    "type": "OWNS",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:priya-nair",
+    "type": "WORKED_ON",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {
+     "commits": 12,
+     "last_at": 1787423205
+    }
+   },
+   {
+    "source": "per:sofia-alvarez",
+    "type": "MAINTAINS",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:sofia-alvarez",
+    "type": "WORKED_ON",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {
+     "commits": 140,
+     "last_at": 1791743205
+    }
+   },
+   {
+    "source": "per:tomasz-kowalski",
+    "type": "WORKED_ON",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {
+     "commits": 37,
+     "last_at": 1790533605
+    }
+   },
+   {
+    "source": "per:leo-park",
+    "type": "DEPLOYED",
+    "target": "dep:risk-rules-v2.8.1",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:ledger-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:bank-connector",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:fx-rates-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:kafka-events",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "dep:risk-rules-v2.8.1",
+    "type": "CHANGED",
+    "target": "svc:risk-rules",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "AFFECTED",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:connection-pool-exhaustion",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "RESOLVED_BY",
+    "target": "res:2025-044",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-044",
+    "type": "PERFORMED_BY",
+    "target": "per:marcus-webb",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-044",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2025-044",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: raised the ledger connection pool ceiling and capped payout writer concurrency."
+    }
+   }
+  ],
+  "base": [
+   "svc:bank-connector",
+   "svc:config-service",
+   "svc:fx-rates-service",
+   "svc:kafka-events",
+   "svc:ledger-service",
+   "svc:payouts-service"
+  ],
+  "alert": "svc:payouts-service"
+ },
+ "execution": {
+  "session_id": "ses:exec-run-b54cdc1fac11",
+  "already_executed": false,
+  "results": [
+   {
+    "action": "A1",
+    "kind": "page",
+    "title": "Page Sofia Alvarez",
+    "ok": true,
+    "summary": "paged Sofia Alvarez for INC-2026-032 (simulated): 140 commits on payouts-service (score 140)"
+   },
+   {
+    "action": "A2",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for payouts-service",
+    "ok": true,
+    "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: payouts-service"
+   }
+  ],
+  "incidents": [
+   "inc:2026-032"
+  ],
+  "verification": {
+   "checks": [
+    {
+     "incident": 0,
+     "cleared": false,
+     "summary": "no change to roll back (a shared root under load): paging its owner is the action; the signal stays until they relieve the load"
+    }
+   ],
+   "all_cleared": false,
+   "simulated": true
+  }
+ }
+}

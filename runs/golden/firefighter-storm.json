@@ -1,5 +1,5 @@
 {
- "run_id": "run-ac9d4bf51563",
+ "run_id": "run-f9b00a2eb57d",
  "agent": "firefighter",
  "tenant": "kestrel_pay__eval_story_storm",
  "alert": [
@@ -30,7 +30,7 @@
  ],
  "mode": "mock",
  "model": "mock",
- "started_at": 1792174508,
+ "started_at": 1792175206,
  "status": "ok",
  "report": {
   "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
@@ -595,7 +595,7 @@
   "cost_usd": 0.0,
   "llm_calls": 5,
   "tool_calls": 37,
-  "duration_ms": 79
+  "duration_ms": 75
  },
  "steps": [
   {
@@ -673,7 +673,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 2,
    "llm_call": 1
   },
@@ -776,8 +776,8 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792174508,
-   "ms": 2,
+   "ts": 1792175206,
+   "ms": 1,
    "llm_call": 1
   },
   {
@@ -875,7 +875,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 1
   },
@@ -958,7 +958,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 1
   },
@@ -1045,7 +1045,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 1
   },
@@ -1116,7 +1116,7 @@
    },
    "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 1
   },
@@ -1139,7 +1139,7 @@
       "deploy": {
        "id": "dep:email-sender-v1.15.0",
        "version": "1.15.0",
-       "ts": 1792173787,
+       "ts": 1792174486,
        "minutes_ago": 12,
        "summary": "Switch to the new transactional template engine",
        "by": "Kenji Watanabe"
@@ -1154,7 +1154,7 @@
       "deploy": {
        "id": "dep:card-processor-adapter-v2.9.0",
        "version": "2.9.0",
-       "ts": 1792173007,
+       "ts": 1792173706,
        "minutes_ago": 25,
        "summary": "Rotate the acquirer client certificate bundle",
        "by": "Sofia Alvarez"
@@ -1175,7 +1175,7 @@
      {
       "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
       "params": {
-       "since": 1792167307,
+       "since": 1792168006,
        "limit": 31
       }
      }
@@ -1215,7 +1215,7 @@
    },
    "why": "list every recent change in the company: each one is a lead",
    "summary": "recent_changes → 2 change(s) in 120 min: email-sender 12 min ago, card-processor-adapter 25 min ago",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 0,
    "llm_call": 1
   },
@@ -1248,7 +1248,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:auth-service",
-       "since": 1792167307
+       "since": 1792168006
       }
      }
     ],
@@ -1259,7 +1259,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → no recent downstream deploys",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 0,
    "llm_call": 2
   },
@@ -1297,7 +1297,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:auth-service",
-       "since": 1792167307,
+       "since": 1792168006,
        "downstream": [
         "svc:config-service",
         "svc:config-db"
@@ -1312,7 +1312,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 2
   },
@@ -1345,7 +1345,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792167307
+       "since": 1792168006
       }
      }
     ],
@@ -1356,7 +1356,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → no recent downstream deploys",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 0,
    "llm_call": 2
   },
@@ -1394,7 +1394,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792167307,
+       "since": 1792168006,
        "downstream": [
         "svc:ledger-service",
         "svc:bank-connector",
@@ -1415,7 +1415,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 2
   },
@@ -1449,7 +1449,7 @@
       "deploy": {
        "id": "dep:email-sender-v1.15.0",
        "version": "1.15.0",
-       "ts": 1792173787,
+       "ts": 1792174486,
        "minutes_ago": 12,
        "summary": "Switch to the new transactional template engine",
        "by": "Kenji Watanabe"
@@ -1470,7 +1470,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:merchant-onboarding",
-       "since": 1792167307
+       "since": 1792168006
       }
      },
      {
@@ -1517,7 +1517,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 2
   },
@@ -1555,7 +1555,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:merchant-onboarding",
-       "since": 1792167307,
+       "since": 1792168006,
        "downstream": [
         "svc:kyc-service",
         "svc:config-service",
@@ -1575,7 +1575,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 2
   },
@@ -1608,7 +1608,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:webhook-dispatcher",
-       "since": 1792167307
+       "since": 1792168006
       }
      }
     ],
@@ -1619,7 +1619,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → no recent downstream deploys",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 0,
    "llm_call": 2
   },
@@ -1657,7 +1657,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:webhook-dispatcher",
-       "since": 1792167307,
+       "since": 1792168006,
        "downstream": [
         "svc:config-service",
         "svc:kafka-events",
@@ -1673,7 +1673,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 2
   },
@@ -1705,7 +1705,7 @@
       "deploy": {
        "id": "dep:email-sender-v1.15.0",
        "version": "1.15.0",
-       "ts": 1792173787,
+       "ts": 1792174486,
        "minutes_ago": 12,
        "summary": "Switch to the new transactional template engine",
        "by": "Kenji Watanabe"
@@ -1726,7 +1726,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:notifications-service",
-       "since": 1792167307
+       "since": 1792168006
       }
      },
      {
@@ -1767,7 +1767,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 2
   },
@@ -1805,7 +1805,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:notifications-service",
-       "since": 1792167307,
+       "since": 1792168006,
        "downstream": [
         "svc:config-service",
         "svc:kafka-events",
@@ -1822,7 +1822,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 2
   },
@@ -1851,7 +1851,7 @@
       "deploy": {
        "id": "dep:card-processor-adapter-v2.9.0",
        "version": "2.9.0",
-       "ts": 1792173007,
+       "ts": 1792173706,
        "minutes_ago": 25,
        "summary": "Rotate the acquirer client certificate bundle",
        "by": "Sofia Alvarez"
@@ -1872,7 +1872,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:card-processor-adapter",
-       "since": 1792167307
+       "since": 1792168006
       }
      }
     ],
@@ -1898,7 +1898,7 @@
    },
    "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): card-processor-adapter (deployed 25 min ago by Sofia Alvarez)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 0,
    "llm_call": 2
   },
@@ -1936,7 +1936,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:card-processor-adapter",
-       "since": 1792167307,
+       "since": 1792168006,
        "downstream": []
       }
      }
@@ -1948,7 +1948,7 @@
    },
    "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 2
   },
@@ -2327,8 +2327,8 @@
    },
    "why": "several alerts at once: which dependency do most of them share?",
    "summary": "correlate_alerts → shared root config-service reached by 5 of 6 alerts",
-   "ts": 1792174508,
-   "ms": 8,
+   "ts": 1792175206,
+   "ms": 7,
    "llm_call": 3
   },
   {
@@ -2466,8 +2466,8 @@
    },
    "why": "several alerts at once: which of them cannot share a cause at all?",
    "summary": "connected_impact → 2 group(s) that cannot share a cause: auth-service, merchant-onboarding, notifications-service, payouts-service, webhook-dispatcher | card-processor-adapter",
-   "ts": 1792174508,
-   "ms": 5,
+   "ts": 1792175206,
+   "ms": 4,
    "llm_call": 3
   },
   {
@@ -2552,7 +2552,7 @@
    },
    "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 3 upstream (2 tier-1)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 4
   },
@@ -2704,7 +2704,7 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Omar Haddad (score 95)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 2,
    "llm_call": 4
   },
@@ -2792,25 +2792,25 @@
     "highlight": {
      "nodes": [
       "svc:config-service",
-      "svc:bank-connector",
-      "svc:webhook-dispatcher",
-      "svc:merchant-onboarding",
-      "svc:feature-flags",
-      "svc:payouts-service",
-      "svc:auth-service",
-      "svc:api-gateway",
-      "svc:notifications-service",
-      "svc:payments-api",
       "svc:web-checkout",
       "svc:merchant-dashboard",
-      "svc:reconciliation-job"
+      "svc:reconciliation-job",
+      "svc:feature-flags",
+      "svc:api-gateway",
+      "svc:bank-connector",
+      "svc:auth-service",
+      "svc:notifications-service",
+      "svc:payments-api",
+      "svc:webhook-dispatcher",
+      "svc:merchant-onboarding",
+      "svc:payouts-service"
      ],
      "edges": []
     }
    },
    "why": "which callers of the root are already alerting and which will be next (notify, don't page)",
    "summary": "blast_tiers → 12 caller(s) in 2 tier(s); 7 silent so far",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 0,
    "llm_call": 4
   },
@@ -2937,7 +2937,7 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Elena Petrova (score 130)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 2,
    "llm_call": 4
   },
@@ -3089,7 +3089,7 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Sofia Alvarez (score 140)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 2,
    "llm_call": 4
   },
@@ -3230,8 +3230,8 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Kenji Watanabe (score 120)",
-   "ts": 1792174508,
-   "ms": 2,
+   "ts": 1792175206,
+   "ms": 1,
    "llm_call": 4
   },
   {
@@ -3356,7 +3356,7 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Ben Walker (score 95)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 2,
    "llm_call": 4
   },
@@ -3482,8 +3482,8 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Fatima Zahra (score 60)",
-   "ts": 1792174508,
-   "ms": 2,
+   "ts": 1792175206,
+   "ms": 1,
    "llm_call": 4
   },
   {
@@ -3823,7 +3823,7 @@
    },
    "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 4 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2026-031 (fixed by Ben Walker), INC-2025-044 (fixed by Marcus Webb)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 3,
    "llm_call": 4
   },
@@ -3921,7 +3921,7 @@
    },
    "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 4 upstream (3 tier-1)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 4
   },
@@ -4048,7 +4048,7 @@
    },
    "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Sofia Alvarez (score 120)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 4
   },
@@ -4125,7 +4125,7 @@
    },
    "why": "does the change contradict a recorded decision?",
    "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 0,
    "llm_call": 4
   },
@@ -4168,7 +4168,7 @@
       "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
       "params": {
        "sid": "svc:card-processor-adapter",
-       "ts": 1792173007
+       "ts": 1792173706
       }
      },
      {
@@ -4192,9 +4192,9 @@
      ]
     }
    },
-   "why": "next step",
-   "summary": "rollback_safety → ok",
-   "ts": 1792174508,
+   "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
+   "summary": "rollback_safety → rollback safe: nothing shipped to card-processor-adapter after it and nothing in the change looks irreversible",
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 4
   },
@@ -4231,7 +4231,7 @@
    },
    "why": "which docs and runbooks are out of date?",
    "summary": "stale_knowledge → 0 stale: ",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 0,
    "llm_call": 4
   },
@@ -4359,7 +4359,7 @@
    },
    "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 1 incident(s): INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 1,
    "llm_call": 4
   },
@@ -4452,8 +4452,8 @@
    },
    "why": "context: which part of the system the alerts fall in",
    "summary": "failure_domains → 2 communities; the given services span 2",
-   "ts": 1792174508,
-   "ms": 5,
+   "ts": 1792175206,
+   "ms": 4,
    "llm_call": 4
   },
   {
@@ -5600,7 +5600,7 @@
    },
    "why": "the evidence is in: submit the grounded report",
    "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
-   "ts": 1792174508,
+   "ts": 1792175206,
    "ms": 0,
    "llm_call": 5
   }
@@ -5649,7 +5649,7 @@
      "name": "Priya Nair",
      "role": "Senior Engineer",
      "email": "priya.nair@kestrelpay.example",
-     "joined_at": 1662574507
+     "joined_at": 1662575206
     }
    },
    {
@@ -5663,7 +5663,7 @@
      "name": "Marcus Webb",
      "role": "Staff Engineer",
      "email": "marcus.webb@kestrelpay.example",
-     "joined_at": 1593454507
+     "joined_at": 1593455206
     }
    },
    {
@@ -5677,7 +5677,7 @@
      "name": "Sofia Alvarez",
      "role": "Engineer",
      "email": "sofia.alvarez@kestrelpay.example",
-     "joined_at": 1714414507
+     "joined_at": 1714415206
     }
    },
    {
@@ -5691,7 +5691,7 @@
      "name": "Tomasz Kowalski",
      "role": "Engineer",
      "email": "tomasz.kowalski@kestrelpay.example",
-     "joined_at": 1731694507
+     "joined_at": 1731695206
     }
    },
    {
@@ -5705,8 +5705,8 @@
      "name": "Arjun Mehta",
      "role": "Staff Engineer",
      "email": "arjun.mehta@kestrelpay.example",
-     "joined_at": 1602094507,
-     "left_at": 1783966507
+     "joined_at": 1602095206,
+     "left_at": 1783967206
     }
    },
    {
@@ -5720,7 +5720,7 @@
      "name": "Nikhil Rao",
      "role": "Staff Engineer",
      "email": "nikhil.rao@kestrelpay.example",
-     "joined_at": 1610734507
+     "joined_at": 1610735206
     }
    },
    {
@@ -5734,7 +5734,7 @@
      "name": "Elena Petrova",
      "role": "Senior Engineer",
      "email": "elena.petrova@kestrelpay.example",
-     "joined_at": 1679854507
+     "joined_at": 1679855206
     }
    },
    {
@@ -5748,7 +5748,7 @@
      "name": "Omar Haddad",
      "role": "Engineer",
      "email": "omar.haddad@kestrelpay.example",
-     "joined_at": 1723054507
+     "joined_at": 1723055206
     }
    },
    {
@@ -5762,7 +5762,7 @@
      "name": "Jonas Eriksson",
      "role": "Site Reliability Engineer",
      "email": "jonas.eriksson@kestrelpay.example",
-     "joined_at": 1736878507
+     "joined_at": 1736879206
     }
    },
    {
@@ -5776,7 +5776,7 @@
      "name": "Ben Walker",
      "role": "Senior Engineer",
      "email": "ben.walker@kestrelpay.example",
-     "joined_at": 1645294507
+     "joined_at": 1645295206
     }
    },
    {
@@ -5790,7 +5790,7 @@
      "name": "Fatima Zahra",
      "role": "Engineer",
      "email": "fatima.zahra@kestrelpay.example",
-     "joined_at": 1710094507
+     "joined_at": 1710095206
     }
    },
    {
@@ -5804,7 +5804,7 @@
      "name": "Kenji Watanabe",
      "role": "Engineer",
      "email": "kenji.watanabe@kestrelpay.example",
-     "joined_at": 1740334507
+     "joined_at": 1740335206
     }
    },
    {
@@ -6051,7 +6051,7 @@
     "name": "2.11.0",
     "origin": "seed",
     "props": {
-     "ts": 1779210907,
+     "ts": 1779211606,
      "origin": "seed",
      "summary": "Disable local config cache; read config on every request",
      "version": "2.11.0"
@@ -6063,7 +6063,7 @@
     "name": "2.9.0",
     "origin": "seed",
     "props": {
-     "ts": 1792173007,
+     "ts": 1792173706,
      "origin": "seed",
      "summary": "Rotate the acquirer client certificate bundle",
      "version": "2.9.0"
@@ -6075,7 +6075,7 @@
     "name": "1.15.0",
     "origin": "seed",
     "props": {
-     "ts": 1792173787,
+     "ts": 1792174486,
      "origin": "seed",
      "summary": "Switch to the new transactional template engine",
      "version": "1.15.0"
@@ -6087,10 +6087,10 @@
     "name": "Card processor timeout budget",
     "origin": "seed",
     "props": {
-     "ts": 1759342507,
+     "ts": 1759343206,
      "origin": "seed",
      "title": "Card processor timeout budget",
-     "text": "[2025-10-01 18:15] Marcus Webb: We keep arguing about timeouts for the acquirer. Proposal: one number for the whole authorisation, not per-call. [2025-10-01 18:19] Sofia Alvarez: Today we do 3s then retry 3s, so customers can wait 6s plus 3DS. Too long. [2025-10-01 18:21] Priya Nair: Retries inside a 3DS challenge also risk double authorisations, ledger saw some of those. [2025-10-01 18:24] Marcu…",
+     "text": "[2025-10-01 18:26] Marcus Webb: We keep arguing about timeouts for the acquirer. Proposal: one number for the whole authorisation, not per-call. [2025-10-01 18:30] Sofia Alvarez: Today we do 3s then retry 3s, so customers can wait 6s plus 3DS. Too long. [2025-10-01 18:32] Priya Nair: Retries inside a 3DS challenge also risk double authorisations, ledger saw some of those. [2025-10-01 18:35] Marcu…",
      "channel": "#payments-core"
     }
    },
@@ -6178,7 +6178,7 @@
      "origin": "seed",
      "title": "Card processor gets a 2.5s total budget per authorisation",
      "rationale": "A single end-to-end budget keeps customers from waiting 6s and avoids double authorisations during 3DS.",
-     "decided_at": 1759342507
+     "decided_at": 1759343206
     }
    },
    {
@@ -6231,7 +6231,7 @@
     "name": "INC-2025-031",
     "origin": "seed",
     "props": {
-     "started_at": 1752862507,
+     "started_at": 1752863206,
      "status": "resolved",
      "origin": "seed",
      "title": "fraud-scoring timeouts during checkout peak",
@@ -6239,7 +6239,7 @@
      "key": "INC-2025-031",
      "severity": 2,
      "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%",
-     "resolved_at": 1752869707
+     "resolved_at": 1752870406
     }
    },
    {
@@ -6248,7 +6248,7 @@
     "name": "INC-2026-012",
     "origin": "seed",
     "props": {
-     "started_at": 1779214507,
+     "started_at": 1779215206,
      "status": "resolved",
      "origin": "seed",
      "title": "merchant-onboarding config reads timing out",
@@ -6256,7 +6256,7 @@
      "key": "INC-2026-012",
      "severity": 3,
      "symptom": "merchant signups slow or failing; config-service latency elevated",
-     "resolved_at": 1779218107
+     "resolved_at": 1779218806
     }
    },
    {
@@ -6265,7 +6265,7 @@
     "name": "INC-2025-044",
     "origin": "seed",
     "props": {
-     "started_at": 1758046507,
+     "started_at": 1758047206,
      "status": "resolved",
      "origin": "seed",
      "title": "ledger-service connection pool exhausted during payout run",
@@ -6273,7 +6273,7 @@
      "key": "INC-2025-044",
      "severity": 2,
      "symptom": "payout run stalled; payment captures failing with pool timeout errors",
-     "resolved_at": 1758057307
+     "resolved_at": 1758058006
     }
    },
    {
@@ -6282,7 +6282,7 @@
     "name": "INC-2025-067",
     "origin": "seed",
     "props": {
-     "started_at": 1762798507,
+     "started_at": 1762799206,
      "status": "resolved",
      "origin": "seed",
      "title": "card-processor-adapter TLS handshake failures",
@@ -6290,7 +6290,7 @@
      "key": "INC-2025-067",
      "severity": 1,
      "symptom": "all card authorisations failing; TLS handshake errors in card-processor-adapter",
-     "resolved_at": 1762802107
+     "resolved_at": 1762802806
     }
    },
    {
@@ -6299,7 +6299,7 @@
     "name": "INC-2026-031",
     "origin": "seed",
     "props": {
-     "started_at": 1785262507,
+     "started_at": 1785263206,
      "status": "resolved",
      "origin": "seed",
      "title": "webhook-dispatcher retry storm after merchant outage",
@@ -6307,7 +6307,7 @@
      "key": "INC-2026-031",
      "severity": 3,
      "symptom": "merchant endpoint repeatedly overloaded; kafka-events consumer lag growing",
-     "resolved_at": 1785269707
+     "resolved_at": 1785270406
     }
    },
    {
@@ -6423,7 +6423,7 @@
     "origin": "seed",
     "props": {
      "commits": 12,
-     "last_at": 1787422507
+     "last_at": 1787423206
     }
    },
    {
@@ -6433,7 +6433,7 @@
     "origin": "seed",
     "props": {
      "commits": 6,
-     "last_at": 1779387307
+     "last_at": 1779388006
     }
    },
    {
@@ -6443,7 +6443,7 @@
     "origin": "seed",
     "props": {
      "commits": 40,
-     "last_at": 1790360107
+     "last_at": 1790360806
     }
    },
    {
@@ -6467,7 +6467,7 @@
     "origin": "seed",
     "props": {
      "commits": 95,
-     "last_at": 1791828907
+     "last_at": 1791829606
     }
    },
    {
@@ -6484,7 +6484,7 @@
     "origin": "seed",
     "props": {
      "commits": 140,
-     "last_at": 1791742507
+     "last_at": 1791743206
     }
    },
    {
@@ -6501,7 +6501,7 @@
     "origin": "seed",
     "props": {
      "commits": 37,
-     "last_at": 1790532907
+     "last_at": 1790533606
     }
    },
    {
@@ -6511,7 +6511,7 @@
     "origin": "seed",
     "props": {
      "commits": 35,
-     "last_at": 1786990507
+     "last_at": 1786991206
     }
    },
    {
@@ -6521,7 +6521,7 @@
     "origin": "seed",
     "props": {
      "commits": 70,
-     "last_at": 1785262507
+     "last_at": 1785263206
     }
    },
    {
@@ -6538,7 +6538,7 @@
     "origin": "seed",
     "props": {
      "commits": 130,
-     "last_at": 1791569707
+     "last_at": 1791570406
     }
    },
    {
@@ -6555,7 +6555,7 @@
     "origin": "seed",
     "props": {
      "commits": 95,
-     "last_at": 1790705707
+     "last_at": 1790706406
     }
    },
    {
@@ -6565,7 +6565,7 @@
     "origin": "seed",
     "props": {
      "commits": 15,
-     "last_at": 1788286507
+     "last_at": 1788287206
     }
    },
    {
@@ -6582,7 +6582,7 @@
     "origin": "seed",
     "props": {
      "commits": 70,
-     "last_at": 1790964907
+     "last_at": 1790965606
     }
    },
    {
@@ -6592,7 +6592,7 @@
     "origin": "seed",
     "props": {
      "commits": 34,
-     "last_at": 1787854507
+     "last_at": 1787855206
     }
    },
    {
@@ -6609,7 +6609,7 @@
     "origin": "seed",
     "props": {
      "commits": 60,
-     "last_at": 1791396907
+     "last_at": 1791397606
     }
    },
    {
@@ -6626,7 +6626,7 @@
     "origin": "seed",
     "props": {
      "commits": 120,
-     "last_at": 1791137707
+     "last_at": 1791138406
     }
    },
    {
@@ -6636,7 +6636,7 @@
     "origin": "seed",
     "props": {
      "commits": 28,
-     "last_at": 1788718507
+     "last_at": 1788719206
     }
    },
    {
@@ -6646,7 +6646,7 @@
     "origin": "seed",
     "props": {
      "commits": 25,
-     "last_at": 1785262507
+     "last_at": 1785263206
     }
    },
    {
@@ -7086,7 +7086,7 @@
   ]
  },
  "execution": {
-  "session_id": "ses:exec-run-ac9d4bf51563",
+  "session_id": "ses:exec-run-f9b00a2eb57d",
   "already_executed": false,
   "results": [
    {
@@ -7187,7 +7187,7 @@
        "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
        "params": {
         "id": "svc:card-processor-adapter",
-        "since": 1792167308
+        "since": 1792168006
        }
       }
      ],

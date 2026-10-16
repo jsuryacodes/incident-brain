@@ -436,6 +436,8 @@ def story_stream(token: str):
     if not job or time.time() - job["at"] > STREAM_TTL:
         raise HTTPException(404, "unknown or expired stream token; start the run again")
     tenant, beat_id, mode = job["tenant"], job["beat"], job["mode"]
+    if job.get("ff") is not None:
+        return firefighter_stream(job)
     beat = beat_or_404(tenant, beat_id)
     lock = BUSY.setdefault(tenant, threading.Lock())
     if not lock.acquire(blocking=False):
@@ -452,6 +454,27 @@ def story_stream(token: str):
         finally:
             lock.release()
     return stream(work, {"mode": mode, "mode_reason": job["reason"], "beat": beat_id, "alert": beat.get("alert")})
+
+
+def firefighter_stream(job):
+    from backend.agents import playground as pg
+    tenant, mode = job["tenant"], job["mode"]
+    lock = BUSY.setdefault(tenant, threading.Lock())
+    if not lock.acquire(blocking=False):
+        raise HTTPException(409, f"a fresh run is already in progress on {tenant}; try again in a moment")
+
+    def work(ev):
+        try:
+            on = ui_events(pg.twin(tenant), mode)(ev)
+            rec = pg.run(tenant, job["ff"]["scenario_id"], job["ff"]["alerts"], make_llm(mode), on_step=lambda st: on("step", st))
+            remember(tenant, "ff", rec)
+            ev("report", {"report": rec["report"], "incident_id": None, "time_to_cause": None})
+            ev("run", {"run_id": rec["run_id"], "beat": "firefighter", "status": rec["status"]})
+        except LookupError as e:
+            ev("error", {"error": str(e)})
+        finally:
+            lock.release()
+    return stream(work, {"mode": mode, "mode_reason": job["reason"], "beat": "firefighter", "alert": job["ff"]["alerts"]})
 
 
 COMPARE = (("session1", "Session 1"), ("session2", "Session 2 with memory"), ("compare", "Session 2 without memory"))
@@ -504,6 +527,37 @@ def actions_execute(body: Execute):
     out.pop("steps", None)
     job["record"]["execution"] = out
     return out
+
+
+class FirefighterRun(BaseModel):
+    tenant: str = "kestrel_pay"
+    scenario_id: str | None = Field(default=None, max_length=60)
+    alerts: list[dict] | None = Field(default=None, max_length=12)
+    live: bool = False
+
+
+@app.get("/api/playground")
+def playground(tenant: str = "kestrel_pay"):
+    """The Firefighter playground: the scenario library for this company (with a recording each) and its services."""
+    from backend.agents import playground as pg
+    g = get_graph(tenant_ok(tenant))
+    return {"tenant": tenant, "scenarios": pg.scenarios(tenant, GOLDEN),
+            "services": [{"id": a, "name": b} for a, b in g.ro_query("MATCH (s:Service) RETURN s.id, s.name ORDER BY s.name").result_set]}
+
+
+@app.post("/api/firefighter/run", dependencies=[Depends(require_code)])
+def firefighter_run(body: FirefighterRun, request: Request):
+    """A FRESH Firefighter run on a copy of the company (access code required: it seeds a twin graph). Returns a
+    one-time stream token, like the story beats."""
+    tenant_ok(body.tenant)
+    alerts = [{"service_id": str(a.get("service_id") or ""), "symptom": str(a.get("symptom") or "")[:300]} for a in body.alerts or []]
+    if not body.scenario_id and not [a for a in alerts if a["service_id"]]:
+        raise HTTPException(400, "pick a scenario_id or give alerts [{service_id, symptom}]")
+    mode, reason = decide_mode(request, body.live)
+    token = secrets.token_urlsafe(16)
+    STREAMS[token] = {"tenant": body.tenant, "beat": "firefighter", "mode": mode, "reason": reason, "at": time.time(),
+                      "ff": {"scenario_id": body.scenario_id, "alerts": [a for a in alerts if a["service_id"]] or None}}
+    return {"stream": f"/api/stream/{token}", "mode": mode, "mode_reason": reason}
 
 
 @app.get("/api/storm/latest")

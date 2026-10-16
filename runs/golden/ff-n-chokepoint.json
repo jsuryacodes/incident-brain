@@ -1,0 +1,3637 @@
+{
+ "run_id": "run-c9f5b2b0a60d",
+ "agent": "firefighter",
+ "tenant": "northwind_health__eval_play",
+ "alert": [
+  {
+   "service_id": "svc:appointments",
+   "symptom": "booking API p99 4s, reminder requests timing out"
+  },
+  {
+   "service_id": "svc:lab-results",
+   "symptom": "result publishing p99 5s, alert requests timing out"
+  }
+ ],
+ "mode": "mock",
+ "model": "mock",
+ "started_at": 1792175205,
+ "status": "ok",
+ "report": {
+  "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
+  "likely_cause": {
+   "service_id": "svc:notifications",
+   "deploy_id": "dep:notifications-v3.3.0",
+   "ticket_key": null,
+   "path": [
+    "svc:appointments",
+    "svc:notifications"
+   ],
+   "explanation": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 22 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications."
+  },
+  "blast_radius": [
+   "svc:patient-portal"
+  ],
+  "contact": {
+   "person_id": "per:maya-okoro",
+   "name": "Maya Okoro",
+   "reason": "18 commits on notifications (score 18)"
+  },
+  "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+  "conflicting_decision": null,
+  "similar_past_incidents": [
+   {
+    "incident_id": "inc:nw-2025-14",
+    "what_fixed_it": "Restored the 3-attempt cap with backoff",
+    "resolved_by": "Owen Bryce"
+   }
+  ],
+  "evidence": [
+   {
+    "node_id": "dep:notifications-v3.3.0",
+    "claim": "notifications deployed 22 min ago: Send SMS synchronously inside the request (no queue)"
+   },
+   {
+    "node_id": "inc:nw-2025-14",
+    "claim": "INC-NW-2025-14 was caused by a change to notifications; fixed by Owen Bryce: Restored the 3-attempt cap with backoff"
+   },
+   {
+    "node_id": "per:maya-okoro",
+    "claim": "Best active contact: 18 commits on notifications (score 18)."
+   },
+   {
+    "node_id": "svc:appointments",
+    "claim": "1 upstream services (1 tier-1) are exposed."
+   }
+  ],
+  "recommended_actions": [
+   "Roll back dep:notifications-v3.3.0 on notifications.",
+   "Page Maya Okoro (per:maya-okoro).",
+   "Follow the INC-NW-2025-14 fix: Restored the 3-attempt cap with backoff."
+  ],
+  "confidence": "medium",
+  "look_first": null,
+  "industry_pattern": "Matches known industry pattern: Google Cloud — Multiple GCP products are experiencing Service issues (https://status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW)",
+  "rejected_leads": [
+   {
+    "deploy_id": "dep:records-db-v15.2.0",
+    "service_id": "svc:records-db",
+    "reason": "records-db is on lab-results's call path (1 hop), but notifications explains 2 alerts, this change 1"
+   }
+  ],
+  "incidents": [
+   {
+    "alerts": [
+     "svc:appointments",
+     "svc:lab-results"
+    ],
+    "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
+    "likely_cause": {
+     "service_id": "svc:notifications",
+     "deploy_id": "dep:notifications-v3.3.0",
+     "ticket_key": null,
+     "path": [
+      "svc:appointments",
+      "svc:notifications"
+     ],
+     "explanation": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 22 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications."
+    },
+    "contact": {
+     "person_id": "per:maya-okoro",
+     "name": "Maya Okoro",
+     "reason": "18 commits on notifications (score 18)"
+    },
+    "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+    "blast_radius": [
+     "svc:patient-portal"
+    ],
+    "recommended_actions": [
+     "Roll back dep:notifications-v3.3.0 on notifications.",
+     "Page Maya Okoro (per:maya-okoro).",
+     "Follow the INC-NW-2025-14 fix: Restored the 3-attempt cap with backoff."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "root": null,
+    "suppressed_pages": [
+     {
+      "alert": "svc:appointments",
+      "person_id": "per:tariq-hassan",
+      "name": "Tariq Hassan",
+      "team_id": null,
+      "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+     }
+    ],
+    "notify": []
+   }
+  ],
+  "suppressed_pages": [
+   {
+    "alert": "svc:appointments",
+    "person_id": "per:tariq-hassan",
+    "name": "Tariq Hassan",
+    "team_id": null,
+    "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+   }
+  ],
+  "action_plan": [
+   {
+    "id": "A1",
+    "incident": 0,
+    "kind": "rollback",
+    "target": "dep:notifications-v3.3.0",
+    "title": "Roll back dep:notifications-v3.3.0 on notifications",
+    "justification": {
+     "why": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 22 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications.",
+     "node_ids": [
+      "dep:notifications-v3.3.0",
+      "svc:notifications",
+      "svc:appointments",
+      "svc:notifications"
+     ],
+     "path": [
+      "svc:appointments",
+      "svc:notifications"
+     ]
+    },
+    "safety": {
+     "verdict": "safe",
+     "reasons": [
+      "nothing shipped to notifications after it and nothing in the change looks irreversible"
+     ],
+     "dependents": 3,
+     "later_deploys": [],
+     "blast": "3 service(s) call notifications (directly or not), 3 of them tier-1: they briefly see the old version"
+    }
+   },
+   {
+    "id": "A2",
+    "incident": 0,
+    "kind": "page",
+    "target": "per:maya-okoro",
+    "title": "Page Maya Okoro",
+    "justification": {
+     "why": "18 commits on notifications (score 18)",
+     "node_ids": [
+      "per:maya-okoro",
+      "svc:notifications"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A3",
+    "incident": 0,
+    "kind": "suppress_page",
+    "target": "per:tariq-hassan",
+    "title": "Don't page Tariq Hassan for appointments",
+    "justification": {
+     "why": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead",
+     "node_ids": [
+      "per:tariq-hassan",
+      "svc:appointments"
+     ],
+     "path": [
+      "svc:appointments",
+      "svc:notifications"
+     ]
+    },
+    "safety": null
+   },
+   {
+    "id": "A4",
+    "incident": 0,
+    "kind": "open_ticket",
+    "target": "svc:notifications",
+    "title": "Open a follow-up ticket for notifications",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:notifications"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A5",
+    "incident": 0,
+    "kind": "flag_stale",
+    "target": "doc:notifications-readme",
+    "title": "Flag notifications README as stale",
+    "justification": {
+     "why": "author_left, names_departed_person",
+     "node_ids": [
+      "doc:notifications-readme",
+      "svc:notifications"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A6",
+    "incident": 0,
+    "kind": "flag_stale",
+    "target": "rb:notifications-delivery",
+    "title": "Flag Runbook: notification delivery failures as stale",
+    "justification": {
+     "why": "author_left",
+     "node_ids": [
+      "rb:notifications-delivery",
+      "svc:notifications"
+     ],
+     "path": []
+    },
+    "safety": null
+   }
+  ],
+  "hypotheses": [
+   {
+    "id": "H1",
+    "claim": "dep:notifications-v3.3.0 on notifications caused the appointments, lab-results alerts",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "dep:notifications-v3.3.0",
+      "claim": "deployed 22 min ago: Send SMS synchronously inside the request (no queue)"
+     },
+     {
+      "node_id": "svc:notifications",
+      "claim": "on the path appointments -> notifications"
+     },
+     {
+      "node_id": "inc:nw-2025-14",
+      "claim": "a past incident caused by a change to notifications"
+     }
+    ],
+    "contradicting": [],
+    "reason": "explains 2 alerts; a change on the call path (1 hop)"
+   },
+   {
+    "id": "H2",
+    "claim": "dep:records-db-v15.2.0 on records-db caused it",
+    "status": "rejected",
+    "supporting": [
+     {
+      "node_id": "dep:records-db-v15.2.0",
+      "claim": "deployed 6 min ago: PostgreSQL minor upgrade 15.1 -> 15.2"
+     }
+    ],
+    "contradicting": [
+     {
+      "node_id": "svc:records-db",
+      "claim": "records-db is on lab-results's call path (1 hop), but notifications explains 2 alerts, this change 1"
+     }
+    ],
+    "reason": "records-db is on lab-results's call path (1 hop), but notifications explains 2 alerts, this change 1"
+   }
+  ],
+  "confidence_breakdown": [
+   {
+    "effect": "+",
+    "factor": "the change is on the alert's call path (1 hop)",
+    "node_id": "dep:notifications-v3.3.0"
+   },
+   {
+    "effect": "-",
+    "factor": "no recorded decision says it is risky",
+    "node_id": null
+   },
+   {
+    "effect": "+",
+    "factor": "a past incident had the same cause",
+    "node_id": "inc:nw-2025-14"
+   }
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "ungrounded_ids": [],
+  "errors": []
+ },
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 6,
+  "tool_calls": 18,
+  "duration_ms": 38
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:appointments"
+   },
+   "result": {
+    "service": "svc:appointments",
+    "scope": [
+     "svc:appointments",
+     "svc:notifications",
+     "svc:scheduler-db",
+     "svc:sms-gateway"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:appointments",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175205,
+   "ms": 2,
+   "llm_call": 1
+  },
+  {
+   "seq": 2,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:lab-results"
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "scope": [
+     "svc:lab-results",
+     "svc:notifications",
+     "svc:records-db",
+     "svc:audit-trail",
+     "svc:sms-gateway"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:lab-results",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:lab-results"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 3,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120,
+    "limit": 30
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 2,
+    "changes": [
+     {
+      "service": "svc:records-db",
+      "tier": 1,
+      "deploy": {
+       "id": "dep:records-db-v15.2.0",
+       "version": "15.2.0",
+       "ts": 1792174845,
+       "minutes_ago": 6,
+       "summary": "PostgreSQL minor upgrade 15.1 -> 15.2",
+       "by": "Hana Sato"
+      },
+      "deployer_id": "per:hana-sato",
+      "deployer_status": "active",
+      "ticket": null
+     },
+     {
+      "service": "svc:notifications",
+      "tier": 2,
+      "deploy": {
+       "id": "dep:notifications-v3.3.0",
+       "version": "3.3.0",
+       "ts": 1792173885,
+       "minutes_ago": 22,
+       "summary": "Send SMS synchronously inside the request (no queue)",
+       "by": "Sam Reyes"
+      },
+      "deployer_id": "per:sam-reyes",
+      "deployer_status": "active",
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 30
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792168005,
+       "limit": 31
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:records-db-v15.2.0",
+      "svc:records-db",
+      "per:hana-sato",
+      "dep:notifications-v3.3.0",
+      "svc:notifications",
+      "per:sam-reyes"
+     ],
+     "edges": [
+      {
+       "from": "dep:records-db-v15.2.0",
+       "type": "CHANGED",
+       "to": "svc:records-db"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "DEPLOYED",
+       "to": "dep:records-db-v15.2.0"
+      },
+      {
+       "from": "dep:notifications-v3.3.0",
+       "type": "CHANGED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:sam-reyes",
+       "type": "DEPLOYED",
+       "to": "dep:notifications-v3.3.0"
+      }
+     ]
+    }
+   },
+   "why": "list every recent change in the company: each one is a lead",
+   "summary": "recent_changes → 2 change(s) in 120 min: records-db 6 min ago, notifications 22 min ago",
+   "ts": 1792175205,
+   "ms": 0,
+   "llm_call": 1
+  },
+  {
+   "seq": 4,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:appointments",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:appointments",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:notifications",
+      "hops": 1,
+      "path": [
+       "svc:appointments",
+       "svc:notifications"
+      ],
+      "edge_sources": [
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:notifications-v3.3.0",
+       "version": "3.3.0",
+       "ts": 1792173885,
+       "minutes_ago": 22,
+       "summary": "Send SMS synchronously inside the request (no queue)",
+       "by": "Sam Reyes"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:appointments",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:appointments",
+       "since": 1792168005
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:appointments",
+       "to": "svc:notifications",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments",
+      "svc:notifications",
+      "dep:notifications-v3.3.0",
+      "per:sam-reyes"
+     ],
+     "edges": [
+      {
+       "from": "svc:appointments",
+       "type": "DEPENDS_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "dep:notifications-v3.3.0",
+       "type": "CHANGED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:sam-reyes",
+       "type": "DEPLOYED",
+       "to": "dep:notifications-v3.3.0"
+      }
+     ]
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 22 min ago by Sam Reyes)",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 5,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:appointments",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:appointments",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:appointments",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:appointments",
+       "since": 1792168005,
+       "downstream": [
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 6,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:lab-results",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "since_minutes": 120,
+    "hit_count": 2,
+    "hits": [
+     {
+      "service": "svc:records-db",
+      "hops": 1,
+      "path": [
+       "svc:lab-results",
+       "svc:records-db"
+      ],
+      "edge_sources": [
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:records-db-v15.2.0",
+       "version": "15.2.0",
+       "ts": 1792174845,
+       "minutes_ago": 6,
+       "summary": "PostgreSQL minor upgrade 15.1 -> 15.2",
+       "by": "Hana Sato"
+      },
+      "ticket": null
+     },
+     {
+      "service": "svc:notifications",
+      "hops": 1,
+      "path": [
+       "svc:lab-results",
+       "svc:notifications"
+      ],
+      "edge_sources": [
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:notifications-v3.3.0",
+       "version": "3.3.0",
+       "ts": 1792173885,
+       "minutes_ago": 22,
+       "summary": "Send SMS synchronously inside the request (no queue)",
+       "by": "Sam Reyes"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:lab-results",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:lab-results",
+       "since": 1792168005
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:lab-results",
+       "to": "svc:records-db",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:lab-results",
+       "to": "svc:notifications",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:lab-results",
+      "svc:records-db",
+      "dep:records-db-v15.2.0",
+      "per:hana-sato",
+      "svc:notifications",
+      "dep:notifications-v3.3.0",
+      "per:sam-reyes"
+     ],
+     "edges": [
+      {
+       "from": "svc:lab-results",
+       "type": "DEPENDS_ON",
+       "to": "svc:records-db"
+      },
+      {
+       "from": "dep:records-db-v15.2.0",
+       "type": "CHANGED",
+       "to": "svc:records-db"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "DEPLOYED",
+       "to": "dep:records-db-v15.2.0"
+      },
+      {
+       "from": "svc:lab-results",
+       "type": "DEPENDS_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "dep:notifications-v3.3.0",
+       "type": "CHANGED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:sam-reyes",
+       "type": "DEPLOYED",
+       "to": "dep:notifications-v3.3.0"
+      }
+     ]
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → 2 hit(s): records-db (deployed 6 min ago by Hana Sato)",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 7,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:lab-results",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:lab-results",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:lab-results",
+       "since": 1792168005,
+       "downstream": [
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 8,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "correlate_alerts",
+   "args": {
+    "service_ids": [
+     "svc:appointments",
+     "svc:lab-results"
+    ]
+   },
+   "result": {
+    "alerts": [
+     "svc:appointments",
+     "svc:lab-results"
+    ],
+    "max_hops": 6,
+    "roots": [
+     {
+      "id": "svc:notifications",
+      "covers": [
+       "svc:appointments",
+       "svc:lab-results"
+      ],
+      "coverage": 2,
+      "alerting": false,
+      "total_hops": 2,
+      "callers": 3,
+      "paths": {
+       "svc:appointments": [
+        "svc:appointments",
+        "svc:notifications"
+       ],
+       "svc:lab-results": [
+        "svc:lab-results",
+        "svc:notifications"
+       ]
+      }
+     },
+     {
+      "id": "svc:sms-gateway",
+      "covers": [
+       "svc:appointments",
+       "svc:lab-results"
+      ],
+      "coverage": 2,
+      "alerting": false,
+      "total_hops": 4,
+      "callers": 4,
+      "paths": {
+       "svc:appointments": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:sms-gateway"
+       ],
+       "svc:lab-results": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "uncovered_by_top": [],
+    "ranking": "alerts covered (desc), alerting before silent, total hops (asc)"
+   },
+   "receipt": {
+    "tool": "correlate_alerts",
+    "args": {
+     "service_ids": [
+      "svc:appointments",
+      "svc:lab-results"
+     ],
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "UNWIND $ids AS sid MATCH (s:Service {id:sid}) CALL algo.BFS(s, $depth, 'DEPENDS_ON') YIELD nodes UNWIND nodes AS d RETURN d.id, collect(DISTINCT sid)",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:lab-results"
+       ],
+       "depth": 6
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
+      "params": {
+       "ids": [
+        "svc:notifications",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:appointments",
+       "to": "svc:notifications",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:lab-results",
+       "to": "svc:notifications",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:appointments",
+       "to": "svc:sms-gateway",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:lab-results",
+       "to": "svc:sms-gateway",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments",
+      "svc:notifications",
+      "svc:lab-results",
+      "svc:sms-gateway"
+     ],
+     "edges": [
+      {
+       "from": "svc:appointments",
+       "type": "DEPENDS_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "svc:lab-results",
+       "type": "DEPENDS_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "svc:notifications",
+       "type": "DEPENDS_ON",
+       "to": "svc:sms-gateway"
+      }
+     ]
+    }
+   },
+   "why": "several alerts at once: which dependency do most of them share?",
+   "summary": "correlate_alerts → shared root notifications reached by 2 of 2 alerts",
+   "ts": 1792175205,
+   "ms": 3,
+   "llm_call": 3
+  },
+  {
+   "seq": 9,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "connected_impact",
+   "args": {
+    "service_ids": [
+     "svc:appointments",
+     "svc:lab-results"
+    ]
+   },
+   "result": {
+    "alerts": [
+     "svc:appointments",
+     "svc:lab-results"
+    ],
+    "projection": {
+     "services": 7,
+     "edges": 6
+    },
+    "components": [
+     {
+      "alerts": [
+       "svc:appointments",
+       "svc:lab-results"
+      ],
+      "size": 7
+     }
+    ],
+    "incidents_at_least": 1,
+    "meaning": "alerts in different components share no dependency at all, so no single cause can explain them together"
+   },
+   "receipt": {
+    "tool": "connected_impact",
+    "args": {
+     "service_ids": [
+      "svc:appointments",
+      "svc:lab-results"
+     ]
+    },
+    "queries": [
+     {
+      "cypher": "UNWIND $ids AS sid MATCH (s:Service {id:sid}) CALL algo.BFS(s, 6, 'DEPENDS_ON') YIELD nodes UNWIND nodes AS d RETURN DISTINCT d.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:lab-results"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[:DEPENDS_ON]->(b:Service) WHERE a.id IN $ids AND b.id IN $ids RETURN a.id, b.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:audit-trail",
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "UNWIND $ids AS i CREATE (:Service {id: i})",
+      "params": {
+       "ids": "<7 items>"
+      },
+      "write": true,
+      "graph": "scratch projection"
+     },
+     {
+      "cypher": "UNWIND $pairs AS p MATCH (a:Service {id: p[0]}), (b:Service {id: p[1]}) CREATE (a)-[:DEPENDS_ON]->(b)",
+      "params": {
+       "pairs": "<6 items>"
+      },
+      "write": true,
+      "graph": "scratch projection"
+     },
+     {
+      "cypher": "CALL algo.WCC({nodeLabels: ['Service'], relationshipTypes: ['DEPENDS_ON']}) YIELD node, componentId RETURN node.id, componentId",
+      "params": {},
+      "graph": "scratch projection"
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments",
+      "svc:lab-results"
+     ],
+     "edges": []
+    }
+   },
+   "why": "several alerts at once: which of them cannot share a cause at all?",
+   "summary": "connected_impact → 1 group(s) that cannot share a cause: appointments, lab-results",
+   "ts": 1792175205,
+   "ms": 3,
+   "llm_call": 3
+  },
+  {
+   "seq": 10,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:appointments"
+   },
+   "result": {
+    "service": "svc:appointments",
+    "max_hops": 4,
+    "upstream_count": 1,
+    "tier1_count": 1,
+    "upstream": [
+     {
+      "id": "svc:patient-portal",
+      "tier": 1,
+      "team": "Patient Experience",
+      "hops": 1
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:appointments",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:appointments"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal",
+      "svc:appointments"
+     ],
+     "edges": [
+      {
+       "from": "svc:patient-portal",
+       "type": "DEPENDS_ON",
+       "to": "svc:appointments"
+      }
+     ]
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 1 upstream (1 tier-1)",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 11,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:notifications"
+   },
+   "result": {
+    "service": "svc:notifications",
+    "maintainers": [
+     {
+      "id": "per:owen-bryce",
+      "name": "Owen Bryce",
+      "status": "left",
+      "left_days_ago": 120
+     }
+    ],
+    "bus_factor_risk": true,
+    "bus_factor_reasons": [
+     "maintainer Owen Bryce has left"
+    ],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "role": "Senior Engineer",
+      "commits": 18,
+      "last_commit_days_ago": 30,
+      "resolutions": 0,
+      "score": 18
+     },
+     {
+      "id": "per:sam-reyes",
+      "name": "Sam Reyes",
+      "role": "Engineer",
+      "commits": 4,
+      "last_commit_days_ago": 0,
+      "resolutions": 0,
+      "score": 4
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:clinical-platform",
+     "name": "Clinical Platform",
+     "active_members": [
+      "Maya Okoro",
+      "Sam Reyes",
+      "Hana Sato",
+      "Victor Lund"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:notifications"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:notifications"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:maya-okoro",
+      "svc:notifications",
+      "per:sam-reyes",
+      "per:owen-bryce",
+      "team:clinical-platform"
+     ],
+     "edges": [
+      {
+       "from": "per:maya-okoro",
+       "type": "WORKED_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:sam-reyes",
+       "type": "WORKED_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:owen-bryce",
+       "type": "MAINTAINS",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "team:clinical-platform",
+       "type": "OWNS",
+       "to": "svc:notifications"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT",
+   "ts": 1792175205,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 12,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "decisions_about",
+   "args": {
+    "service_id": "svc:notifications"
+   },
+   "result": {
+    "service": "svc:notifications",
+    "decisions": [
+     {
+      "id": "dec:sms-retry-cap",
+      "title": "SMS retries are capped at 3 attempts with backoff",
+      "rationale": "Unbounded or immediate SMS retries flood the provider, which throttles the whole account.",
+      "decided": "2025-12-30",
+      "decided_days_ago": 290,
+      "author": "Owen Bryce",
+      "author_status": "left",
+      "sources": [
+       {
+        "id": "chat:platform-sms-retries",
+        "label": "ChatThread",
+        "title": "Why are SMS retries capped?",
+        "channel": "#platform",
+        "date": "2025-12-30",
+        "excerpt": "Decision: SMS retries stay capped at 3 attempts with exponential backoff; more than that floods the provider and gets us throttled."
+       }
+      ]
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "decisions_about",
+    "args": {
+     "service_id": "svc:notifications"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
+      "params": {
+       "id": "svc:notifications"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dec:sms-retry-cap",
+      "svc:notifications",
+      "per:owen-bryce",
+      "chat:platform-sms-retries"
+     ],
+     "edges": [
+      {
+       "from": "dec:sms-retry-cap",
+       "type": "ABOUT",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:owen-bryce",
+       "type": "AUTHORED",
+       "to": "dec:sms-retry-cap"
+      },
+      {
+       "from": "dec:sms-retry-cap",
+       "type": "SOURCED_FROM",
+       "to": "chat:platform-sms-retries"
+      }
+     ]
+    }
+   },
+   "why": "does the change contradict a recorded decision?",
+   "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 13,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "rollback_safety",
+   "args": {
+    "deploy_id": "dep:notifications-v3.3.0"
+   },
+   "result": {
+    "deploy": "dep:notifications-v3.3.0",
+    "service": "svc:notifications",
+    "service_tier": 2,
+    "version": "3.3.0",
+    "later_deploys": [],
+    "dependents": 3,
+    "tier1_dependents": 3,
+    "hard_to_undo_terms": [],
+    "verdict": "safe",
+    "reasons": [
+     "nothing shipped to notifications after it and nothing in the change looks irreversible"
+    ],
+    "blast_of_rollback": "3 service(s) call notifications (directly or not), 3 of them tier-1: they briefly see the old version"
+   },
+   "receipt": {
+    "tool": "rollback_safety",
+    "args": {
+     "deploy_id": "dep:notifications-v3.3.0"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
+      "params": {
+       "id": "dep:notifications-v3.3.0"
+      }
+     },
+     {
+      "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
+      "params": {
+       "sid": "svc:notifications",
+       "ts": 1792173885
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
+      "params": {
+       "sid": "svc:notifications"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:notifications-v3.3.0",
+      "svc:notifications"
+     ],
+     "edges": [
+      {
+       "from": "dep:notifications-v3.3.0",
+       "type": "CHANGED",
+       "to": "svc:notifications"
+      }
+     ]
+    }
+   },
+   "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
+   "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 14,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "stale_knowledge",
+   "args": {
+    "service_id": "svc:notifications"
+   },
+   "result": {
+    "service": "svc:notifications",
+    "stale_count": 2,
+    "items": [
+     {
+      "id": "doc:notifications-readme",
+      "kind": "Doc",
+      "title": "notifications README",
+      "describes": "svc:notifications",
+      "updated": "2026-01-09",
+      "updated_days_ago": 280,
+      "flagged": false,
+      "reasons": [
+       "author_left",
+       "names_departed_person"
+      ],
+      "author": "Owen Bryce",
+      "departed_people": [
+       "Owen Bryce"
+      ]
+     },
+     {
+      "id": "rb:notifications-delivery",
+      "kind": "Runbook",
+      "title": "Runbook: notification delivery failures",
+      "describes": "svc:notifications",
+      "updated": "2026-01-09",
+      "updated_days_ago": 280,
+      "flagged": false,
+      "reasons": [
+       "author_left"
+      ],
+      "author": "Owen Bryce"
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "stale_knowledge",
+    "args": {
+     "service_id": "svc:notifications"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
+      "params": {
+       "sid": "svc:notifications"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "doc:notifications-readme",
+      "svc:notifications",
+      "per:owen-bryce",
+      "rb:notifications-delivery"
+     ],
+     "edges": [
+      {
+       "from": "doc:notifications-readme",
+       "type": "DESCRIBES",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:owen-bryce",
+       "type": "AUTHORED",
+       "to": "doc:notifications-readme"
+      },
+      {
+       "from": "doc:notifications-readme",
+       "type": "MENTIONS",
+       "to": "per:owen-bryce"
+      },
+      {
+       "from": "rb:notifications-delivery",
+       "type": "DESCRIBES",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:owen-bryce",
+       "type": "AUTHORED",
+       "to": "rb:notifications-delivery"
+      }
+     ]
+    }
+   },
+   "why": "which docs and runbooks are out of date?",
+   "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 15,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:appointments"
+   },
+   "result": {
+    "service": "svc:appointments",
+    "maintainers": [
+     {
+      "id": "per:tariq-hassan",
+      "name": "Tariq Hassan",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:tariq-hassan",
+      "name": "Tariq Hassan",
+      "role": "Engineer",
+      "commits": 90,
+      "last_commit_days_ago": 2,
+      "resolutions": 0,
+      "score": 90
+     },
+     {
+      "id": "per:ines-moreau",
+      "name": "Ines Moreau",
+      "role": "Staff Engineer",
+      "commits": 25,
+      "last_commit_days_ago": 40,
+      "resolutions": 0,
+      "score": 25
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:patient-experience",
+     "name": "Patient Experience",
+     "active_members": [
+      "Ines Moreau",
+      "Tariq Hassan",
+      "Lena Fischer"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:appointments"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:appointments"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:ines-moreau",
+      "svc:appointments",
+      "per:tariq-hassan",
+      "team:patient-experience"
+     ],
+     "edges": [
+      {
+       "from": "per:ines-moreau",
+       "type": "WORKED_ON",
+       "to": "svc:appointments"
+      },
+      {
+       "from": "per:tariq-hassan",
+       "type": "WORKED_ON",
+       "to": "svc:appointments"
+      },
+      {
+       "from": "per:tariq-hassan",
+       "type": "MAINTAINS",
+       "to": "svc:appointments"
+      },
+      {
+       "from": "team:patient-experience",
+       "type": "OWNS",
+       "to": "svc:appointments"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Tariq Hassan (score 90)",
+   "ts": 1792175205,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 16,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:lab-results"
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "maintainers": [
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": true,
+    "bus_factor_reasons": [
+     "only 1 active person has worked on this service"
+    ],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "role": "Senior Engineer",
+      "commits": 110,
+      "last_commit_days_ago": 6,
+      "resolutions": 1,
+      "score": 135
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:clinical-platform",
+     "name": "Clinical Platform",
+     "active_members": [
+      "Maya Okoro",
+      "Sam Reyes",
+      "Hana Sato",
+      "Victor Lund"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:lab-results"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:maya-okoro",
+      "svc:lab-results",
+      "team:clinical-platform"
+     ],
+     "edges": [
+      {
+       "from": "per:maya-okoro",
+       "type": "WORKED_ON",
+       "to": "svc:lab-results"
+      },
+      {
+       "from": "per:maya-okoro",
+       "type": "MAINTAINS",
+       "to": "svc:lab-results"
+      },
+      {
+       "from": "team:clinical-platform",
+       "type": "OWNS",
+       "to": "svc:lab-results"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Maya Okoro (score 135)",
+   "ts": 1792175205,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 17,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications"
+    ],
+    "incident_count": 2,
+    "incidents": [
+     {
+      "id": "inc:nw-2025-14",
+      "key": "INC-NW-2025-14",
+      "title": "Appointment reminders stopped: SMS provider throttled us",
+      "severity": 2,
+      "started": "2025-12-20",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 2,
+      "via": [
+       "affected",
+       "caused_by_deploy"
+      ],
+      "caused_by_change_to": [
+       "svc:notifications"
+      ],
+      "root_causes": [
+       "rc:retry-storm"
+      ],
+      "resolution": "Restored the 3-attempt cap with backoff",
+      "resolved_by": [
+       "Owen Bryce"
+      ],
+      "resolution_sources": [
+       "tkt:PM-NW-2025-14"
+      ],
+      "similar_to": []
+     },
+     {
+      "id": "inc:nw-2026-03",
+      "key": "INC-NW-2026-03",
+      "title": "Results page timeouts after records migration",
+      "severity": 3,
+      "started": "2026-08-17",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:nw-missing-index"
+      ],
+      "resolution": "Recreated the visit_id index",
+      "resolved_by": [
+       "Maya Okoro"
+      ],
+      "resolution_sources": [
+       "tkt:PM-NW-2026-03"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:appointments",
+      "svc:lab-results",
+      "svc:notifications"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:notifications"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:notifications"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:nw-2025-14",
+        "inc:nw-2026-03"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:nw-2025-14",
+      "rc:retry-storm",
+      "svc:appointments",
+      "svc:notifications",
+      "dep:notifications-v3.1.0",
+      "res:nw-2025-14",
+      "per:owen-bryce",
+      "tkt:PM-NW-2025-14",
+      "inc:nw-2026-03",
+      "rc:nw-missing-index",
+      "svc:lab-results",
+      "res:nw-2026-03",
+      "per:maya-okoro",
+      "tkt:PM-NW-2026-03"
+     ],
+     "edges": [
+      {
+       "from": "inc:nw-2025-14",
+       "type": "AFFECTED",
+       "to": "svc:appointments"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "AFFECTED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "CAUSED_BY",
+       "to": "dep:notifications-v3.1.0"
+      },
+      {
+       "from": "dep:notifications-v3.1.0",
+       "type": "CHANGED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:retry-storm"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "RESOLVED_BY",
+       "to": "res:nw-2025-14"
+      },
+      {
+       "from": "res:nw-2025-14",
+       "type": "PERFORMED_BY",
+       "to": "per:owen-bryce"
+      },
+      {
+       "from": "res:nw-2025-14",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-NW-2025-14"
+      },
+      {
+       "from": "inc:nw-2026-03",
+       "type": "AFFECTED",
+       "to": "svc:lab-results"
+      },
+      {
+       "from": "inc:nw-2026-03",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:nw-missing-index"
+      },
+      {
+       "from": "inc:nw-2026-03",
+       "type": "RESOLVED_BY",
+       "to": "res:nw-2026-03"
+      },
+      {
+       "from": "res:nw-2026-03",
+       "type": "PERFORMED_BY",
+       "to": "per:maya-okoro"
+      },
+      {
+       "from": "res:nw-2026-03",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-NW-2026-03"
+      }
+     ]
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 2 incident(s): INC-NW-2025-14 (fixed by Owen Bryce), INC-NW-2026-03 (fixed by Maya Okoro)",
+   "ts": 1792175205,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 18,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "industry_matches",
+   "args": {
+    "root_cause_id": "rc:retry-storm"
+   },
+   "result": {
+    "root_causes": [
+     "rc:retry-storm"
+    ],
+    "match_count": 2,
+    "matches": [
+     {
+      "id": "pm:gcp-2025-06-12",
+      "company": "Google Cloud",
+      "title": "Multiple GCP products are experiencing Service issues",
+      "url": "https://status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW",
+      "published": "2025-06-12",
+      "summary": "A policy with blank fields replicated globally within seconds and hit new, unflagged Service Control code without error handling, which crashed in a loop. A kill switch disabled the path quickly, but restarting tasks without randomized backoff overloaded the Spanner backend in a large region, stretching recovery there by hours.",
+      "shared_root_causes": [
+       "rc:retry-storm"
+      ],
+      "overlap_terms": []
+     },
+     {
+      "id": "pm:aws-2021-12-07",
+      "company": "Amazon Web Services",
+      "title": "Summary of the AWS Service Event in the Northern Virginia (US-EAST-1) Region",
+      "url": "https://aws.amazon.com/message/12721/",
+      "published": "2021-12-10",
+      "summary": "An automated scaling activity triggered a surge of connections from internal clients that overwhelmed the devices between AWS's internal and main networks. A latent bug stopped those clients from backing off, so retries kept the congestion going. AWS stopped the scaling, rerouted internal DNS traffic, added capacity and fixed the back-off.",
+      "shared_root_causes": [
+       "rc:retry-storm"
+      ],
+      "overlap_terms": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "industry_matches",
+    "args": {
+     "root_cause_id": "rc:retry-storm",
+     "incident_id": null,
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (pm:PublicPostmortem)-[:HAS_ROOT_CAUSE]->(rc:RootCause) WHERE rc.id IN $rcs RETURN pm.id, pm.company, pm.title, pm.url, pm.published_at, pm.summary, collect(DISTINCT rc.id)",
+      "params": {
+       "rcs": [
+        "rc:retry-storm"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "pm:gcp-2025-06-12",
+      "rc:retry-storm",
+      "pm:aws-2021-12-07"
+     ],
+     "edges": [
+      {
+       "from": "pm:gcp-2025-06-12",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:retry-storm"
+      },
+      {
+       "from": "pm:aws-2021-12-07",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:retry-storm"
+      }
+     ]
+    }
+   },
+   "why": "has another company had the same root cause?",
+   "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues",
+   "ts": 1792175205,
+   "ms": 0,
+   "llm_call": 5
+  },
+  {
+   "seq": 19,
+   "agent": "firefighter",
+   "action": "answer",
+   "tool": "submit_report",
+   "args": {
+    "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
+    "likely_cause": {
+     "service_id": "svc:notifications",
+     "deploy_id": "dep:notifications-v3.3.0",
+     "ticket_key": null,
+     "path": [
+      "svc:appointments",
+      "svc:notifications"
+     ],
+     "explanation": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 22 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications."
+    },
+    "blast_radius": [
+     "svc:patient-portal"
+    ],
+    "contact": {
+     "person_id": "per:maya-okoro",
+     "name": "Maya Okoro",
+     "reason": "18 commits on notifications (score 18)"
+    },
+    "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+    "conflicting_decision": null,
+    "similar_past_incidents": [
+     {
+      "incident_id": "inc:nw-2025-14",
+      "what_fixed_it": "Restored the 3-attempt cap with backoff",
+      "resolved_by": "Owen Bryce"
+     }
+    ],
+    "evidence": [
+     {
+      "node_id": "dep:notifications-v3.3.0",
+      "claim": "notifications deployed 22 min ago: Send SMS synchronously inside the request (no queue)"
+     },
+     {
+      "node_id": "inc:nw-2025-14",
+      "claim": "INC-NW-2025-14 was caused by a change to notifications; fixed by Owen Bryce: Restored the 3-attempt cap with backoff"
+     },
+     {
+      "node_id": "per:maya-okoro",
+      "claim": "Best active contact: 18 commits on notifications (score 18)."
+     },
+     {
+      "node_id": "svc:appointments",
+      "claim": "1 upstream services (1 tier-1) are exposed."
+     }
+    ],
+    "recommended_actions": [
+     "Roll back dep:notifications-v3.3.0 on notifications.",
+     "Page Maya Okoro (per:maya-okoro).",
+     "Follow the INC-NW-2025-14 fix: Restored the 3-attempt cap with backoff."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "industry_pattern": "Matches known industry pattern: Google Cloud — Multiple GCP products are experiencing Service issues (https://status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW)",
+    "rejected_leads": [
+     {
+      "deploy_id": "dep:records-db-v15.2.0",
+      "service_id": "svc:records-db",
+      "reason": "records-db is on lab-results's call path (1 hop), but notifications explains 2 alerts, this change 1"
+     }
+    ],
+    "incidents": [
+     {
+      "alerts": [
+       "svc:appointments",
+       "svc:lab-results"
+      ],
+      "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
+      "likely_cause": {
+       "service_id": "svc:notifications",
+       "deploy_id": "dep:notifications-v3.3.0",
+       "ticket_key": null,
+       "path": [
+        "svc:appointments",
+        "svc:notifications"
+       ],
+       "explanation": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 22 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications."
+      },
+      "contact": {
+       "person_id": "per:maya-okoro",
+       "name": "Maya Okoro",
+       "reason": "18 commits on notifications (score 18)"
+      },
+      "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+      "blast_radius": [
+       "svc:patient-portal"
+      ],
+      "recommended_actions": [
+       "Roll back dep:notifications-v3.3.0 on notifications.",
+       "Page Maya Okoro (per:maya-okoro).",
+       "Follow the INC-NW-2025-14 fix: Restored the 3-attempt cap with backoff."
+      ],
+      "confidence": "medium",
+      "look_first": null,
+      "root": null,
+      "suppressed_pages": [
+       {
+        "alert": "svc:appointments",
+        "person_id": "per:tariq-hassan",
+        "name": "Tariq Hassan",
+        "team_id": null,
+        "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+       }
+      ],
+      "notify": []
+     }
+    ],
+    "suppressed_pages": [
+     {
+      "alert": "svc:appointments",
+      "person_id": "per:tariq-hassan",
+      "name": "Tariq Hassan",
+      "team_id": null,
+      "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+     }
+    ],
+    "action_plan": [
+     {
+      "id": "A1",
+      "incident": 0,
+      "kind": "rollback",
+      "target": "dep:notifications-v3.3.0",
+      "title": "Roll back dep:notifications-v3.3.0 on notifications",
+      "justification": {
+       "why": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 22 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications.",
+       "node_ids": [
+        "dep:notifications-v3.3.0",
+        "svc:notifications",
+        "svc:appointments",
+        "svc:notifications"
+       ],
+       "path": [
+        "svc:appointments",
+        "svc:notifications"
+       ]
+      },
+      "safety": {
+       "verdict": "safe",
+       "reasons": [
+        "nothing shipped to notifications after it and nothing in the change looks irreversible"
+       ],
+       "dependents": 3,
+       "later_deploys": [],
+       "blast": "3 service(s) call notifications (directly or not), 3 of them tier-1: they briefly see the old version"
+      }
+     },
+     {
+      "id": "A2",
+      "incident": 0,
+      "kind": "page",
+      "target": "per:maya-okoro",
+      "title": "Page Maya Okoro",
+      "justification": {
+       "why": "18 commits on notifications (score 18)",
+       "node_ids": [
+        "per:maya-okoro",
+        "svc:notifications"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A3",
+      "incident": 0,
+      "kind": "suppress_page",
+      "target": "per:tariq-hassan",
+      "title": "Don't page Tariq Hassan for appointments",
+      "justification": {
+       "why": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead",
+       "node_ids": [
+        "per:tariq-hassan",
+        "svc:appointments"
+       ],
+       "path": [
+        "svc:appointments",
+        "svc:notifications"
+       ]
+      },
+      "safety": null
+     },
+     {
+      "id": "A4",
+      "incident": 0,
+      "kind": "open_ticket",
+      "target": "svc:notifications",
+      "title": "Open a follow-up ticket for notifications",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:notifications"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A5",
+      "incident": 0,
+      "kind": "flag_stale",
+      "target": "doc:notifications-readme",
+      "title": "Flag notifications README as stale",
+      "justification": {
+       "why": "author_left, names_departed_person",
+       "node_ids": [
+        "doc:notifications-readme",
+        "svc:notifications"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A6",
+      "incident": 0,
+      "kind": "flag_stale",
+      "target": "rb:notifications-delivery",
+      "title": "Flag Runbook: notification delivery failures as stale",
+      "justification": {
+       "why": "author_left",
+       "node_ids": [
+        "rb:notifications-delivery",
+        "svc:notifications"
+       ],
+       "path": []
+      },
+      "safety": null
+     }
+    ],
+    "hypotheses": [
+     {
+      "id": "H1",
+      "claim": "dep:notifications-v3.3.0 on notifications caused the appointments, lab-results alerts",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "dep:notifications-v3.3.0",
+        "claim": "deployed 22 min ago: Send SMS synchronously inside the request (no queue)"
+       },
+       {
+        "node_id": "svc:notifications",
+        "claim": "on the path appointments -> notifications"
+       },
+       {
+        "node_id": "inc:nw-2025-14",
+        "claim": "a past incident caused by a change to notifications"
+       }
+      ],
+      "contradicting": [],
+      "reason": "explains 2 alerts; a change on the call path (1 hop)"
+     },
+     {
+      "id": "H2",
+      "claim": "dep:records-db-v15.2.0 on records-db caused it",
+      "status": "rejected",
+      "supporting": [
+       {
+        "node_id": "dep:records-db-v15.2.0",
+        "claim": "deployed 6 min ago: PostgreSQL minor upgrade 15.1 -> 15.2"
+       }
+      ],
+      "contradicting": [
+       {
+        "node_id": "svc:records-db",
+        "claim": "records-db is on lab-results's call path (1 hop), but notifications explains 2 alerts, this change 1"
+       }
+      ],
+      "reason": "records-db is on lab-results's call path (1 hop), but notifications explains 2 alerts, this change 1"
+     }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "the change is on the alert's call path (1 hop)",
+      "node_id": "dep:notifications-v3.3.0"
+     },
+     {
+      "effect": "-",
+      "factor": "no recorded decision says it is risky",
+      "node_id": null
+     },
+     {
+      "effect": "+",
+      "factor": "a past incident had the same cause",
+      "node_id": "inc:nw-2025-14"
+     }
+    ]
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
+     "likely_cause": {
+      "service_id": "svc:notifications",
+      "deploy_id": "dep:notifications-v3.3.0",
+      "ticket_key": null,
+      "path": [
+       "svc:appointments",
+       "svc:notifications"
+      ],
+      "explanation": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 22 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications."
+     },
+     "blast_radius": [
+      "svc:patient-portal"
+     ],
+     "contact": {
+      "person_id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "reason": "18 commits on notifications (score 18)"
+     },
+     "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+     "conflicting_decision": null,
+     "similar_past_incidents": [
+      {
+       "incident_id": "inc:nw-2025-14",
+       "what_fixed_it": "Restored the 3-attempt cap with backoff",
+       "resolved_by": "Owen Bryce"
+      }
+     ],
+     "evidence": [
+      {
+       "node_id": "dep:notifications-v3.3.0",
+       "claim": "notifications deployed 22 min ago: Send SMS synchronously inside the request (no queue)"
+      },
+      {
+       "node_id": "inc:nw-2025-14",
+       "claim": "INC-NW-2025-14 was caused by a change to notifications; fixed by Owen Bryce: Restored the 3-attempt cap with backoff"
+      },
+      {
+       "node_id": "per:maya-okoro",
+       "claim": "Best active contact: 18 commits on notifications (score 18)."
+      },
+      {
+       "node_id": "svc:appointments",
+       "claim": "1 upstream services (1 tier-1) are exposed."
+      }
+     ],
+     "recommended_actions": [
+      "Roll back dep:notifications-v3.3.0 on notifications.",
+      "Page Maya Okoro (per:maya-okoro).",
+      "Follow the INC-NW-2025-14 fix: Restored the 3-attempt cap with backoff."
+     ],
+     "confidence": "medium",
+     "look_first": null,
+     "industry_pattern": "Matches known industry pattern: Google Cloud — Multiple GCP products are experiencing Service issues (https://status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW)",
+     "rejected_leads": [
+      {
+       "deploy_id": "dep:records-db-v15.2.0",
+       "service_id": "svc:records-db",
+       "reason": "records-db is on lab-results's call path (1 hop), but notifications explains 2 alerts, this change 1"
+      }
+     ],
+     "incidents": [
+      {
+       "alerts": [
+        "svc:appointments",
+        "svc:lab-results"
+       ],
+       "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
+       "likely_cause": {
+        "service_id": "svc:notifications",
+        "deploy_id": "dep:notifications-v3.3.0",
+        "ticket_key": null,
+        "path": [
+         "svc:appointments",
+         "svc:notifications"
+        ],
+        "explanation": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 22 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications."
+       },
+       "contact": {
+        "person_id": "per:maya-okoro",
+        "name": "Maya Okoro",
+        "reason": "18 commits on notifications (score 18)"
+       },
+       "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+       "blast_radius": [
+        "svc:patient-portal"
+       ],
+       "recommended_actions": [
+        "Roll back dep:notifications-v3.3.0 on notifications.",
+        "Page Maya Okoro (per:maya-okoro).",
+        "Follow the INC-NW-2025-14 fix: Restored the 3-attempt cap with backoff."
+       ],
+       "confidence": "medium",
+       "look_first": null,
+       "root": null,
+       "suppressed_pages": [
+        {
+         "alert": "svc:appointments",
+         "person_id": "per:tariq-hassan",
+         "name": "Tariq Hassan",
+         "team_id": null,
+         "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+        }
+       ],
+       "notify": []
+      }
+     ],
+     "suppressed_pages": [
+      {
+       "alert": "svc:appointments",
+       "person_id": "per:tariq-hassan",
+       "name": "Tariq Hassan",
+       "team_id": null,
+       "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+      }
+     ],
+     "action_plan": [
+      {
+       "id": "A1",
+       "incident": 0,
+       "kind": "rollback",
+       "target": "dep:notifications-v3.3.0",
+       "title": "Roll back dep:notifications-v3.3.0 on notifications",
+       "justification": {
+        "why": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 22 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications.",
+        "node_ids": [
+         "dep:notifications-v3.3.0",
+         "svc:notifications",
+         "svc:appointments",
+         "svc:notifications"
+        ],
+        "path": [
+         "svc:appointments",
+         "svc:notifications"
+        ]
+       },
+       "safety": {
+        "verdict": "safe",
+        "reasons": [
+         "nothing shipped to notifications after it and nothing in the change looks irreversible"
+        ],
+        "dependents": 3,
+        "later_deploys": [],
+        "blast": "3 service(s) call notifications (directly or not), 3 of them tier-1: they briefly see the old version"
+       }
+      },
+      {
+       "id": "A2",
+       "incident": 0,
+       "kind": "page",
+       "target": "per:maya-okoro",
+       "title": "Page Maya Okoro",
+       "justification": {
+        "why": "18 commits on notifications (score 18)",
+        "node_ids": [
+         "per:maya-okoro",
+         "svc:notifications"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A3",
+       "incident": 0,
+       "kind": "suppress_page",
+       "target": "per:tariq-hassan",
+       "title": "Don't page Tariq Hassan for appointments",
+       "justification": {
+        "why": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead",
+        "node_ids": [
+         "per:tariq-hassan",
+         "svc:appointments"
+        ],
+        "path": [
+         "svc:appointments",
+         "svc:notifications"
+        ]
+       },
+       "safety": null
+      },
+      {
+       "id": "A4",
+       "incident": 0,
+       "kind": "open_ticket",
+       "target": "svc:notifications",
+       "title": "Open a follow-up ticket for notifications",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:notifications"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A5",
+       "incident": 0,
+       "kind": "flag_stale",
+       "target": "doc:notifications-readme",
+       "title": "Flag notifications README as stale",
+       "justification": {
+        "why": "author_left, names_departed_person",
+        "node_ids": [
+         "doc:notifications-readme",
+         "svc:notifications"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A6",
+       "incident": 0,
+       "kind": "flag_stale",
+       "target": "rb:notifications-delivery",
+       "title": "Flag Runbook: notification delivery failures as stale",
+       "justification": {
+        "why": "author_left",
+        "node_ids": [
+         "rb:notifications-delivery",
+         "svc:notifications"
+        ],
+        "path": []
+       },
+       "safety": null
+      }
+     ],
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "dep:notifications-v3.3.0 on notifications caused the appointments, lab-results alerts",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:notifications-v3.3.0",
+         "claim": "deployed 22 min ago: Send SMS synchronously inside the request (no queue)"
+        },
+        {
+         "node_id": "svc:notifications",
+         "claim": "on the path appointments -> notifications"
+        },
+        {
+         "node_id": "inc:nw-2025-14",
+         "claim": "a past incident caused by a change to notifications"
+        }
+       ],
+       "contradicting": [],
+       "reason": "explains 2 alerts; a change on the call path (1 hop)"
+      },
+      {
+       "id": "H2",
+       "claim": "dep:records-db-v15.2.0 on records-db caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:records-db-v15.2.0",
+         "claim": "deployed 6 min ago: PostgreSQL minor upgrade 15.1 -> 15.2"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:records-db",
+         "claim": "records-db is on lab-results's call path (1 hop), but notifications explains 2 alerts, this change 1"
+        }
+       ],
+       "reason": "records-db is on lab-results's call path (1 hop), but notifications explains 2 alerts, this change 1"
+      }
+     ],
+     "confidence_breakdown": [
+      {
+       "effect": "+",
+       "factor": "the change is on the alert's call path (1 hop)",
+       "node_id": "dep:notifications-v3.3.0"
+      },
+      {
+       "effect": "-",
+       "factor": "no recorded decision says it is risky",
+       "node_id": null
+      },
+      {
+       "effect": "+",
+       "factor": "a past incident had the same cause",
+       "node_id": "inc:nw-2025-14"
+      }
+     ]
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "dep:notifications-v3.3.0",
+      "dep:records-db-v15.2.0",
+      "doc:notifications-readme",
+      "inc:nw-2025-14",
+      "per:maya-okoro",
+      "per:tariq-hassan",
+      "rb:notifications-delivery",
+      "svc:appointments",
+      "svc:lab-results",
+      "svc:notifications",
+      "svc:patient-portal",
+      "svc:records-db"
+     ],
+     "edges": []
+    }
+   },
+   "why": "the evidence is in: submit the grounded report",
+   "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
+   "ts": 1792175205,
+   "ms": 1,
+   "llm_call": 6
+  }
+ ],
+ "twin": "northwind_health__eval_play",
+ "scenario": "n-chokepoint",
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:patient-experience",
+    "label": "Team",
+    "name": "Patient Experience",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Patient Experience"
+    }
+   },
+   {
+    "id": "team:clinical-platform",
+    "label": "Team",
+    "name": "Clinical Platform",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Clinical Platform"
+    }
+   },
+   {
+    "id": "per:ines-moreau",
+    "label": "Person",
+    "name": "Ines Moreau",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Ines Moreau",
+     "role": "Staff Engineer",
+     "email": "ines.moreau@northwind.example",
+     "joined_at": 1653935205
+    }
+   },
+   {
+    "id": "per:tariq-hassan",
+    "label": "Person",
+    "name": "Tariq Hassan",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Tariq Hassan",
+     "role": "Engineer",
+     "email": "tariq.hassan@northwind.example",
+     "joined_at": 1748975205
+    }
+   },
+   {
+    "id": "per:owen-bryce",
+    "label": "Person",
+    "name": "Owen Bryce",
+    "origin": "seed",
+    "props": {
+     "status": "left",
+     "origin": "seed",
+     "name": "Owen Bryce",
+     "role": "Senior Engineer",
+     "email": "owen.bryce@northwind.example",
+     "joined_at": 1628015205,
+     "left_at": 1781807205
+    }
+   },
+   {
+    "id": "per:maya-okoro",
+    "label": "Person",
+    "name": "Maya Okoro",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Maya Okoro",
+     "role": "Senior Engineer",
+     "email": "maya.okoro@northwind.example",
+     "joined_at": 1697135205
+    }
+   },
+   {
+    "id": "per:sam-reyes",
+    "label": "Person",
+    "name": "Sam Reyes",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Sam Reyes",
+     "role": "Engineer",
+     "email": "sam.reyes@northwind.example",
+     "joined_at": 1788287205
+    }
+   },
+   {
+    "id": "per:hana-sato",
+    "label": "Person",
+    "name": "Hana Sato",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Hana Sato",
+     "role": "Site Reliability Engineer",
+     "email": "hana.sato@northwind.example",
+     "joined_at": 1723055205
+    }
+   },
+   {
+    "id": "svc:patient-portal",
+    "label": "Service",
+    "name": "patient-portal",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "patient-portal",
+     "description": "Web and mobile portal where patients book visits and view results.",
+     "tier": 1,
+     "language": "TypeScript",
+     "repo_url": "https://git.northwind.example/patient-portal"
+    }
+   },
+   {
+    "id": "svc:appointments",
+    "label": "Service",
+    "name": "appointments",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "appointments",
+     "description": "Books, moves and cancels appointments; sends reminder requests.",
+     "tier": 1,
+     "language": "Kotlin",
+     "repo_url": "https://git.northwind.example/appointments"
+    }
+   },
+   {
+    "id": "svc:lab-results",
+    "label": "Service",
+    "name": "lab-results",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "lab-results",
+     "description": "Publishes finished lab reports to the portal.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.northwind.example/lab-results"
+    }
+   },
+   {
+    "id": "svc:notifications",
+    "label": "Service",
+    "name": "notifications",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "notifications",
+     "description": "Sends appointment reminders and result alerts by SMS and email.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/notifications"
+    }
+   },
+   {
+    "id": "svc:records-db",
+    "label": "Service",
+    "name": "records-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "records-db",
+     "description": "Primary database for lab reports and visit records.",
+     "tier": 1,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.northwind.example/records-db"
+    }
+   },
+   {
+    "id": "svc:sms-gateway",
+    "label": "Service",
+    "name": "sms-gateway",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "sms-gateway",
+     "description": "Thin wrapper around the SMS provider.",
+     "tier": 3,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/sms-gateway"
+    }
+   },
+   {
+    "id": "chat:platform-sms-retries",
+    "label": "ChatThread",
+    "name": "Why are SMS retries capped?",
+    "origin": "seed",
+    "props": {
+     "ts": 1767119205,
+     "origin": "seed",
+     "title": "Why are SMS retries capped?",
+     "text": "[2025-12-30 18:26] Maya Okoro: Post-incident question: why did notifications hammer the SMS provider? [2025-12-30 18:28] Owen Bryce: Every provider timeout triggered an immediate retry, forever. The provider throttled our whole account. [2025-12-30 18:30] Owen Bryce: Decision: SMS retries stay capped at 3 attempts with exponential backoff; more than that floods the provider and gets us throttled.…",
+     "channel": "#platform"
+    }
+   },
+   {
+    "id": "doc:notifications-readme",
+    "label": "Doc",
+    "name": "notifications README",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "notifications README",
+     "text": "# notifications Sends appointment reminders and result alerts. SMS goes through sms-gateway; email through the mail provider. Owner: Owen Bryce. Retries: at most 3 SMS attempts with exponential backoff (see #platform).",
+     "updated_at": 1767983205,
+     "flagged_stale": false
+    }
+   },
+   {
+    "id": "tkt:PM-NW-2025-14",
+    "label": "Ticket",
+    "name": "PM-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: SMS provider throttled our account",
+     "text": "Unbounded retries in notifications v3.1.0 flooded the SMS provider, which throttled the account for 3 hours. Appointment reminders stopped. Resolution: restored the 3-attempt cap with backoff and drained the retry queue.",
+     "key": "PM-NW-2025-14",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "tkt:PM-NW-2026-03",
+    "label": "Ticket",
+    "name": "PM-NW-2026-03",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: results page timeouts",
+     "text": "After the records migration, lab-results scanned records-db without the visit_id index and the portal results page timed out. Resolution: added the missing index on visit_id and re-ran the report backfill.",
+     "key": "PM-NW-2026-03",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "dec:sms-retry-cap",
+    "label": "Decision",
+    "name": "SMS retries are capped at 3 attempts with backoff",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "SMS retries are capped at 3 attempts with backoff",
+     "rationale": "Unbounded or immediate SMS retries flood the provider, which throttles the whole account.",
+     "decided_at": 1767119205
+    }
+   },
+   {
+    "id": "rc:retry-storm",
+    "label": "RootCause",
+    "name": "Retry storm against an external provider",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Retry storm against an external provider",
+     "description": "Immediate, unbounded retries amplify a provider timeout until the provider throttles us."
+    }
+   },
+   {
+    "id": "rc:nw-missing-index",
+    "label": "RootCause",
+    "name": "Missing database index after migration",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Missing database index after migration",
+     "description": "A migration dropped an index, so queries fall back to sequential scans."
+    }
+   },
+   {
+    "id": "inc:nw-2025-14",
+    "label": "Incident",
+    "name": "INC-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "started_at": 1766255205,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "Appointment reminders stopped: SMS provider throttled us",
+     "summary": "notifications v3.1.0 retried SMS without limit on provider timeouts; the provider throttled the account.",
+     "key": "INC-NW-2025-14",
+     "severity": 2,
+     "symptom": "appointment reminder SMS not sent; provider 429s",
+     "resolved_at": 1766258805
+    }
+   },
+   {
+    "id": "inc:nw-2026-03",
+    "label": "Incident",
+    "name": "INC-NW-2026-03",
+    "origin": "seed",
+    "props": {
+     "started_at": 1786991205,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "Results page timeouts after records migration",
+     "summary": "lab-results ran sequential scans on records-db after a migration dropped the visit_id index.",
+     "key": "INC-NW-2026-03",
+     "severity": 3,
+     "symptom": "portal results page timing out",
+     "resolved_at": 1786994805
+    }
+   },
+   {
+    "id": "res:nw-2025-14",
+    "label": "Resolution",
+    "name": "Restored the 3-attempt cap with backoff",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Restored the 3-attempt cap with backoff",
+     "steps": "1. Restored the 3-attempt cap with backoff."
+    }
+   },
+   {
+    "id": "res:nw-2026-03",
+    "label": "Resolution",
+    "name": "Recreated the visit_id index",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Recreated the visit_id index",
+     "steps": "1. Recreated the visit_id index."
+    }
+   },
+   {
+    "id": "rb:notifications-delivery",
+    "label": "Runbook",
+    "name": "Runbook: notification delivery failures",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "Runbook: notification delivery failures",
+     "steps": "1. Check the sms-gateway error rate. 2. Check provider status. 3. Pause reminder batches if throttled.",
+     "updated_at": 1767983205,
+     "version": 1
+    }
+   },
+   {
+    "id": "dep:notifications-v3.1.0",
+    "label": "Deploy",
+    "name": "3.1.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1766255205,
+     "origin": "seed",
+     "summary": "Unbounded SMS retries on provider timeout",
+     "version": "3.1.0"
+    }
+   },
+   {
+    "id": "dep:notifications-v3.3.0",
+    "label": "Deploy",
+    "name": "3.3.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792173885,
+     "origin": "seed",
+     "summary": "Send SMS synchronously inside the request (no queue)",
+     "version": "3.3.0"
+    }
+   },
+   {
+    "id": "dep:records-db-v15.2.0",
+    "label": "Deploy",
+    "name": "15.2.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792174845,
+     "origin": "seed",
+     "summary": "PostgreSQL minor upgrade 15.1 -> 15.2",
+     "version": "15.2.0"
+    }
+   },
+   {
+    "id": "pm:aws-2021-12-07",
+    "label": "PublicPostmortem",
+    "name": "Summary of the AWS Service Event in the Northern Virginia (US-EAST-1) Region",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "Summary of the AWS Service Event in the Northern Virginia (US-EAST-1) Region",
+     "summary": "An automated scaling activity triggered a surge of connections from internal clients that overwhelmed the devices between AWS's internal and main networks. A latent bug stopped those clients from backing off, so retries kept the congestion going. AWS stopped the scaling, rerouted internal DNS traffic, added capacity and fixed the back-off.",
+     "company": "Amazon Web Services",
+     "url": "https://aws.amazon.com/message/12721/",
+     "published_at": 1639094400
+    }
+   },
+   {
+    "id": "pm:gcp-2025-06-12",
+    "label": "PublicPostmortem",
+    "name": "Multiple GCP products are experiencing Service issues",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "Multiple GCP products are experiencing Service issues",
+     "summary": "A policy with blank fields replicated globally within seconds and hit new, unflagged Service Control code without error handling, which crashed in a loop. A kill switch disabled the path quickly, but restarting tasks without randomized backoff overloaded the Spanner backend in a large region, stretching recovery there by hours.",
+     "company": "Google Cloud",
+     "url": "https://status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW",
+     "published_at": 1749686400
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:patient-experience",
+    "type": "OWNS",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:clinical-platform",
+    "type": "OWNS",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:clinical-platform",
+    "type": "OWNS",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:ines-moreau",
+    "type": "WORKED_ON",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {
+     "commits": 25,
+     "last_at": 1788719205
+    }
+   },
+   {
+    "source": "per:tariq-hassan",
+    "type": "MAINTAINS",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:tariq-hassan",
+    "type": "WORKED_ON",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {
+     "commits": 90,
+     "last_at": 1792002405
+    }
+   },
+   {
+    "source": "per:owen-bryce",
+    "type": "MAINTAINS",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:owen-bryce",
+    "type": "AUTHORED",
+    "target": "doc:notifications-readme",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:owen-bryce",
+    "type": "AUTHORED",
+    "target": "dec:sms-retry-cap",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:owen-bryce",
+    "type": "AUTHORED",
+    "target": "rb:notifications-delivery",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "MAINTAINS",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "WORKED_ON",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {
+     "commits": 110,
+     "last_at": 1791656805
+    }
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "WORKED_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "commits": 18,
+     "last_at": 1789583205
+    }
+   },
+   {
+    "source": "per:sam-reyes",
+    "type": "WORKED_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "commits": 4,
+     "last_at": 1792175205
+    }
+   },
+   {
+    "source": "per:sam-reyes",
+    "type": "DEPLOYED",
+    "target": "dep:notifications-v3.3.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:hana-sato",
+    "type": "DEPLOYED",
+    "target": "dep:records-db-v15.2.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "svc:patient-portal",
+    "type": "DEPENDS_ON",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:appointments",
+    "type": "DEPENDS_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:lab-results",
+    "type": "DEPENDS_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:lab-results",
+    "type": "DEPENDS_ON",
+    "target": "svc:records-db",
+    "origin": "seed",
+    "props": {
+     "kind": "db",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:notifications",
+    "type": "DEPENDS_ON",
+    "target": "svc:sms-gateway",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "doc:notifications-readme",
+    "type": "MENTIONS",
+    "target": "per:owen-bryce",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "doc:notifications-readme",
+    "type": "DESCRIBES",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dec:sms-retry-cap",
+    "type": "ABOUT",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dec:sms-retry-cap",
+    "type": "SOURCED_FROM",
+    "target": "chat:platform-sms-retries",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Decision: SMS retries stay capped at 3 attempts with exponential backoff; more than that floods the provider and gets us throttled."
+    }
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "AFFECTED",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "AFFECTED",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:retry-storm",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "RESOLVED_BY",
+    "target": "res:nw-2025-14",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "CAUSED_BY",
+    "target": "dep:notifications-v3.1.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "AFFECTED",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:nw-missing-index",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "RESOLVED_BY",
+    "target": "res:nw-2026-03",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2025-14",
+    "type": "PERFORMED_BY",
+    "target": "per:owen-bryce",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2025-14",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: restored the 3-attempt cap with backoff and drained the retry queue."
+    }
+   },
+   {
+    "source": "res:nw-2026-03",
+    "type": "PERFORMED_BY",
+    "target": "per:maya-okoro",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2026-03",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-NW-2026-03",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: added the missing index on visit_id and re-ran the report backfill."
+    }
+   },
+   {
+    "source": "rb:notifications-delivery",
+    "type": "DESCRIBES",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:notifications-v3.1.0",
+    "type": "CHANGED",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:notifications-v3.3.0",
+    "type": "CHANGED",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:records-db-v15.2.0",
+    "type": "CHANGED",
+    "target": "svc:records-db",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "pm:aws-2021-12-07",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:retry-storm",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "pm:gcp-2025-06-12",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:retry-storm",
+    "origin": "seed",
+    "props": {}
+   }
+  ],
+  "base": [
+   "svc:appointments",
+   "svc:lab-results"
+  ],
+  "alert": "svc:appointments",
+  "alerts": [
+   "svc:appointments",
+   "svc:lab-results"
+  ]
+ },
+ "execution": {
+  "session_id": "ses:exec-run-c9f5b2b0a60d",
+  "already_executed": false,
+  "results": [
+   {
+    "action": "A1",
+    "kind": "rollback",
+    "title": "Roll back dep:notifications-v3.3.0 on notifications",
+    "ok": true,
+    "summary": "rolled back dep:notifications-v3.3.0 (simulated): wrote dep:notifications-v3.3.0-rollback"
+   },
+   {
+    "action": "A2",
+    "kind": "page",
+    "title": "Page Maya Okoro",
+    "ok": true,
+    "summary": "paged Maya Okoro for INC-2026-001 (simulated): 18 commits on notifications (score 18)"
+   },
+   {
+    "action": "A3",
+    "kind": "suppress_page",
+    "title": "Don't page Tariq Hassan for appointments",
+    "ok": true,
+    "summary": "Don't page Tariq Hassan for appointments: appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+   },
+   {
+    "action": "A4",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for notifications",
+    "ok": true,
+    "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: notifications"
+   },
+   {
+    "action": "A5",
+    "kind": "flag_stale",
+    "title": "Flag notifications README as stale",
+    "ok": true,
+    "summary": "flagged doc:notifications-readme stale: author_left, names_departed_person"
+   },
+   {
+    "action": "A6",
+    "kind": "flag_stale",
+    "title": "Flag Runbook: notification delivery failures as stale",
+    "ok": true,
+    "summary": "flagged rb:notifications-delivery stale: author_left"
+   }
+  ],
+  "incidents": [
+   "inc:2026-001"
+  ],
+  "verification": {
+   "checks": [
+    {
+     "incident": 0,
+     "cleared": true,
+     "tool": "recent_changes_downstream",
+     "queries": [
+      {
+       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+       "params": {
+        "id": "svc:appointments",
+        "since": 1792168005
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:appointments",
+        "to": "svc:notifications",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:appointments",
+        "to": "svc:notifications",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      }
+     ],
+     "summary": "the newest change on svc:notifications is now the rollback (dep:notifications-v3.3.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+    }
+   ],
+   "all_cleared": true,
+   "simulated": true
+  }
+ }
+}

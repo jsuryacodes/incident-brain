@@ -1,0 +1,1663 @@
+{
+ "run_id": "run-f83a4b6cd91f",
+ "agent": "firefighter",
+ "tenant": "kestrel_pay__eval_play",
+ "alert": {
+  "service_id": "svc:webhook-dispatcher",
+  "symptom": "webhook delivery lag 14 min; kafka-events consumer lag growing"
+ },
+ "mode": "mock",
+ "model": "mock",
+ "started_at": 1792175204,
+ "status": "ok",
+ "report": {
+  "summary": "webhook-dispatcher alert most likely caused by dep:reconciliation-job-v1.8.0 on reconciliation-job, deployed 20 min ago. Contact Tomasz Kowalski.",
+  "likely_cause": {
+   "service_id": "svc:reconciliation-job",
+   "deploy_id": "dep:reconciliation-job-v1.8.0",
+   "ticket_key": null,
+   "path": [
+    "svc:webhook-dispatcher",
+    "svc:kafka-events",
+    "svc:reconciliation-job"
+   ],
+   "explanation": "Replay the full day of bank events into kafka-events on every run (dep:reconciliation-job-v1.8.0, deployed 20 min ago by Tomasz Kowalski). webhook-dispatcher and reconciliation-job both call kafka-events (corroborated by the alert names kafka-events): webhook-dispatcher -> kafka-events -> reconciliation-job."
+  },
+  "blast_radius": [],
+  "contact": {
+   "person_id": "per:tomasz-kowalski",
+   "name": "Tomasz Kowalski",
+   "reason": "75 commits on reconciliation-job (score 75)"
+  },
+  "bus_factor_warning": null,
+  "conflicting_decision": null,
+  "similar_past_incidents": [],
+  "evidence": [
+   {
+    "node_id": "dep:reconciliation-job-v1.8.0",
+    "claim": "reconciliation-job deployed 20 min ago: Replay the full day of bank events into kafka-events on every run"
+   },
+   {
+    "node_id": "per:tomasz-kowalski",
+    "claim": "Best active contact: 75 commits on reconciliation-job (score 75)."
+   },
+   {
+    "node_id": "svc:webhook-dispatcher",
+    "claim": "0 upstream services (0 tier-1) are exposed."
+   }
+  ],
+  "recommended_actions": [
+   "Roll back dep:reconciliation-job-v1.8.0 on reconciliation-job.",
+   "Page Tomasz Kowalski (per:tomasz-kowalski)."
+  ],
+  "confidence": "medium",
+  "look_first": null,
+  "industry_pattern": null,
+  "rejected_leads": [],
+  "action_plan": [
+   {
+    "id": "A1",
+    "incident": 0,
+    "kind": "rollback",
+    "target": "dep:reconciliation-job-v1.8.0",
+    "title": "Roll back dep:reconciliation-job-v1.8.0 on reconciliation-job",
+    "justification": {
+     "why": "Replay the full day of bank events into kafka-events on every run (dep:reconciliation-job-v1.8.0, deployed 20 min ago by Tomasz Kowalski). webhook-dispatcher and reconciliation-job both call kafka-events (corroborated by the alert names kafka-events): webhook-dispatcher -> kafka-events -> reconciliation-job.",
+     "node_ids": [
+      "dep:reconciliation-job-v1.8.0",
+      "svc:reconciliation-job",
+      "svc:webhook-dispatcher",
+      "svc:kafka-events",
+      "svc:reconciliation-job"
+     ],
+     "path": [
+      "svc:webhook-dispatcher",
+      "svc:kafka-events",
+      "svc:reconciliation-job"
+     ]
+    },
+    "safety": {
+     "verdict": "safe",
+     "reasons": [
+      "nothing shipped to reconciliation-job after it and nothing in the change looks irreversible"
+     ],
+     "dependents": 0,
+     "later_deploys": [],
+     "blast": "0 service(s) call reconciliation-job (directly or not), 0 of them tier-1: they briefly see the old version"
+    }
+   },
+   {
+    "id": "A2",
+    "incident": 0,
+    "kind": "page",
+    "target": "per:tomasz-kowalski",
+    "title": "Page Tomasz Kowalski",
+    "justification": {
+     "why": "75 commits on reconciliation-job (score 75)",
+     "node_ids": [
+      "per:tomasz-kowalski",
+      "svc:reconciliation-job"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A3",
+    "incident": 0,
+    "kind": "open_ticket",
+    "target": "svc:reconciliation-job",
+    "title": "Open a follow-up ticket for reconciliation-job",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:reconciliation-job"
+     ],
+     "path": []
+    },
+    "safety": null
+   }
+  ],
+  "hypotheses": [
+   {
+    "id": "H1",
+    "claim": "dep:reconciliation-job-v1.8.0 on reconciliation-job caused the webhook-dispatcher alert",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "dep:reconciliation-job-v1.8.0",
+      "claim": "deployed 20 min ago: Replay the full day of bank events into kafka-events on every run"
+     },
+     {
+      "node_id": "svc:kafka-events",
+      "claim": "on the path webhook-dispatcher -> kafka-events -> reconciliation-job"
+     },
+     {
+      "node_id": "svc:reconciliation-job",
+      "claim": "on the path webhook-dispatcher -> kafka-events -> reconciliation-job"
+     }
+    ],
+    "contradicting": [],
+    "reason": "a noisy neighbour through kafka-events, corroborated by the alert names kafka-events"
+   }
+  ],
+  "confidence_breakdown": [
+   {
+    "effect": "+",
+    "factor": "a neighbour through kafka-events (the alert names kafka-events)",
+    "node_id": "dep:reconciliation-job-v1.8.0"
+   },
+   {
+    "effect": "-",
+    "factor": "a shared dependency, not a direct one",
+    "node_id": "svc:kafka-events"
+   },
+   {
+    "effect": "-",
+    "factor": "no recorded decision says it is risky",
+    "node_id": null
+   },
+   {
+    "effect": "-",
+    "factor": "no past incident with the same cause",
+    "node_id": null
+   }
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "ungrounded_ids": [],
+  "errors": []
+ },
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 4,
+  "tool_calls": 10,
+  "duration_ms": 14
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:webhook-dispatcher"
+   },
+   "result": {
+    "service": "svc:webhook-dispatcher",
+    "scope": [
+     "svc:webhook-dispatcher",
+     "svc:config-service",
+     "svc:kafka-events",
+     "svc:config-db"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:webhook-dispatcher",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:webhook-dispatcher",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:webhook-dispatcher",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:webhook-dispatcher",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:webhook-dispatcher"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175204,
+   "ms": 2,
+   "llm_call": 1
+  },
+  {
+   "seq": 2,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120,
+    "limit": 30
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 1,
+    "changes": [
+     {
+      "service": "svc:reconciliation-job",
+      "tier": 2,
+      "deploy": {
+       "id": "dep:reconciliation-job-v1.8.0",
+       "version": "1.8.0",
+       "ts": 1792174004,
+       "minutes_ago": 20,
+       "summary": "Replay the full day of bank events into kafka-events on every run",
+       "by": "Tomasz Kowalski"
+      },
+      "deployer_id": "per:tomasz-kowalski",
+      "deployer_status": "active",
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 30
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792168004,
+       "limit": 31
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:reconciliation-job-v1.8.0",
+      "svc:reconciliation-job",
+      "per:tomasz-kowalski"
+     ],
+     "edges": [
+      {
+       "from": "dep:reconciliation-job-v1.8.0",
+       "type": "CHANGED",
+       "to": "svc:reconciliation-job"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "DEPLOYED",
+       "to": "dep:reconciliation-job-v1.8.0"
+      }
+     ]
+    }
+   },
+   "why": "list every recent change in the company: each one is a lead",
+   "summary": "recent_changes → 1 change(s) in 120 min: reconciliation-job 20 min ago",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 1
+  },
+  {
+   "seq": 3,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:webhook-dispatcher",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:webhook-dispatcher",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "neither this service nor anything it calls was deployed in this window"
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:webhook-dispatcher",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:webhook-dispatcher",
+       "since": 1792168004
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → no recent downstream deploys",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 2
+  },
+  {
+   "seq": 4,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:webhook-dispatcher",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:webhook-dispatcher",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "neighbour": "svc:reconciliation-job",
+      "shared": "svc:kafka-events",
+      "deploy": {
+       "id": "dep:reconciliation-job-v1.8.0",
+       "version": "1.8.0",
+       "ts": 1792174004,
+       "minutes_ago": 20,
+       "summary": "Replay the full day of bank events into kafka-events on every run",
+       "by": "Tomasz Kowalski"
+      },
+      "ticket": null,
+      "path_to_shared": [
+       "svc:webhook-dispatcher",
+       "svc:kafka-events"
+      ],
+      "path_to_shared_sources": [
+       "declared"
+      ],
+      "neighbour_path": [
+       "svc:reconciliation-job",
+       "svc:kafka-events"
+      ],
+      "neighbour_path_sources": [
+       "declared"
+      ],
+      "uses_learned_edge": false,
+      "also_shares": [
+       "svc:config-service",
+       "svc:config-db"
+      ],
+      "shared_callers": 12,
+      "also_shares_callers": [
+       12,
+       13
+      ]
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:webhook-dispatcher",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:webhook-dispatcher",
+       "since": 1792168004,
+       "downstream": [
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
+      "params": {
+       "ids": [
+        "svc:config-db",
+        "svc:config-service",
+        "svc:kafka-events"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:webhook-dispatcher",
+      "svc:kafka-events",
+      "svc:reconciliation-job",
+      "dep:reconciliation-job-v1.8.0",
+      "per:tomasz-kowalski"
+     ],
+     "edges": [
+      {
+       "from": "svc:webhook-dispatcher",
+       "type": "DEPENDS_ON",
+       "to": "svc:kafka-events"
+      },
+      {
+       "from": "svc:reconciliation-job",
+       "type": "DEPENDS_ON",
+       "to": "svc:kafka-events"
+      },
+      {
+       "from": "dep:reconciliation-job-v1.8.0",
+       "type": "CHANGED",
+       "to": "svc:reconciliation-job"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "DEPLOYED",
+       "to": "dep:reconciliation-job-v1.8.0"
+      }
+     ]
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → 1 hit(s): reconciliation-job via shared kafka-events, deployed 20 min ago",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 5,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:webhook-dispatcher"
+   },
+   "result": {
+    "service": "svc:webhook-dispatcher",
+    "max_hops": 4,
+    "upstream_count": 0,
+    "tier1_count": 0,
+    "upstream": []
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:webhook-dispatcher",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:webhook-dispatcher"
+     ],
+     "edges": []
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 0 upstream (0 tier-1)",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 6,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:reconciliation-job"
+   },
+   "result": {
+    "service": "svc:reconciliation-job",
+    "maintainers": [
+     {
+      "id": "per:tomasz-kowalski",
+      "name": "Tomasz Kowalski",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:tomasz-kowalski",
+      "name": "Tomasz Kowalski",
+      "role": "Engineer",
+      "commits": 75,
+      "last_commit_days_ago": 8,
+      "resolutions": 0,
+      "score": 75
+     },
+     {
+      "id": "per:priya-nair",
+      "name": "Priya Nair",
+      "role": "Senior Engineer",
+      "commits": 9,
+      "last_commit_days_ago": 70,
+      "resolutions": 0,
+      "score": 9
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:payments-core",
+     "name": "Payments Core",
+     "active_members": [
+      "Priya Nair",
+      "Marcus Webb",
+      "Sofia Alvarez",
+      "Tomasz Kowalski",
+      "Aiko Tanaka"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:reconciliation-job"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:reconciliation-job"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:reconciliation-job"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:reconciliation-job"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:reconciliation-job"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:reconciliation-job"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:priya-nair",
+      "svc:reconciliation-job",
+      "per:tomasz-kowalski",
+      "team:payments-core"
+     ],
+     "edges": [
+      {
+       "from": "per:priya-nair",
+       "type": "WORKED_ON",
+       "to": "svc:reconciliation-job"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "WORKED_ON",
+       "to": "svc:reconciliation-job"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "MAINTAINS",
+       "to": "svc:reconciliation-job"
+      },
+      {
+       "from": "team:payments-core",
+       "type": "OWNS",
+       "to": "svc:reconciliation-job"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Tomasz Kowalski (score 75)",
+   "ts": 1792175204,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 7,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "decisions_about",
+   "args": {
+    "service_id": "svc:reconciliation-job"
+   },
+   "result": {
+    "service": "svc:reconciliation-job",
+    "decisions": [],
+    "note": "no recorded decisions about this service"
+   },
+   "receipt": {
+    "tool": "decisions_about",
+    "args": {
+     "service_id": "svc:reconciliation-job"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
+      "params": {
+       "id": "svc:reconciliation-job"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does the change contradict a recorded decision?",
+   "summary": "decisions_about → 0 decision(s)",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 3
+  },
+  {
+   "seq": 8,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "rollback_safety",
+   "args": {
+    "deploy_id": "dep:reconciliation-job-v1.8.0"
+   },
+   "result": {
+    "deploy": "dep:reconciliation-job-v1.8.0",
+    "service": "svc:reconciliation-job",
+    "service_tier": 2,
+    "version": "1.8.0",
+    "later_deploys": [],
+    "dependents": 0,
+    "tier1_dependents": 0,
+    "hard_to_undo_terms": [],
+    "verdict": "safe",
+    "reasons": [
+     "nothing shipped to reconciliation-job after it and nothing in the change looks irreversible"
+    ],
+    "blast_of_rollback": "0 service(s) call reconciliation-job (directly or not), 0 of them tier-1: they briefly see the old version"
+   },
+   "receipt": {
+    "tool": "rollback_safety",
+    "args": {
+     "deploy_id": "dep:reconciliation-job-v1.8.0"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
+      "params": {
+       "id": "dep:reconciliation-job-v1.8.0"
+      }
+     },
+     {
+      "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
+      "params": {
+       "sid": "svc:reconciliation-job",
+       "ts": 1792174004
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
+      "params": {
+       "sid": "svc:reconciliation-job"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:reconciliation-job-v1.8.0",
+      "svc:reconciliation-job"
+     ],
+     "edges": [
+      {
+       "from": "dep:reconciliation-job-v1.8.0",
+       "type": "CHANGED",
+       "to": "svc:reconciliation-job"
+      }
+     ]
+    }
+   },
+   "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
+   "summary": "rollback_safety → rollback safe: nothing shipped to reconciliation-job after it and nothing in the change looks irreversible",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 9,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "stale_knowledge",
+   "args": {
+    "service_id": "svc:reconciliation-job"
+   },
+   "result": {
+    "service": "svc:reconciliation-job",
+    "stale_count": 0,
+    "items": []
+   },
+   "receipt": {
+    "tool": "stale_knowledge",
+    "args": {
+     "service_id": "svc:reconciliation-job"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
+      "params": {
+       "sid": "svc:reconciliation-job"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "which docs and runbooks are out of date?",
+   "summary": "stale_knowledge → 0 stale: ",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 3
+  },
+  {
+   "seq": 10,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:webhook-dispatcher",
+     "svc:reconciliation-job",
+     "svc:kafka-events"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:webhook-dispatcher",
+     "svc:reconciliation-job",
+     "svc:kafka-events"
+    ],
+    "incident_count": 1,
+    "incidents": [
+     {
+      "id": "inc:2026-031",
+      "key": "INC-2026-031",
+      "title": "webhook-dispatcher retry storm after merchant outage",
+      "severity": 3,
+      "started": "2026-07-28",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 2,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:retry-storm"
+      ],
+      "resolution": "Paused retry queue and redelivered with capped attempts and jitter",
+      "resolved_by": [
+       "Ben Walker"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2026-031"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:webhook-dispatcher",
+      "svc:reconciliation-job",
+      "svc:kafka-events"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:webhook-dispatcher",
+        "svc:reconciliation-job",
+        "svc:kafka-events"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:webhook-dispatcher",
+        "svc:reconciliation-job",
+        "svc:kafka-events"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:2026-031"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2026-031",
+      "rc:retry-storm",
+      "svc:kafka-events",
+      "svc:webhook-dispatcher",
+      "res:2026-031",
+      "per:ben-walker",
+      "tkt:PM-2026-031"
+     ],
+     "edges": [
+      {
+       "from": "inc:2026-031",
+       "type": "AFFECTED",
+       "to": "svc:kafka-events"
+      },
+      {
+       "from": "inc:2026-031",
+       "type": "AFFECTED",
+       "to": "svc:webhook-dispatcher"
+      },
+      {
+       "from": "inc:2026-031",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:retry-storm"
+      },
+      {
+       "from": "inc:2026-031",
+       "type": "RESOLVED_BY",
+       "to": "res:2026-031"
+      },
+      {
+       "from": "res:2026-031",
+       "type": "PERFORMED_BY",
+       "to": "per:ben-walker"
+      },
+      {
+       "from": "res:2026-031",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2026-031"
+      }
+     ]
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 1 incident(s): INC-2026-031 (fixed by Ben Walker)",
+   "ts": 1792175204,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 11,
+   "agent": "firefighter",
+   "action": "answer",
+   "tool": "submit_report",
+   "args": {
+    "summary": "webhook-dispatcher alert most likely caused by dep:reconciliation-job-v1.8.0 on reconciliation-job, deployed 20 min ago. Contact Tomasz Kowalski.",
+    "likely_cause": {
+     "service_id": "svc:reconciliation-job",
+     "deploy_id": "dep:reconciliation-job-v1.8.0",
+     "ticket_key": null,
+     "path": [
+      "svc:webhook-dispatcher",
+      "svc:kafka-events",
+      "svc:reconciliation-job"
+     ],
+     "explanation": "Replay the full day of bank events into kafka-events on every run (dep:reconciliation-job-v1.8.0, deployed 20 min ago by Tomasz Kowalski). webhook-dispatcher and reconciliation-job both call kafka-events (corroborated by the alert names kafka-events): webhook-dispatcher -> kafka-events -> reconciliation-job."
+    },
+    "blast_radius": [],
+    "contact": {
+     "person_id": "per:tomasz-kowalski",
+     "name": "Tomasz Kowalski",
+     "reason": "75 commits on reconciliation-job (score 75)"
+    },
+    "bus_factor_warning": null,
+    "conflicting_decision": null,
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "dep:reconciliation-job-v1.8.0",
+      "claim": "reconciliation-job deployed 20 min ago: Replay the full day of bank events into kafka-events on every run"
+     },
+     {
+      "node_id": "per:tomasz-kowalski",
+      "claim": "Best active contact: 75 commits on reconciliation-job (score 75)."
+     },
+     {
+      "node_id": "svc:webhook-dispatcher",
+      "claim": "0 upstream services (0 tier-1) are exposed."
+     }
+    ],
+    "recommended_actions": [
+     "Roll back dep:reconciliation-job-v1.8.0 on reconciliation-job.",
+     "Page Tomasz Kowalski (per:tomasz-kowalski)."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "industry_pattern": null,
+    "rejected_leads": [],
+    "action_plan": [
+     {
+      "id": "A1",
+      "incident": 0,
+      "kind": "rollback",
+      "target": "dep:reconciliation-job-v1.8.0",
+      "title": "Roll back dep:reconciliation-job-v1.8.0 on reconciliation-job",
+      "justification": {
+       "why": "Replay the full day of bank events into kafka-events on every run (dep:reconciliation-job-v1.8.0, deployed 20 min ago by Tomasz Kowalski). webhook-dispatcher and reconciliation-job both call kafka-events (corroborated by the alert names kafka-events): webhook-dispatcher -> kafka-events -> reconciliation-job.",
+       "node_ids": [
+        "dep:reconciliation-job-v1.8.0",
+        "svc:reconciliation-job",
+        "svc:webhook-dispatcher",
+        "svc:kafka-events",
+        "svc:reconciliation-job"
+       ],
+       "path": [
+        "svc:webhook-dispatcher",
+        "svc:kafka-events",
+        "svc:reconciliation-job"
+       ]
+      },
+      "safety": {
+       "verdict": "safe",
+       "reasons": [
+        "nothing shipped to reconciliation-job after it and nothing in the change looks irreversible"
+       ],
+       "dependents": 0,
+       "later_deploys": [],
+       "blast": "0 service(s) call reconciliation-job (directly or not), 0 of them tier-1: they briefly see the old version"
+      }
+     },
+     {
+      "id": "A2",
+      "incident": 0,
+      "kind": "page",
+      "target": "per:tomasz-kowalski",
+      "title": "Page Tomasz Kowalski",
+      "justification": {
+       "why": "75 commits on reconciliation-job (score 75)",
+       "node_ids": [
+        "per:tomasz-kowalski",
+        "svc:reconciliation-job"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A3",
+      "incident": 0,
+      "kind": "open_ticket",
+      "target": "svc:reconciliation-job",
+      "title": "Open a follow-up ticket for reconciliation-job",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:reconciliation-job"
+       ],
+       "path": []
+      },
+      "safety": null
+     }
+    ],
+    "hypotheses": [
+     {
+      "id": "H1",
+      "claim": "dep:reconciliation-job-v1.8.0 on reconciliation-job caused the webhook-dispatcher alert",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "dep:reconciliation-job-v1.8.0",
+        "claim": "deployed 20 min ago: Replay the full day of bank events into kafka-events on every run"
+       },
+       {
+        "node_id": "svc:kafka-events",
+        "claim": "on the path webhook-dispatcher -> kafka-events -> reconciliation-job"
+       },
+       {
+        "node_id": "svc:reconciliation-job",
+        "claim": "on the path webhook-dispatcher -> kafka-events -> reconciliation-job"
+       }
+      ],
+      "contradicting": [],
+      "reason": "a noisy neighbour through kafka-events, corroborated by the alert names kafka-events"
+     }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "a neighbour through kafka-events (the alert names kafka-events)",
+      "node_id": "dep:reconciliation-job-v1.8.0"
+     },
+     {
+      "effect": "-",
+      "factor": "a shared dependency, not a direct one",
+      "node_id": "svc:kafka-events"
+     },
+     {
+      "effect": "-",
+      "factor": "no recorded decision says it is risky",
+      "node_id": null
+     },
+     {
+      "effect": "-",
+      "factor": "no past incident with the same cause",
+      "node_id": null
+     }
+    ]
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "webhook-dispatcher alert most likely caused by dep:reconciliation-job-v1.8.0 on reconciliation-job, deployed 20 min ago. Contact Tomasz Kowalski.",
+     "likely_cause": {
+      "service_id": "svc:reconciliation-job",
+      "deploy_id": "dep:reconciliation-job-v1.8.0",
+      "ticket_key": null,
+      "path": [
+       "svc:webhook-dispatcher",
+       "svc:kafka-events",
+       "svc:reconciliation-job"
+      ],
+      "explanation": "Replay the full day of bank events into kafka-events on every run (dep:reconciliation-job-v1.8.0, deployed 20 min ago by Tomasz Kowalski). webhook-dispatcher and reconciliation-job both call kafka-events (corroborated by the alert names kafka-events): webhook-dispatcher -> kafka-events -> reconciliation-job."
+     },
+     "blast_radius": [],
+     "contact": {
+      "person_id": "per:tomasz-kowalski",
+      "name": "Tomasz Kowalski",
+      "reason": "75 commits on reconciliation-job (score 75)"
+     },
+     "bus_factor_warning": null,
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "evidence": [
+      {
+       "node_id": "dep:reconciliation-job-v1.8.0",
+       "claim": "reconciliation-job deployed 20 min ago: Replay the full day of bank events into kafka-events on every run"
+      },
+      {
+       "node_id": "per:tomasz-kowalski",
+       "claim": "Best active contact: 75 commits on reconciliation-job (score 75)."
+      },
+      {
+       "node_id": "svc:webhook-dispatcher",
+       "claim": "0 upstream services (0 tier-1) are exposed."
+      }
+     ],
+     "recommended_actions": [
+      "Roll back dep:reconciliation-job-v1.8.0 on reconciliation-job.",
+      "Page Tomasz Kowalski (per:tomasz-kowalski)."
+     ],
+     "confidence": "medium",
+     "look_first": null,
+     "industry_pattern": null,
+     "rejected_leads": [],
+     "action_plan": [
+      {
+       "id": "A1",
+       "incident": 0,
+       "kind": "rollback",
+       "target": "dep:reconciliation-job-v1.8.0",
+       "title": "Roll back dep:reconciliation-job-v1.8.0 on reconciliation-job",
+       "justification": {
+        "why": "Replay the full day of bank events into kafka-events on every run (dep:reconciliation-job-v1.8.0, deployed 20 min ago by Tomasz Kowalski). webhook-dispatcher and reconciliation-job both call kafka-events (corroborated by the alert names kafka-events): webhook-dispatcher -> kafka-events -> reconciliation-job.",
+        "node_ids": [
+         "dep:reconciliation-job-v1.8.0",
+         "svc:reconciliation-job",
+         "svc:webhook-dispatcher",
+         "svc:kafka-events",
+         "svc:reconciliation-job"
+        ],
+        "path": [
+         "svc:webhook-dispatcher",
+         "svc:kafka-events",
+         "svc:reconciliation-job"
+        ]
+       },
+       "safety": {
+        "verdict": "safe",
+        "reasons": [
+         "nothing shipped to reconciliation-job after it and nothing in the change looks irreversible"
+        ],
+        "dependents": 0,
+        "later_deploys": [],
+        "blast": "0 service(s) call reconciliation-job (directly or not), 0 of them tier-1: they briefly see the old version"
+       }
+      },
+      {
+       "id": "A2",
+       "incident": 0,
+       "kind": "page",
+       "target": "per:tomasz-kowalski",
+       "title": "Page Tomasz Kowalski",
+       "justification": {
+        "why": "75 commits on reconciliation-job (score 75)",
+        "node_ids": [
+         "per:tomasz-kowalski",
+         "svc:reconciliation-job"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A3",
+       "incident": 0,
+       "kind": "open_ticket",
+       "target": "svc:reconciliation-job",
+       "title": "Open a follow-up ticket for reconciliation-job",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:reconciliation-job"
+        ],
+        "path": []
+       },
+       "safety": null
+      }
+     ],
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "dep:reconciliation-job-v1.8.0 on reconciliation-job caused the webhook-dispatcher alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:reconciliation-job-v1.8.0",
+         "claim": "deployed 20 min ago: Replay the full day of bank events into kafka-events on every run"
+        },
+        {
+         "node_id": "svc:kafka-events",
+         "claim": "on the path webhook-dispatcher -> kafka-events -> reconciliation-job"
+        },
+        {
+         "node_id": "svc:reconciliation-job",
+         "claim": "on the path webhook-dispatcher -> kafka-events -> reconciliation-job"
+        }
+       ],
+       "contradicting": [],
+       "reason": "a noisy neighbour through kafka-events, corroborated by the alert names kafka-events"
+      }
+     ],
+     "confidence_breakdown": [
+      {
+       "effect": "+",
+       "factor": "a neighbour through kafka-events (the alert names kafka-events)",
+       "node_id": "dep:reconciliation-job-v1.8.0"
+      },
+      {
+       "effect": "-",
+       "factor": "a shared dependency, not a direct one",
+       "node_id": "svc:kafka-events"
+      },
+      {
+       "effect": "-",
+       "factor": "no recorded decision says it is risky",
+       "node_id": null
+      },
+      {
+       "effect": "-",
+       "factor": "no past incident with the same cause",
+       "node_id": null
+      }
+     ]
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "dep:reconciliation-job-v1.8.0",
+      "per:tomasz-kowalski",
+      "svc:kafka-events",
+      "svc:reconciliation-job",
+      "svc:webhook-dispatcher"
+     ],
+     "edges": []
+    }
+   },
+   "why": "the evidence is in: submit the grounded report",
+   "summary": "webhook-dispatcher alert most likely caused by dep:reconciliation-job-v1.8.0 on reconciliation-job, deployed 20 min ago. Contact Tomasz Kowalski.",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 4
+  }
+ ],
+ "twin": "kestrel_pay__eval_play",
+ "scenario": "k-hubsat",
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:payments-core",
+    "label": "Team",
+    "name": "Payments Core",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Payments Core"
+    }
+   },
+   {
+    "id": "per:priya-nair",
+    "label": "Person",
+    "name": "Priya Nair",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Priya Nair",
+     "role": "Senior Engineer",
+     "email": "priya.nair@kestrelpay.example",
+     "joined_at": 1662575204
+    }
+   },
+   {
+    "id": "per:tomasz-kowalski",
+    "label": "Person",
+    "name": "Tomasz Kowalski",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Tomasz Kowalski",
+     "role": "Engineer",
+     "email": "tomasz.kowalski@kestrelpay.example",
+     "joined_at": 1731695204
+    }
+   },
+   {
+    "id": "per:ben-walker",
+    "label": "Person",
+    "name": "Ben Walker",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Ben Walker",
+     "role": "Senior Engineer",
+     "email": "ben.walker@kestrelpay.example",
+     "joined_at": 1645295204
+    }
+   },
+   {
+    "id": "svc:reconciliation-job",
+    "label": "Service",
+    "name": "reconciliation-job",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "reconciliation-job",
+     "description": "Nightly job matching ledger entries against bank statements.",
+     "tier": 2,
+     "language": "Python",
+     "repo_url": "https://git.kestrelpay.example/reconciliation-job"
+    }
+   },
+   {
+    "id": "svc:config-service",
+    "label": "Service",
+    "name": "config-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "config-service",
+     "description": "Central configuration and ruleset distribution service used by many backends.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/config-service"
+    }
+   },
+   {
+    "id": "svc:kafka-events",
+    "label": "Service",
+    "name": "kafka-events",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "kafka-events",
+     "description": "Shared Kafka cluster carrying payment, ledger and notification events.",
+     "tier": 1,
+     "language": "Kafka",
+     "repo_url": "https://git.kestrelpay.example/kafka-events"
+    }
+   },
+   {
+    "id": "svc:webhook-dispatcher",
+    "label": "Service",
+    "name": "webhook-dispatcher",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "webhook-dispatcher",
+     "description": "Delivers signed webhook events to merchant endpoints with retries.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/webhook-dispatcher"
+    }
+   },
+   {
+    "id": "dep:reconciliation-job-v1.8.0",
+    "label": "Deploy",
+    "name": "1.8.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792174004,
+     "origin": "seed",
+     "summary": "Replay the full day of bank events into kafka-events on every run",
+     "version": "1.8.0"
+    }
+   },
+   {
+    "id": "tkt:PM-2026-031",
+    "label": "Ticket",
+    "name": "PM-2026-031",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: webhook-dispatcher retry storm after merchant outage",
+     "text": "INC-2026-031, sev 3. Impact: a large merchant's endpoint was kept down for two hours and kafka-events consumer lag grew. Timeline: after the merchant endpoint recovered from an outage, webhook-dispatcher retried every queued event at once. The burst took the endpoint down again, repeatedly. Root cause: retry storm, with no cap and no jitter on the backoff. Follow-up: MX-655, cap attempts and add …",
+     "key": "PM-2026-031",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "rc:retry-storm",
+    "label": "RootCause",
+    "name": "Retry storm",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Retry storm",
+     "description": "Uncapped, unjittered retries amplify load on a recovering dependency and keep it down."
+    }
+   },
+   {
+    "id": "inc:2026-031",
+    "label": "Incident",
+    "name": "INC-2026-031",
+    "origin": "seed",
+    "props": {
+     "started_at": 1785263204,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "webhook-dispatcher retry storm after merchant outage",
+     "summary": "After a merchant endpoint recovered, webhook-dispatcher retried every queued event at once and took it down again. Paused the retry queue and redelivered with capped attempts and jitter.",
+     "key": "INC-2026-031",
+     "severity": 3,
+     "symptom": "merchant endpoint repeatedly overloaded; kafka-events consumer lag growing",
+     "resolved_at": 1785270404
+    }
+   },
+   {
+    "id": "res:2026-031",
+    "label": "Resolution",
+    "name": "Paused retry queue and redelivered with capped attempts and…",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Paused retry queue and redelivered with capped attempts and jitter",
+     "steps": "1. Pause the webhook retry queue. 2. Deploy capped retry attempts with jittered backoff. 3. Resume and redeliver gradually."
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:payments-core",
+    "type": "OWNS",
+    "target": "svc:reconciliation-job",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:priya-nair",
+    "type": "WORKED_ON",
+    "target": "svc:reconciliation-job",
+    "origin": "seed",
+    "props": {
+     "commits": 9,
+     "last_at": 1786127204
+    }
+   },
+   {
+    "source": "per:tomasz-kowalski",
+    "type": "MAINTAINS",
+    "target": "svc:reconciliation-job",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:tomasz-kowalski",
+    "type": "WORKED_ON",
+    "target": "svc:reconciliation-job",
+    "origin": "seed",
+    "props": {
+     "commits": 75,
+     "last_at": 1791484004
+    }
+   },
+   {
+    "source": "per:tomasz-kowalski",
+    "type": "DEPLOYED",
+    "target": "dep:reconciliation-job-v1.8.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "svc:reconciliation-job",
+    "type": "DEPENDS_ON",
+    "target": "svc:kafka-events",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:webhook-dispatcher",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:webhook-dispatcher",
+    "type": "DEPENDS_ON",
+    "target": "svc:kafka-events",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "dep:reconciliation-job-v1.8.0",
+    "type": "CHANGED",
+    "target": "svc:reconciliation-job",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-031",
+    "type": "AFFECTED",
+    "target": "svc:kafka-events",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-031",
+    "type": "AFFECTED",
+    "target": "svc:webhook-dispatcher",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-031",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:retry-storm",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-031",
+    "type": "RESOLVED_BY",
+    "target": "res:2026-031",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2026-031",
+    "type": "PERFORMED_BY",
+    "target": "per:ben-walker",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2026-031",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2026-031",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: paused the retry queue, then redelivered with capped attempts and jitter."
+    }
+   }
+  ],
+  "base": [
+   "svc:config-service",
+   "svc:kafka-events",
+   "svc:webhook-dispatcher"
+  ],
+  "alert": "svc:webhook-dispatcher"
+ },
+ "execution": {
+  "session_id": "ses:exec-run-f83a4b6cd91f",
+  "already_executed": false,
+  "results": [
+   {
+    "action": "A1",
+    "kind": "rollback",
+    "title": "Roll back dep:reconciliation-job-v1.8.0 on reconciliation-job",
+    "ok": true,
+    "summary": "rolled back dep:reconciliation-job-v1.8.0 (simulated): wrote dep:reconciliation-job-v1.8.0-rollback"
+   },
+   {
+    "action": "A2",
+    "kind": "page",
+    "title": "Page Tomasz Kowalski",
+    "ok": true,
+    "summary": "paged Tomasz Kowalski for INC-2026-032 (simulated): 75 commits on reconciliation-job (score 75)"
+   },
+   {
+    "action": "A3",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for reconciliation-job",
+    "ok": true,
+    "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: reconciliation-job"
+   }
+  ],
+  "incidents": [
+   "inc:2026-032"
+  ],
+  "verification": {
+   "checks": [
+    {
+     "incident": 0,
+     "cleared": false,
+     "tool": "recent_changes_downstream",
+     "queries": [
+      {
+       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+       "params": {
+        "id": "svc:webhook-dispatcher",
+        "since": 1792168004
+       }
+      }
+     ],
+     "summary": "dep:reconciliation-job-v1.8.0 is still the newest change on svc:reconciliation-job: not cleared"
+    }
+   ],
+   "all_cleared": false,
+   "simulated": true
+  }
+ }
+}

@@ -1,0 +1,3388 @@
+{
+ "run_id": "run-604346cea08c",
+ "agent": "firefighter",
+ "tenant": "northwind_health__eval_play",
+ "alert": [
+  {
+   "service_id": "svc:appointments",
+   "symptom": "booking API p99 4s, reminder requests timing out"
+  },
+  {
+   "service_id": "svc:identity",
+   "symptom": "sign-in p99 3s, session writes slow"
+  }
+ ],
+ "mode": "mock",
+ "model": "mock",
+ "started_at": 1792175206,
+ "status": "ok",
+ "report": {
+  "summary": "2 alerts, 2 separate incidents: identity -> dep:audit-trail-v2.5.0; appointments -> dep:notifications-v3.3.0.",
+  "likely_cause": {
+   "service_id": "svc:audit-trail",
+   "deploy_id": "dep:audit-trail-v2.5.0",
+   "ticket_key": null,
+   "path": [
+    "svc:identity",
+    "svc:audit-trail"
+   ],
+   "explanation": "fsync every audit write before acknowledging (dep:audit-trail-v2.5.0, deployed 12 min ago by Maya Okoro). identity calls audit-trail via declared dependencies: identity -> audit-trail."
+  },
+  "blast_radius": [
+   "svc:patient-portal"
+  ],
+  "contact": {
+   "person_id": "per:maya-okoro",
+   "name": "Maya Okoro",
+   "reason": "35 commits on audit-trail (score 35)"
+  },
+  "bus_factor_warning": "only 1 active person has worked on this service. Page Maya Okoro instead.",
+  "conflicting_decision": null,
+  "similar_past_incidents": [],
+  "evidence": [
+   {
+    "node_id": "dep:audit-trail-v2.5.0",
+    "claim": "audit-trail deployed 12 min ago: fsync every audit write before acknowledging"
+   },
+   {
+    "node_id": "per:maya-okoro",
+    "claim": "Best active contact: 35 commits on audit-trail (score 35)."
+   },
+   {
+    "node_id": "svc:identity",
+    "claim": "1 upstream services (1 tier-1) are exposed."
+   }
+  ],
+  "recommended_actions": [
+   "Roll back dep:audit-trail-v2.5.0 on audit-trail.",
+   "Page Maya Okoro (per:maya-okoro)."
+  ],
+  "confidence": "medium",
+  "look_first": null,
+  "industry_pattern": null,
+  "rejected_leads": [],
+  "incidents": [
+   {
+    "alerts": [
+     "svc:identity"
+    ],
+    "summary": "identity alert most likely caused by dep:audit-trail-v2.5.0 on audit-trail, deployed 12 min ago. Contact Maya Okoro.",
+    "likely_cause": {
+     "service_id": "svc:audit-trail",
+     "deploy_id": "dep:audit-trail-v2.5.0",
+     "ticket_key": null,
+     "path": [
+      "svc:identity",
+      "svc:audit-trail"
+     ],
+     "explanation": "fsync every audit write before acknowledging (dep:audit-trail-v2.5.0, deployed 12 min ago by Maya Okoro). identity calls audit-trail via declared dependencies: identity -> audit-trail."
+    },
+    "contact": {
+     "person_id": "per:maya-okoro",
+     "name": "Maya Okoro",
+     "reason": "35 commits on audit-trail (score 35)"
+    },
+    "bus_factor_warning": "only 1 active person has worked on this service. Page Maya Okoro instead.",
+    "blast_radius": [
+     "svc:patient-portal"
+    ],
+    "recommended_actions": [
+     "Roll back dep:audit-trail-v2.5.0 on audit-trail.",
+     "Page Maya Okoro (per:maya-okoro)."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "root": null,
+    "suppressed_pages": [],
+    "notify": []
+   },
+   {
+    "alerts": [
+     "svc:appointments"
+    ],
+    "summary": "appointments alert most likely caused by dep:notifications-v3.3.0 on notifications, deployed 25 min ago. Contact Maya Okoro.",
+    "likely_cause": {
+     "service_id": "svc:notifications",
+     "deploy_id": "dep:notifications-v3.3.0",
+     "ticket_key": null,
+     "path": [
+      "svc:appointments",
+      "svc:notifications"
+     ],
+     "explanation": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 25 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications."
+    },
+    "contact": {
+     "person_id": "per:maya-okoro",
+     "name": "Maya Okoro",
+     "reason": "18 commits on notifications (score 18)"
+    },
+    "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+    "blast_radius": [
+     "svc:patient-portal"
+    ],
+    "recommended_actions": [
+     "Roll back dep:notifications-v3.3.0 on notifications.",
+     "Page Maya Okoro (per:maya-okoro).",
+     "Follow the INC-NW-2025-14 fix: Restored the 3-attempt cap with backoff."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "root": null,
+    "suppressed_pages": [],
+    "notify": []
+   }
+  ],
+  "suppressed_pages": [],
+  "action_plan": [
+   {
+    "id": "A1",
+    "incident": 0,
+    "kind": "rollback",
+    "target": "dep:audit-trail-v2.5.0",
+    "title": "Roll back dep:audit-trail-v2.5.0 on audit-trail",
+    "justification": {
+     "why": "fsync every audit write before acknowledging (dep:audit-trail-v2.5.0, deployed 12 min ago by Maya Okoro). identity calls audit-trail via declared dependencies: identity -> audit-trail.",
+     "node_ids": [
+      "dep:audit-trail-v2.5.0",
+      "svc:audit-trail",
+      "svc:identity",
+      "svc:audit-trail"
+     ],
+     "path": [
+      "svc:identity",
+      "svc:audit-trail"
+     ]
+    },
+    "safety": {
+     "verdict": "safe",
+     "reasons": [
+      "nothing shipped to audit-trail after it and nothing in the change looks irreversible"
+     ],
+     "dependents": 3,
+     "later_deploys": [],
+     "blast": "3 service(s) call audit-trail (directly or not), 3 of them tier-1: they briefly see the old version"
+    }
+   },
+   {
+    "id": "A2",
+    "incident": 0,
+    "kind": "page",
+    "target": "per:maya-okoro",
+    "title": "Page Maya Okoro",
+    "justification": {
+     "why": "35 commits on audit-trail (score 35)",
+     "node_ids": [
+      "per:maya-okoro",
+      "svc:audit-trail"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A3",
+    "incident": 0,
+    "kind": "open_ticket",
+    "target": "svc:audit-trail",
+    "title": "Open a follow-up ticket for audit-trail",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:audit-trail"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A4",
+    "incident": 1,
+    "kind": "rollback",
+    "target": "dep:notifications-v3.3.0",
+    "title": "Roll back dep:notifications-v3.3.0 on notifications",
+    "justification": {
+     "why": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 25 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications.",
+     "node_ids": [
+      "dep:notifications-v3.3.0",
+      "svc:notifications",
+      "svc:appointments",
+      "svc:notifications"
+     ],
+     "path": [
+      "svc:appointments",
+      "svc:notifications"
+     ]
+    },
+    "safety": {
+     "verdict": "safe",
+     "reasons": [
+      "nothing shipped to notifications after it and nothing in the change looks irreversible"
+     ],
+     "dependents": 3,
+     "later_deploys": [],
+     "blast": "3 service(s) call notifications (directly or not), 3 of them tier-1: they briefly see the old version"
+    }
+   },
+   {
+    "id": "A5",
+    "incident": 1,
+    "kind": "page",
+    "target": "per:maya-okoro",
+    "title": "Page Maya Okoro",
+    "justification": {
+     "why": "18 commits on notifications (score 18)",
+     "node_ids": [
+      "per:maya-okoro",
+      "svc:notifications"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A6",
+    "incident": 1,
+    "kind": "open_ticket",
+    "target": "svc:notifications",
+    "title": "Open a follow-up ticket for notifications",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:notifications"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A7",
+    "incident": 1,
+    "kind": "flag_stale",
+    "target": "doc:notifications-readme",
+    "title": "Flag notifications README as stale",
+    "justification": {
+     "why": "author_left, names_departed_person",
+     "node_ids": [
+      "doc:notifications-readme",
+      "svc:notifications"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A8",
+    "incident": 1,
+    "kind": "flag_stale",
+    "target": "rb:notifications-delivery",
+    "title": "Flag Runbook: notification delivery failures as stale",
+    "justification": {
+     "why": "author_left",
+     "node_ids": [
+      "rb:notifications-delivery",
+      "svc:notifications"
+     ],
+     "path": []
+    },
+    "safety": null
+   }
+  ],
+  "hypotheses": [
+   {
+    "id": "H1",
+    "claim": "dep:audit-trail-v2.5.0 on audit-trail caused the identity alert",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "dep:audit-trail-v2.5.0",
+      "claim": "deployed 12 min ago: fsync every audit write before acknowledging"
+     },
+     {
+      "node_id": "svc:audit-trail",
+      "claim": "on the path identity -> audit-trail"
+     }
+    ],
+    "contradicting": [],
+    "reason": "a change on the call path (1 hop)"
+   },
+   {
+    "id": "H2",
+    "claim": "dep:notifications-v3.3.0 on notifications caused the appointments alert",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "dep:notifications-v3.3.0",
+      "claim": "deployed 25 min ago: Send SMS synchronously inside the request (no queue)"
+     },
+     {
+      "node_id": "svc:notifications",
+      "claim": "on the path appointments -> notifications"
+     },
+     {
+      "node_id": "inc:nw-2025-14",
+      "claim": "a past incident caused by a change to notifications"
+     }
+    ],
+    "contradicting": [],
+    "reason": "a change on the call path (1 hop)"
+   }
+  ],
+  "confidence_breakdown": [
+   {
+    "effect": "+",
+    "factor": "the change is on the alert's call path (1 hop)",
+    "node_id": "dep:audit-trail-v2.5.0"
+   },
+   {
+    "effect": "-",
+    "factor": "no recorded decision says it is risky",
+    "node_id": null
+   },
+   {
+    "effect": "-",
+    "factor": "no past incident with the same cause",
+    "node_id": null
+   }
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "ungrounded_ids": [],
+  "errors": []
+ },
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 5,
+  "tool_calls": 21,
+  "duration_ms": 41
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:appointments"
+   },
+   "result": {
+    "service": "svc:appointments",
+    "scope": [
+     "svc:appointments",
+     "svc:notifications",
+     "svc:scheduler-db",
+     "svc:sms-gateway"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:appointments",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 1
+  },
+  {
+   "seq": 2,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:identity"
+   },
+   "result": {
+    "service": "svc:identity",
+    "scope": [
+     "svc:identity",
+     "svc:audit-trail"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:identity",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:identity"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:identity",
+        "svc:audit-trail"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:identity",
+        "svc:audit-trail"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:identity",
+        "svc:audit-trail"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:identity"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 1
+  },
+  {
+   "seq": 3,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120,
+    "limit": 30
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 2,
+    "changes": [
+     {
+      "service": "svc:audit-trail",
+      "tier": 2,
+      "deploy": {
+       "id": "dep:audit-trail-v2.5.0",
+       "version": "2.5.0",
+       "ts": 1792174485,
+       "minutes_ago": 12,
+       "summary": "fsync every audit write before acknowledging",
+       "by": "Maya Okoro"
+      },
+      "deployer_id": "per:maya-okoro",
+      "deployer_status": "active",
+      "ticket": null
+     },
+     {
+      "service": "svc:notifications",
+      "tier": 2,
+      "deploy": {
+       "id": "dep:notifications-v3.3.0",
+       "version": "3.3.0",
+       "ts": 1792173705,
+       "minutes_ago": 25,
+       "summary": "Send SMS synchronously inside the request (no queue)",
+       "by": "Sam Reyes"
+      },
+      "deployer_id": "per:sam-reyes",
+      "deployer_status": "active",
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 30
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792168005,
+       "limit": 31
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:audit-trail-v2.5.0",
+      "svc:audit-trail",
+      "per:maya-okoro",
+      "dep:notifications-v3.3.0",
+      "svc:notifications",
+      "per:sam-reyes"
+     ],
+     "edges": [
+      {
+       "from": "dep:audit-trail-v2.5.0",
+       "type": "CHANGED",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "per:maya-okoro",
+       "type": "DEPLOYED",
+       "to": "dep:audit-trail-v2.5.0"
+      },
+      {
+       "from": "dep:notifications-v3.3.0",
+       "type": "CHANGED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:sam-reyes",
+       "type": "DEPLOYED",
+       "to": "dep:notifications-v3.3.0"
+      }
+     ]
+    }
+   },
+   "why": "list every recent change in the company: each one is a lead",
+   "summary": "recent_changes → 2 change(s) in 120 min: audit-trail 12 min ago, notifications 25 min ago",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 4,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:appointments",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:appointments",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:notifications",
+      "hops": 1,
+      "path": [
+       "svc:appointments",
+       "svc:notifications"
+      ],
+      "edge_sources": [
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:notifications-v3.3.0",
+       "version": "3.3.0",
+       "ts": 1792173705,
+       "minutes_ago": 25,
+       "summary": "Send SMS synchronously inside the request (no queue)",
+       "by": "Sam Reyes"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:appointments",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:appointments",
+       "since": 1792168005
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:appointments",
+       "to": "svc:notifications",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments",
+      "svc:notifications",
+      "dep:notifications-v3.3.0",
+      "per:sam-reyes"
+     ],
+     "edges": [
+      {
+       "from": "svc:appointments",
+       "type": "DEPENDS_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "dep:notifications-v3.3.0",
+       "type": "CHANGED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:sam-reyes",
+       "type": "DEPLOYED",
+       "to": "dep:notifications-v3.3.0"
+      }
+     ]
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 25 min ago by Sam Reyes)",
+   "ts": 1792175206,
+   "ms": 4,
+   "llm_call": 2
+  },
+  {
+   "seq": 5,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:appointments",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:appointments",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:appointments",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:appointments",
+       "since": 1792168005,
+       "downstream": [
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 2
+  },
+  {
+   "seq": 6,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:identity",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:identity",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:audit-trail",
+      "hops": 1,
+      "path": [
+       "svc:identity",
+       "svc:audit-trail"
+      ],
+      "edge_sources": [
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:audit-trail-v2.5.0",
+       "version": "2.5.0",
+       "ts": 1792174485,
+       "minutes_ago": 12,
+       "summary": "fsync every audit write before acknowledging",
+       "by": "Maya Okoro"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:identity",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:identity",
+       "since": 1792168005
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:identity",
+       "to": "svc:audit-trail",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:identity",
+      "svc:audit-trail",
+      "dep:audit-trail-v2.5.0",
+      "per:maya-okoro"
+     ],
+     "edges": [
+      {
+       "from": "svc:identity",
+       "type": "DEPENDS_ON",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "dep:audit-trail-v2.5.0",
+       "type": "CHANGED",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "per:maya-okoro",
+       "type": "DEPLOYED",
+       "to": "dep:audit-trail-v2.5.0"
+      }
+     ]
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → 1 hit(s): audit-trail (deployed 12 min ago by Maya Okoro)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 7,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:identity",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:identity",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:identity",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:identity"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:identity",
+       "since": 1792168005,
+       "downstream": [
+        "svc:audit-trail"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 8,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "correlate_alerts",
+   "args": {
+    "service_ids": [
+     "svc:appointments",
+     "svc:identity"
+    ]
+   },
+   "result": {
+    "alerts": [
+     "svc:appointments",
+     "svc:identity"
+    ],
+    "roots": [],
+    "note": "no two alerting services share any dependency"
+   },
+   "receipt": {
+    "tool": "correlate_alerts",
+    "args": {
+     "service_ids": [
+      "svc:appointments",
+      "svc:identity"
+     ],
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "UNWIND $ids AS sid MATCH (s:Service {id:sid}) CALL algo.BFS(s, $depth, 'DEPENDS_ON') YIELD nodes UNWIND nodes AS d RETURN d.id, collect(DISTINCT sid)",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:identity"
+       ],
+       "depth": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments",
+      "svc:identity"
+     ],
+     "edges": []
+    }
+   },
+   "why": "several alerts at once: which dependency do most of them share?",
+   "summary": "correlate_alerts → the alerts share no dependency",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 9,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "connected_impact",
+   "args": {
+    "service_ids": [
+     "svc:appointments",
+     "svc:identity"
+    ]
+   },
+   "result": {
+    "alerts": [
+     "svc:appointments",
+     "svc:identity"
+    ],
+    "projection": {
+     "services": 6,
+     "edges": 4
+    },
+    "components": [
+     {
+      "alerts": [
+       "svc:appointments"
+      ],
+      "size": 4
+     },
+     {
+      "alerts": [
+       "svc:identity"
+      ],
+      "size": 2
+     }
+    ],
+    "incidents_at_least": 2,
+    "meaning": "alerts in different components share no dependency at all, so no single cause can explain them together"
+   },
+   "receipt": {
+    "tool": "connected_impact",
+    "args": {
+     "service_ids": [
+      "svc:appointments",
+      "svc:identity"
+     ]
+    },
+    "queries": [
+     {
+      "cypher": "UNWIND $ids AS sid MATCH (s:Service {id:sid}) CALL algo.BFS(s, 6, 'DEPENDS_ON') YIELD nodes UNWIND nodes AS d RETURN DISTINCT d.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:identity"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[:DEPENDS_ON]->(b:Service) WHERE a.id IN $ids AND b.id IN $ids RETURN a.id, b.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:audit-trail",
+        "svc:identity",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "UNWIND $ids AS i CREATE (:Service {id: i})",
+      "params": {
+       "ids": "<6 items>"
+      },
+      "write": true,
+      "graph": "scratch projection"
+     },
+     {
+      "cypher": "UNWIND $pairs AS p MATCH (a:Service {id: p[0]}), (b:Service {id: p[1]}) CREATE (a)-[:DEPENDS_ON]->(b)",
+      "params": {
+       "pairs": "<4 items>"
+      },
+      "write": true,
+      "graph": "scratch projection"
+     },
+     {
+      "cypher": "CALL algo.WCC({nodeLabels: ['Service'], relationshipTypes: ['DEPENDS_ON']}) YIELD node, componentId RETURN node.id, componentId",
+      "params": {},
+      "graph": "scratch projection"
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments",
+      "svc:identity"
+     ],
+     "edges": []
+    }
+   },
+   "why": "several alerts at once: which of them cannot share a cause at all?",
+   "summary": "connected_impact → 2 group(s) that cannot share a cause: appointments | identity",
+   "ts": 1792175206,
+   "ms": 3,
+   "llm_call": 3
+  },
+  {
+   "seq": 10,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:identity"
+   },
+   "result": {
+    "service": "svc:identity",
+    "max_hops": 4,
+    "upstream_count": 1,
+    "tier1_count": 1,
+    "upstream": [
+     {
+      "id": "svc:patient-portal",
+      "tier": 1,
+      "team": "Patient Experience",
+      "hops": 1
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:identity",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:identity"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:identity"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal",
+      "svc:identity"
+     ],
+     "edges": [
+      {
+       "from": "svc:patient-portal",
+       "type": "DEPENDS_ON",
+       "to": "svc:identity"
+      }
+     ]
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 1 upstream (1 tier-1)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 11,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:audit-trail"
+   },
+   "result": {
+    "service": "svc:audit-trail",
+    "maintainers": [
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": true,
+    "bus_factor_reasons": [
+     "only 1 active person has worked on this service"
+    ],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "role": "Senior Engineer",
+      "commits": 35,
+      "last_commit_days_ago": 15,
+      "resolutions": 0,
+      "score": 35
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:clinical-platform",
+     "name": "Clinical Platform",
+     "active_members": [
+      "Maya Okoro",
+      "Sam Reyes",
+      "Hana Sato",
+      "Victor Lund"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:audit-trail"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:audit-trail"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:audit-trail"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:audit-trail"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:audit-trail"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:audit-trail"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:maya-okoro",
+      "svc:audit-trail",
+      "team:clinical-platform"
+     ],
+     "edges": [
+      {
+       "from": "per:maya-okoro",
+       "type": "WORKED_ON",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "per:maya-okoro",
+       "type": "MAINTAINS",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "team:clinical-platform",
+       "type": "OWNS",
+       "to": "svc:audit-trail"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Maya Okoro (score 35)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 12,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "decisions_about",
+   "args": {
+    "service_id": "svc:audit-trail"
+   },
+   "result": {
+    "service": "svc:audit-trail",
+    "decisions": [],
+    "note": "no recorded decisions about this service"
+   },
+   "receipt": {
+    "tool": "decisions_about",
+    "args": {
+     "service_id": "svc:audit-trail"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
+      "params": {
+       "id": "svc:audit-trail"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does the change contradict a recorded decision?",
+   "summary": "decisions_about → 0 decision(s)",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 4
+  },
+  {
+   "seq": 13,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "rollback_safety",
+   "args": {
+    "deploy_id": "dep:audit-trail-v2.5.0"
+   },
+   "result": {
+    "deploy": "dep:audit-trail-v2.5.0",
+    "service": "svc:audit-trail",
+    "service_tier": 2,
+    "version": "2.5.0",
+    "later_deploys": [],
+    "dependents": 3,
+    "tier1_dependents": 3,
+    "hard_to_undo_terms": [],
+    "verdict": "safe",
+    "reasons": [
+     "nothing shipped to audit-trail after it and nothing in the change looks irreversible"
+    ],
+    "blast_of_rollback": "3 service(s) call audit-trail (directly or not), 3 of them tier-1: they briefly see the old version"
+   },
+   "receipt": {
+    "tool": "rollback_safety",
+    "args": {
+     "deploy_id": "dep:audit-trail-v2.5.0"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
+      "params": {
+       "id": "dep:audit-trail-v2.5.0"
+      }
+     },
+     {
+      "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
+      "params": {
+       "sid": "svc:audit-trail",
+       "ts": 1792174485
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
+      "params": {
+       "sid": "svc:audit-trail"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:audit-trail-v2.5.0",
+      "svc:audit-trail"
+     ],
+     "edges": [
+      {
+       "from": "dep:audit-trail-v2.5.0",
+       "type": "CHANGED",
+       "to": "svc:audit-trail"
+      }
+     ]
+    }
+   },
+   "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
+   "summary": "rollback_safety → rollback safe: nothing shipped to audit-trail after it and nothing in the change looks irreversible",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 14,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "stale_knowledge",
+   "args": {
+    "service_id": "svc:audit-trail"
+   },
+   "result": {
+    "service": "svc:audit-trail",
+    "stale_count": 0,
+    "items": []
+   },
+   "receipt": {
+    "tool": "stale_knowledge",
+    "args": {
+     "service_id": "svc:audit-trail"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
+      "params": {
+       "sid": "svc:audit-trail"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "which docs and runbooks are out of date?",
+   "summary": "stale_knowledge → 0 stale: ",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 4
+  },
+  {
+   "seq": 15,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:identity",
+     "svc:audit-trail"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:identity",
+     "svc:audit-trail"
+    ],
+    "incident_count": 0,
+    "incidents": [],
+    "note": "no past incidents touched these services"
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:identity",
+      "svc:audit-trail"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:identity",
+        "svc:audit-trail"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:identity",
+        "svc:audit-trail"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 0 incident(s)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 16,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:appointments"
+   },
+   "result": {
+    "service": "svc:appointments",
+    "max_hops": 4,
+    "upstream_count": 1,
+    "tier1_count": 1,
+    "upstream": [
+     {
+      "id": "svc:patient-portal",
+      "tier": 1,
+      "team": "Patient Experience",
+      "hops": 1
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:appointments",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:appointments"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal",
+      "svc:appointments"
+     ],
+     "edges": [
+      {
+       "from": "svc:patient-portal",
+       "type": "DEPENDS_ON",
+       "to": "svc:appointments"
+      }
+     ]
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 1 upstream (1 tier-1)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 17,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:notifications"
+   },
+   "result": {
+    "service": "svc:notifications",
+    "maintainers": [
+     {
+      "id": "per:owen-bryce",
+      "name": "Owen Bryce",
+      "status": "left",
+      "left_days_ago": 120
+     }
+    ],
+    "bus_factor_risk": true,
+    "bus_factor_reasons": [
+     "maintainer Owen Bryce has left"
+    ],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "role": "Senior Engineer",
+      "commits": 18,
+      "last_commit_days_ago": 30,
+      "resolutions": 0,
+      "score": 18
+     },
+     {
+      "id": "per:sam-reyes",
+      "name": "Sam Reyes",
+      "role": "Engineer",
+      "commits": 4,
+      "last_commit_days_ago": 0,
+      "resolutions": 0,
+      "score": 4
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:clinical-platform",
+     "name": "Clinical Platform",
+     "active_members": [
+      "Maya Okoro",
+      "Sam Reyes",
+      "Hana Sato",
+      "Victor Lund"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:notifications"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:notifications"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:maya-okoro",
+      "svc:notifications",
+      "per:sam-reyes",
+      "per:owen-bryce",
+      "team:clinical-platform"
+     ],
+     "edges": [
+      {
+       "from": "per:maya-okoro",
+       "type": "WORKED_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:sam-reyes",
+       "type": "WORKED_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:owen-bryce",
+       "type": "MAINTAINS",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "team:clinical-platform",
+       "type": "OWNS",
+       "to": "svc:notifications"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 18,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "decisions_about",
+   "args": {
+    "service_id": "svc:notifications"
+   },
+   "result": {
+    "service": "svc:notifications",
+    "decisions": [
+     {
+      "id": "dec:sms-retry-cap",
+      "title": "SMS retries are capped at 3 attempts with backoff",
+      "rationale": "Unbounded or immediate SMS retries flood the provider, which throttles the whole account.",
+      "decided": "2025-12-30",
+      "decided_days_ago": 290,
+      "author": "Owen Bryce",
+      "author_status": "left",
+      "sources": [
+       {
+        "id": "chat:platform-sms-retries",
+        "label": "ChatThread",
+        "title": "Why are SMS retries capped?",
+        "channel": "#platform",
+        "date": "2025-12-30",
+        "excerpt": "Decision: SMS retries stay capped at 3 attempts with exponential backoff; more than that floods the provider and gets us throttled."
+       }
+      ]
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "decisions_about",
+    "args": {
+     "service_id": "svc:notifications"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
+      "params": {
+       "id": "svc:notifications"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dec:sms-retry-cap",
+      "svc:notifications",
+      "per:owen-bryce",
+      "chat:platform-sms-retries"
+     ],
+     "edges": [
+      {
+       "from": "dec:sms-retry-cap",
+       "type": "ABOUT",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:owen-bryce",
+       "type": "AUTHORED",
+       "to": "dec:sms-retry-cap"
+      },
+      {
+       "from": "dec:sms-retry-cap",
+       "type": "SOURCED_FROM",
+       "to": "chat:platform-sms-retries"
+      }
+     ]
+    }
+   },
+   "why": "does the change contradict a recorded decision?",
+   "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 4
+  },
+  {
+   "seq": 19,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "rollback_safety",
+   "args": {
+    "deploy_id": "dep:notifications-v3.3.0"
+   },
+   "result": {
+    "deploy": "dep:notifications-v3.3.0",
+    "service": "svc:notifications",
+    "service_tier": 2,
+    "version": "3.3.0",
+    "later_deploys": [],
+    "dependents": 3,
+    "tier1_dependents": 3,
+    "hard_to_undo_terms": [],
+    "verdict": "safe",
+    "reasons": [
+     "nothing shipped to notifications after it and nothing in the change looks irreversible"
+    ],
+    "blast_of_rollback": "3 service(s) call notifications (directly or not), 3 of them tier-1: they briefly see the old version"
+   },
+   "receipt": {
+    "tool": "rollback_safety",
+    "args": {
+     "deploy_id": "dep:notifications-v3.3.0"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
+      "params": {
+       "id": "dep:notifications-v3.3.0"
+      }
+     },
+     {
+      "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
+      "params": {
+       "sid": "svc:notifications",
+       "ts": 1792173705
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
+      "params": {
+       "sid": "svc:notifications"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:notifications-v3.3.0",
+      "svc:notifications"
+     ],
+     "edges": [
+      {
+       "from": "dep:notifications-v3.3.0",
+       "type": "CHANGED",
+       "to": "svc:notifications"
+      }
+     ]
+    }
+   },
+   "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
+   "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 20,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "stale_knowledge",
+   "args": {
+    "service_id": "svc:notifications"
+   },
+   "result": {
+    "service": "svc:notifications",
+    "stale_count": 2,
+    "items": [
+     {
+      "id": "doc:notifications-readme",
+      "kind": "Doc",
+      "title": "notifications README",
+      "describes": "svc:notifications",
+      "updated": "2026-01-09",
+      "updated_days_ago": 280,
+      "flagged": false,
+      "reasons": [
+       "author_left",
+       "names_departed_person"
+      ],
+      "author": "Owen Bryce",
+      "departed_people": [
+       "Owen Bryce"
+      ]
+     },
+     {
+      "id": "rb:notifications-delivery",
+      "kind": "Runbook",
+      "title": "Runbook: notification delivery failures",
+      "describes": "svc:notifications",
+      "updated": "2026-01-09",
+      "updated_days_ago": 280,
+      "flagged": false,
+      "reasons": [
+       "author_left"
+      ],
+      "author": "Owen Bryce"
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "stale_knowledge",
+    "args": {
+     "service_id": "svc:notifications"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
+      "params": {
+       "sid": "svc:notifications"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "doc:notifications-readme",
+      "svc:notifications",
+      "per:owen-bryce",
+      "rb:notifications-delivery"
+     ],
+     "edges": [
+      {
+       "from": "doc:notifications-readme",
+       "type": "DESCRIBES",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:owen-bryce",
+       "type": "AUTHORED",
+       "to": "doc:notifications-readme"
+      },
+      {
+       "from": "doc:notifications-readme",
+       "type": "MENTIONS",
+       "to": "per:owen-bryce"
+      },
+      {
+       "from": "rb:notifications-delivery",
+       "type": "DESCRIBES",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:owen-bryce",
+       "type": "AUTHORED",
+       "to": "rb:notifications-delivery"
+      }
+     ]
+    }
+   },
+   "why": "which docs and runbooks are out of date?",
+   "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 21,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:appointments",
+     "svc:notifications"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:appointments",
+     "svc:notifications"
+    ],
+    "incident_count": 1,
+    "incidents": [
+     {
+      "id": "inc:nw-2025-14",
+      "key": "INC-NW-2025-14",
+      "title": "Appointment reminders stopped: SMS provider throttled us",
+      "severity": 2,
+      "started": "2025-12-20",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 2,
+      "via": [
+       "affected",
+       "caused_by_deploy"
+      ],
+      "caused_by_change_to": [
+       "svc:notifications"
+      ],
+      "root_causes": [
+       "rc:retry-storm"
+      ],
+      "resolution": "Restored the 3-attempt cap with backoff",
+      "resolved_by": [
+       "Owen Bryce"
+      ],
+      "resolution_sources": [
+       "tkt:PM-NW-2025-14"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:appointments",
+      "svc:notifications"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:nw-2025-14"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:nw-2025-14",
+      "rc:retry-storm",
+      "svc:appointments",
+      "svc:notifications",
+      "dep:notifications-v3.1.0",
+      "res:nw-2025-14",
+      "per:owen-bryce",
+      "tkt:PM-NW-2025-14"
+     ],
+     "edges": [
+      {
+       "from": "inc:nw-2025-14",
+       "type": "AFFECTED",
+       "to": "svc:appointments"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "AFFECTED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "CAUSED_BY",
+       "to": "dep:notifications-v3.1.0"
+      },
+      {
+       "from": "dep:notifications-v3.1.0",
+       "type": "CHANGED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:retry-storm"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "RESOLVED_BY",
+       "to": "res:nw-2025-14"
+      },
+      {
+       "from": "res:nw-2025-14",
+       "type": "PERFORMED_BY",
+       "to": "per:owen-bryce"
+      },
+      {
+       "from": "res:nw-2025-14",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-NW-2025-14"
+      }
+     ]
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 22,
+   "agent": "firefighter",
+   "action": "answer",
+   "tool": "submit_report",
+   "args": {
+    "summary": "2 alerts, 2 separate incidents: identity -> dep:audit-trail-v2.5.0; appointments -> dep:notifications-v3.3.0.",
+    "likely_cause": {
+     "service_id": "svc:audit-trail",
+     "deploy_id": "dep:audit-trail-v2.5.0",
+     "ticket_key": null,
+     "path": [
+      "svc:identity",
+      "svc:audit-trail"
+     ],
+     "explanation": "fsync every audit write before acknowledging (dep:audit-trail-v2.5.0, deployed 12 min ago by Maya Okoro). identity calls audit-trail via declared dependencies: identity -> audit-trail."
+    },
+    "blast_radius": [
+     "svc:patient-portal"
+    ],
+    "contact": {
+     "person_id": "per:maya-okoro",
+     "name": "Maya Okoro",
+     "reason": "35 commits on audit-trail (score 35)"
+    },
+    "bus_factor_warning": "only 1 active person has worked on this service. Page Maya Okoro instead.",
+    "conflicting_decision": null,
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "dep:audit-trail-v2.5.0",
+      "claim": "audit-trail deployed 12 min ago: fsync every audit write before acknowledging"
+     },
+     {
+      "node_id": "per:maya-okoro",
+      "claim": "Best active contact: 35 commits on audit-trail (score 35)."
+     },
+     {
+      "node_id": "svc:identity",
+      "claim": "1 upstream services (1 tier-1) are exposed."
+     }
+    ],
+    "recommended_actions": [
+     "Roll back dep:audit-trail-v2.5.0 on audit-trail.",
+     "Page Maya Okoro (per:maya-okoro)."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "industry_pattern": null,
+    "rejected_leads": [],
+    "incidents": [
+     {
+      "alerts": [
+       "svc:identity"
+      ],
+      "summary": "identity alert most likely caused by dep:audit-trail-v2.5.0 on audit-trail, deployed 12 min ago. Contact Maya Okoro.",
+      "likely_cause": {
+       "service_id": "svc:audit-trail",
+       "deploy_id": "dep:audit-trail-v2.5.0",
+       "ticket_key": null,
+       "path": [
+        "svc:identity",
+        "svc:audit-trail"
+       ],
+       "explanation": "fsync every audit write before acknowledging (dep:audit-trail-v2.5.0, deployed 12 min ago by Maya Okoro). identity calls audit-trail via declared dependencies: identity -> audit-trail."
+      },
+      "contact": {
+       "person_id": "per:maya-okoro",
+       "name": "Maya Okoro",
+       "reason": "35 commits on audit-trail (score 35)"
+      },
+      "bus_factor_warning": "only 1 active person has worked on this service. Page Maya Okoro instead.",
+      "blast_radius": [
+       "svc:patient-portal"
+      ],
+      "recommended_actions": [
+       "Roll back dep:audit-trail-v2.5.0 on audit-trail.",
+       "Page Maya Okoro (per:maya-okoro)."
+      ],
+      "confidence": "medium",
+      "look_first": null,
+      "root": null,
+      "suppressed_pages": [],
+      "notify": []
+     },
+     {
+      "alerts": [
+       "svc:appointments"
+      ],
+      "summary": "appointments alert most likely caused by dep:notifications-v3.3.0 on notifications, deployed 25 min ago. Contact Maya Okoro.",
+      "likely_cause": {
+       "service_id": "svc:notifications",
+       "deploy_id": "dep:notifications-v3.3.0",
+       "ticket_key": null,
+       "path": [
+        "svc:appointments",
+        "svc:notifications"
+       ],
+       "explanation": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 25 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications."
+      },
+      "contact": {
+       "person_id": "per:maya-okoro",
+       "name": "Maya Okoro",
+       "reason": "18 commits on notifications (score 18)"
+      },
+      "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+      "blast_radius": [
+       "svc:patient-portal"
+      ],
+      "recommended_actions": [
+       "Roll back dep:notifications-v3.3.0 on notifications.",
+       "Page Maya Okoro (per:maya-okoro).",
+       "Follow the INC-NW-2025-14 fix: Restored the 3-attempt cap with backoff."
+      ],
+      "confidence": "medium",
+      "look_first": null,
+      "root": null,
+      "suppressed_pages": [],
+      "notify": []
+     }
+    ],
+    "suppressed_pages": [],
+    "action_plan": [
+     {
+      "id": "A1",
+      "incident": 0,
+      "kind": "rollback",
+      "target": "dep:audit-trail-v2.5.0",
+      "title": "Roll back dep:audit-trail-v2.5.0 on audit-trail",
+      "justification": {
+       "why": "fsync every audit write before acknowledging (dep:audit-trail-v2.5.0, deployed 12 min ago by Maya Okoro). identity calls audit-trail via declared dependencies: identity -> audit-trail.",
+       "node_ids": [
+        "dep:audit-trail-v2.5.0",
+        "svc:audit-trail",
+        "svc:identity",
+        "svc:audit-trail"
+       ],
+       "path": [
+        "svc:identity",
+        "svc:audit-trail"
+       ]
+      },
+      "safety": {
+       "verdict": "safe",
+       "reasons": [
+        "nothing shipped to audit-trail after it and nothing in the change looks irreversible"
+       ],
+       "dependents": 3,
+       "later_deploys": [],
+       "blast": "3 service(s) call audit-trail (directly or not), 3 of them tier-1: they briefly see the old version"
+      }
+     },
+     {
+      "id": "A2",
+      "incident": 0,
+      "kind": "page",
+      "target": "per:maya-okoro",
+      "title": "Page Maya Okoro",
+      "justification": {
+       "why": "35 commits on audit-trail (score 35)",
+       "node_ids": [
+        "per:maya-okoro",
+        "svc:audit-trail"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A3",
+      "incident": 0,
+      "kind": "open_ticket",
+      "target": "svc:audit-trail",
+      "title": "Open a follow-up ticket for audit-trail",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:audit-trail"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A4",
+      "incident": 1,
+      "kind": "rollback",
+      "target": "dep:notifications-v3.3.0",
+      "title": "Roll back dep:notifications-v3.3.0 on notifications",
+      "justification": {
+       "why": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 25 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications.",
+       "node_ids": [
+        "dep:notifications-v3.3.0",
+        "svc:notifications",
+        "svc:appointments",
+        "svc:notifications"
+       ],
+       "path": [
+        "svc:appointments",
+        "svc:notifications"
+       ]
+      },
+      "safety": {
+       "verdict": "safe",
+       "reasons": [
+        "nothing shipped to notifications after it and nothing in the change looks irreversible"
+       ],
+       "dependents": 3,
+       "later_deploys": [],
+       "blast": "3 service(s) call notifications (directly or not), 3 of them tier-1: they briefly see the old version"
+      }
+     },
+     {
+      "id": "A5",
+      "incident": 1,
+      "kind": "page",
+      "target": "per:maya-okoro",
+      "title": "Page Maya Okoro",
+      "justification": {
+       "why": "18 commits on notifications (score 18)",
+       "node_ids": [
+        "per:maya-okoro",
+        "svc:notifications"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A6",
+      "incident": 1,
+      "kind": "open_ticket",
+      "target": "svc:notifications",
+      "title": "Open a follow-up ticket for notifications",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:notifications"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A7",
+      "incident": 1,
+      "kind": "flag_stale",
+      "target": "doc:notifications-readme",
+      "title": "Flag notifications README as stale",
+      "justification": {
+       "why": "author_left, names_departed_person",
+       "node_ids": [
+        "doc:notifications-readme",
+        "svc:notifications"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A8",
+      "incident": 1,
+      "kind": "flag_stale",
+      "target": "rb:notifications-delivery",
+      "title": "Flag Runbook: notification delivery failures as stale",
+      "justification": {
+       "why": "author_left",
+       "node_ids": [
+        "rb:notifications-delivery",
+        "svc:notifications"
+       ],
+       "path": []
+      },
+      "safety": null
+     }
+    ],
+    "hypotheses": [
+     {
+      "id": "H1",
+      "claim": "dep:audit-trail-v2.5.0 on audit-trail caused the identity alert",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "dep:audit-trail-v2.5.0",
+        "claim": "deployed 12 min ago: fsync every audit write before acknowledging"
+       },
+       {
+        "node_id": "svc:audit-trail",
+        "claim": "on the path identity -> audit-trail"
+       }
+      ],
+      "contradicting": [],
+      "reason": "a change on the call path (1 hop)"
+     },
+     {
+      "id": "H2",
+      "claim": "dep:notifications-v3.3.0 on notifications caused the appointments alert",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "dep:notifications-v3.3.0",
+        "claim": "deployed 25 min ago: Send SMS synchronously inside the request (no queue)"
+       },
+       {
+        "node_id": "svc:notifications",
+        "claim": "on the path appointments -> notifications"
+       },
+       {
+        "node_id": "inc:nw-2025-14",
+        "claim": "a past incident caused by a change to notifications"
+       }
+      ],
+      "contradicting": [],
+      "reason": "a change on the call path (1 hop)"
+     }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "the change is on the alert's call path (1 hop)",
+      "node_id": "dep:audit-trail-v2.5.0"
+     },
+     {
+      "effect": "-",
+      "factor": "no recorded decision says it is risky",
+      "node_id": null
+     },
+     {
+      "effect": "-",
+      "factor": "no past incident with the same cause",
+      "node_id": null
+     }
+    ]
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "2 alerts, 2 separate incidents: identity -> dep:audit-trail-v2.5.0; appointments -> dep:notifications-v3.3.0.",
+     "likely_cause": {
+      "service_id": "svc:audit-trail",
+      "deploy_id": "dep:audit-trail-v2.5.0",
+      "ticket_key": null,
+      "path": [
+       "svc:identity",
+       "svc:audit-trail"
+      ],
+      "explanation": "fsync every audit write before acknowledging (dep:audit-trail-v2.5.0, deployed 12 min ago by Maya Okoro). identity calls audit-trail via declared dependencies: identity -> audit-trail."
+     },
+     "blast_radius": [
+      "svc:patient-portal"
+     ],
+     "contact": {
+      "person_id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "reason": "35 commits on audit-trail (score 35)"
+     },
+     "bus_factor_warning": "only 1 active person has worked on this service. Page Maya Okoro instead.",
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "evidence": [
+      {
+       "node_id": "dep:audit-trail-v2.5.0",
+       "claim": "audit-trail deployed 12 min ago: fsync every audit write before acknowledging"
+      },
+      {
+       "node_id": "per:maya-okoro",
+       "claim": "Best active contact: 35 commits on audit-trail (score 35)."
+      },
+      {
+       "node_id": "svc:identity",
+       "claim": "1 upstream services (1 tier-1) are exposed."
+      }
+     ],
+     "recommended_actions": [
+      "Roll back dep:audit-trail-v2.5.0 on audit-trail.",
+      "Page Maya Okoro (per:maya-okoro)."
+     ],
+     "confidence": "medium",
+     "look_first": null,
+     "industry_pattern": null,
+     "rejected_leads": [],
+     "incidents": [
+      {
+       "alerts": [
+        "svc:identity"
+       ],
+       "summary": "identity alert most likely caused by dep:audit-trail-v2.5.0 on audit-trail, deployed 12 min ago. Contact Maya Okoro.",
+       "likely_cause": {
+        "service_id": "svc:audit-trail",
+        "deploy_id": "dep:audit-trail-v2.5.0",
+        "ticket_key": null,
+        "path": [
+         "svc:identity",
+         "svc:audit-trail"
+        ],
+        "explanation": "fsync every audit write before acknowledging (dep:audit-trail-v2.5.0, deployed 12 min ago by Maya Okoro). identity calls audit-trail via declared dependencies: identity -> audit-trail."
+       },
+       "contact": {
+        "person_id": "per:maya-okoro",
+        "name": "Maya Okoro",
+        "reason": "35 commits on audit-trail (score 35)"
+       },
+       "bus_factor_warning": "only 1 active person has worked on this service. Page Maya Okoro instead.",
+       "blast_radius": [
+        "svc:patient-portal"
+       ],
+       "recommended_actions": [
+        "Roll back dep:audit-trail-v2.5.0 on audit-trail.",
+        "Page Maya Okoro (per:maya-okoro)."
+       ],
+       "confidence": "medium",
+       "look_first": null,
+       "root": null,
+       "suppressed_pages": [],
+       "notify": []
+      },
+      {
+       "alerts": [
+        "svc:appointments"
+       ],
+       "summary": "appointments alert most likely caused by dep:notifications-v3.3.0 on notifications, deployed 25 min ago. Contact Maya Okoro.",
+       "likely_cause": {
+        "service_id": "svc:notifications",
+        "deploy_id": "dep:notifications-v3.3.0",
+        "ticket_key": null,
+        "path": [
+         "svc:appointments",
+         "svc:notifications"
+        ],
+        "explanation": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 25 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications."
+       },
+       "contact": {
+        "person_id": "per:maya-okoro",
+        "name": "Maya Okoro",
+        "reason": "18 commits on notifications (score 18)"
+       },
+       "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+       "blast_radius": [
+        "svc:patient-portal"
+       ],
+       "recommended_actions": [
+        "Roll back dep:notifications-v3.3.0 on notifications.",
+        "Page Maya Okoro (per:maya-okoro).",
+        "Follow the INC-NW-2025-14 fix: Restored the 3-attempt cap with backoff."
+       ],
+       "confidence": "medium",
+       "look_first": null,
+       "root": null,
+       "suppressed_pages": [],
+       "notify": []
+      }
+     ],
+     "suppressed_pages": [],
+     "action_plan": [
+      {
+       "id": "A1",
+       "incident": 0,
+       "kind": "rollback",
+       "target": "dep:audit-trail-v2.5.0",
+       "title": "Roll back dep:audit-trail-v2.5.0 on audit-trail",
+       "justification": {
+        "why": "fsync every audit write before acknowledging (dep:audit-trail-v2.5.0, deployed 12 min ago by Maya Okoro). identity calls audit-trail via declared dependencies: identity -> audit-trail.",
+        "node_ids": [
+         "dep:audit-trail-v2.5.0",
+         "svc:audit-trail",
+         "svc:identity",
+         "svc:audit-trail"
+        ],
+        "path": [
+         "svc:identity",
+         "svc:audit-trail"
+        ]
+       },
+       "safety": {
+        "verdict": "safe",
+        "reasons": [
+         "nothing shipped to audit-trail after it and nothing in the change looks irreversible"
+        ],
+        "dependents": 3,
+        "later_deploys": [],
+        "blast": "3 service(s) call audit-trail (directly or not), 3 of them tier-1: they briefly see the old version"
+       }
+      },
+      {
+       "id": "A2",
+       "incident": 0,
+       "kind": "page",
+       "target": "per:maya-okoro",
+       "title": "Page Maya Okoro",
+       "justification": {
+        "why": "35 commits on audit-trail (score 35)",
+        "node_ids": [
+         "per:maya-okoro",
+         "svc:audit-trail"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A3",
+       "incident": 0,
+       "kind": "open_ticket",
+       "target": "svc:audit-trail",
+       "title": "Open a follow-up ticket for audit-trail",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:audit-trail"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A4",
+       "incident": 1,
+       "kind": "rollback",
+       "target": "dep:notifications-v3.3.0",
+       "title": "Roll back dep:notifications-v3.3.0 on notifications",
+       "justification": {
+        "why": "Send SMS synchronously inside the request (no queue) (dep:notifications-v3.3.0, deployed 25 min ago by Sam Reyes). appointments calls notifications via declared dependencies: appointments -> notifications.",
+        "node_ids": [
+         "dep:notifications-v3.3.0",
+         "svc:notifications",
+         "svc:appointments",
+         "svc:notifications"
+        ],
+        "path": [
+         "svc:appointments",
+         "svc:notifications"
+        ]
+       },
+       "safety": {
+        "verdict": "safe",
+        "reasons": [
+         "nothing shipped to notifications after it and nothing in the change looks irreversible"
+        ],
+        "dependents": 3,
+        "later_deploys": [],
+        "blast": "3 service(s) call notifications (directly or not), 3 of them tier-1: they briefly see the old version"
+       }
+      },
+      {
+       "id": "A5",
+       "incident": 1,
+       "kind": "page",
+       "target": "per:maya-okoro",
+       "title": "Page Maya Okoro",
+       "justification": {
+        "why": "18 commits on notifications (score 18)",
+        "node_ids": [
+         "per:maya-okoro",
+         "svc:notifications"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A6",
+       "incident": 1,
+       "kind": "open_ticket",
+       "target": "svc:notifications",
+       "title": "Open a follow-up ticket for notifications",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:notifications"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A7",
+       "incident": 1,
+       "kind": "flag_stale",
+       "target": "doc:notifications-readme",
+       "title": "Flag notifications README as stale",
+       "justification": {
+        "why": "author_left, names_departed_person",
+        "node_ids": [
+         "doc:notifications-readme",
+         "svc:notifications"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A8",
+       "incident": 1,
+       "kind": "flag_stale",
+       "target": "rb:notifications-delivery",
+       "title": "Flag Runbook: notification delivery failures as stale",
+       "justification": {
+        "why": "author_left",
+        "node_ids": [
+         "rb:notifications-delivery",
+         "svc:notifications"
+        ],
+        "path": []
+       },
+       "safety": null
+      }
+     ],
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "dep:audit-trail-v2.5.0 on audit-trail caused the identity alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:audit-trail-v2.5.0",
+         "claim": "deployed 12 min ago: fsync every audit write before acknowledging"
+        },
+        {
+         "node_id": "svc:audit-trail",
+         "claim": "on the path identity -> audit-trail"
+        }
+       ],
+       "contradicting": [],
+       "reason": "a change on the call path (1 hop)"
+      },
+      {
+       "id": "H2",
+       "claim": "dep:notifications-v3.3.0 on notifications caused the appointments alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:notifications-v3.3.0",
+         "claim": "deployed 25 min ago: Send SMS synchronously inside the request (no queue)"
+        },
+        {
+         "node_id": "svc:notifications",
+         "claim": "on the path appointments -> notifications"
+        },
+        {
+         "node_id": "inc:nw-2025-14",
+         "claim": "a past incident caused by a change to notifications"
+        }
+       ],
+       "contradicting": [],
+       "reason": "a change on the call path (1 hop)"
+      }
+     ],
+     "confidence_breakdown": [
+      {
+       "effect": "+",
+       "factor": "the change is on the alert's call path (1 hop)",
+       "node_id": "dep:audit-trail-v2.5.0"
+      },
+      {
+       "effect": "-",
+       "factor": "no recorded decision says it is risky",
+       "node_id": null
+      },
+      {
+       "effect": "-",
+       "factor": "no past incident with the same cause",
+       "node_id": null
+      }
+     ]
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "dep:audit-trail-v2.5.0",
+      "dep:notifications-v3.3.0",
+      "doc:notifications-readme",
+      "inc:nw-2025-14",
+      "per:maya-okoro",
+      "rb:notifications-delivery",
+      "svc:appointments",
+      "svc:audit-trail",
+      "svc:identity",
+      "svc:notifications",
+      "svc:patient-portal"
+     ],
+     "edges": []
+    }
+   },
+   "why": "the evidence is in: submit the grounded report",
+   "summary": "2 alerts, 2 separate incidents: identity -> dep:audit-trail-v2.5.0; appointments -> dep:notifications-v3.3.0.",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 5
+  }
+ ],
+ "twin": "northwind_health__eval_play",
+ "scenario": "n-two",
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:clinical-platform",
+    "label": "Team",
+    "name": "Clinical Platform",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Clinical Platform"
+    }
+   },
+   {
+    "id": "per:owen-bryce",
+    "label": "Person",
+    "name": "Owen Bryce",
+    "origin": "seed",
+    "props": {
+     "status": "left",
+     "origin": "seed",
+     "name": "Owen Bryce",
+     "role": "Senior Engineer",
+     "email": "owen.bryce@northwind.example",
+     "joined_at": 1628015205,
+     "left_at": 1781807205
+    }
+   },
+   {
+    "id": "per:maya-okoro",
+    "label": "Person",
+    "name": "Maya Okoro",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Maya Okoro",
+     "role": "Senior Engineer",
+     "email": "maya.okoro@northwind.example",
+     "joined_at": 1697135205
+    }
+   },
+   {
+    "id": "per:sam-reyes",
+    "label": "Person",
+    "name": "Sam Reyes",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Sam Reyes",
+     "role": "Engineer",
+     "email": "sam.reyes@northwind.example",
+     "joined_at": 1788287205
+    }
+   },
+   {
+    "id": "svc:patient-portal",
+    "label": "Service",
+    "name": "patient-portal",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "patient-portal",
+     "description": "Web and mobile portal where patients book visits and view results.",
+     "tier": 1,
+     "language": "TypeScript",
+     "repo_url": "https://git.northwind.example/patient-portal"
+    }
+   },
+   {
+    "id": "svc:appointments",
+    "label": "Service",
+    "name": "appointments",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "appointments",
+     "description": "Books, moves and cancels appointments; sends reminder requests.",
+     "tier": 1,
+     "language": "Kotlin",
+     "repo_url": "https://git.northwind.example/appointments"
+    }
+   },
+   {
+    "id": "svc:notifications",
+    "label": "Service",
+    "name": "notifications",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "notifications",
+     "description": "Sends appointment reminders and result alerts by SMS and email.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/notifications"
+    }
+   },
+   {
+    "id": "svc:identity",
+    "label": "Service",
+    "name": "identity",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "identity",
+     "description": "Patient and staff sign-in, sessions and consent records.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/identity"
+    }
+   },
+   {
+    "id": "svc:audit-trail",
+    "label": "Service",
+    "name": "audit-trail",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "audit-trail",
+     "description": "Append-only access log required for compliance.",
+     "tier": 2,
+     "language": "Java",
+     "repo_url": "https://git.northwind.example/audit-trail"
+    }
+   },
+   {
+    "id": "chat:platform-sms-retries",
+    "label": "ChatThread",
+    "name": "Why are SMS retries capped?",
+    "origin": "seed",
+    "props": {
+     "ts": 1767119205,
+     "origin": "seed",
+     "title": "Why are SMS retries capped?",
+     "text": "[2025-12-30 18:26] Maya Okoro: Post-incident question: why did notifications hammer the SMS provider? [2025-12-30 18:28] Owen Bryce: Every provider timeout triggered an immediate retry, forever. The provider throttled our whole account. [2025-12-30 18:30] Owen Bryce: Decision: SMS retries stay capped at 3 attempts with exponential backoff; more than that floods the provider and gets us throttled.…",
+     "channel": "#platform"
+    }
+   },
+   {
+    "id": "doc:notifications-readme",
+    "label": "Doc",
+    "name": "notifications README",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "notifications README",
+     "text": "# notifications Sends appointment reminders and result alerts. SMS goes through sms-gateway; email through the mail provider. Owner: Owen Bryce. Retries: at most 3 SMS attempts with exponential backoff (see #platform).",
+     "updated_at": 1767983205,
+     "flagged_stale": false
+    }
+   },
+   {
+    "id": "tkt:PM-NW-2025-14",
+    "label": "Ticket",
+    "name": "PM-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: SMS provider throttled our account",
+     "text": "Unbounded retries in notifications v3.1.0 flooded the SMS provider, which throttled the account for 3 hours. Appointment reminders stopped. Resolution: restored the 3-attempt cap with backoff and drained the retry queue.",
+     "key": "PM-NW-2025-14",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "dec:sms-retry-cap",
+    "label": "Decision",
+    "name": "SMS retries are capped at 3 attempts with backoff",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "SMS retries are capped at 3 attempts with backoff",
+     "rationale": "Unbounded or immediate SMS retries flood the provider, which throttles the whole account.",
+     "decided_at": 1767119205
+    }
+   },
+   {
+    "id": "rc:retry-storm",
+    "label": "RootCause",
+    "name": "Retry storm against an external provider",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Retry storm against an external provider",
+     "description": "Immediate, unbounded retries amplify a provider timeout until the provider throttles us."
+    }
+   },
+   {
+    "id": "inc:nw-2025-14",
+    "label": "Incident",
+    "name": "INC-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "started_at": 1766255205,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "Appointment reminders stopped: SMS provider throttled us",
+     "summary": "notifications v3.1.0 retried SMS without limit on provider timeouts; the provider throttled the account.",
+     "key": "INC-NW-2025-14",
+     "severity": 2,
+     "symptom": "appointment reminder SMS not sent; provider 429s",
+     "resolved_at": 1766258805
+    }
+   },
+   {
+    "id": "res:nw-2025-14",
+    "label": "Resolution",
+    "name": "Restored the 3-attempt cap with backoff",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Restored the 3-attempt cap with backoff",
+     "steps": "1. Restored the 3-attempt cap with backoff."
+    }
+   },
+   {
+    "id": "rb:notifications-delivery",
+    "label": "Runbook",
+    "name": "Runbook: notification delivery failures",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "Runbook: notification delivery failures",
+     "steps": "1. Check the sms-gateway error rate. 2. Check provider status. 3. Pause reminder batches if throttled.",
+     "updated_at": 1767983205,
+     "version": 1
+    }
+   },
+   {
+    "id": "dep:notifications-v3.1.0",
+    "label": "Deploy",
+    "name": "3.1.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1766255205,
+     "origin": "seed",
+     "summary": "Unbounded SMS retries on provider timeout",
+     "version": "3.1.0"
+    }
+   },
+   {
+    "id": "dep:notifications-v3.3.0",
+    "label": "Deploy",
+    "name": "3.3.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792173705,
+     "origin": "seed",
+     "summary": "Send SMS synchronously inside the request (no queue)",
+     "version": "3.3.0"
+    }
+   },
+   {
+    "id": "dep:audit-trail-v2.5.0",
+    "label": "Deploy",
+    "name": "2.5.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792174485,
+     "origin": "seed",
+     "summary": "fsync every audit write before acknowledging",
+     "version": "2.5.0"
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:clinical-platform",
+    "type": "OWNS",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:clinical-platform",
+    "type": "OWNS",
+    "target": "svc:audit-trail",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:owen-bryce",
+    "type": "MAINTAINS",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:owen-bryce",
+    "type": "AUTHORED",
+    "target": "doc:notifications-readme",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:owen-bryce",
+    "type": "AUTHORED",
+    "target": "dec:sms-retry-cap",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:owen-bryce",
+    "type": "AUTHORED",
+    "target": "rb:notifications-delivery",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "WORKED_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "commits": 18,
+     "last_at": 1789583205
+    }
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "MAINTAINS",
+    "target": "svc:audit-trail",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "WORKED_ON",
+    "target": "svc:audit-trail",
+    "origin": "seed",
+    "props": {
+     "commits": 35,
+     "last_at": 1790879205
+    }
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "DEPLOYED",
+    "target": "dep:audit-trail-v2.5.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:sam-reyes",
+    "type": "WORKED_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "commits": 4,
+     "last_at": 1792175205
+    }
+   },
+   {
+    "source": "per:sam-reyes",
+    "type": "DEPLOYED",
+    "target": "dep:notifications-v3.3.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "svc:patient-portal",
+    "type": "DEPENDS_ON",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:patient-portal",
+    "type": "DEPENDS_ON",
+    "target": "svc:identity",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:appointments",
+    "type": "DEPENDS_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:identity",
+    "type": "DEPENDS_ON",
+    "target": "svc:audit-trail",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "doc:notifications-readme",
+    "type": "MENTIONS",
+    "target": "per:owen-bryce",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "doc:notifications-readme",
+    "type": "DESCRIBES",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dec:sms-retry-cap",
+    "type": "ABOUT",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dec:sms-retry-cap",
+    "type": "SOURCED_FROM",
+    "target": "chat:platform-sms-retries",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Decision: SMS retries stay capped at 3 attempts with exponential backoff; more than that floods the provider and gets us throttled."
+    }
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "AFFECTED",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "AFFECTED",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:retry-storm",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "RESOLVED_BY",
+    "target": "res:nw-2025-14",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "CAUSED_BY",
+    "target": "dep:notifications-v3.1.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2025-14",
+    "type": "PERFORMED_BY",
+    "target": "per:owen-bryce",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2025-14",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: restored the 3-attempt cap with backoff and drained the retry queue."
+    }
+   },
+   {
+    "source": "rb:notifications-delivery",
+    "type": "DESCRIBES",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:notifications-v3.1.0",
+    "type": "CHANGED",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:notifications-v3.3.0",
+    "type": "CHANGED",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:audit-trail-v2.5.0",
+    "type": "CHANGED",
+    "target": "svc:audit-trail",
+    "origin": "seed",
+    "props": {}
+   }
+  ],
+  "base": [
+   "svc:appointments",
+   "svc:identity"
+  ],
+  "alert": "svc:appointments",
+  "alerts": [
+   "svc:appointments",
+   "svc:identity"
+  ]
+ },
+ "execution": {
+  "session_id": "ses:exec-run-604346cea08c",
+  "already_executed": false,
+  "results": [
+   {
+    "action": "A1",
+    "kind": "rollback",
+    "title": "Roll back dep:audit-trail-v2.5.0 on audit-trail",
+    "ok": true,
+    "summary": "rolled back dep:audit-trail-v2.5.0 (simulated): wrote dep:audit-trail-v2.5.0-rollback"
+   },
+   {
+    "action": "A2",
+    "kind": "page",
+    "title": "Page Maya Okoro",
+    "ok": true,
+    "summary": "paged Maya Okoro for INC-2026-001 (simulated): 35 commits on audit-trail (score 35)"
+   },
+   {
+    "action": "A3",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for audit-trail",
+    "ok": true,
+    "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: audit-trail"
+   },
+   {
+    "action": "A4",
+    "kind": "rollback",
+    "title": "Roll back dep:notifications-v3.3.0 on notifications",
+    "ok": true,
+    "summary": "rolled back dep:notifications-v3.3.0 (simulated): wrote dep:notifications-v3.3.0-rollback"
+   },
+   {
+    "action": "A5",
+    "kind": "page",
+    "title": "Page Maya Okoro",
+    "ok": true,
+    "summary": "paged Maya Okoro for INC-2026-002 (simulated): 18 commits on notifications (score 18)"
+   },
+   {
+    "action": "A6",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for notifications",
+    "ok": true,
+    "summary": "opened OPS-2 (tkt:OPS-2): Follow-up: notifications"
+   },
+   {
+    "action": "A7",
+    "kind": "flag_stale",
+    "title": "Flag notifications README as stale",
+    "ok": true,
+    "summary": "flagged doc:notifications-readme stale: author_left, names_departed_person"
+   },
+   {
+    "action": "A8",
+    "kind": "flag_stale",
+    "title": "Flag Runbook: notification delivery failures as stale",
+    "ok": true,
+    "summary": "flagged rb:notifications-delivery stale: author_left"
+   }
+  ],
+  "incidents": [
+   "inc:2026-001",
+   "inc:2026-002"
+  ],
+  "verification": {
+   "checks": [
+    {
+     "incident": 0,
+     "cleared": true,
+     "tool": "recent_changes_downstream",
+     "queries": [
+      {
+       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+       "params": {
+        "id": "svc:identity",
+        "since": 1792168006
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:identity",
+        "to": "svc:audit-trail",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:identity",
+        "to": "svc:audit-trail",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      }
+     ],
+     "summary": "the newest change on svc:audit-trail is now the rollback (dep:audit-trail-v2.5.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+    },
+    {
+     "incident": 1,
+     "cleared": true,
+     "tool": "recent_changes_downstream",
+     "queries": [
+      {
+       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+       "params": {
+        "id": "svc:appointments",
+        "since": 1792168006
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:appointments",
+        "to": "svc:notifications",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:appointments",
+        "to": "svc:notifications",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      }
+     ],
+     "summary": "the newest change on svc:notifications is now the rollback (dep:notifications-v3.3.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+    }
+   ],
+   "all_cleared": true,
+   "simulated": true
+  }
+ }
+}

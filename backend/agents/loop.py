@@ -188,6 +188,7 @@ _SUM = {
         f": {r['matches'][0]['company']} — {r['matches'][0]['title']}" if r.get("matches") else ""),
     "recent_changes": lambda a, r: f"{r['change_count']} change(s) in {r['since_minutes']} min" + (
         ": " + ", ".join(f"{_name(c['service'])} {c['deploy']['minutes_ago']} min ago" for c in r["changes"][:3]) if r.get("changes") else ""),
+    "rollback_safety": lambda a, r: f"rollback {r['verdict']}: {r['reasons'][0]}",
     "correlate_alerts": lambda a, r: ("shared root " + _name(r["roots"][0]["id"]) + f" reached by {r['roots'][0]['coverage']} of "
                                       f"{len(r['alerts'])} alerts" if r.get("roots") else "the alerts share no dependency"),
     "connected_impact": lambda a, r: f"{len(r['components'])} group(s) that cannot share a cause: " + " | ".join(

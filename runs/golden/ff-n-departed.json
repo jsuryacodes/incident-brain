@@ -1,0 +1,1584 @@
+{
+ "run_id": "run-c6231c0d2ab3",
+ "agent": "firefighter",
+ "tenant": "northwind_health__eval_play",
+ "alert": {
+  "service_id": "svc:appointments",
+  "symptom": "appointment reminders failing; SMS send errors 40%"
+ },
+ "mode": "mock",
+ "model": "mock",
+ "started_at": 1792175206,
+ "status": "ok",
+ "report": {
+  "summary": "appointments alert most likely caused by dep:sms-gateway-v1.8.0 on sms-gateway, deployed 15 min ago. Escalate to team:clinical-platform.",
+  "likely_cause": {
+   "service_id": "svc:sms-gateway",
+   "deploy_id": "dep:sms-gateway-v1.8.0",
+   "ticket_key": null,
+   "path": [
+    "svc:appointments",
+    "svc:notifications",
+    "svc:sms-gateway"
+   ],
+   "explanation": "Automated provider SDK upgrade 2.x -> 3.0 (dep:sms-gateway-v1.8.0, deployed 15 min ago). appointments calls sms-gateway via declared dependencies: appointments -> notifications -> sms-gateway."
+  },
+  "blast_radius": [
+   "svc:patient-portal"
+  ],
+  "contact": {
+   "person_id": null,
+   "name": null,
+   "team_id": "team:clinical-platform",
+   "reason": "no active person has worked on sms-gateway; escalate to the owning team Clinical Platform (team:clinical-platform)"
+  },
+  "bus_factor_warning": "maintainer Owen Bryce has left and no active person has worked on sms-gateway. Do not page Owen Bryce; escalate to Clinical Platform.",
+  "conflicting_decision": null,
+  "similar_past_incidents": [],
+  "evidence": [
+   {
+    "node_id": "dep:sms-gateway-v1.8.0",
+    "claim": "sms-gateway deployed 15 min ago: Automated provider SDK upgrade 2.x -> 3.0"
+   },
+   {
+    "node_id": "team:clinical-platform",
+    "claim": "no active person has worked on sms-gateway; escalate to the owning team Clinical Platform (team:clinical-platform)"
+   },
+   {
+    "node_id": "svc:appointments",
+    "claim": "1 upstream services (1 tier-1) are exposed."
+   }
+  ],
+  "recommended_actions": [
+   "Roll back dep:sms-gateway-v1.8.0 on sms-gateway.",
+   "Escalate to team team:clinical-platform; nobody active owns this service."
+  ],
+  "confidence": "medium",
+  "look_first": null,
+  "industry_pattern": null,
+  "rejected_leads": [],
+  "action_plan": [
+   {
+    "id": "A1",
+    "incident": 0,
+    "kind": "rollback",
+    "target": "dep:sms-gateway-v1.8.0",
+    "title": "Roll back dep:sms-gateway-v1.8.0 on sms-gateway",
+    "justification": {
+     "why": "Automated provider SDK upgrade 2.x -> 3.0 (dep:sms-gateway-v1.8.0, deployed 15 min ago). appointments calls sms-gateway via declared dependencies: appointments -> notifications -> sms-gateway.",
+     "node_ids": [
+      "dep:sms-gateway-v1.8.0",
+      "svc:sms-gateway",
+      "svc:appointments",
+      "svc:notifications",
+      "svc:sms-gateway"
+     ],
+     "path": [
+      "svc:appointments",
+      "svc:notifications",
+      "svc:sms-gateway"
+     ]
+    },
+    "safety": {
+     "verdict": "safe",
+     "reasons": [
+      "nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
+     ],
+     "dependents": 4,
+     "later_deploys": [],
+     "blast": "4 service(s) call sms-gateway (directly or not), 3 of them tier-1: they briefly see the old version"
+    }
+   },
+   {
+    "id": "A2",
+    "incident": 0,
+    "kind": "escalate",
+    "target": "team:clinical-platform",
+    "title": "Escalate to team:clinical-platform (nobody active to page)",
+    "justification": {
+     "why": "no active person has worked on sms-gateway; escalate to the owning team Clinical Platform (team:clinical-platform)",
+     "node_ids": [
+      "team:clinical-platform"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A3",
+    "incident": 0,
+    "kind": "open_ticket",
+    "target": "svc:sms-gateway",
+    "title": "Open a follow-up ticket for sms-gateway",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:sms-gateway"
+     ],
+     "path": []
+    },
+    "safety": null
+   }
+  ],
+  "hypotheses": [
+   {
+    "id": "H1",
+    "claim": "dep:sms-gateway-v1.8.0 on sms-gateway caused the appointments alert",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "dep:sms-gateway-v1.8.0",
+      "claim": "deployed 15 min ago: Automated provider SDK upgrade 2.x -> 3.0"
+     },
+     {
+      "node_id": "svc:notifications",
+      "claim": "on the path appointments -> notifications -> sms-gateway"
+     },
+     {
+      "node_id": "svc:sms-gateway",
+      "claim": "on the path appointments -> notifications -> sms-gateway"
+     }
+    ],
+    "contradicting": [],
+    "reason": "a change on the call path (2 hops)"
+   }
+  ],
+  "confidence_breakdown": [
+   {
+    "effect": "+",
+    "factor": "the change is on the alert's call path (2 hops)",
+    "node_id": "dep:sms-gateway-v1.8.0"
+   },
+   {
+    "effect": "-",
+    "factor": "no recorded decision says it is risky",
+    "node_id": null
+   },
+   {
+    "effect": "-",
+    "factor": "no past incident with the same cause",
+    "node_id": null
+   }
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "ungrounded_ids": [],
+  "errors": []
+ },
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 4,
+  "tool_calls": 10,
+  "duration_ms": 17
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:appointments"
+   },
+   "result": {
+    "service": "svc:appointments",
+    "scope": [
+     "svc:appointments",
+     "svc:notifications",
+     "svc:scheduler-db",
+     "svc:sms-gateway"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:appointments",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 1
+  },
+  {
+   "seq": 2,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120,
+    "limit": 30
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 1,
+    "changes": [
+     {
+      "service": "svc:sms-gateway",
+      "tier": 3,
+      "deploy": {
+       "id": "dep:sms-gateway-v1.8.0",
+       "version": "1.8.0",
+       "ts": 1792174306,
+       "minutes_ago": 15,
+       "summary": "Automated provider SDK upgrade 2.x -> 3.0",
+       "by": null
+      },
+      "deployer_id": null,
+      "deployer_status": null,
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 30
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792168006,
+       "limit": 31
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:sms-gateway-v1.8.0",
+      "svc:sms-gateway"
+     ],
+     "edges": [
+      {
+       "from": "dep:sms-gateway-v1.8.0",
+       "type": "CHANGED",
+       "to": "svc:sms-gateway"
+      }
+     ]
+    }
+   },
+   "why": "list every recent change in the company: each one is a lead",
+   "summary": "recent_changes → 1 change(s) in 120 min: sms-gateway 15 min ago",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 1
+  },
+  {
+   "seq": 3,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:appointments",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:appointments",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:sms-gateway",
+      "hops": 2,
+      "path": [
+       "svc:appointments",
+       "svc:notifications",
+       "svc:sms-gateway"
+      ],
+      "edge_sources": [
+       "declared",
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:sms-gateway-v1.8.0",
+       "version": "1.8.0",
+       "ts": 1792174306,
+       "minutes_ago": 15,
+       "summary": "Automated provider SDK upgrade 2.x -> 3.0",
+       "by": null
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:appointments",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:appointments",
+       "since": 1792168006
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:appointments",
+       "to": "svc:sms-gateway",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments",
+      "svc:notifications",
+      "svc:sms-gateway",
+      "dep:sms-gateway-v1.8.0"
+     ],
+     "edges": [
+      {
+       "from": "svc:appointments",
+       "type": "DEPENDS_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "svc:notifications",
+       "type": "DEPENDS_ON",
+       "to": "svc:sms-gateway"
+      },
+      {
+       "from": "dep:sms-gateway-v1.8.0",
+       "type": "CHANGED",
+       "to": "svc:sms-gateway"
+      }
+     ]
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → 1 hit(s): sms-gateway (deployed 15 min ago by None)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 4,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:appointments",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:appointments",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:appointments",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:appointments",
+       "since": 1792168006,
+       "downstream": [
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 5,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:appointments"
+   },
+   "result": {
+    "service": "svc:appointments",
+    "max_hops": 4,
+    "upstream_count": 1,
+    "tier1_count": 1,
+    "upstream": [
+     {
+      "id": "svc:patient-portal",
+      "tier": 1,
+      "team": "Patient Experience",
+      "hops": 1
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:appointments",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:appointments"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal",
+      "svc:appointments"
+     ],
+     "edges": [
+      {
+       "from": "svc:patient-portal",
+       "type": "DEPENDS_ON",
+       "to": "svc:appointments"
+      }
+     ]
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 1 upstream (1 tier-1)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 6,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:sms-gateway"
+   },
+   "result": {
+    "service": "svc:sms-gateway",
+    "maintainers": [
+     {
+      "id": "per:owen-bryce",
+      "name": "Owen Bryce",
+      "status": "left",
+      "left_days_ago": 120
+     }
+    ],
+    "bus_factor_risk": true,
+    "bus_factor_reasons": [
+     "maintainer Owen Bryce has left",
+     "only 0 active person has worked on this service"
+    ],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [],
+    "owning_team_fallback": {
+     "id": "team:clinical-platform",
+     "name": "Clinical Platform",
+     "active_members": [
+      "Maya Okoro",
+      "Sam Reyes",
+      "Hana Sato",
+      "Victor Lund"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:sms-gateway"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:sms-gateway"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:sms-gateway"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:sms-gateway"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:sms-gateway"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:sms-gateway"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:owen-bryce",
+      "svc:sms-gateway",
+      "team:clinical-platform"
+     ],
+     "edges": [
+      {
+       "from": "per:owen-bryce",
+       "type": "MAINTAINS",
+       "to": "svc:sms-gateway"
+      },
+      {
+       "from": "team:clinical-platform",
+       "type": "OWNS",
+       "to": "svc:sms-gateway"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: None (score None); maintainer Owen Bryce LEFT",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 7,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "decisions_about",
+   "args": {
+    "service_id": "svc:sms-gateway"
+   },
+   "result": {
+    "service": "svc:sms-gateway",
+    "decisions": [],
+    "note": "no recorded decisions about this service"
+   },
+   "receipt": {
+    "tool": "decisions_about",
+    "args": {
+     "service_id": "svc:sms-gateway"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
+      "params": {
+       "id": "svc:sms-gateway"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does the change contradict a recorded decision?",
+   "summary": "decisions_about → 0 decision(s)",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 3
+  },
+  {
+   "seq": 8,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "rollback_safety",
+   "args": {
+    "deploy_id": "dep:sms-gateway-v1.8.0"
+   },
+   "result": {
+    "deploy": "dep:sms-gateway-v1.8.0",
+    "service": "svc:sms-gateway",
+    "service_tier": 3,
+    "version": "1.8.0",
+    "later_deploys": [],
+    "dependents": 4,
+    "tier1_dependents": 3,
+    "hard_to_undo_terms": [],
+    "verdict": "safe",
+    "reasons": [
+     "nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
+    ],
+    "blast_of_rollback": "4 service(s) call sms-gateway (directly or not), 3 of them tier-1: they briefly see the old version"
+   },
+   "receipt": {
+    "tool": "rollback_safety",
+    "args": {
+     "deploy_id": "dep:sms-gateway-v1.8.0"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
+      "params": {
+       "id": "dep:sms-gateway-v1.8.0"
+      }
+     },
+     {
+      "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
+      "params": {
+       "sid": "svc:sms-gateway",
+       "ts": 1792174306
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
+      "params": {
+       "sid": "svc:sms-gateway"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:sms-gateway-v1.8.0",
+      "svc:sms-gateway"
+     ],
+     "edges": [
+      {
+       "from": "dep:sms-gateway-v1.8.0",
+       "type": "CHANGED",
+       "to": "svc:sms-gateway"
+      }
+     ]
+    }
+   },
+   "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
+   "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 9,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "stale_knowledge",
+   "args": {
+    "service_id": "svc:sms-gateway"
+   },
+   "result": {
+    "service": "svc:sms-gateway",
+    "stale_count": 0,
+    "items": []
+   },
+   "receipt": {
+    "tool": "stale_knowledge",
+    "args": {
+     "service_id": "svc:sms-gateway"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
+      "params": {
+       "sid": "svc:sms-gateway"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "which docs and runbooks are out of date?",
+   "summary": "stale_knowledge → 0 stale: ",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 10,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:appointments",
+     "svc:sms-gateway"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:appointments",
+     "svc:sms-gateway"
+    ],
+    "incident_count": 1,
+    "incidents": [
+     {
+      "id": "inc:nw-2025-14",
+      "key": "INC-NW-2025-14",
+      "title": "Appointment reminders stopped: SMS provider throttled us",
+      "severity": 2,
+      "started": "2025-12-20",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:retry-storm"
+      ],
+      "resolution": "Restored the 3-attempt cap with backoff",
+      "resolved_by": [
+       "Owen Bryce"
+      ],
+      "resolution_sources": [
+       "tkt:PM-NW-2025-14"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:appointments",
+      "svc:sms-gateway"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:nw-2025-14"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:nw-2025-14",
+      "rc:retry-storm",
+      "svc:appointments",
+      "res:nw-2025-14",
+      "per:owen-bryce",
+      "tkt:PM-NW-2025-14"
+     ],
+     "edges": [
+      {
+       "from": "inc:nw-2025-14",
+       "type": "AFFECTED",
+       "to": "svc:appointments"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:retry-storm"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "RESOLVED_BY",
+       "to": "res:nw-2025-14"
+      },
+      {
+       "from": "res:nw-2025-14",
+       "type": "PERFORMED_BY",
+       "to": "per:owen-bryce"
+      },
+      {
+       "from": "res:nw-2025-14",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-NW-2025-14"
+      }
+     ]
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 11,
+   "agent": "firefighter",
+   "action": "answer",
+   "tool": "submit_report",
+   "args": {
+    "summary": "appointments alert most likely caused by dep:sms-gateway-v1.8.0 on sms-gateway, deployed 15 min ago. Escalate to team:clinical-platform.",
+    "likely_cause": {
+     "service_id": "svc:sms-gateway",
+     "deploy_id": "dep:sms-gateway-v1.8.0",
+     "ticket_key": null,
+     "path": [
+      "svc:appointments",
+      "svc:notifications",
+      "svc:sms-gateway"
+     ],
+     "explanation": "Automated provider SDK upgrade 2.x -> 3.0 (dep:sms-gateway-v1.8.0, deployed 15 min ago). appointments calls sms-gateway via declared dependencies: appointments -> notifications -> sms-gateway."
+    },
+    "blast_radius": [
+     "svc:patient-portal"
+    ],
+    "contact": {
+     "person_id": null,
+     "name": null,
+     "team_id": "team:clinical-platform",
+     "reason": "no active person has worked on sms-gateway; escalate to the owning team Clinical Platform (team:clinical-platform)"
+    },
+    "bus_factor_warning": "maintainer Owen Bryce has left and no active person has worked on sms-gateway. Do not page Owen Bryce; escalate to Clinical Platform.",
+    "conflicting_decision": null,
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "dep:sms-gateway-v1.8.0",
+      "claim": "sms-gateway deployed 15 min ago: Automated provider SDK upgrade 2.x -> 3.0"
+     },
+     {
+      "node_id": "team:clinical-platform",
+      "claim": "no active person has worked on sms-gateway; escalate to the owning team Clinical Platform (team:clinical-platform)"
+     },
+     {
+      "node_id": "svc:appointments",
+      "claim": "1 upstream services (1 tier-1) are exposed."
+     }
+    ],
+    "recommended_actions": [
+     "Roll back dep:sms-gateway-v1.8.0 on sms-gateway.",
+     "Escalate to team team:clinical-platform; nobody active owns this service."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "industry_pattern": null,
+    "rejected_leads": [],
+    "action_plan": [
+     {
+      "id": "A1",
+      "incident": 0,
+      "kind": "rollback",
+      "target": "dep:sms-gateway-v1.8.0",
+      "title": "Roll back dep:sms-gateway-v1.8.0 on sms-gateway",
+      "justification": {
+       "why": "Automated provider SDK upgrade 2.x -> 3.0 (dep:sms-gateway-v1.8.0, deployed 15 min ago). appointments calls sms-gateway via declared dependencies: appointments -> notifications -> sms-gateway.",
+       "node_ids": [
+        "dep:sms-gateway-v1.8.0",
+        "svc:sms-gateway",
+        "svc:appointments",
+        "svc:notifications",
+        "svc:sms-gateway"
+       ],
+       "path": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:sms-gateway"
+       ]
+      },
+      "safety": {
+       "verdict": "safe",
+       "reasons": [
+        "nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
+       ],
+       "dependents": 4,
+       "later_deploys": [],
+       "blast": "4 service(s) call sms-gateway (directly or not), 3 of them tier-1: they briefly see the old version"
+      }
+     },
+     {
+      "id": "A2",
+      "incident": 0,
+      "kind": "escalate",
+      "target": "team:clinical-platform",
+      "title": "Escalate to team:clinical-platform (nobody active to page)",
+      "justification": {
+       "why": "no active person has worked on sms-gateway; escalate to the owning team Clinical Platform (team:clinical-platform)",
+       "node_ids": [
+        "team:clinical-platform"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A3",
+      "incident": 0,
+      "kind": "open_ticket",
+      "target": "svc:sms-gateway",
+      "title": "Open a follow-up ticket for sms-gateway",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:sms-gateway"
+       ],
+       "path": []
+      },
+      "safety": null
+     }
+    ],
+    "hypotheses": [
+     {
+      "id": "H1",
+      "claim": "dep:sms-gateway-v1.8.0 on sms-gateway caused the appointments alert",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "dep:sms-gateway-v1.8.0",
+        "claim": "deployed 15 min ago: Automated provider SDK upgrade 2.x -> 3.0"
+       },
+       {
+        "node_id": "svc:notifications",
+        "claim": "on the path appointments -> notifications -> sms-gateway"
+       },
+       {
+        "node_id": "svc:sms-gateway",
+        "claim": "on the path appointments -> notifications -> sms-gateway"
+       }
+      ],
+      "contradicting": [],
+      "reason": "a change on the call path (2 hops)"
+     }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "the change is on the alert's call path (2 hops)",
+      "node_id": "dep:sms-gateway-v1.8.0"
+     },
+     {
+      "effect": "-",
+      "factor": "no recorded decision says it is risky",
+      "node_id": null
+     },
+     {
+      "effect": "-",
+      "factor": "no past incident with the same cause",
+      "node_id": null
+     }
+    ]
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "appointments alert most likely caused by dep:sms-gateway-v1.8.0 on sms-gateway, deployed 15 min ago. Escalate to team:clinical-platform.",
+     "likely_cause": {
+      "service_id": "svc:sms-gateway",
+      "deploy_id": "dep:sms-gateway-v1.8.0",
+      "ticket_key": null,
+      "path": [
+       "svc:appointments",
+       "svc:notifications",
+       "svc:sms-gateway"
+      ],
+      "explanation": "Automated provider SDK upgrade 2.x -> 3.0 (dep:sms-gateway-v1.8.0, deployed 15 min ago). appointments calls sms-gateway via declared dependencies: appointments -> notifications -> sms-gateway."
+     },
+     "blast_radius": [
+      "svc:patient-portal"
+     ],
+     "contact": {
+      "person_id": null,
+      "name": null,
+      "team_id": "team:clinical-platform",
+      "reason": "no active person has worked on sms-gateway; escalate to the owning team Clinical Platform (team:clinical-platform)"
+     },
+     "bus_factor_warning": "maintainer Owen Bryce has left and no active person has worked on sms-gateway. Do not page Owen Bryce; escalate to Clinical Platform.",
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "evidence": [
+      {
+       "node_id": "dep:sms-gateway-v1.8.0",
+       "claim": "sms-gateway deployed 15 min ago: Automated provider SDK upgrade 2.x -> 3.0"
+      },
+      {
+       "node_id": "team:clinical-platform",
+       "claim": "no active person has worked on sms-gateway; escalate to the owning team Clinical Platform (team:clinical-platform)"
+      },
+      {
+       "node_id": "svc:appointments",
+       "claim": "1 upstream services (1 tier-1) are exposed."
+      }
+     ],
+     "recommended_actions": [
+      "Roll back dep:sms-gateway-v1.8.0 on sms-gateway.",
+      "Escalate to team team:clinical-platform; nobody active owns this service."
+     ],
+     "confidence": "medium",
+     "look_first": null,
+     "industry_pattern": null,
+     "rejected_leads": [],
+     "action_plan": [
+      {
+       "id": "A1",
+       "incident": 0,
+       "kind": "rollback",
+       "target": "dep:sms-gateway-v1.8.0",
+       "title": "Roll back dep:sms-gateway-v1.8.0 on sms-gateway",
+       "justification": {
+        "why": "Automated provider SDK upgrade 2.x -> 3.0 (dep:sms-gateway-v1.8.0, deployed 15 min ago). appointments calls sms-gateway via declared dependencies: appointments -> notifications -> sms-gateway.",
+        "node_ids": [
+         "dep:sms-gateway-v1.8.0",
+         "svc:sms-gateway",
+         "svc:appointments",
+         "svc:notifications",
+         "svc:sms-gateway"
+        ],
+        "path": [
+         "svc:appointments",
+         "svc:notifications",
+         "svc:sms-gateway"
+        ]
+       },
+       "safety": {
+        "verdict": "safe",
+        "reasons": [
+         "nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
+        ],
+        "dependents": 4,
+        "later_deploys": [],
+        "blast": "4 service(s) call sms-gateway (directly or not), 3 of them tier-1: they briefly see the old version"
+       }
+      },
+      {
+       "id": "A2",
+       "incident": 0,
+       "kind": "escalate",
+       "target": "team:clinical-platform",
+       "title": "Escalate to team:clinical-platform (nobody active to page)",
+       "justification": {
+        "why": "no active person has worked on sms-gateway; escalate to the owning team Clinical Platform (team:clinical-platform)",
+        "node_ids": [
+         "team:clinical-platform"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A3",
+       "incident": 0,
+       "kind": "open_ticket",
+       "target": "svc:sms-gateway",
+       "title": "Open a follow-up ticket for sms-gateway",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:sms-gateway"
+        ],
+        "path": []
+       },
+       "safety": null
+      }
+     ],
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "dep:sms-gateway-v1.8.0 on sms-gateway caused the appointments alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:sms-gateway-v1.8.0",
+         "claim": "deployed 15 min ago: Automated provider SDK upgrade 2.x -> 3.0"
+        },
+        {
+         "node_id": "svc:notifications",
+         "claim": "on the path appointments -> notifications -> sms-gateway"
+        },
+        {
+         "node_id": "svc:sms-gateway",
+         "claim": "on the path appointments -> notifications -> sms-gateway"
+        }
+       ],
+       "contradicting": [],
+       "reason": "a change on the call path (2 hops)"
+      }
+     ],
+     "confidence_breakdown": [
+      {
+       "effect": "+",
+       "factor": "the change is on the alert's call path (2 hops)",
+       "node_id": "dep:sms-gateway-v1.8.0"
+      },
+      {
+       "effect": "-",
+       "factor": "no recorded decision says it is risky",
+       "node_id": null
+      },
+      {
+       "effect": "-",
+       "factor": "no past incident with the same cause",
+       "node_id": null
+      }
+     ]
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "dep:sms-gateway-v1.8.0",
+      "svc:appointments",
+      "svc:notifications",
+      "svc:patient-portal",
+      "svc:sms-gateway",
+      "team:clinical-platform"
+     ],
+     "edges": []
+    }
+   },
+   "why": "the evidence is in: submit the grounded report",
+   "summary": "appointments alert most likely caused by dep:sms-gateway-v1.8.0 on sms-gateway, deployed 15 min ago. Escalate to team:clinical-platform.",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 4
+  }
+ ],
+ "twin": "northwind_health__eval_play",
+ "scenario": "n-departed",
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:clinical-platform",
+    "label": "Team",
+    "name": "Clinical Platform",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Clinical Platform"
+    }
+   },
+   {
+    "id": "per:owen-bryce",
+    "label": "Person",
+    "name": "Owen Bryce",
+    "origin": "seed",
+    "props": {
+     "status": "left",
+     "origin": "seed",
+     "name": "Owen Bryce",
+     "role": "Senior Engineer",
+     "email": "owen.bryce@northwind.example",
+     "joined_at": 1628015206,
+     "left_at": 1781807206
+    }
+   },
+   {
+    "id": "svc:patient-portal",
+    "label": "Service",
+    "name": "patient-portal",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "patient-portal",
+     "description": "Web and mobile portal where patients book visits and view results.",
+     "tier": 1,
+     "language": "TypeScript",
+     "repo_url": "https://git.northwind.example/patient-portal"
+    }
+   },
+   {
+    "id": "svc:appointments",
+    "label": "Service",
+    "name": "appointments",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "appointments",
+     "description": "Books, moves and cancels appointments; sends reminder requests.",
+     "tier": 1,
+     "language": "Kotlin",
+     "repo_url": "https://git.northwind.example/appointments"
+    }
+   },
+   {
+    "id": "svc:notifications",
+    "label": "Service",
+    "name": "notifications",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "notifications",
+     "description": "Sends appointment reminders and result alerts by SMS and email.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/notifications"
+    }
+   },
+   {
+    "id": "svc:scheduler-db",
+    "label": "Service",
+    "name": "scheduler-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "scheduler-db",
+     "description": "Database behind appointments.",
+     "tier": 2,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.northwind.example/scheduler-db"
+    }
+   },
+   {
+    "id": "svc:sms-gateway",
+    "label": "Service",
+    "name": "sms-gateway",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "sms-gateway",
+     "description": "Thin wrapper around the SMS provider.",
+     "tier": 3,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/sms-gateway"
+    }
+   },
+   {
+    "id": "tkt:PM-NW-2025-14",
+    "label": "Ticket",
+    "name": "PM-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: SMS provider throttled our account",
+     "text": "Unbounded retries in notifications v3.1.0 flooded the SMS provider, which throttled the account for 3 hours. Appointment reminders stopped. Resolution: restored the 3-attempt cap with backoff and drained the retry queue.",
+     "key": "PM-NW-2025-14",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "rc:retry-storm",
+    "label": "RootCause",
+    "name": "Retry storm against an external provider",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Retry storm against an external provider",
+     "description": "Immediate, unbounded retries amplify a provider timeout until the provider throttles us."
+    }
+   },
+   {
+    "id": "inc:nw-2025-14",
+    "label": "Incident",
+    "name": "INC-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "started_at": 1766255206,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "Appointment reminders stopped: SMS provider throttled us",
+     "summary": "notifications v3.1.0 retried SMS without limit on provider timeouts; the provider throttled the account.",
+     "key": "INC-NW-2025-14",
+     "severity": 2,
+     "symptom": "appointment reminder SMS not sent; provider 429s",
+     "resolved_at": 1766258806
+    }
+   },
+   {
+    "id": "res:nw-2025-14",
+    "label": "Resolution",
+    "name": "Restored the 3-attempt cap with backoff",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Restored the 3-attempt cap with backoff",
+     "steps": "1. Restored the 3-attempt cap with backoff."
+    }
+   },
+   {
+    "id": "dep:sms-gateway-v1.8.0",
+    "label": "Deploy",
+    "name": "1.8.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792174306,
+     "origin": "seed",
+     "summary": "Automated provider SDK upgrade 2.x -> 3.0",
+     "version": "1.8.0"
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:clinical-platform",
+    "type": "OWNS",
+    "target": "svc:sms-gateway",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:owen-bryce",
+    "type": "MAINTAINS",
+    "target": "svc:sms-gateway",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "svc:patient-portal",
+    "type": "DEPENDS_ON",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:appointments",
+    "type": "DEPENDS_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:appointments",
+    "type": "DEPENDS_ON",
+    "target": "svc:scheduler-db",
+    "origin": "seed",
+    "props": {
+     "kind": "db",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:notifications",
+    "type": "DEPENDS_ON",
+    "target": "svc:sms-gateway",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "AFFECTED",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:retry-storm",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "RESOLVED_BY",
+    "target": "res:nw-2025-14",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2025-14",
+    "type": "PERFORMED_BY",
+    "target": "per:owen-bryce",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2025-14",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: restored the 3-attempt cap with backoff and drained the retry queue."
+    }
+   },
+   {
+    "source": "dep:sms-gateway-v1.8.0",
+    "type": "CHANGED",
+    "target": "svc:sms-gateway",
+    "origin": "seed",
+    "props": {}
+   }
+  ],
+  "base": [
+   "svc:appointments",
+   "svc:notifications",
+   "svc:patient-portal",
+   "svc:scheduler-db"
+  ],
+  "alert": "svc:appointments"
+ },
+ "execution": {
+  "session_id": "ses:exec-run-c6231c0d2ab3",
+  "already_executed": false,
+  "results": [
+   {
+    "action": "A1",
+    "kind": "rollback",
+    "title": "Roll back dep:sms-gateway-v1.8.0 on sms-gateway",
+    "ok": true,
+    "summary": "rolled back dep:sms-gateway-v1.8.0 (simulated): wrote dep:sms-gateway-v1.8.0-rollback"
+   },
+   {
+    "action": "A2",
+    "kind": "escalate",
+    "title": "Escalate to team:clinical-platform (nobody active to page)",
+    "ok": true,
+    "summary": "Escalate to team:clinical-platform (nobody active to page): no active person has worked on sms-gateway; escalate to the owning team Clinical Platform (team:clinical-platform)"
+   },
+   {
+    "action": "A3",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for sms-gateway",
+    "ok": true,
+    "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: sms-gateway"
+   }
+  ],
+  "incidents": [
+   "inc:2026-001"
+  ],
+  "verification": {
+   "checks": [
+    {
+     "incident": 0,
+     "cleared": true,
+     "tool": "recent_changes_downstream",
+     "queries": [
+      {
+       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+       "params": {
+        "id": "svc:appointments",
+        "since": 1792168006
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:appointments",
+        "to": "svc:sms-gateway",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:appointments",
+        "to": "svc:sms-gateway",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      }
+     ],
+     "summary": "the newest change on svc:sms-gateway is now the rollback (dep:sms-gateway-v1.8.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+    }
+   ],
+   "all_cleared": true,
+   "simulated": true
+  }
+ }
+}

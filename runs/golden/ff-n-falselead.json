@@ -1,0 +1,2100 @@
+{
+ "run_id": "run-30b14b98ce5a",
+ "agent": "firefighter",
+ "tenant": "northwind_health__eval_play",
+ "alert": {
+  "service_id": "svc:lab-results",
+  "symptom": "result publishing p99 6s; results page timing out"
+ },
+ "mode": "mock",
+ "model": "mock",
+ "started_at": 1792175206,
+ "status": "ok",
+ "report": {
+  "summary": "lab-results alert most likely caused by dep:records-db-v15.2.0 on records-db, deployed 40 min ago. The change contradicts decision dec:results-index. Contact Maya Okoro.",
+  "likely_cause": {
+   "service_id": "svc:records-db",
+   "deploy_id": "dep:records-db-v15.2.0",
+   "ticket_key": null,
+   "path": [
+    "svc:lab-results",
+    "svc:records-db"
+   ],
+   "explanation": "Rebuild the visit table without the old visit_id index (dep:records-db-v15.2.0, deployed 40 min ago by Hana Sato). lab-results calls records-db via declared dependencies: lab-results -> records-db."
+  },
+  "blast_radius": [
+   "svc:patient-portal"
+  ],
+  "contact": {
+   "person_id": "per:maya-okoro",
+   "name": "Maya Okoro",
+   "reason": "0 commits, 1 past incident fix(es) on records-db (score 25)"
+  },
+  "bus_factor_warning": "only 1 active person has worked on this service. Page Maya Okoro instead.",
+  "conflicting_decision": {
+   "decision_id": "dec:results-index",
+   "source_id": "tkt:PM-NW-2026-03",
+   "excerpt": "Resolution: added the missing index on visit_id and re-ran the report backfill.",
+   "how_it_conflicts": "The change (Rebuild the visit table without the old visit_id index) contradicts \"Every records-db migration recreates the visit_id index\", decided by Maya Okoro."
+  },
+  "similar_past_incidents": [],
+  "evidence": [
+   {
+    "node_id": "dep:records-db-v15.2.0",
+    "claim": "records-db deployed 40 min ago: Rebuild the visit table without the old visit_id index"
+   },
+   {
+    "node_id": "dec:results-index",
+    "claim": "Decision \"Every records-db migration recreates the visit_id index\" (2026-08-19), source tkt:PM-NW-2026-03."
+   },
+   {
+    "node_id": "per:maya-okoro",
+    "claim": "Best active contact: 0 commits, 1 past incident fix(es) on records-db (score 25)."
+   },
+   {
+    "node_id": "svc:lab-results",
+    "claim": "1 upstream services (1 tier-1) are exposed."
+   }
+  ],
+  "recommended_actions": [
+   "Hold the rollback of dep:records-db-v15.2.0: the change looks hard to undo (rebuild): rolling the code back may not undo the data; page the owner first.",
+   "Page Maya Okoro (per:maya-okoro).",
+   "Restore the setting required by dec:results-index before re-shipping."
+  ],
+  "confidence": "medium",
+  "look_first": null,
+  "industry_pattern": null,
+  "rejected_leads": [
+   {
+    "deploy_id": "dep:scheduler-db-v14.9.0",
+    "service_id": "svc:scheduler-db",
+    "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+   },
+   {
+    "deploy_id": "dep:identity-v5.4.0",
+    "service_id": "svc:identity",
+    "reason": "identity is not called by lab-results but shares audit-trail (3 callers) with it (audit-trail is a narrow dependency (3 services call it)), but records-db changed on lab-results's own call path, a more direct explanation"
+   }
+  ],
+  "action_plan": [
+   {
+    "id": "A1",
+    "incident": 0,
+    "kind": "hold",
+    "target": "dep:records-db-v15.2.0",
+    "title": "Hold the rollback of dep:records-db-v15.2.0 (risky): page the owner first",
+    "justification": {
+     "why": "Rebuild the visit table without the old visit_id index (dep:records-db-v15.2.0, deployed 40 min ago by Hana Sato). lab-results calls records-db via declared dependencies: lab-results -> records-db.",
+     "node_ids": [
+      "dep:records-db-v15.2.0",
+      "svc:records-db",
+      "svc:lab-results",
+      "svc:records-db"
+     ],
+     "path": [
+      "svc:lab-results",
+      "svc:records-db"
+     ]
+    },
+    "safety": {
+     "verdict": "risky",
+     "reasons": [
+      "the change looks hard to undo (rebuild): rolling the code back may not undo the data"
+     ],
+     "dependents": 2,
+     "later_deploys": [],
+     "blast": "2 service(s) call records-db (directly or not), 2 of them tier-1: they briefly see the old version"
+    }
+   },
+   {
+    "id": "A2",
+    "incident": 0,
+    "kind": "page",
+    "target": "per:maya-okoro",
+    "title": "Page Maya Okoro",
+    "justification": {
+     "why": "0 commits, 1 past incident fix(es) on records-db (score 25)",
+     "node_ids": [
+      "per:maya-okoro",
+      "svc:records-db"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A3",
+    "incident": 0,
+    "kind": "open_ticket",
+    "target": "svc:records-db",
+    "title": "Open a follow-up ticket for records-db",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:records-db"
+     ],
+     "path": []
+    },
+    "safety": null
+   }
+  ],
+  "hypotheses": [
+   {
+    "id": "H1",
+    "claim": "dep:records-db-v15.2.0 on records-db caused the lab-results alert",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "dep:records-db-v15.2.0",
+      "claim": "deployed 40 min ago: Rebuild the visit table without the old visit_id index"
+     },
+     {
+      "node_id": "svc:records-db",
+      "claim": "on the path lab-results -> records-db"
+     },
+     {
+      "node_id": "dec:results-index",
+      "claim": "the change contradicts this recorded decision"
+     }
+    ],
+    "contradicting": [],
+    "reason": "a change on the call path (1 hop)"
+   },
+   {
+    "id": "H2",
+    "claim": "dep:scheduler-db-v14.9.0 on scheduler-db caused it",
+    "status": "rejected",
+    "supporting": [
+     {
+      "node_id": "dep:scheduler-db-v14.9.0",
+      "claim": "deployed 4 min ago: Vacuum settings tuned for the booking table"
+     }
+    ],
+    "contradicting": [
+     {
+      "node_id": "svc:scheduler-db",
+      "claim": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+     }
+    ],
+    "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+   },
+   {
+    "id": "H3",
+    "claim": "dep:identity-v5.4.0 on identity caused it",
+    "status": "rejected",
+    "supporting": [
+     {
+      "node_id": "dep:identity-v5.4.0",
+      "claim": "deployed 10 min ago: Longer session refresh window"
+     }
+    ],
+    "contradicting": [
+     {
+      "node_id": "svc:identity",
+      "claim": "identity is not called by lab-results but shares audit-trail (3 callers) with it (audit-trail is a narrow dependency (3 services call it)), but records-db changed on lab-results's own call path, a more direct explanation"
+     }
+    ],
+    "reason": "identity is not called by lab-results but shares audit-trail (3 callers) with it (audit-trail is a narrow dependency (3 services call it)), but records-db changed on lab-results's own call path, a more direct explanation"
+   }
+  ],
+  "confidence_breakdown": [
+   {
+    "effect": "+",
+    "factor": "the change is on the alert's call path (1 hop)",
+    "node_id": "dep:records-db-v15.2.0"
+   },
+   {
+    "effect": "+",
+    "factor": "it contradicts a recorded decision",
+    "node_id": "dec:results-index"
+   },
+   {
+    "effect": "-",
+    "factor": "no past incident with the same cause",
+    "node_id": null
+   }
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "ungrounded_ids": [],
+  "errors": []
+ },
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 4,
+  "tool_calls": 10,
+  "duration_ms": 18
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:lab-results"
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "scope": [
+     "svc:lab-results",
+     "svc:notifications",
+     "svc:records-db",
+     "svc:audit-trail",
+     "svc:sms-gateway"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:lab-results",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:lab-results"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 1
+  },
+  {
+   "seq": 2,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120,
+    "limit": 30
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 3,
+    "changes": [
+     {
+      "service": "svc:scheduler-db",
+      "tier": 2,
+      "deploy": {
+       "id": "dep:scheduler-db-v14.9.0",
+       "version": "14.9.0",
+       "ts": 1792174966,
+       "minutes_ago": 4,
+       "summary": "Vacuum settings tuned for the booking table",
+       "by": "Tariq Hassan"
+      },
+      "deployer_id": "per:tariq-hassan",
+      "deployer_status": "active",
+      "ticket": null
+     },
+     {
+      "service": "svc:identity",
+      "tier": 1,
+      "deploy": {
+       "id": "dep:identity-v5.4.0",
+       "version": "5.4.0",
+       "ts": 1792174606,
+       "minutes_ago": 10,
+       "summary": "Longer session refresh window",
+       "by": "Hana Sato"
+      },
+      "deployer_id": "per:hana-sato",
+      "deployer_status": "active",
+      "ticket": null
+     },
+     {
+      "service": "svc:records-db",
+      "tier": 1,
+      "deploy": {
+       "id": "dep:records-db-v15.2.0",
+       "version": "15.2.0",
+       "ts": 1792172806,
+       "minutes_ago": 40,
+       "summary": "Rebuild the visit table without the old visit_id index",
+       "by": "Hana Sato"
+      },
+      "deployer_id": "per:hana-sato",
+      "deployer_status": "active",
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 30
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792168006,
+       "limit": 31
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:scheduler-db-v14.9.0",
+      "svc:scheduler-db",
+      "per:tariq-hassan",
+      "dep:identity-v5.4.0",
+      "svc:identity",
+      "per:hana-sato",
+      "dep:records-db-v15.2.0",
+      "svc:records-db"
+     ],
+     "edges": [
+      {
+       "from": "dep:scheduler-db-v14.9.0",
+       "type": "CHANGED",
+       "to": "svc:scheduler-db"
+      },
+      {
+       "from": "per:tariq-hassan",
+       "type": "DEPLOYED",
+       "to": "dep:scheduler-db-v14.9.0"
+      },
+      {
+       "from": "dep:identity-v5.4.0",
+       "type": "CHANGED",
+       "to": "svc:identity"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "DEPLOYED",
+       "to": "dep:identity-v5.4.0"
+      },
+      {
+       "from": "dep:records-db-v15.2.0",
+       "type": "CHANGED",
+       "to": "svc:records-db"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "DEPLOYED",
+       "to": "dep:records-db-v15.2.0"
+      }
+     ]
+    }
+   },
+   "why": "list every recent change in the company: each one is a lead",
+   "summary": "recent_changes → 3 change(s) in 120 min: scheduler-db 4 min ago, identity 10 min ago, records-db 40 min ago",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 1
+  },
+  {
+   "seq": 3,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:lab-results",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:records-db",
+      "hops": 1,
+      "path": [
+       "svc:lab-results",
+       "svc:records-db"
+      ],
+      "edge_sources": [
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:records-db-v15.2.0",
+       "version": "15.2.0",
+       "ts": 1792172806,
+       "minutes_ago": 40,
+       "summary": "Rebuild the visit table without the old visit_id index",
+       "by": "Hana Sato"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:lab-results",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:lab-results",
+       "since": 1792168006
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:lab-results",
+       "to": "svc:records-db",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:lab-results",
+      "svc:records-db",
+      "dep:records-db-v15.2.0",
+      "per:hana-sato"
+     ],
+     "edges": [
+      {
+       "from": "svc:lab-results",
+       "type": "DEPENDS_ON",
+       "to": "svc:records-db"
+      },
+      {
+       "from": "dep:records-db-v15.2.0",
+       "type": "CHANGED",
+       "to": "svc:records-db"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "DEPLOYED",
+       "to": "dep:records-db-v15.2.0"
+      }
+     ]
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → 1 hit(s): records-db (deployed 40 min ago by Hana Sato)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 4,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:lab-results",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "neighbour": "svc:identity",
+      "shared": "svc:audit-trail",
+      "deploy": {
+       "id": "dep:identity-v5.4.0",
+       "version": "5.4.0",
+       "ts": 1792174606,
+       "minutes_ago": 10,
+       "summary": "Longer session refresh window",
+       "by": "Hana Sato"
+      },
+      "ticket": null,
+      "path_to_shared": [
+       "svc:lab-results",
+       "svc:audit-trail"
+      ],
+      "path_to_shared_sources": [
+       "declared"
+      ],
+      "neighbour_path": [
+       "svc:identity",
+       "svc:audit-trail"
+      ],
+      "neighbour_path_sources": [
+       "declared"
+      ],
+      "uses_learned_edge": false,
+      "shared_callers": 3
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:lab-results",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:lab-results",
+       "since": 1792168006,
+       "downstream": [
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
+      "params": {
+       "ids": [
+        "svc:audit-trail"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:lab-results",
+      "svc:audit-trail",
+      "svc:identity",
+      "dep:identity-v5.4.0",
+      "per:hana-sato"
+     ],
+     "edges": [
+      {
+       "from": "svc:lab-results",
+       "type": "DEPENDS_ON",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "svc:identity",
+       "type": "DEPENDS_ON",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "dep:identity-v5.4.0",
+       "type": "CHANGED",
+       "to": "svc:identity"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "DEPLOYED",
+       "to": "dep:identity-v5.4.0"
+      }
+     ]
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → 1 hit(s): identity via shared audit-trail, deployed 10 min ago",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 5,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:lab-results"
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "max_hops": 4,
+    "upstream_count": 1,
+    "tier1_count": 1,
+    "upstream": [
+     {
+      "id": "svc:patient-portal",
+      "tier": 1,
+      "team": "Patient Experience",
+      "hops": 1
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:lab-results",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal",
+      "svc:lab-results"
+     ],
+     "edges": [
+      {
+       "from": "svc:patient-portal",
+       "type": "DEPENDS_ON",
+       "to": "svc:lab-results"
+      }
+     ]
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 1 upstream (1 tier-1)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 6,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:records-db"
+   },
+   "result": {
+    "service": "svc:records-db",
+    "maintainers": [
+     {
+      "id": "per:hana-sato",
+      "name": "Hana Sato",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": true,
+    "bus_factor_reasons": [
+     "only 1 active person has worked on this service"
+    ],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "role": "Senior Engineer",
+      "commits": 0,
+      "last_commit_days_ago": null,
+      "resolutions": 1,
+      "score": 25
+     },
+     {
+      "id": "per:hana-sato",
+      "name": "Hana Sato",
+      "role": "Site Reliability Engineer",
+      "commits": 20,
+      "last_commit_days_ago": 60,
+      "resolutions": 0,
+      "score": 20
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:clinical-platform",
+     "name": "Clinical Platform",
+     "active_members": [
+      "Maya Okoro",
+      "Sam Reyes",
+      "Hana Sato",
+      "Victor Lund"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:records-db"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:records-db"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:records-db"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:records-db"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:records-db"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:records-db"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:hana-sato",
+      "svc:records-db",
+      "team:clinical-platform",
+      "per:maya-okoro"
+     ],
+     "edges": [
+      {
+       "from": "per:hana-sato",
+       "type": "WORKED_ON",
+       "to": "svc:records-db"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "MAINTAINS",
+       "to": "svc:records-db"
+      },
+      {
+       "from": "team:clinical-platform",
+       "type": "OWNS",
+       "to": "svc:records-db"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Maya Okoro (score 25)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 7,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "decisions_about",
+   "args": {
+    "service_id": "svc:records-db"
+   },
+   "result": {
+    "service": "svc:records-db",
+    "decisions": [
+     {
+      "id": "dec:results-index",
+      "title": "Every records-db migration recreates the visit_id index",
+      "rationale": "Without it lab-results falls back to sequential scans and the portal results page times out.",
+      "decided": "2026-08-19",
+      "decided_days_ago": 58,
+      "author": "Maya Okoro",
+      "author_status": "active",
+      "sources": [
+       {
+        "id": "tkt:PM-NW-2026-03",
+        "label": "Ticket",
+        "title": "Postmortem: results page timeouts",
+        "channel": null,
+        "date": "2026-08-19",
+        "excerpt": "Resolution: added the missing index on visit_id and re-ran the report backfill."
+       }
+      ]
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "decisions_about",
+    "args": {
+     "service_id": "svc:records-db"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
+      "params": {
+       "id": "svc:records-db"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dec:results-index",
+      "svc:records-db",
+      "per:maya-okoro",
+      "tkt:PM-NW-2026-03"
+     ],
+     "edges": [
+      {
+       "from": "dec:results-index",
+       "type": "ABOUT",
+       "to": "svc:records-db"
+      },
+      {
+       "from": "per:maya-okoro",
+       "type": "AUTHORED",
+       "to": "dec:results-index"
+      },
+      {
+       "from": "dec:results-index",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-NW-2026-03"
+      }
+     ]
+    }
+   },
+   "why": "does the change contradict a recorded decision?",
+   "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 3
+  },
+  {
+   "seq": 8,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "rollback_safety",
+   "args": {
+    "deploy_id": "dep:records-db-v15.2.0"
+   },
+   "result": {
+    "deploy": "dep:records-db-v15.2.0",
+    "service": "svc:records-db",
+    "service_tier": 1,
+    "version": "15.2.0",
+    "later_deploys": [],
+    "dependents": 2,
+    "tier1_dependents": 2,
+    "hard_to_undo_terms": [
+     "rebuild"
+    ],
+    "verdict": "risky",
+    "reasons": [
+     "the change looks hard to undo (rebuild): rolling the code back may not undo the data"
+    ],
+    "blast_of_rollback": "2 service(s) call records-db (directly or not), 2 of them tier-1: they briefly see the old version"
+   },
+   "receipt": {
+    "tool": "rollback_safety",
+    "args": {
+     "deploy_id": "dep:records-db-v15.2.0"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
+      "params": {
+       "id": "dep:records-db-v15.2.0"
+      }
+     },
+     {
+      "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
+      "params": {
+       "sid": "svc:records-db",
+       "ts": 1792172806
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
+      "params": {
+       "sid": "svc:records-db"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:records-db-v15.2.0",
+      "svc:records-db"
+     ],
+     "edges": [
+      {
+       "from": "dep:records-db-v15.2.0",
+       "type": "CHANGED",
+       "to": "svc:records-db"
+      }
+     ]
+    }
+   },
+   "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
+   "summary": "rollback_safety → rollback risky: the change looks hard to undo (rebuild): rolling the code back may not undo the data",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 9,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "stale_knowledge",
+   "args": {
+    "service_id": "svc:records-db"
+   },
+   "result": {
+    "service": "svc:records-db",
+    "stale_count": 0,
+    "items": []
+   },
+   "receipt": {
+    "tool": "stale_knowledge",
+    "args": {
+     "service_id": "svc:records-db"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
+      "params": {
+       "sid": "svc:records-db"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "which docs and runbooks are out of date?",
+   "summary": "stale_knowledge → 0 stale: ",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 3
+  },
+  {
+   "seq": 10,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:lab-results",
+     "svc:records-db"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:lab-results",
+     "svc:records-db"
+    ],
+    "incident_count": 1,
+    "incidents": [
+     {
+      "id": "inc:nw-2026-03",
+      "key": "INC-NW-2026-03",
+      "title": "Results page timeouts after records migration",
+      "severity": 3,
+      "started": "2026-08-17",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 2,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:nw-missing-index"
+      ],
+      "resolution": "Recreated the visit_id index",
+      "resolved_by": [
+       "Maya Okoro"
+      ],
+      "resolution_sources": [
+       "tkt:PM-NW-2026-03"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:lab-results",
+      "svc:records-db"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:records-db"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:records-db"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:nw-2026-03"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:nw-2026-03",
+      "rc:nw-missing-index",
+      "svc:lab-results",
+      "svc:records-db",
+      "res:nw-2026-03",
+      "per:maya-okoro",
+      "tkt:PM-NW-2026-03"
+     ],
+     "edges": [
+      {
+       "from": "inc:nw-2026-03",
+       "type": "AFFECTED",
+       "to": "svc:lab-results"
+      },
+      {
+       "from": "inc:nw-2026-03",
+       "type": "AFFECTED",
+       "to": "svc:records-db"
+      },
+      {
+       "from": "inc:nw-2026-03",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:nw-missing-index"
+      },
+      {
+       "from": "inc:nw-2026-03",
+       "type": "RESOLVED_BY",
+       "to": "res:nw-2026-03"
+      },
+      {
+       "from": "res:nw-2026-03",
+       "type": "PERFORMED_BY",
+       "to": "per:maya-okoro"
+      },
+      {
+       "from": "res:nw-2026-03",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-NW-2026-03"
+      }
+     ]
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 11,
+   "agent": "firefighter",
+   "action": "answer",
+   "tool": "submit_report",
+   "args": {
+    "summary": "lab-results alert most likely caused by dep:records-db-v15.2.0 on records-db, deployed 40 min ago. The change contradicts decision dec:results-index. Contact Maya Okoro.",
+    "likely_cause": {
+     "service_id": "svc:records-db",
+     "deploy_id": "dep:records-db-v15.2.0",
+     "ticket_key": null,
+     "path": [
+      "svc:lab-results",
+      "svc:records-db"
+     ],
+     "explanation": "Rebuild the visit table without the old visit_id index (dep:records-db-v15.2.0, deployed 40 min ago by Hana Sato). lab-results calls records-db via declared dependencies: lab-results -> records-db."
+    },
+    "blast_radius": [
+     "svc:patient-portal"
+    ],
+    "contact": {
+     "person_id": "per:maya-okoro",
+     "name": "Maya Okoro",
+     "reason": "0 commits, 1 past incident fix(es) on records-db (score 25)"
+    },
+    "bus_factor_warning": "only 1 active person has worked on this service. Page Maya Okoro instead.",
+    "conflicting_decision": {
+     "decision_id": "dec:results-index",
+     "source_id": "tkt:PM-NW-2026-03",
+     "excerpt": "Resolution: added the missing index on visit_id and re-ran the report backfill.",
+     "how_it_conflicts": "The change (Rebuild the visit table without the old visit_id index) contradicts \"Every records-db migration recreates the visit_id index\", decided by Maya Okoro."
+    },
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "dep:records-db-v15.2.0",
+      "claim": "records-db deployed 40 min ago: Rebuild the visit table without the old visit_id index"
+     },
+     {
+      "node_id": "dec:results-index",
+      "claim": "Decision \"Every records-db migration recreates the visit_id index\" (2026-08-19), source tkt:PM-NW-2026-03."
+     },
+     {
+      "node_id": "per:maya-okoro",
+      "claim": "Best active contact: 0 commits, 1 past incident fix(es) on records-db (score 25)."
+     },
+     {
+      "node_id": "svc:lab-results",
+      "claim": "1 upstream services (1 tier-1) are exposed."
+     }
+    ],
+    "recommended_actions": [
+     "Hold the rollback of dep:records-db-v15.2.0: the change looks hard to undo (rebuild): rolling the code back may not undo the data; page the owner first.",
+     "Page Maya Okoro (per:maya-okoro).",
+     "Restore the setting required by dec:results-index before re-shipping."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "industry_pattern": null,
+    "rejected_leads": [
+     {
+      "deploy_id": "dep:scheduler-db-v14.9.0",
+      "service_id": "svc:scheduler-db",
+      "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+     },
+     {
+      "deploy_id": "dep:identity-v5.4.0",
+      "service_id": "svc:identity",
+      "reason": "identity is not called by lab-results but shares audit-trail (3 callers) with it (audit-trail is a narrow dependency (3 services call it)), but records-db changed on lab-results's own call path, a more direct explanation"
+     }
+    ],
+    "action_plan": [
+     {
+      "id": "A1",
+      "incident": 0,
+      "kind": "hold",
+      "target": "dep:records-db-v15.2.0",
+      "title": "Hold the rollback of dep:records-db-v15.2.0 (risky): page the owner first",
+      "justification": {
+       "why": "Rebuild the visit table without the old visit_id index (dep:records-db-v15.2.0, deployed 40 min ago by Hana Sato). lab-results calls records-db via declared dependencies: lab-results -> records-db.",
+       "node_ids": [
+        "dep:records-db-v15.2.0",
+        "svc:records-db",
+        "svc:lab-results",
+        "svc:records-db"
+       ],
+       "path": [
+        "svc:lab-results",
+        "svc:records-db"
+       ]
+      },
+      "safety": {
+       "verdict": "risky",
+       "reasons": [
+        "the change looks hard to undo (rebuild): rolling the code back may not undo the data"
+       ],
+       "dependents": 2,
+       "later_deploys": [],
+       "blast": "2 service(s) call records-db (directly or not), 2 of them tier-1: they briefly see the old version"
+      }
+     },
+     {
+      "id": "A2",
+      "incident": 0,
+      "kind": "page",
+      "target": "per:maya-okoro",
+      "title": "Page Maya Okoro",
+      "justification": {
+       "why": "0 commits, 1 past incident fix(es) on records-db (score 25)",
+       "node_ids": [
+        "per:maya-okoro",
+        "svc:records-db"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A3",
+      "incident": 0,
+      "kind": "open_ticket",
+      "target": "svc:records-db",
+      "title": "Open a follow-up ticket for records-db",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:records-db"
+       ],
+       "path": []
+      },
+      "safety": null
+     }
+    ],
+    "hypotheses": [
+     {
+      "id": "H1",
+      "claim": "dep:records-db-v15.2.0 on records-db caused the lab-results alert",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "dep:records-db-v15.2.0",
+        "claim": "deployed 40 min ago: Rebuild the visit table without the old visit_id index"
+       },
+       {
+        "node_id": "svc:records-db",
+        "claim": "on the path lab-results -> records-db"
+       },
+       {
+        "node_id": "dec:results-index",
+        "claim": "the change contradicts this recorded decision"
+       }
+      ],
+      "contradicting": [],
+      "reason": "a change on the call path (1 hop)"
+     },
+     {
+      "id": "H2",
+      "claim": "dep:scheduler-db-v14.9.0 on scheduler-db caused it",
+      "status": "rejected",
+      "supporting": [
+       {
+        "node_id": "dep:scheduler-db-v14.9.0",
+        "claim": "deployed 4 min ago: Vacuum settings tuned for the booking table"
+       }
+      ],
+      "contradicting": [
+       {
+        "node_id": "svc:scheduler-db",
+        "claim": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+     },
+     {
+      "id": "H3",
+      "claim": "dep:identity-v5.4.0 on identity caused it",
+      "status": "rejected",
+      "supporting": [
+       {
+        "node_id": "dep:identity-v5.4.0",
+        "claim": "deployed 10 min ago: Longer session refresh window"
+       }
+      ],
+      "contradicting": [
+       {
+        "node_id": "svc:identity",
+        "claim": "identity is not called by lab-results but shares audit-trail (3 callers) with it (audit-trail is a narrow dependency (3 services call it)), but records-db changed on lab-results's own call path, a more direct explanation"
+       }
+      ],
+      "reason": "identity is not called by lab-results but shares audit-trail (3 callers) with it (audit-trail is a narrow dependency (3 services call it)), but records-db changed on lab-results's own call path, a more direct explanation"
+     }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "the change is on the alert's call path (1 hop)",
+      "node_id": "dep:records-db-v15.2.0"
+     },
+     {
+      "effect": "+",
+      "factor": "it contradicts a recorded decision",
+      "node_id": "dec:results-index"
+     },
+     {
+      "effect": "-",
+      "factor": "no past incident with the same cause",
+      "node_id": null
+     }
+    ]
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "lab-results alert most likely caused by dep:records-db-v15.2.0 on records-db, deployed 40 min ago. The change contradicts decision dec:results-index. Contact Maya Okoro.",
+     "likely_cause": {
+      "service_id": "svc:records-db",
+      "deploy_id": "dep:records-db-v15.2.0",
+      "ticket_key": null,
+      "path": [
+       "svc:lab-results",
+       "svc:records-db"
+      ],
+      "explanation": "Rebuild the visit table without the old visit_id index (dep:records-db-v15.2.0, deployed 40 min ago by Hana Sato). lab-results calls records-db via declared dependencies: lab-results -> records-db."
+     },
+     "blast_radius": [
+      "svc:patient-portal"
+     ],
+     "contact": {
+      "person_id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "reason": "0 commits, 1 past incident fix(es) on records-db (score 25)"
+     },
+     "bus_factor_warning": "only 1 active person has worked on this service. Page Maya Okoro instead.",
+     "conflicting_decision": {
+      "decision_id": "dec:results-index",
+      "source_id": "tkt:PM-NW-2026-03",
+      "excerpt": "Resolution: added the missing index on visit_id and re-ran the report backfill.",
+      "how_it_conflicts": "The change (Rebuild the visit table without the old visit_id index) contradicts \"Every records-db migration recreates the visit_id index\", decided by Maya Okoro."
+     },
+     "similar_past_incidents": [],
+     "evidence": [
+      {
+       "node_id": "dep:records-db-v15.2.0",
+       "claim": "records-db deployed 40 min ago: Rebuild the visit table without the old visit_id index"
+      },
+      {
+       "node_id": "dec:results-index",
+       "claim": "Decision \"Every records-db migration recreates the visit_id index\" (2026-08-19), source tkt:PM-NW-2026-03."
+      },
+      {
+       "node_id": "per:maya-okoro",
+       "claim": "Best active contact: 0 commits, 1 past incident fix(es) on records-db (score 25)."
+      },
+      {
+       "node_id": "svc:lab-results",
+       "claim": "1 upstream services (1 tier-1) are exposed."
+      }
+     ],
+     "recommended_actions": [
+      "Hold the rollback of dep:records-db-v15.2.0: the change looks hard to undo (rebuild): rolling the code back may not undo the data; page the owner first.",
+      "Page Maya Okoro (per:maya-okoro).",
+      "Restore the setting required by dec:results-index before re-shipping."
+     ],
+     "confidence": "medium",
+     "look_first": null,
+     "industry_pattern": null,
+     "rejected_leads": [
+      {
+       "deploy_id": "dep:scheduler-db-v14.9.0",
+       "service_id": "svc:scheduler-db",
+       "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+      },
+      {
+       "deploy_id": "dep:identity-v5.4.0",
+       "service_id": "svc:identity",
+       "reason": "identity is not called by lab-results but shares audit-trail (3 callers) with it (audit-trail is a narrow dependency (3 services call it)), but records-db changed on lab-results's own call path, a more direct explanation"
+      }
+     ],
+     "action_plan": [
+      {
+       "id": "A1",
+       "incident": 0,
+       "kind": "hold",
+       "target": "dep:records-db-v15.2.0",
+       "title": "Hold the rollback of dep:records-db-v15.2.0 (risky): page the owner first",
+       "justification": {
+        "why": "Rebuild the visit table without the old visit_id index (dep:records-db-v15.2.0, deployed 40 min ago by Hana Sato). lab-results calls records-db via declared dependencies: lab-results -> records-db.",
+        "node_ids": [
+         "dep:records-db-v15.2.0",
+         "svc:records-db",
+         "svc:lab-results",
+         "svc:records-db"
+        ],
+        "path": [
+         "svc:lab-results",
+         "svc:records-db"
+        ]
+       },
+       "safety": {
+        "verdict": "risky",
+        "reasons": [
+         "the change looks hard to undo (rebuild): rolling the code back may not undo the data"
+        ],
+        "dependents": 2,
+        "later_deploys": [],
+        "blast": "2 service(s) call records-db (directly or not), 2 of them tier-1: they briefly see the old version"
+       }
+      },
+      {
+       "id": "A2",
+       "incident": 0,
+       "kind": "page",
+       "target": "per:maya-okoro",
+       "title": "Page Maya Okoro",
+       "justification": {
+        "why": "0 commits, 1 past incident fix(es) on records-db (score 25)",
+        "node_ids": [
+         "per:maya-okoro",
+         "svc:records-db"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A3",
+       "incident": 0,
+       "kind": "open_ticket",
+       "target": "svc:records-db",
+       "title": "Open a follow-up ticket for records-db",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:records-db"
+        ],
+        "path": []
+       },
+       "safety": null
+      }
+     ],
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "dep:records-db-v15.2.0 on records-db caused the lab-results alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:records-db-v15.2.0",
+         "claim": "deployed 40 min ago: Rebuild the visit table without the old visit_id index"
+        },
+        {
+         "node_id": "svc:records-db",
+         "claim": "on the path lab-results -> records-db"
+        },
+        {
+         "node_id": "dec:results-index",
+         "claim": "the change contradicts this recorded decision"
+        }
+       ],
+       "contradicting": [],
+       "reason": "a change on the call path (1 hop)"
+      },
+      {
+       "id": "H2",
+       "claim": "dep:scheduler-db-v14.9.0 on scheduler-db caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:scheduler-db-v14.9.0",
+         "claim": "deployed 4 min ago: Vacuum settings tuned for the booking table"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:scheduler-db",
+         "claim": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+        }
+       ],
+       "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+      },
+      {
+       "id": "H3",
+       "claim": "dep:identity-v5.4.0 on identity caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:identity-v5.4.0",
+         "claim": "deployed 10 min ago: Longer session refresh window"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:identity",
+         "claim": "identity is not called by lab-results but shares audit-trail (3 callers) with it (audit-trail is a narrow dependency (3 services call it)), but records-db changed on lab-results's own call path, a more direct explanation"
+        }
+       ],
+       "reason": "identity is not called by lab-results but shares audit-trail (3 callers) with it (audit-trail is a narrow dependency (3 services call it)), but records-db changed on lab-results's own call path, a more direct explanation"
+      }
+     ],
+     "confidence_breakdown": [
+      {
+       "effect": "+",
+       "factor": "the change is on the alert's call path (1 hop)",
+       "node_id": "dep:records-db-v15.2.0"
+      },
+      {
+       "effect": "+",
+       "factor": "it contradicts a recorded decision",
+       "node_id": "dec:results-index"
+      },
+      {
+       "effect": "-",
+       "factor": "no past incident with the same cause",
+       "node_id": null
+      }
+     ]
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "dec:results-index",
+      "dep:identity-v5.4.0",
+      "dep:records-db-v15.2.0",
+      "dep:scheduler-db-v14.9.0",
+      "per:maya-okoro",
+      "svc:identity",
+      "svc:lab-results",
+      "svc:patient-portal",
+      "svc:records-db",
+      "svc:scheduler-db",
+      "tkt:PM-NW-2026-03"
+     ],
+     "edges": []
+    }
+   },
+   "why": "the evidence is in: submit the grounded report",
+   "summary": "lab-results alert most likely caused by dep:records-db-v15.2.0 on records-db, deployed 40 min ago. The change contradicts decision dec:results-index. Contact Maya Okoro.",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  }
+ ],
+ "twin": "northwind_health__eval_play",
+ "scenario": "n-falselead",
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:clinical-platform",
+    "label": "Team",
+    "name": "Clinical Platform",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Clinical Platform"
+    }
+   },
+   {
+    "id": "per:tariq-hassan",
+    "label": "Person",
+    "name": "Tariq Hassan",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Tariq Hassan",
+     "role": "Engineer",
+     "email": "tariq.hassan@northwind.example",
+     "joined_at": 1748975206
+    }
+   },
+   {
+    "id": "per:maya-okoro",
+    "label": "Person",
+    "name": "Maya Okoro",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Maya Okoro",
+     "role": "Senior Engineer",
+     "email": "maya.okoro@northwind.example",
+     "joined_at": 1697135206
+    }
+   },
+   {
+    "id": "per:hana-sato",
+    "label": "Person",
+    "name": "Hana Sato",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Hana Sato",
+     "role": "Site Reliability Engineer",
+     "email": "hana.sato@northwind.example",
+     "joined_at": 1723055206
+    }
+   },
+   {
+    "id": "svc:patient-portal",
+    "label": "Service",
+    "name": "patient-portal",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "patient-portal",
+     "description": "Web and mobile portal where patients book visits and view results.",
+     "tier": 1,
+     "language": "TypeScript",
+     "repo_url": "https://git.northwind.example/patient-portal"
+    }
+   },
+   {
+    "id": "svc:lab-results",
+    "label": "Service",
+    "name": "lab-results",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "lab-results",
+     "description": "Publishes finished lab reports to the portal.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.northwind.example/lab-results"
+    }
+   },
+   {
+    "id": "svc:notifications",
+    "label": "Service",
+    "name": "notifications",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "notifications",
+     "description": "Sends appointment reminders and result alerts by SMS and email.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/notifications"
+    }
+   },
+   {
+    "id": "svc:identity",
+    "label": "Service",
+    "name": "identity",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "identity",
+     "description": "Patient and staff sign-in, sessions and consent records.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/identity"
+    }
+   },
+   {
+    "id": "svc:records-db",
+    "label": "Service",
+    "name": "records-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "records-db",
+     "description": "Primary database for lab reports and visit records.",
+     "tier": 1,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.northwind.example/records-db"
+    }
+   },
+   {
+    "id": "svc:scheduler-db",
+    "label": "Service",
+    "name": "scheduler-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "scheduler-db",
+     "description": "Database behind appointments.",
+     "tier": 2,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.northwind.example/scheduler-db"
+    }
+   },
+   {
+    "id": "svc:audit-trail",
+    "label": "Service",
+    "name": "audit-trail",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "audit-trail",
+     "description": "Append-only access log required for compliance.",
+     "tier": 2,
+     "language": "Java",
+     "repo_url": "https://git.northwind.example/audit-trail"
+    }
+   },
+   {
+    "id": "tkt:PM-NW-2026-03",
+    "label": "Ticket",
+    "name": "PM-NW-2026-03",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: results page timeouts",
+     "text": "After the records migration, lab-results scanned records-db without the visit_id index and the portal results page timed out. Resolution: added the missing index on visit_id and re-ran the report backfill.",
+     "key": "PM-NW-2026-03",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "dec:results-index",
+    "label": "Decision",
+    "name": "Every records-db migration recreates the visit_id index",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "Every records-db migration recreates the visit_id index",
+     "rationale": "Without it lab-results falls back to sequential scans and the portal results page times out.",
+     "decided_at": 1787164006
+    }
+   },
+   {
+    "id": "rc:nw-missing-index",
+    "label": "RootCause",
+    "name": "Missing database index after migration",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Missing database index after migration",
+     "description": "A migration dropped an index, so queries fall back to sequential scans."
+    }
+   },
+   {
+    "id": "inc:nw-2026-03",
+    "label": "Incident",
+    "name": "INC-NW-2026-03",
+    "origin": "seed",
+    "props": {
+     "started_at": 1786991206,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "Results page timeouts after records migration",
+     "summary": "lab-results ran sequential scans on records-db after a migration dropped the visit_id index.",
+     "key": "INC-NW-2026-03",
+     "severity": 3,
+     "symptom": "portal results page timing out",
+     "resolved_at": 1786994806
+    }
+   },
+   {
+    "id": "res:nw-2026-03",
+    "label": "Resolution",
+    "name": "Recreated the visit_id index",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Recreated the visit_id index",
+     "steps": "1. Recreated the visit_id index."
+    }
+   },
+   {
+    "id": "dep:records-db-v15.2.0",
+    "label": "Deploy",
+    "name": "15.2.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792172806,
+     "origin": "seed",
+     "summary": "Rebuild the visit table without the old visit_id index",
+     "version": "15.2.0"
+    }
+   },
+   {
+    "id": "dep:identity-v5.4.0",
+    "label": "Deploy",
+    "name": "5.4.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792174606,
+     "origin": "seed",
+     "summary": "Longer session refresh window",
+     "version": "5.4.0"
+    }
+   },
+   {
+    "id": "dep:scheduler-db-v14.9.0",
+    "label": "Deploy",
+    "name": "14.9.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792174966,
+     "origin": "seed",
+     "summary": "Vacuum settings tuned for the booking table",
+     "version": "14.9.0"
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:clinical-platform",
+    "type": "OWNS",
+    "target": "svc:records-db",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:tariq-hassan",
+    "type": "DEPLOYED",
+    "target": "dep:scheduler-db-v14.9.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "AUTHORED",
+    "target": "dec:results-index",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:hana-sato",
+    "type": "MAINTAINS",
+    "target": "svc:records-db",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:hana-sato",
+    "type": "WORKED_ON",
+    "target": "svc:records-db",
+    "origin": "seed",
+    "props": {
+     "commits": 20,
+     "last_at": 1786991206
+    }
+   },
+   {
+    "source": "per:hana-sato",
+    "type": "DEPLOYED",
+    "target": "dep:records-db-v15.2.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:hana-sato",
+    "type": "DEPLOYED",
+    "target": "dep:identity-v5.4.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "svc:patient-portal",
+    "type": "DEPENDS_ON",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:lab-results",
+    "type": "DEPENDS_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:lab-results",
+    "type": "DEPENDS_ON",
+    "target": "svc:records-db",
+    "origin": "seed",
+    "props": {
+     "kind": "db",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:lab-results",
+    "type": "DEPENDS_ON",
+    "target": "svc:audit-trail",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:identity",
+    "type": "DEPENDS_ON",
+    "target": "svc:audit-trail",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "dec:results-index",
+    "type": "ABOUT",
+    "target": "svc:records-db",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dec:results-index",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-NW-2026-03",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: added the missing index on visit_id and re-ran the report backfill."
+    }
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "AFFECTED",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "AFFECTED",
+    "target": "svc:records-db",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:nw-missing-index",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "RESOLVED_BY",
+    "target": "res:nw-2026-03",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2026-03",
+    "type": "PERFORMED_BY",
+    "target": "per:maya-okoro",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2026-03",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-NW-2026-03",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: added the missing index on visit_id and re-ran the report backfill."
+    }
+   },
+   {
+    "source": "dep:records-db-v15.2.0",
+    "type": "CHANGED",
+    "target": "svc:records-db",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:identity-v5.4.0",
+    "type": "CHANGED",
+    "target": "svc:identity",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:scheduler-db-v14.9.0",
+    "type": "CHANGED",
+    "target": "svc:scheduler-db",
+    "origin": "seed",
+    "props": {}
+   }
+  ],
+  "base": [
+   "svc:audit-trail",
+   "svc:lab-results",
+   "svc:notifications",
+   "svc:patient-portal",
+   "svc:records-db"
+  ],
+  "alert": "svc:lab-results"
+ },
+ "execution": {
+  "session_id": "ses:exec-run-30b14b98ce5a",
+  "already_executed": false,
+  "results": [
+   {
+    "action": "A1",
+    "kind": "hold",
+    "title": "Hold the rollback of dep:records-db-v15.2.0 (risky): page the owner first",
+    "ok": true,
+    "summary": "Hold the rollback of dep:records-db-v15.2.0 (risky): page the owner first: Rebuild the visit table without the old visit_id index (dep:records-db-v15.2.0, deployed 40 min ago by Hana Sato). lab-results calls records-db via declared dependencies: lab-results -> records-db."
+   },
+   {
+    "action": "A2",
+    "kind": "page",
+    "title": "Page Maya Okoro",
+    "ok": true,
+    "summary": "paged Maya Okoro for INC-2026-001 (simulated): 0 commits, 1 past incident fix(es) on records-db (score 25)"
+   },
+   {
+    "action": "A3",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for records-db",
+    "ok": true,
+    "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: records-db"
+   }
+  ],
+  "incidents": [
+   "inc:2026-001"
+  ],
+  "verification": {
+   "checks": [
+    {
+     "incident": 0,
+     "cleared": false,
+     "summary": "no rollback approved for dep:records-db-v15.2.0: the signal stays until someone acts"
+    }
+   ],
+   "all_cleared": false,
+   "simulated": true
+  }
+ }
+}

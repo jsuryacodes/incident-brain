@@ -64,6 +64,7 @@ BEATS = [
      "caption": "The same alert on a fresh copy of the company without Session 1's memory."},
 ]
 STORM_BEAT = {"id": "storm", "label": "Alert storm", "kind": "firefighter", "alerts": STORM["alerts"], "memory": False,
+              "scenario": STORM["id"],
               "replay": "firefighter-storm", "title": "Alert storm",
               "caption": f"{len(STORM['alerts'])} alerts fire at once. The Firefighter asks the graph which ones share a cause "
                          "before anyone is paged."}

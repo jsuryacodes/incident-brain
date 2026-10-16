@@ -82,6 +82,7 @@ WHY = {  # the default reason for choosing each tool ("why this tool"); planners
     "flag_stale": "flag the stale document with its reason",
     "record_resolution": "record how it was fixed, in the operator's words",
     "write_runbook": "update the runbook with what fixed it",
+    "rollback_safety": "before proposing a rollback: what else would it undo, and how many services depend on it?",
     "submit_report": "the evidence is in: submit the grounded report",
     "submit_handoff": "hand off to the next agent through the graph",
     "submit_answer": "answer with citations",

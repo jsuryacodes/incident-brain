@@ -1,0 +1,4844 @@
+{
+ "run_id": "run-5b0e3589e0b2",
+ "agent": "firefighter",
+ "tenant": "northwind_health__eval_play",
+ "alert": [
+  {
+   "service_id": "svc:patient-portal",
+   "symptom": "portal page loads p99 7s"
+  },
+  {
+   "service_id": "svc:appointments",
+   "symptom": "booking API p99 4s"
+  },
+  {
+   "service_id": "svc:lab-results",
+   "symptom": "result alerts delayed 20 min"
+  },
+  {
+   "service_id": "svc:notifications",
+   "symptom": "SMS queue depth 40k and rising"
+  },
+  {
+   "service_id": "svc:identity",
+   "symptom": "sign-in failures 12%"
+  }
+ ],
+ "mode": "mock",
+ "model": "mock",
+ "started_at": 1792175206,
+ "status": "ok",
+ "report": {
+  "summary": "5 alerts, 2 separate incidents: patient-portal, appointments, lab-results, notifications -> shared root notifications, no change; identity -> dep:identity-v5.4.0.",
+  "likely_cause": {
+   "service_id": null,
+   "deploy_id": null,
+   "ticket_key": null,
+   "path": [],
+   "explanation": "No recent change explains these 4 alerts, and all of them call notifications (4 hops in total; it is alerting itself): one shared dependency under load, so one incident, not 4."
+  },
+  "blast_radius": [],
+  "contact": {
+   "person_id": "per:maya-okoro",
+   "name": "Maya Okoro",
+   "reason": "18 commits on notifications (score 18)"
+  },
+  "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+  "conflicting_decision": null,
+  "similar_past_incidents": [],
+  "evidence": [
+   {
+    "node_id": "svc:notifications",
+    "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+   },
+   {
+    "node_id": "svc:sms-gateway",
+    "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+   },
+   {
+    "node_id": "per:maya-okoro",
+    "claim": "Best active contact: 18 commits on notifications (score 18)."
+   },
+   {
+    "node_id": "svc:patient-portal",
+    "claim": "0 upstream services (0 tier-1) are exposed."
+   }
+  ],
+  "recommended_actions": [
+   "Page Maya Okoro (per:maya-okoro).",
+   "Check notifications, sms-gateway capacity and saturation first."
+  ],
+  "confidence": "medium",
+  "look_first": {
+   "service_ids": [
+    "svc:notifications",
+    "svc:sms-gateway"
+   ],
+   "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+   "reason": "notifications is reached by 4 of the alerting services (4 hops in total); sms-gateway right behind it is reached by as many: check its load first."
+  },
+  "industry_pattern": null,
+  "rejected_leads": [],
+  "incidents": [
+   {
+    "alerts": [
+     "svc:patient-portal",
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications"
+    ],
+    "summary": "4 alerts (patient-portal, appointments, lab-results, notifications) are one incident: they all call notifications, and no recent change explains them. Page Maya Okoro once instead of 4 times.",
+    "likely_cause": {
+     "service_id": null,
+     "deploy_id": null,
+     "ticket_key": null,
+     "path": [],
+     "explanation": "No recent change explains these 4 alerts, and all of them call notifications (4 hops in total; it is alerting itself): one shared dependency under load, so one incident, not 4."
+    },
+    "contact": {
+     "person_id": "per:maya-okoro",
+     "name": "Maya Okoro",
+     "reason": "18 commits on notifications (score 18)"
+    },
+    "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+    "blast_radius": [],
+    "recommended_actions": [
+     "Page Maya Okoro (per:maya-okoro).",
+     "Check notifications, sms-gateway capacity and saturation first."
+    ],
+    "confidence": "medium",
+    "look_first": {
+     "service_ids": [
+      "svc:notifications",
+      "svc:sms-gateway"
+     ],
+     "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+     "reason": "notifications is reached by 4 of the alerting services (4 hops in total); sms-gateway right behind it is reached by as many: check its load first."
+    },
+    "root": {
+     "service_id": "svc:notifications",
+     "covers": [
+      "svc:appointments",
+      "svc:lab-results",
+      "svc:notifications",
+      "svc:patient-portal"
+     ],
+     "alerting": true,
+     "total_hops": 4,
+     "tied": [
+      "svc:sms-gateway"
+     ]
+    },
+    "suppressed_pages": [
+     {
+      "alert": "svc:patient-portal",
+      "person_id": "per:ines-moreau",
+      "name": "Ines Moreau",
+      "team_id": null,
+      "reason": "patient-portal is part of this incident: patient-portal -> lab-results -> notifications; one page goes to Maya Okoro instead"
+     },
+     {
+      "alert": "svc:appointments",
+      "person_id": "per:tariq-hassan",
+      "name": "Tariq Hassan",
+      "team_id": null,
+      "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+     }
+    ],
+    "notify": []
+   },
+   {
+    "alerts": [
+     "svc:identity"
+    ],
+    "summary": "identity alert most likely caused by dep:identity-v5.4.0 on identity, deployed 15 min ago. Contact Hana Sato.",
+    "likely_cause": {
+     "service_id": "svc:identity",
+     "deploy_id": "dep:identity-v5.4.0",
+     "ticket_key": null,
+     "path": [
+      "svc:identity"
+     ],
+     "explanation": "Session tokens signed with the new key service (dep:identity-v5.4.0, deployed 15 min ago by Hana Sato). identity itself was changed."
+    },
+    "contact": {
+     "person_id": "per:hana-sato",
+     "name": "Hana Sato",
+     "reason": "70 commits on identity (score 70)"
+    },
+    "bus_factor_warning": null,
+    "blast_radius": [
+     "svc:patient-portal"
+    ],
+    "recommended_actions": [
+     "Roll back dep:identity-v5.4.0 on identity.",
+     "Page Hana Sato (per:hana-sato)."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "root": null,
+    "suppressed_pages": [],
+    "notify": []
+   }
+  ],
+  "suppressed_pages": [
+   {
+    "alert": "svc:patient-portal",
+    "person_id": "per:ines-moreau",
+    "name": "Ines Moreau",
+    "team_id": null,
+    "reason": "patient-portal is part of this incident: patient-portal -> lab-results -> notifications; one page goes to Maya Okoro instead"
+   },
+   {
+    "alert": "svc:appointments",
+    "person_id": "per:tariq-hassan",
+    "name": "Tariq Hassan",
+    "team_id": null,
+    "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+   }
+  ],
+  "action_plan": [
+   {
+    "id": "A1",
+    "incident": 0,
+    "kind": "page",
+    "target": "per:maya-okoro",
+    "title": "Page Maya Okoro",
+    "justification": {
+     "why": "18 commits on notifications (score 18)",
+     "node_ids": [
+      "per:maya-okoro",
+      "svc:notifications"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A2",
+    "incident": 0,
+    "kind": "suppress_page",
+    "target": "per:ines-moreau",
+    "title": "Don't page Ines Moreau for patient-portal",
+    "justification": {
+     "why": "patient-portal is part of this incident: patient-portal -> lab-results -> notifications; one page goes to Maya Okoro instead",
+     "node_ids": [
+      "per:ines-moreau",
+      "svc:patient-portal"
+     ],
+     "path": [
+      "svc:patient-portal",
+      "svc:lab-results",
+      "svc:notifications"
+     ]
+    },
+    "safety": null
+   },
+   {
+    "id": "A3",
+    "incident": 0,
+    "kind": "suppress_page",
+    "target": "per:tariq-hassan",
+    "title": "Don't page Tariq Hassan for appointments",
+    "justification": {
+     "why": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead",
+     "node_ids": [
+      "per:tariq-hassan",
+      "svc:appointments"
+     ],
+     "path": [
+      "svc:appointments",
+      "svc:notifications"
+     ]
+    },
+    "safety": null
+   },
+   {
+    "id": "A4",
+    "incident": 0,
+    "kind": "open_ticket",
+    "target": "svc:notifications",
+    "title": "Open a follow-up ticket for notifications",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:notifications"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A5",
+    "incident": 1,
+    "kind": "rollback",
+    "target": "dep:identity-v5.4.0",
+    "title": "Roll back dep:identity-v5.4.0 on identity",
+    "justification": {
+     "why": "Session tokens signed with the new key service (dep:identity-v5.4.0, deployed 15 min ago by Hana Sato). identity itself was changed.",
+     "node_ids": [
+      "dep:identity-v5.4.0",
+      "svc:identity",
+      "svc:identity"
+     ],
+     "path": [
+      "svc:identity"
+     ]
+    },
+    "safety": {
+     "verdict": "safe",
+     "reasons": [
+      "nothing shipped to identity after it and nothing in the change looks irreversible"
+     ],
+     "dependents": 1,
+     "later_deploys": [],
+     "blast": "1 service(s) call identity (directly or not), 1 of them tier-1: they briefly see the old version"
+    }
+   },
+   {
+    "id": "A6",
+    "incident": 1,
+    "kind": "page",
+    "target": "per:hana-sato",
+    "title": "Page Hana Sato",
+    "justification": {
+     "why": "70 commits on identity (score 70)",
+     "node_ids": [
+      "per:hana-sato",
+      "svc:identity"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A7",
+    "incident": 1,
+    "kind": "open_ticket",
+    "target": "svc:identity",
+    "title": "Open a follow-up ticket for identity",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:identity"
+     ],
+     "path": []
+    },
+    "safety": null
+   }
+  ],
+  "hypotheses": [
+   {
+    "id": "H1",
+    "claim": "notifications is saturated and takes the 4 alerts down with it",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "svc:patient-portal",
+      "claim": "calls notifications (2 hops)"
+     },
+     {
+      "node_id": "svc:appointments",
+      "claim": "calls notifications (1 hop)"
+     },
+     {
+      "node_id": "svc:lab-results",
+      "claim": "calls notifications (1 hop)"
+     },
+     {
+      "node_id": "svc:notifications",
+      "claim": "calls notifications (0 hops)"
+     }
+    ],
+    "contradicting": [
+     {
+      "node_id": "svc:notifications",
+      "claim": "no recent change on it or on the alerts' paths (an inference from structure, not a deploy)"
+     }
+    ],
+    "reason": "one shared dependency explains 4 alerts; no single change explains more than 2"
+   },
+   {
+    "id": "H2",
+    "claim": "dep:identity-v5.4.0 on identity caused the identity alert",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "dep:identity-v5.4.0",
+      "claim": "deployed 15 min ago: Session tokens signed with the new key service"
+     },
+     {
+      "node_id": "svc:identity",
+      "claim": "the alerting service itself changed"
+     }
+    ],
+    "contradicting": [],
+    "reason": "the alerting service itself changed"
+   }
+  ],
+  "confidence_breakdown": [
+   {
+    "effect": "+",
+    "factor": "4 alerts share notifications",
+    "node_id": "svc:notifications"
+   },
+   {
+    "effect": "-",
+    "factor": "no change on it: saturation is inferred from structure",
+    "node_id": null
+   }
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "ungrounded_ids": [],
+  "errors": []
+ },
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 5,
+  "tool_calls": 32,
+  "duration_ms": 64
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:patient-portal"
+   },
+   "result": {
+    "service": "svc:patient-portal",
+    "scope": [
+     "svc:patient-portal",
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:identity",
+     "svc:audit-trail",
+     "svc:notifications",
+     "svc:records-db",
+     "svc:sms-gateway",
+     "svc:scheduler-db"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:patient-portal",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:patient-portal"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:patient-portal",
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:identity",
+        "svc:audit-trail",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:sms-gateway",
+        "svc:scheduler-db"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:patient-portal",
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:identity",
+        "svc:audit-trail",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:sms-gateway",
+        "svc:scheduler-db"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:patient-portal",
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:identity",
+        "svc:audit-trail",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:sms-gateway",
+        "svc:scheduler-db"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 1
+  },
+  {
+   "seq": 2,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:appointments"
+   },
+   "result": {
+    "service": "svc:appointments",
+    "scope": [
+     "svc:appointments",
+     "svc:notifications",
+     "svc:scheduler-db",
+     "svc:sms-gateway"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:appointments",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 3,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:lab-results"
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "scope": [
+     "svc:lab-results",
+     "svc:notifications",
+     "svc:records-db",
+     "svc:audit-trail",
+     "svc:sms-gateway"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:lab-results",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:lab-results"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 4,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:notifications"
+   },
+   "result": {
+    "service": "svc:notifications",
+    "scope": [
+     "svc:notifications",
+     "svc:sms-gateway"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:notifications",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:notifications",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:notifications",
+        "svc:sms-gateway"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:notifications",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:notifications"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 5,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:identity"
+   },
+   "result": {
+    "service": "svc:identity",
+    "scope": [
+     "svc:identity",
+     "svc:audit-trail"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:identity",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:identity"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:identity",
+        "svc:audit-trail"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:identity",
+        "svc:audit-trail"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:identity",
+        "svc:audit-trail"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:identity"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 6,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120,
+    "limit": 30
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 1,
+    "changes": [
+     {
+      "service": "svc:identity",
+      "tier": 1,
+      "deploy": {
+       "id": "dep:identity-v5.4.0",
+       "version": "5.4.0",
+       "ts": 1792174306,
+       "minutes_ago": 15,
+       "summary": "Session tokens signed with the new key service",
+       "by": "Hana Sato"
+      },
+      "deployer_id": "per:hana-sato",
+      "deployer_status": "active",
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 30
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792168006,
+       "limit": 31
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:identity-v5.4.0",
+      "svc:identity",
+      "per:hana-sato"
+     ],
+     "edges": [
+      {
+       "from": "dep:identity-v5.4.0",
+       "type": "CHANGED",
+       "to": "svc:identity"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "DEPLOYED",
+       "to": "dep:identity-v5.4.0"
+      }
+     ]
+    }
+   },
+   "why": "list every recent change in the company: each one is a lead",
+   "summary": "recent_changes → 1 change(s) in 120 min: identity 15 min ago",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 1
+  },
+  {
+   "seq": 7,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:patient-portal",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:patient-portal",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:identity",
+      "hops": 1,
+      "path": [
+       "svc:patient-portal",
+       "svc:identity"
+      ],
+      "edge_sources": [
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:identity-v5.4.0",
+       "version": "5.4.0",
+       "ts": 1792174306,
+       "minutes_ago": 15,
+       "summary": "Session tokens signed with the new key service",
+       "by": "Hana Sato"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:patient-portal",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:patient-portal",
+       "since": 1792168006
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:patient-portal",
+       "to": "svc:identity",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal",
+      "svc:identity",
+      "dep:identity-v5.4.0",
+      "per:hana-sato"
+     ],
+     "edges": [
+      {
+       "from": "svc:patient-portal",
+       "type": "DEPENDS_ON",
+       "to": "svc:identity"
+      },
+      {
+       "from": "dep:identity-v5.4.0",
+       "type": "CHANGED",
+       "to": "svc:identity"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "DEPLOYED",
+       "to": "dep:identity-v5.4.0"
+      }
+     ]
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → 1 hit(s): identity (deployed 15 min ago by Hana Sato)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 8,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:patient-portal",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:patient-portal",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:patient-portal",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:patient-portal"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:patient-portal",
+       "since": 1792168006,
+       "downstream": [
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:identity",
+        "svc:audit-trail",
+        "svc:notifications",
+        "svc:records-db",
+        "svc:sms-gateway",
+        "svc:scheduler-db"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 9,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:appointments",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:appointments",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "neither this service nor anything it calls was deployed in this window"
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:appointments",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:appointments",
+       "since": 1792168006
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → no recent downstream deploys",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 2
+  },
+  {
+   "seq": 10,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:appointments",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:appointments",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:appointments",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:appointments",
+       "since": 1792168006,
+       "downstream": [
+        "svc:notifications",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 11,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:lab-results",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "neither this service nor anything it calls was deployed in this window"
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:lab-results",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:lab-results",
+       "since": 1792168006
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → no recent downstream deploys",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 2
+  },
+  {
+   "seq": 12,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:lab-results",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "neighbour": "svc:identity",
+      "shared": "svc:audit-trail",
+      "deploy": {
+       "id": "dep:identity-v5.4.0",
+       "version": "5.4.0",
+       "ts": 1792174306,
+       "minutes_ago": 15,
+       "summary": "Session tokens signed with the new key service",
+       "by": "Hana Sato"
+      },
+      "ticket": null,
+      "path_to_shared": [
+       "svc:lab-results",
+       "svc:audit-trail"
+      ],
+      "path_to_shared_sources": [
+       "declared"
+      ],
+      "neighbour_path": [
+       "svc:identity",
+       "svc:audit-trail"
+      ],
+      "neighbour_path_sources": [
+       "declared"
+      ],
+      "uses_learned_edge": false,
+      "shared_callers": 3
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:lab-results",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:lab-results",
+       "since": 1792168006,
+       "downstream": [
+        "svc:notifications",
+        "svc:records-db",
+        "svc:audit-trail",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
+      "params": {
+       "ids": [
+        "svc:audit-trail"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:lab-results",
+      "svc:audit-trail",
+      "svc:identity",
+      "dep:identity-v5.4.0",
+      "per:hana-sato"
+     ],
+     "edges": [
+      {
+       "from": "svc:lab-results",
+       "type": "DEPENDS_ON",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "svc:identity",
+       "type": "DEPENDS_ON",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "dep:identity-v5.4.0",
+       "type": "CHANGED",
+       "to": "svc:identity"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "DEPLOYED",
+       "to": "dep:identity-v5.4.0"
+      }
+     ]
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → 1 hit(s): identity via shared audit-trail, deployed 15 min ago",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 13,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:notifications",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:notifications",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "neither this service nor anything it calls was deployed in this window"
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:notifications",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:notifications",
+       "since": 1792168006
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → no recent downstream deploys",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 2
+  },
+  {
+   "seq": 14,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:notifications",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:notifications",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:notifications",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:notifications",
+       "since": 1792168006,
+       "downstream": [
+        "svc:sms-gateway"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 15,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:identity",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:identity",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:identity",
+      "hops": 0,
+      "path": [
+       "svc:identity"
+      ],
+      "edge_sources": [],
+      "deploy": {
+       "id": "dep:identity-v5.4.0",
+       "version": "5.4.0",
+       "ts": 1792174306,
+       "minutes_ago": 15,
+       "summary": "Session tokens signed with the new key service",
+       "by": "Hana Sato"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:identity",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:identity",
+       "since": 1792168006
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:identity-v5.4.0",
+      "svc:identity",
+      "per:hana-sato"
+     ],
+     "edges": [
+      {
+       "from": "dep:identity-v5.4.0",
+       "type": "CHANGED",
+       "to": "svc:identity"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "DEPLOYED",
+       "to": "dep:identity-v5.4.0"
+      }
+     ]
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → 1 hit(s): identity (deployed 15 min ago by Hana Sato)",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 2
+  },
+  {
+   "seq": 16,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:identity",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:identity",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:identity",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:identity"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:identity",
+       "since": 1792168006,
+       "downstream": [
+        "svc:audit-trail"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 17,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "correlate_alerts",
+   "args": {
+    "service_ids": [
+     "svc:patient-portal",
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications",
+     "svc:identity"
+    ]
+   },
+   "result": {
+    "alerts": [
+     "svc:patient-portal",
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications",
+     "svc:identity"
+    ],
+    "max_hops": 6,
+    "roots": [
+     {
+      "id": "svc:notifications",
+      "covers": [
+       "svc:appointments",
+       "svc:lab-results",
+       "svc:notifications",
+       "svc:patient-portal"
+      ],
+      "coverage": 4,
+      "alerting": true,
+      "total_hops": 4,
+      "callers": 3,
+      "paths": {
+       "svc:appointments": [
+        "svc:appointments",
+        "svc:notifications"
+       ],
+       "svc:lab-results": [
+        "svc:lab-results",
+        "svc:notifications"
+       ],
+       "svc:notifications": [
+        "svc:notifications"
+       ],
+       "svc:patient-portal": [
+        "svc:patient-portal",
+        "svc:lab-results",
+        "svc:notifications"
+       ]
+      }
+     },
+     {
+      "id": "svc:sms-gateway",
+      "covers": [
+       "svc:appointments",
+       "svc:lab-results",
+       "svc:notifications",
+       "svc:patient-portal"
+      ],
+      "coverage": 4,
+      "alerting": false,
+      "total_hops": 8,
+      "callers": 4,
+      "paths": {
+       "svc:appointments": [
+        "svc:appointments",
+        "svc:notifications",
+        "svc:sms-gateway"
+       ],
+       "svc:lab-results": [
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:sms-gateway"
+       ],
+       "svc:notifications": [
+        "svc:notifications",
+        "svc:sms-gateway"
+       ],
+       "svc:patient-portal": [
+        "svc:patient-portal",
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "id": "svc:audit-trail",
+      "covers": [
+       "svc:identity",
+       "svc:lab-results",
+       "svc:patient-portal"
+      ],
+      "coverage": 3,
+      "alerting": false,
+      "total_hops": 4,
+      "callers": 3,
+      "paths": {
+       "svc:identity": [
+        "svc:identity",
+        "svc:audit-trail"
+       ],
+       "svc:lab-results": [
+        "svc:lab-results",
+        "svc:audit-trail"
+       ],
+       "svc:patient-portal": [
+        "svc:patient-portal",
+        "svc:identity",
+        "svc:audit-trail"
+       ]
+      }
+     }
+    ],
+    "uncovered_by_top": [
+     "svc:identity"
+    ],
+    "ranking": "alerts covered (desc), alerting before silent, total hops (asc)",
+    "other_shared": 5
+   },
+   "receipt": {
+    "tool": "correlate_alerts",
+    "args": {
+     "service_ids": [
+      "svc:patient-portal",
+      "svc:appointments",
+      "svc:lab-results",
+      "svc:notifications",
+      "svc:identity"
+     ],
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "UNWIND $ids AS sid MATCH (s:Service {id:sid}) CALL algo.BFS(s, $depth, 'DEPENDS_ON') YIELD nodes UNWIND nodes AS d RETURN d.id, collect(DISTINCT sid)",
+      "params": {
+       "ids": [
+        "svc:patient-portal",
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:identity"
+       ],
+       "depth": 6
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
+      "params": {
+       "ids": [
+        "svc:notifications",
+        "svc:sms-gateway",
+        "svc:audit-trail"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:appointments",
+       "to": "svc:notifications",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:lab-results",
+       "to": "svc:notifications",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:patient-portal",
+       "to": "svc:notifications",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:appointments",
+       "to": "svc:sms-gateway",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:lab-results",
+       "to": "svc:sms-gateway",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:notifications",
+       "to": "svc:sms-gateway",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:patient-portal",
+       "to": "svc:sms-gateway",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:identity",
+       "to": "svc:audit-trail",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:lab-results",
+       "to": "svc:audit-trail",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:patient-portal",
+       "to": "svc:audit-trail",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:appointments",
+      "svc:notifications",
+      "svc:lab-results",
+      "svc:patient-portal",
+      "svc:sms-gateway",
+      "svc:identity",
+      "svc:audit-trail"
+     ],
+     "edges": [
+      {
+       "from": "svc:appointments",
+       "type": "DEPENDS_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "svc:lab-results",
+       "type": "DEPENDS_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "svc:patient-portal",
+       "type": "DEPENDS_ON",
+       "to": "svc:lab-results"
+      },
+      {
+       "from": "svc:notifications",
+       "type": "DEPENDS_ON",
+       "to": "svc:sms-gateway"
+      },
+      {
+       "from": "svc:identity",
+       "type": "DEPENDS_ON",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "svc:lab-results",
+       "type": "DEPENDS_ON",
+       "to": "svc:audit-trail"
+      },
+      {
+       "from": "svc:patient-portal",
+       "type": "DEPENDS_ON",
+       "to": "svc:identity"
+      }
+     ]
+    }
+   },
+   "why": "several alerts at once: which dependency do most of them share?",
+   "summary": "correlate_alerts → shared root notifications reached by 4 of 5 alerts",
+   "ts": 1792175206,
+   "ms": 6,
+   "llm_call": 3
+  },
+  {
+   "seq": 18,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "connected_impact",
+   "args": {
+    "service_ids": [
+     "svc:patient-portal",
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications",
+     "svc:identity"
+    ]
+   },
+   "result": {
+    "alerts": [
+     "svc:patient-portal",
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications",
+     "svc:identity"
+    ],
+    "projection": {
+     "services": 9,
+     "edges": 10
+    },
+    "components": [
+     {
+      "alerts": [
+       "svc:appointments",
+       "svc:identity",
+       "svc:lab-results",
+       "svc:notifications",
+       "svc:patient-portal"
+      ],
+      "size": 9
+     }
+    ],
+    "incidents_at_least": 1,
+    "meaning": "alerts in different components share no dependency at all, so no single cause can explain them together"
+   },
+   "receipt": {
+    "tool": "connected_impact",
+    "args": {
+     "service_ids": [
+      "svc:patient-portal",
+      "svc:appointments",
+      "svc:lab-results",
+      "svc:notifications",
+      "svc:identity"
+     ]
+    },
+    "queries": [
+     {
+      "cypher": "UNWIND $ids AS sid MATCH (s:Service {id:sid}) CALL algo.BFS(s, 6, 'DEPENDS_ON') YIELD nodes UNWIND nodes AS d RETURN DISTINCT d.id",
+      "params": {
+       "ids": [
+        "svc:patient-portal",
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:identity"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[:DEPENDS_ON]->(b:Service) WHERE a.id IN $ids AND b.id IN $ids RETURN a.id, b.id",
+      "params": {
+       "ids": [
+        "svc:appointments",
+        "svc:audit-trail",
+        "svc:identity",
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:patient-portal",
+        "svc:records-db",
+        "svc:scheduler-db",
+        "svc:sms-gateway"
+       ]
+      }
+     },
+     {
+      "cypher": "UNWIND $ids AS i CREATE (:Service {id: i})",
+      "params": {
+       "ids": "<9 items>"
+      },
+      "write": true,
+      "graph": "scratch projection"
+     },
+     {
+      "cypher": "UNWIND $pairs AS p MATCH (a:Service {id: p[0]}), (b:Service {id: p[1]}) CREATE (a)-[:DEPENDS_ON]->(b)",
+      "params": {
+       "pairs": "<10 items>"
+      },
+      "write": true,
+      "graph": "scratch projection"
+     },
+     {
+      "cypher": "CALL algo.WCC({nodeLabels: ['Service'], relationshipTypes: ['DEPENDS_ON']}) YIELD node, componentId RETURN node.id, componentId",
+      "params": {},
+      "graph": "scratch projection"
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal",
+      "svc:appointments",
+      "svc:lab-results",
+      "svc:notifications",
+      "svc:identity"
+     ],
+     "edges": []
+    }
+   },
+   "why": "several alerts at once: which of them cannot share a cause at all?",
+   "summary": "connected_impact → 1 group(s) that cannot share a cause: appointments, identity, lab-results, notifications, patient-portal",
+   "ts": 1792175206,
+   "ms": 4,
+   "llm_call": 3
+  },
+  {
+   "seq": 19,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:patient-portal"
+   },
+   "result": {
+    "service": "svc:patient-portal",
+    "max_hops": 4,
+    "upstream_count": 0,
+    "tier1_count": 0,
+    "upstream": []
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:patient-portal",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:patient-portal"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:patient-portal"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal"
+     ],
+     "edges": []
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 0 upstream (0 tier-1)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 20,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:notifications"
+   },
+   "result": {
+    "service": "svc:notifications",
+    "maintainers": [
+     {
+      "id": "per:owen-bryce",
+      "name": "Owen Bryce",
+      "status": "left",
+      "left_days_ago": 120
+     }
+    ],
+    "bus_factor_risk": true,
+    "bus_factor_reasons": [
+     "maintainer Owen Bryce has left"
+    ],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "role": "Senior Engineer",
+      "commits": 18,
+      "last_commit_days_ago": 30,
+      "resolutions": 0,
+      "score": 18
+     },
+     {
+      "id": "per:sam-reyes",
+      "name": "Sam Reyes",
+      "role": "Engineer",
+      "commits": 4,
+      "last_commit_days_ago": 0,
+      "resolutions": 0,
+      "score": 4
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:clinical-platform",
+     "name": "Clinical Platform",
+     "active_members": [
+      "Maya Okoro",
+      "Sam Reyes",
+      "Hana Sato",
+      "Victor Lund"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:notifications"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:notifications"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:notifications"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:maya-okoro",
+      "svc:notifications",
+      "per:sam-reyes",
+      "per:owen-bryce",
+      "team:clinical-platform"
+     ],
+     "edges": [
+      {
+       "from": "per:maya-okoro",
+       "type": "WORKED_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:sam-reyes",
+       "type": "WORKED_ON",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "per:owen-bryce",
+       "type": "MAINTAINS",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "team:clinical-platform",
+       "type": "OWNS",
+       "to": "svc:notifications"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 21,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_tiers",
+   "args": {
+    "service_id": "svc:notifications",
+    "alerting": [
+     "svc:patient-portal",
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications",
+     "svc:identity"
+    ]
+   },
+   "result": {
+    "service": "svc:notifications",
+    "max_hops": 4,
+    "tiers": [
+     {
+      "hops": 1,
+      "alerting": [
+       "svc:appointments",
+       "svc:lab-results"
+      ],
+      "silent": []
+     },
+     {
+      "hops": 2,
+      "alerting": [
+       "svc:patient-portal"
+      ],
+      "silent": []
+     }
+    ],
+    "callers": 3,
+    "silent_callers": [],
+    "meaning": "tier n = services that call this one at n hops (shortest); silent ones have not alerted yet"
+   },
+   "receipt": {
+    "tool": "blast_tiers",
+    "args": {
+     "service_id": "svc:notifications",
+     "alerting": [
+      "svc:patient-portal",
+      "svc:appointments",
+      "svc:lab-results",
+      "svc:notifications",
+      "svc:identity"
+     ],
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id}) CALL algo.SSpaths({sourceNode: s, relTypes: ['DEPENDS_ON'], relDirection: 'incoming', maxLen: $depth, pathCount: 1000}) YIELD path, pathWeight RETURN last(nodes(path)).id, min(pathWeight)",
+      "params": {
+       "id": "svc:notifications",
+       "depth": 4
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:notifications",
+      "svc:lab-results",
+      "svc:appointments",
+      "svc:patient-portal"
+     ],
+     "edges": []
+    }
+   },
+   "why": "which callers of the root are already alerting and which will be next (notify, don't page)",
+   "summary": "blast_tiers → 3 caller(s) in 2 tier(s); 0 silent so far",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 4
+  },
+  {
+   "seq": 22,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:patient-portal"
+   },
+   "result": {
+    "service": "svc:patient-portal",
+    "maintainers": [
+     {
+      "id": "per:ines-moreau",
+      "name": "Ines Moreau",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:ines-moreau",
+      "name": "Ines Moreau",
+      "role": "Staff Engineer",
+      "commits": 140,
+      "last_commit_days_ago": 3,
+      "resolutions": 0,
+      "score": 140
+     },
+     {
+      "id": "per:tariq-hassan",
+      "name": "Tariq Hassan",
+      "role": "Engineer",
+      "commits": 30,
+      "last_commit_days_ago": 20,
+      "resolutions": 0,
+      "score": 30
+     },
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "role": "Senior Engineer",
+      "commits": 0,
+      "last_commit_days_ago": null,
+      "resolutions": 1,
+      "score": 25
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:patient-experience",
+     "name": "Patient Experience",
+     "active_members": [
+      "Ines Moreau",
+      "Tariq Hassan",
+      "Lena Fischer"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:patient-portal"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:patient-portal"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:patient-portal"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:patient-portal"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:patient-portal"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:patient-portal"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:ines-moreau",
+      "svc:patient-portal",
+      "per:tariq-hassan",
+      "team:patient-experience",
+      "per:maya-okoro"
+     ],
+     "edges": [
+      {
+       "from": "per:ines-moreau",
+       "type": "WORKED_ON",
+       "to": "svc:patient-portal"
+      },
+      {
+       "from": "per:tariq-hassan",
+       "type": "WORKED_ON",
+       "to": "svc:patient-portal"
+      },
+      {
+       "from": "per:ines-moreau",
+       "type": "MAINTAINS",
+       "to": "svc:patient-portal"
+      },
+      {
+       "from": "team:patient-experience",
+       "type": "OWNS",
+       "to": "svc:patient-portal"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Ines Moreau (score 140)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 23,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:appointments"
+   },
+   "result": {
+    "service": "svc:appointments",
+    "maintainers": [
+     {
+      "id": "per:tariq-hassan",
+      "name": "Tariq Hassan",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:tariq-hassan",
+      "name": "Tariq Hassan",
+      "role": "Engineer",
+      "commits": 90,
+      "last_commit_days_ago": 2,
+      "resolutions": 0,
+      "score": 90
+     },
+     {
+      "id": "per:ines-moreau",
+      "name": "Ines Moreau",
+      "role": "Staff Engineer",
+      "commits": 25,
+      "last_commit_days_ago": 40,
+      "resolutions": 0,
+      "score": 25
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:patient-experience",
+     "name": "Patient Experience",
+     "active_members": [
+      "Ines Moreau",
+      "Tariq Hassan",
+      "Lena Fischer"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:appointments"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:appointments"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:appointments"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:ines-moreau",
+      "svc:appointments",
+      "per:tariq-hassan",
+      "team:patient-experience"
+     ],
+     "edges": [
+      {
+       "from": "per:ines-moreau",
+       "type": "WORKED_ON",
+       "to": "svc:appointments"
+      },
+      {
+       "from": "per:tariq-hassan",
+       "type": "WORKED_ON",
+       "to": "svc:appointments"
+      },
+      {
+       "from": "per:tariq-hassan",
+       "type": "MAINTAINS",
+       "to": "svc:appointments"
+      },
+      {
+       "from": "team:patient-experience",
+       "type": "OWNS",
+       "to": "svc:appointments"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Tariq Hassan (score 90)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 24,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:lab-results"
+   },
+   "result": {
+    "service": "svc:lab-results",
+    "maintainers": [
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": true,
+    "bus_factor_reasons": [
+     "only 1 active person has worked on this service"
+    ],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "role": "Senior Engineer",
+      "commits": 110,
+      "last_commit_days_ago": 6,
+      "resolutions": 1,
+      "score": 135
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:clinical-platform",
+     "name": "Clinical Platform",
+     "active_members": [
+      "Maya Okoro",
+      "Sam Reyes",
+      "Hana Sato",
+      "Victor Lund"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:lab-results"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:lab-results"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:maya-okoro",
+      "svc:lab-results",
+      "team:clinical-platform"
+     ],
+     "edges": [
+      {
+       "from": "per:maya-okoro",
+       "type": "WORKED_ON",
+       "to": "svc:lab-results"
+      },
+      {
+       "from": "per:maya-okoro",
+       "type": "MAINTAINS",
+       "to": "svc:lab-results"
+      },
+      {
+       "from": "team:clinical-platform",
+       "type": "OWNS",
+       "to": "svc:lab-results"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Maya Okoro (score 135)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 25,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:patient-portal",
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:patient-portal",
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications"
+    ],
+    "incident_count": 2,
+    "incidents": [
+     {
+      "id": "inc:nw-2026-03",
+      "key": "INC-NW-2026-03",
+      "title": "Results page timeouts after records migration",
+      "severity": 3,
+      "started": "2026-08-17",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 2,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:nw-missing-index"
+      ],
+      "resolution": "Recreated the visit_id index",
+      "resolved_by": [
+       "Maya Okoro"
+      ],
+      "resolution_sources": [
+       "tkt:PM-NW-2026-03"
+      ],
+      "similar_to": []
+     },
+     {
+      "id": "inc:nw-2025-14",
+      "key": "INC-NW-2025-14",
+      "title": "Appointment reminders stopped: SMS provider throttled us",
+      "severity": 2,
+      "started": "2025-12-20",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 2,
+      "via": [
+       "affected",
+       "caused_by_deploy"
+      ],
+      "caused_by_change_to": [
+       "svc:notifications"
+      ],
+      "root_causes": [
+       "rc:retry-storm"
+      ],
+      "resolution": "Restored the 3-attempt cap with backoff",
+      "resolved_by": [
+       "Owen Bryce"
+      ],
+      "resolution_sources": [
+       "tkt:PM-NW-2025-14"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:patient-portal",
+      "svc:appointments",
+      "svc:lab-results",
+      "svc:notifications"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:patient-portal",
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:notifications"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:patient-portal",
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:notifications"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:nw-2026-03",
+        "inc:nw-2025-14"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:nw-2026-03",
+      "rc:nw-missing-index",
+      "svc:patient-portal",
+      "svc:lab-results",
+      "res:nw-2026-03",
+      "per:maya-okoro",
+      "tkt:PM-NW-2026-03",
+      "inc:nw-2025-14",
+      "rc:retry-storm",
+      "svc:appointments",
+      "svc:notifications",
+      "dep:notifications-v3.1.0",
+      "res:nw-2025-14",
+      "per:owen-bryce",
+      "tkt:PM-NW-2025-14"
+     ],
+     "edges": [
+      {
+       "from": "inc:nw-2026-03",
+       "type": "AFFECTED",
+       "to": "svc:patient-portal"
+      },
+      {
+       "from": "inc:nw-2026-03",
+       "type": "AFFECTED",
+       "to": "svc:lab-results"
+      },
+      {
+       "from": "inc:nw-2026-03",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:nw-missing-index"
+      },
+      {
+       "from": "inc:nw-2026-03",
+       "type": "RESOLVED_BY",
+       "to": "res:nw-2026-03"
+      },
+      {
+       "from": "res:nw-2026-03",
+       "type": "PERFORMED_BY",
+       "to": "per:maya-okoro"
+      },
+      {
+       "from": "res:nw-2026-03",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-NW-2026-03"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "AFFECTED",
+       "to": "svc:appointments"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "AFFECTED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "CAUSED_BY",
+       "to": "dep:notifications-v3.1.0"
+      },
+      {
+       "from": "dep:notifications-v3.1.0",
+       "type": "CHANGED",
+       "to": "svc:notifications"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:retry-storm"
+      },
+      {
+       "from": "inc:nw-2025-14",
+       "type": "RESOLVED_BY",
+       "to": "res:nw-2025-14"
+      },
+      {
+       "from": "res:nw-2025-14",
+       "type": "PERFORMED_BY",
+       "to": "per:owen-bryce"
+      },
+      {
+       "from": "res:nw-2025-14",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-NW-2025-14"
+      }
+     ]
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 26,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:identity"
+   },
+   "result": {
+    "service": "svc:identity",
+    "max_hops": 4,
+    "upstream_count": 1,
+    "tier1_count": 1,
+    "upstream": [
+     {
+      "id": "svc:patient-portal",
+      "tier": 1,
+      "team": "Patient Experience",
+      "hops": 1
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:identity",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:identity"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:identity"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal",
+      "svc:identity"
+     ],
+     "edges": [
+      {
+       "from": "svc:patient-portal",
+       "type": "DEPENDS_ON",
+       "to": "svc:identity"
+      }
+     ]
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 1 upstream (1 tier-1)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 27,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:identity"
+   },
+   "result": {
+    "service": "svc:identity",
+    "maintainers": [
+     {
+      "id": "per:hana-sato",
+      "name": "Hana Sato",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:hana-sato",
+      "name": "Hana Sato",
+      "role": "Site Reliability Engineer",
+      "commits": 70,
+      "last_commit_days_ago": 9,
+      "resolutions": 0,
+      "score": 70
+     },
+     {
+      "id": "per:victor-lund",
+      "name": "Victor Lund",
+      "role": "Engineering Manager",
+      "commits": 6,
+      "last_commit_days_ago": 200,
+      "resolutions": 0,
+      "score": 6
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:clinical-platform",
+     "name": "Clinical Platform",
+     "active_members": [
+      "Maya Okoro",
+      "Sam Reyes",
+      "Hana Sato",
+      "Victor Lund"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:identity"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:identity"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:identity"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:identity"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:identity"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:identity"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:hana-sato",
+      "svc:identity",
+      "per:victor-lund",
+      "team:clinical-platform"
+     ],
+     "edges": [
+      {
+       "from": "per:hana-sato",
+       "type": "WORKED_ON",
+       "to": "svc:identity"
+      },
+      {
+       "from": "per:victor-lund",
+       "type": "WORKED_ON",
+       "to": "svc:identity"
+      },
+      {
+       "from": "per:hana-sato",
+       "type": "MAINTAINS",
+       "to": "svc:identity"
+      },
+      {
+       "from": "team:clinical-platform",
+       "type": "OWNS",
+       "to": "svc:identity"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Hana Sato (score 70)",
+   "ts": 1792175206,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 28,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "decisions_about",
+   "args": {
+    "service_id": "svc:identity"
+   },
+   "result": {
+    "service": "svc:identity",
+    "decisions": [],
+    "note": "no recorded decisions about this service"
+   },
+   "receipt": {
+    "tool": "decisions_about",
+    "args": {
+     "service_id": "svc:identity"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
+      "params": {
+       "id": "svc:identity"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does the change contradict a recorded decision?",
+   "summary": "decisions_about → 0 decision(s)",
+   "ts": 1792175206,
+   "ms": 0,
+   "llm_call": 4
+  },
+  {
+   "seq": 29,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "rollback_safety",
+   "args": {
+    "deploy_id": "dep:identity-v5.4.0"
+   },
+   "result": {
+    "deploy": "dep:identity-v5.4.0",
+    "service": "svc:identity",
+    "service_tier": 1,
+    "version": "5.4.0",
+    "later_deploys": [],
+    "dependents": 1,
+    "tier1_dependents": 1,
+    "hard_to_undo_terms": [],
+    "verdict": "safe",
+    "reasons": [
+     "nothing shipped to identity after it and nothing in the change looks irreversible"
+    ],
+    "blast_of_rollback": "1 service(s) call identity (directly or not), 1 of them tier-1: they briefly see the old version"
+   },
+   "receipt": {
+    "tool": "rollback_safety",
+    "args": {
+     "deploy_id": "dep:identity-v5.4.0"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
+      "params": {
+       "id": "dep:identity-v5.4.0"
+      }
+     },
+     {
+      "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
+      "params": {
+       "sid": "svc:identity",
+       "ts": 1792174306
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
+      "params": {
+       "sid": "svc:identity"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:identity-v5.4.0",
+      "svc:identity"
+     ],
+     "edges": [
+      {
+       "from": "dep:identity-v5.4.0",
+       "type": "CHANGED",
+       "to": "svc:identity"
+      }
+     ]
+    }
+   },
+   "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
+   "summary": "rollback_safety → rollback safe: nothing shipped to identity after it and nothing in the change looks irreversible",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 30,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "stale_knowledge",
+   "args": {
+    "service_id": "svc:identity"
+   },
+   "result": {
+    "service": "svc:identity",
+    "stale_count": 0,
+    "items": []
+   },
+   "receipt": {
+    "tool": "stale_knowledge",
+    "args": {
+     "service_id": "svc:identity"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
+      "params": {
+       "sid": "svc:identity"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "which docs and runbooks are out of date?",
+   "summary": "stale_knowledge → 0 stale: ",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 31,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:identity"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:identity"
+    ],
+    "incident_count": 0,
+    "incidents": [],
+    "note": "no past incidents touched these services"
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:identity"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:identity"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:identity"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 0 incident(s)",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 32,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "failure_domains",
+   "args": {
+    "service_ids": [
+     "svc:patient-portal",
+     "svc:appointments",
+     "svc:lab-results",
+     "svc:notifications",
+     "svc:identity"
+    ]
+   },
+   "result": {
+    "algorithm": "algo.labelPropagation (CDLP) over DEPENDS_ON",
+    "communities": 2,
+    "sizes": [
+     5,
+     4
+    ],
+    "services": [
+     {
+      "id": "svc:patient-portal",
+      "community": 0,
+      "community_size": 5
+     },
+     {
+      "id": "svc:appointments",
+      "community": 1,
+      "community_size": 4
+     },
+     {
+      "id": "svc:lab-results",
+      "community": 1,
+      "community_size": 4
+     },
+     {
+      "id": "svc:notifications",
+      "community": 0,
+      "community_size": 5
+     },
+     {
+      "id": "svc:identity",
+      "community": 1,
+      "community_size": 4
+     }
+    ],
+    "same_community": false,
+    "caveat": "communities come from link density; in a hub-heavy graph they are coarse, so treat them as context, not as proof that alerts are related"
+   },
+   "receipt": {
+    "tool": "failure_domains",
+    "args": {
+     "service_ids": [
+      "svc:patient-portal",
+      "svc:appointments",
+      "svc:lab-results",
+      "svc:notifications",
+      "svc:identity"
+     ]
+    },
+    "queries": [
+     {
+      "cypher": "CALL algo.labelPropagation({nodeLabels: ['Service'], relationshipTypes: ['DEPENDS_ON'], maxIterations: 20}) YIELD node, communityId RETURN node.id, communityId",
+      "params": {}
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:patient-portal",
+      "svc:appointments",
+      "svc:lab-results",
+      "svc:notifications",
+      "svc:identity"
+     ],
+     "edges": []
+    }
+   },
+   "why": "context: which part of the system the alerts fall in",
+   "summary": "failure_domains → 2 communities; the given services span 2",
+   "ts": 1792175206,
+   "ms": 4,
+   "llm_call": 4
+  },
+  {
+   "seq": 33,
+   "agent": "firefighter",
+   "action": "answer",
+   "tool": "submit_report",
+   "args": {
+    "summary": "5 alerts, 2 separate incidents: patient-portal, appointments, lab-results, notifications -> shared root notifications, no change; identity -> dep:identity-v5.4.0.",
+    "likely_cause": {
+     "service_id": null,
+     "deploy_id": null,
+     "ticket_key": null,
+     "path": [],
+     "explanation": "No recent change explains these 4 alerts, and all of them call notifications (4 hops in total; it is alerting itself): one shared dependency under load, so one incident, not 4."
+    },
+    "blast_radius": [],
+    "contact": {
+     "person_id": "per:maya-okoro",
+     "name": "Maya Okoro",
+     "reason": "18 commits on notifications (score 18)"
+    },
+    "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+    "conflicting_decision": null,
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "svc:notifications",
+      "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+     },
+     {
+      "node_id": "svc:sms-gateway",
+      "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+     },
+     {
+      "node_id": "per:maya-okoro",
+      "claim": "Best active contact: 18 commits on notifications (score 18)."
+     },
+     {
+      "node_id": "svc:patient-portal",
+      "claim": "0 upstream services (0 tier-1) are exposed."
+     }
+    ],
+    "recommended_actions": [
+     "Page Maya Okoro (per:maya-okoro).",
+     "Check notifications, sms-gateway capacity and saturation first."
+    ],
+    "confidence": "medium",
+    "look_first": {
+     "service_ids": [
+      "svc:notifications",
+      "svc:sms-gateway"
+     ],
+     "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+     "reason": "notifications is reached by 4 of the alerting services (4 hops in total); sms-gateway right behind it is reached by as many: check its load first."
+    },
+    "industry_pattern": null,
+    "rejected_leads": [],
+    "incidents": [
+     {
+      "alerts": [
+       "svc:patient-portal",
+       "svc:appointments",
+       "svc:lab-results",
+       "svc:notifications"
+      ],
+      "summary": "4 alerts (patient-portal, appointments, lab-results, notifications) are one incident: they all call notifications, and no recent change explains them. Page Maya Okoro once instead of 4 times.",
+      "likely_cause": {
+       "service_id": null,
+       "deploy_id": null,
+       "ticket_key": null,
+       "path": [],
+       "explanation": "No recent change explains these 4 alerts, and all of them call notifications (4 hops in total; it is alerting itself): one shared dependency under load, so one incident, not 4."
+      },
+      "contact": {
+       "person_id": "per:maya-okoro",
+       "name": "Maya Okoro",
+       "reason": "18 commits on notifications (score 18)"
+      },
+      "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+      "blast_radius": [],
+      "recommended_actions": [
+       "Page Maya Okoro (per:maya-okoro).",
+       "Check notifications, sms-gateway capacity and saturation first."
+      ],
+      "confidence": "medium",
+      "look_first": {
+       "service_ids": [
+        "svc:notifications",
+        "svc:sms-gateway"
+       ],
+       "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+       "reason": "notifications is reached by 4 of the alerting services (4 hops in total); sms-gateway right behind it is reached by as many: check its load first."
+      },
+      "root": {
+       "service_id": "svc:notifications",
+       "covers": [
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:notifications",
+        "svc:patient-portal"
+       ],
+       "alerting": true,
+       "total_hops": 4,
+       "tied": [
+        "svc:sms-gateway"
+       ]
+      },
+      "suppressed_pages": [
+       {
+        "alert": "svc:patient-portal",
+        "person_id": "per:ines-moreau",
+        "name": "Ines Moreau",
+        "team_id": null,
+        "reason": "patient-portal is part of this incident: patient-portal -> lab-results -> notifications; one page goes to Maya Okoro instead"
+       },
+       {
+        "alert": "svc:appointments",
+        "person_id": "per:tariq-hassan",
+        "name": "Tariq Hassan",
+        "team_id": null,
+        "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+       }
+      ],
+      "notify": []
+     },
+     {
+      "alerts": [
+       "svc:identity"
+      ],
+      "summary": "identity alert most likely caused by dep:identity-v5.4.0 on identity, deployed 15 min ago. Contact Hana Sato.",
+      "likely_cause": {
+       "service_id": "svc:identity",
+       "deploy_id": "dep:identity-v5.4.0",
+       "ticket_key": null,
+       "path": [
+        "svc:identity"
+       ],
+       "explanation": "Session tokens signed with the new key service (dep:identity-v5.4.0, deployed 15 min ago by Hana Sato). identity itself was changed."
+      },
+      "contact": {
+       "person_id": "per:hana-sato",
+       "name": "Hana Sato",
+       "reason": "70 commits on identity (score 70)"
+      },
+      "bus_factor_warning": null,
+      "blast_radius": [
+       "svc:patient-portal"
+      ],
+      "recommended_actions": [
+       "Roll back dep:identity-v5.4.0 on identity.",
+       "Page Hana Sato (per:hana-sato)."
+      ],
+      "confidence": "medium",
+      "look_first": null,
+      "root": null,
+      "suppressed_pages": [],
+      "notify": []
+     }
+    ],
+    "suppressed_pages": [
+     {
+      "alert": "svc:patient-portal",
+      "person_id": "per:ines-moreau",
+      "name": "Ines Moreau",
+      "team_id": null,
+      "reason": "patient-portal is part of this incident: patient-portal -> lab-results -> notifications; one page goes to Maya Okoro instead"
+     },
+     {
+      "alert": "svc:appointments",
+      "person_id": "per:tariq-hassan",
+      "name": "Tariq Hassan",
+      "team_id": null,
+      "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+     }
+    ],
+    "action_plan": [
+     {
+      "id": "A1",
+      "incident": 0,
+      "kind": "page",
+      "target": "per:maya-okoro",
+      "title": "Page Maya Okoro",
+      "justification": {
+       "why": "18 commits on notifications (score 18)",
+       "node_ids": [
+        "per:maya-okoro",
+        "svc:notifications"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A2",
+      "incident": 0,
+      "kind": "suppress_page",
+      "target": "per:ines-moreau",
+      "title": "Don't page Ines Moreau for patient-portal",
+      "justification": {
+       "why": "patient-portal is part of this incident: patient-portal -> lab-results -> notifications; one page goes to Maya Okoro instead",
+       "node_ids": [
+        "per:ines-moreau",
+        "svc:patient-portal"
+       ],
+       "path": [
+        "svc:patient-portal",
+        "svc:lab-results",
+        "svc:notifications"
+       ]
+      },
+      "safety": null
+     },
+     {
+      "id": "A3",
+      "incident": 0,
+      "kind": "suppress_page",
+      "target": "per:tariq-hassan",
+      "title": "Don't page Tariq Hassan for appointments",
+      "justification": {
+       "why": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead",
+       "node_ids": [
+        "per:tariq-hassan",
+        "svc:appointments"
+       ],
+       "path": [
+        "svc:appointments",
+        "svc:notifications"
+       ]
+      },
+      "safety": null
+     },
+     {
+      "id": "A4",
+      "incident": 0,
+      "kind": "open_ticket",
+      "target": "svc:notifications",
+      "title": "Open a follow-up ticket for notifications",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:notifications"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A5",
+      "incident": 1,
+      "kind": "rollback",
+      "target": "dep:identity-v5.4.0",
+      "title": "Roll back dep:identity-v5.4.0 on identity",
+      "justification": {
+       "why": "Session tokens signed with the new key service (dep:identity-v5.4.0, deployed 15 min ago by Hana Sato). identity itself was changed.",
+       "node_ids": [
+        "dep:identity-v5.4.0",
+        "svc:identity",
+        "svc:identity"
+       ],
+       "path": [
+        "svc:identity"
+       ]
+      },
+      "safety": {
+       "verdict": "safe",
+       "reasons": [
+        "nothing shipped to identity after it and nothing in the change looks irreversible"
+       ],
+       "dependents": 1,
+       "later_deploys": [],
+       "blast": "1 service(s) call identity (directly or not), 1 of them tier-1: they briefly see the old version"
+      }
+     },
+     {
+      "id": "A6",
+      "incident": 1,
+      "kind": "page",
+      "target": "per:hana-sato",
+      "title": "Page Hana Sato",
+      "justification": {
+       "why": "70 commits on identity (score 70)",
+       "node_ids": [
+        "per:hana-sato",
+        "svc:identity"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A7",
+      "incident": 1,
+      "kind": "open_ticket",
+      "target": "svc:identity",
+      "title": "Open a follow-up ticket for identity",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:identity"
+       ],
+       "path": []
+      },
+      "safety": null
+     }
+    ],
+    "hypotheses": [
+     {
+      "id": "H1",
+      "claim": "notifications is saturated and takes the 4 alerts down with it",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "svc:patient-portal",
+        "claim": "calls notifications (2 hops)"
+       },
+       {
+        "node_id": "svc:appointments",
+        "claim": "calls notifications (1 hop)"
+       },
+       {
+        "node_id": "svc:lab-results",
+        "claim": "calls notifications (1 hop)"
+       },
+       {
+        "node_id": "svc:notifications",
+        "claim": "calls notifications (0 hops)"
+       }
+      ],
+      "contradicting": [
+       {
+        "node_id": "svc:notifications",
+        "claim": "no recent change on it or on the alerts' paths (an inference from structure, not a deploy)"
+       }
+      ],
+      "reason": "one shared dependency explains 4 alerts; no single change explains more than 2"
+     },
+     {
+      "id": "H2",
+      "claim": "dep:identity-v5.4.0 on identity caused the identity alert",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "dep:identity-v5.4.0",
+        "claim": "deployed 15 min ago: Session tokens signed with the new key service"
+       },
+       {
+        "node_id": "svc:identity",
+        "claim": "the alerting service itself changed"
+       }
+      ],
+      "contradicting": [],
+      "reason": "the alerting service itself changed"
+     }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "4 alerts share notifications",
+      "node_id": "svc:notifications"
+     },
+     {
+      "effect": "-",
+      "factor": "no change on it: saturation is inferred from structure",
+      "node_id": null
+     }
+    ]
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "5 alerts, 2 separate incidents: patient-portal, appointments, lab-results, notifications -> shared root notifications, no change; identity -> dep:identity-v5.4.0.",
+     "likely_cause": {
+      "service_id": null,
+      "deploy_id": null,
+      "ticket_key": null,
+      "path": [],
+      "explanation": "No recent change explains these 4 alerts, and all of them call notifications (4 hops in total; it is alerting itself): one shared dependency under load, so one incident, not 4."
+     },
+     "blast_radius": [],
+     "contact": {
+      "person_id": "per:maya-okoro",
+      "name": "Maya Okoro",
+      "reason": "18 commits on notifications (score 18)"
+     },
+     "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "evidence": [
+      {
+       "node_id": "svc:notifications",
+       "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+      },
+      {
+       "node_id": "svc:sms-gateway",
+       "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+      },
+      {
+       "node_id": "per:maya-okoro",
+       "claim": "Best active contact: 18 commits on notifications (score 18)."
+      },
+      {
+       "node_id": "svc:patient-portal",
+       "claim": "0 upstream services (0 tier-1) are exposed."
+      }
+     ],
+     "recommended_actions": [
+      "Page Maya Okoro (per:maya-okoro).",
+      "Check notifications, sms-gateway capacity and saturation first."
+     ],
+     "confidence": "medium",
+     "look_first": {
+      "service_ids": [
+       "svc:notifications",
+       "svc:sms-gateway"
+      ],
+      "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+      "reason": "notifications is reached by 4 of the alerting services (4 hops in total); sms-gateway right behind it is reached by as many: check its load first."
+     },
+     "industry_pattern": null,
+     "rejected_leads": [],
+     "incidents": [
+      {
+       "alerts": [
+        "svc:patient-portal",
+        "svc:appointments",
+        "svc:lab-results",
+        "svc:notifications"
+       ],
+       "summary": "4 alerts (patient-portal, appointments, lab-results, notifications) are one incident: they all call notifications, and no recent change explains them. Page Maya Okoro once instead of 4 times.",
+       "likely_cause": {
+        "service_id": null,
+        "deploy_id": null,
+        "ticket_key": null,
+        "path": [],
+        "explanation": "No recent change explains these 4 alerts, and all of them call notifications (4 hops in total; it is alerting itself): one shared dependency under load, so one incident, not 4."
+       },
+       "contact": {
+        "person_id": "per:maya-okoro",
+        "name": "Maya Okoro",
+        "reason": "18 commits on notifications (score 18)"
+       },
+       "bus_factor_warning": "maintainer Owen Bryce has left. Page Maya Okoro instead of Owen Bryce.",
+       "blast_radius": [],
+       "recommended_actions": [
+        "Page Maya Okoro (per:maya-okoro).",
+        "Check notifications, sms-gateway capacity and saturation first."
+       ],
+       "confidence": "medium",
+       "look_first": {
+        "service_ids": [
+         "svc:notifications",
+         "svc:sms-gateway"
+        ],
+        "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+        "reason": "notifications is reached by 4 of the alerting services (4 hops in total); sms-gateway right behind it is reached by as many: check its load first."
+       },
+       "root": {
+        "service_id": "svc:notifications",
+        "covers": [
+         "svc:appointments",
+         "svc:lab-results",
+         "svc:notifications",
+         "svc:patient-portal"
+        ],
+        "alerting": true,
+        "total_hops": 4,
+        "tied": [
+         "svc:sms-gateway"
+        ]
+       },
+       "suppressed_pages": [
+        {
+         "alert": "svc:patient-portal",
+         "person_id": "per:ines-moreau",
+         "name": "Ines Moreau",
+         "team_id": null,
+         "reason": "patient-portal is part of this incident: patient-portal -> lab-results -> notifications; one page goes to Maya Okoro instead"
+        },
+        {
+         "alert": "svc:appointments",
+         "person_id": "per:tariq-hassan",
+         "name": "Tariq Hassan",
+         "team_id": null,
+         "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+        }
+       ],
+       "notify": []
+      },
+      {
+       "alerts": [
+        "svc:identity"
+       ],
+       "summary": "identity alert most likely caused by dep:identity-v5.4.0 on identity, deployed 15 min ago. Contact Hana Sato.",
+       "likely_cause": {
+        "service_id": "svc:identity",
+        "deploy_id": "dep:identity-v5.4.0",
+        "ticket_key": null,
+        "path": [
+         "svc:identity"
+        ],
+        "explanation": "Session tokens signed with the new key service (dep:identity-v5.4.0, deployed 15 min ago by Hana Sato). identity itself was changed."
+       },
+       "contact": {
+        "person_id": "per:hana-sato",
+        "name": "Hana Sato",
+        "reason": "70 commits on identity (score 70)"
+       },
+       "bus_factor_warning": null,
+       "blast_radius": [
+        "svc:patient-portal"
+       ],
+       "recommended_actions": [
+        "Roll back dep:identity-v5.4.0 on identity.",
+        "Page Hana Sato (per:hana-sato)."
+       ],
+       "confidence": "medium",
+       "look_first": null,
+       "root": null,
+       "suppressed_pages": [],
+       "notify": []
+      }
+     ],
+     "suppressed_pages": [
+      {
+       "alert": "svc:patient-portal",
+       "person_id": "per:ines-moreau",
+       "name": "Ines Moreau",
+       "team_id": null,
+       "reason": "patient-portal is part of this incident: patient-portal -> lab-results -> notifications; one page goes to Maya Okoro instead"
+      },
+      {
+       "alert": "svc:appointments",
+       "person_id": "per:tariq-hassan",
+       "name": "Tariq Hassan",
+       "team_id": null,
+       "reason": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+      }
+     ],
+     "action_plan": [
+      {
+       "id": "A1",
+       "incident": 0,
+       "kind": "page",
+       "target": "per:maya-okoro",
+       "title": "Page Maya Okoro",
+       "justification": {
+        "why": "18 commits on notifications (score 18)",
+        "node_ids": [
+         "per:maya-okoro",
+         "svc:notifications"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A2",
+       "incident": 0,
+       "kind": "suppress_page",
+       "target": "per:ines-moreau",
+       "title": "Don't page Ines Moreau for patient-portal",
+       "justification": {
+        "why": "patient-portal is part of this incident: patient-portal -> lab-results -> notifications; one page goes to Maya Okoro instead",
+        "node_ids": [
+         "per:ines-moreau",
+         "svc:patient-portal"
+        ],
+        "path": [
+         "svc:patient-portal",
+         "svc:lab-results",
+         "svc:notifications"
+        ]
+       },
+       "safety": null
+      },
+      {
+       "id": "A3",
+       "incident": 0,
+       "kind": "suppress_page",
+       "target": "per:tariq-hassan",
+       "title": "Don't page Tariq Hassan for appointments",
+       "justification": {
+        "why": "appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead",
+        "node_ids": [
+         "per:tariq-hassan",
+         "svc:appointments"
+        ],
+        "path": [
+         "svc:appointments",
+         "svc:notifications"
+        ]
+       },
+       "safety": null
+      },
+      {
+       "id": "A4",
+       "incident": 0,
+       "kind": "open_ticket",
+       "target": "svc:notifications",
+       "title": "Open a follow-up ticket for notifications",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:notifications"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A5",
+       "incident": 1,
+       "kind": "rollback",
+       "target": "dep:identity-v5.4.0",
+       "title": "Roll back dep:identity-v5.4.0 on identity",
+       "justification": {
+        "why": "Session tokens signed with the new key service (dep:identity-v5.4.0, deployed 15 min ago by Hana Sato). identity itself was changed.",
+        "node_ids": [
+         "dep:identity-v5.4.0",
+         "svc:identity",
+         "svc:identity"
+        ],
+        "path": [
+         "svc:identity"
+        ]
+       },
+       "safety": {
+        "verdict": "safe",
+        "reasons": [
+         "nothing shipped to identity after it and nothing in the change looks irreversible"
+        ],
+        "dependents": 1,
+        "later_deploys": [],
+        "blast": "1 service(s) call identity (directly or not), 1 of them tier-1: they briefly see the old version"
+       }
+      },
+      {
+       "id": "A6",
+       "incident": 1,
+       "kind": "page",
+       "target": "per:hana-sato",
+       "title": "Page Hana Sato",
+       "justification": {
+        "why": "70 commits on identity (score 70)",
+        "node_ids": [
+         "per:hana-sato",
+         "svc:identity"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A7",
+       "incident": 1,
+       "kind": "open_ticket",
+       "target": "svc:identity",
+       "title": "Open a follow-up ticket for identity",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:identity"
+        ],
+        "path": []
+       },
+       "safety": null
+      }
+     ],
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "notifications is saturated and takes the 4 alerts down with it",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "svc:patient-portal",
+         "claim": "calls notifications (2 hops)"
+        },
+        {
+         "node_id": "svc:appointments",
+         "claim": "calls notifications (1 hop)"
+        },
+        {
+         "node_id": "svc:lab-results",
+         "claim": "calls notifications (1 hop)"
+        },
+        {
+         "node_id": "svc:notifications",
+         "claim": "calls notifications (0 hops)"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:notifications",
+         "claim": "no recent change on it or on the alerts' paths (an inference from structure, not a deploy)"
+        }
+       ],
+       "reason": "one shared dependency explains 4 alerts; no single change explains more than 2"
+      },
+      {
+       "id": "H2",
+       "claim": "dep:identity-v5.4.0 on identity caused the identity alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:identity-v5.4.0",
+         "claim": "deployed 15 min ago: Session tokens signed with the new key service"
+        },
+        {
+         "node_id": "svc:identity",
+         "claim": "the alerting service itself changed"
+        }
+       ],
+       "contradicting": [],
+       "reason": "the alerting service itself changed"
+      }
+     ],
+     "confidence_breakdown": [
+      {
+       "effect": "+",
+       "factor": "4 alerts share notifications",
+       "node_id": "svc:notifications"
+      },
+      {
+       "effect": "-",
+       "factor": "no change on it: saturation is inferred from structure",
+       "node_id": null
+      }
+     ]
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "dep:identity-v5.4.0",
+      "per:hana-sato",
+      "per:ines-moreau",
+      "per:maya-okoro",
+      "per:tariq-hassan",
+      "svc:appointments",
+      "svc:identity",
+      "svc:lab-results",
+      "svc:notifications",
+      "svc:patient-portal",
+      "svc:sms-gateway"
+     ],
+     "edges": []
+    }
+   },
+   "why": "the evidence is in: submit the grounded report",
+   "summary": "5 alerts, 2 separate incidents: patient-portal, appointments, lab-results, notifications -> shared root notifications, no change; identity -> dep:identity-v5.4.0.",
+   "ts": 1792175206,
+   "ms": 1,
+   "llm_call": 5
+  }
+ ],
+ "twin": "northwind_health__eval_play",
+ "scenario": "n-storm",
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:patient-experience",
+    "label": "Team",
+    "name": "Patient Experience",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Patient Experience"
+    }
+   },
+   {
+    "id": "team:clinical-platform",
+    "label": "Team",
+    "name": "Clinical Platform",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Clinical Platform"
+    }
+   },
+   {
+    "id": "per:ines-moreau",
+    "label": "Person",
+    "name": "Ines Moreau",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Ines Moreau",
+     "role": "Staff Engineer",
+     "email": "ines.moreau@northwind.example",
+     "joined_at": 1653935206
+    }
+   },
+   {
+    "id": "per:tariq-hassan",
+    "label": "Person",
+    "name": "Tariq Hassan",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Tariq Hassan",
+     "role": "Engineer",
+     "email": "tariq.hassan@northwind.example",
+     "joined_at": 1748975206
+    }
+   },
+   {
+    "id": "per:owen-bryce",
+    "label": "Person",
+    "name": "Owen Bryce",
+    "origin": "seed",
+    "props": {
+     "status": "left",
+     "origin": "seed",
+     "name": "Owen Bryce",
+     "role": "Senior Engineer",
+     "email": "owen.bryce@northwind.example",
+     "joined_at": 1628015206,
+     "left_at": 1781807206
+    }
+   },
+   {
+    "id": "per:maya-okoro",
+    "label": "Person",
+    "name": "Maya Okoro",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Maya Okoro",
+     "role": "Senior Engineer",
+     "email": "maya.okoro@northwind.example",
+     "joined_at": 1697135206
+    }
+   },
+   {
+    "id": "per:sam-reyes",
+    "label": "Person",
+    "name": "Sam Reyes",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Sam Reyes",
+     "role": "Engineer",
+     "email": "sam.reyes@northwind.example",
+     "joined_at": 1788287206
+    }
+   },
+   {
+    "id": "per:hana-sato",
+    "label": "Person",
+    "name": "Hana Sato",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Hana Sato",
+     "role": "Site Reliability Engineer",
+     "email": "hana.sato@northwind.example",
+     "joined_at": 1723055206
+    }
+   },
+   {
+    "id": "per:victor-lund",
+    "label": "Person",
+    "name": "Victor Lund",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Victor Lund",
+     "role": "Engineering Manager",
+     "email": "victor.lund@northwind.example",
+     "joined_at": 1671215206
+    }
+   },
+   {
+    "id": "svc:patient-portal",
+    "label": "Service",
+    "name": "patient-portal",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "patient-portal",
+     "description": "Web and mobile portal where patients book visits and view results.",
+     "tier": 1,
+     "language": "TypeScript",
+     "repo_url": "https://git.northwind.example/patient-portal"
+    }
+   },
+   {
+    "id": "svc:appointments",
+    "label": "Service",
+    "name": "appointments",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "appointments",
+     "description": "Books, moves and cancels appointments; sends reminder requests.",
+     "tier": 1,
+     "language": "Kotlin",
+     "repo_url": "https://git.northwind.example/appointments"
+    }
+   },
+   {
+    "id": "svc:lab-results",
+    "label": "Service",
+    "name": "lab-results",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "lab-results",
+     "description": "Publishes finished lab reports to the portal.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.northwind.example/lab-results"
+    }
+   },
+   {
+    "id": "svc:notifications",
+    "label": "Service",
+    "name": "notifications",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "notifications",
+     "description": "Sends appointment reminders and result alerts by SMS and email.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/notifications"
+    }
+   },
+   {
+    "id": "svc:identity",
+    "label": "Service",
+    "name": "identity",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "identity",
+     "description": "Patient and staff sign-in, sessions and consent records.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/identity"
+    }
+   },
+   {
+    "id": "svc:sms-gateway",
+    "label": "Service",
+    "name": "sms-gateway",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "sms-gateway",
+     "description": "Thin wrapper around the SMS provider.",
+     "tier": 3,
+     "language": "Go",
+     "repo_url": "https://git.northwind.example/sms-gateway"
+    }
+   },
+   {
+    "id": "svc:audit-trail",
+    "label": "Service",
+    "name": "audit-trail",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "audit-trail",
+     "description": "Append-only access log required for compliance.",
+     "tier": 2,
+     "language": "Java",
+     "repo_url": "https://git.northwind.example/audit-trail"
+    }
+   },
+   {
+    "id": "tkt:PM-NW-2025-14",
+    "label": "Ticket",
+    "name": "PM-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: SMS provider throttled our account",
+     "text": "Unbounded retries in notifications v3.1.0 flooded the SMS provider, which throttled the account for 3 hours. Appointment reminders stopped. Resolution: restored the 3-attempt cap with backoff and drained the retry queue.",
+     "key": "PM-NW-2025-14",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "tkt:PM-NW-2026-03",
+    "label": "Ticket",
+    "name": "PM-NW-2026-03",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: results page timeouts",
+     "text": "After the records migration, lab-results scanned records-db without the visit_id index and the portal results page timed out. Resolution: added the missing index on visit_id and re-ran the report backfill.",
+     "key": "PM-NW-2026-03",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "rc:retry-storm",
+    "label": "RootCause",
+    "name": "Retry storm against an external provider",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Retry storm against an external provider",
+     "description": "Immediate, unbounded retries amplify a provider timeout until the provider throttles us."
+    }
+   },
+   {
+    "id": "rc:nw-missing-index",
+    "label": "RootCause",
+    "name": "Missing database index after migration",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Missing database index after migration",
+     "description": "A migration dropped an index, so queries fall back to sequential scans."
+    }
+   },
+   {
+    "id": "inc:nw-2025-14",
+    "label": "Incident",
+    "name": "INC-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "started_at": 1766255206,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "Appointment reminders stopped: SMS provider throttled us",
+     "summary": "notifications v3.1.0 retried SMS without limit on provider timeouts; the provider throttled the account.",
+     "key": "INC-NW-2025-14",
+     "severity": 2,
+     "symptom": "appointment reminder SMS not sent; provider 429s",
+     "resolved_at": 1766258806
+    }
+   },
+   {
+    "id": "inc:nw-2026-03",
+    "label": "Incident",
+    "name": "INC-NW-2026-03",
+    "origin": "seed",
+    "props": {
+     "started_at": 1786991206,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "Results page timeouts after records migration",
+     "summary": "lab-results ran sequential scans on records-db after a migration dropped the visit_id index.",
+     "key": "INC-NW-2026-03",
+     "severity": 3,
+     "symptom": "portal results page timing out",
+     "resolved_at": 1786994806
+    }
+   },
+   {
+    "id": "res:nw-2025-14",
+    "label": "Resolution",
+    "name": "Restored the 3-attempt cap with backoff",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Restored the 3-attempt cap with backoff",
+     "steps": "1. Restored the 3-attempt cap with backoff."
+    }
+   },
+   {
+    "id": "res:nw-2026-03",
+    "label": "Resolution",
+    "name": "Recreated the visit_id index",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Recreated the visit_id index",
+     "steps": "1. Recreated the visit_id index."
+    }
+   },
+   {
+    "id": "dep:notifications-v3.1.0",
+    "label": "Deploy",
+    "name": "3.1.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1766255206,
+     "origin": "seed",
+     "summary": "Unbounded SMS retries on provider timeout",
+     "version": "3.1.0"
+    }
+   },
+   {
+    "id": "dep:identity-v5.4.0",
+    "label": "Deploy",
+    "name": "5.4.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792174306,
+     "origin": "seed",
+     "summary": "Session tokens signed with the new key service",
+     "version": "5.4.0"
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:patient-experience",
+    "type": "OWNS",
+    "target": "svc:patient-portal",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:patient-experience",
+    "type": "OWNS",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:clinical-platform",
+    "type": "OWNS",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:clinical-platform",
+    "type": "OWNS",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:clinical-platform",
+    "type": "OWNS",
+    "target": "svc:identity",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:ines-moreau",
+    "type": "MAINTAINS",
+    "target": "svc:patient-portal",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:ines-moreau",
+    "type": "WORKED_ON",
+    "target": "svc:patient-portal",
+    "origin": "seed",
+    "props": {
+     "commits": 140,
+     "last_at": 1791916006
+    }
+   },
+   {
+    "source": "per:ines-moreau",
+    "type": "WORKED_ON",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {
+     "commits": 25,
+     "last_at": 1788719206
+    }
+   },
+   {
+    "source": "per:tariq-hassan",
+    "type": "WORKED_ON",
+    "target": "svc:patient-portal",
+    "origin": "seed",
+    "props": {
+     "commits": 30,
+     "last_at": 1790447206
+    }
+   },
+   {
+    "source": "per:tariq-hassan",
+    "type": "MAINTAINS",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:tariq-hassan",
+    "type": "WORKED_ON",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {
+     "commits": 90,
+     "last_at": 1792002406
+    }
+   },
+   {
+    "source": "per:owen-bryce",
+    "type": "MAINTAINS",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "MAINTAINS",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "WORKED_ON",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {
+     "commits": 110,
+     "last_at": 1791656806
+    }
+   },
+   {
+    "source": "per:maya-okoro",
+    "type": "WORKED_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "commits": 18,
+     "last_at": 1789583206
+    }
+   },
+   {
+    "source": "per:sam-reyes",
+    "type": "WORKED_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "commits": 4,
+     "last_at": 1792175206
+    }
+   },
+   {
+    "source": "per:hana-sato",
+    "type": "MAINTAINS",
+    "target": "svc:identity",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:hana-sato",
+    "type": "WORKED_ON",
+    "target": "svc:identity",
+    "origin": "seed",
+    "props": {
+     "commits": 70,
+     "last_at": 1791397606
+    }
+   },
+   {
+    "source": "per:hana-sato",
+    "type": "DEPLOYED",
+    "target": "dep:identity-v5.4.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:victor-lund",
+    "type": "WORKED_ON",
+    "target": "svc:identity",
+    "origin": "seed",
+    "props": {
+     "commits": 6,
+     "last_at": 1774895206
+    }
+   },
+   {
+    "source": "svc:patient-portal",
+    "type": "DEPENDS_ON",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:patient-portal",
+    "type": "DEPENDS_ON",
+    "target": "svc:identity",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:appointments",
+    "type": "DEPENDS_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:lab-results",
+    "type": "DEPENDS_ON",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:lab-results",
+    "type": "DEPENDS_ON",
+    "target": "svc:audit-trail",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:notifications",
+    "type": "DEPENDS_ON",
+    "target": "svc:sms-gateway",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:identity",
+    "type": "DEPENDS_ON",
+    "target": "svc:audit-trail",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "AFFECTED",
+    "target": "svc:appointments",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "AFFECTED",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:retry-storm",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "RESOLVED_BY",
+    "target": "res:nw-2025-14",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2025-14",
+    "type": "CAUSED_BY",
+    "target": "dep:notifications-v3.1.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "AFFECTED",
+    "target": "svc:patient-portal",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "AFFECTED",
+    "target": "svc:lab-results",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:nw-missing-index",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:nw-2026-03",
+    "type": "RESOLVED_BY",
+    "target": "res:nw-2026-03",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2025-14",
+    "type": "PERFORMED_BY",
+    "target": "per:owen-bryce",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2025-14",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-NW-2025-14",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: restored the 3-attempt cap with backoff and drained the retry queue."
+    }
+   },
+   {
+    "source": "res:nw-2026-03",
+    "type": "PERFORMED_BY",
+    "target": "per:maya-okoro",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:nw-2026-03",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-NW-2026-03",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: added the missing index on visit_id and re-ran the report backfill."
+    }
+   },
+   {
+    "source": "dep:notifications-v3.1.0",
+    "type": "CHANGED",
+    "target": "svc:notifications",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:identity-v5.4.0",
+    "type": "CHANGED",
+    "target": "svc:identity",
+    "origin": "seed",
+    "props": {}
+   }
+  ],
+  "base": [
+   "svc:appointments",
+   "svc:identity",
+   "svc:lab-results",
+   "svc:notifications",
+   "svc:patient-portal"
+  ],
+  "alert": "svc:patient-portal",
+  "alerts": [
+   "svc:patient-portal",
+   "svc:appointments",
+   "svc:lab-results",
+   "svc:notifications",
+   "svc:identity"
+  ]
+ },
+ "execution": {
+  "session_id": "ses:exec-run-5b0e3589e0b2",
+  "already_executed": false,
+  "results": [
+   {
+    "action": "A1",
+    "kind": "page",
+    "title": "Page Maya Okoro",
+    "ok": true,
+    "summary": "paged Maya Okoro for INC-2026-001 (simulated): 18 commits on notifications (score 18)"
+   },
+   {
+    "action": "A2",
+    "kind": "suppress_page",
+    "title": "Don't page Ines Moreau for patient-portal",
+    "ok": true,
+    "summary": "Don't page Ines Moreau for patient-portal: patient-portal is part of this incident: patient-portal -> lab-results -> notifications; one page goes to Maya Okoro instead"
+   },
+   {
+    "action": "A3",
+    "kind": "suppress_page",
+    "title": "Don't page Tariq Hassan for appointments",
+    "ok": true,
+    "summary": "Don't page Tariq Hassan for appointments: appointments is part of this incident: appointments -> notifications; one page goes to Maya Okoro instead"
+   },
+   {
+    "action": "A4",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for notifications",
+    "ok": true,
+    "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: notifications"
+   },
+   {
+    "action": "A5",
+    "kind": "rollback",
+    "title": "Roll back dep:identity-v5.4.0 on identity",
+    "ok": true,
+    "summary": "rolled back dep:identity-v5.4.0 (simulated): wrote dep:identity-v5.4.0-rollback"
+   },
+   {
+    "action": "A6",
+    "kind": "page",
+    "title": "Page Hana Sato",
+    "ok": true,
+    "summary": "paged Hana Sato for INC-2026-002 (simulated): 70 commits on identity (score 70)"
+   },
+   {
+    "action": "A7",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for identity",
+    "ok": true,
+    "summary": "opened OPS-2 (tkt:OPS-2): Follow-up: identity"
+   }
+  ],
+  "incidents": [
+   "inc:2026-001",
+   "inc:2026-002"
+  ],
+  "verification": {
+   "checks": [
+    {
+     "incident": 0,
+     "cleared": false,
+     "summary": "no change to roll back (a shared root under load): paging its owner is the action; the signal stays until they relieve the load"
+    },
+    {
+     "incident": 1,
+     "cleared": true,
+     "tool": "recent_changes_downstream",
+     "queries": [
+      {
+       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+       "params": {
+        "id": "svc:identity",
+        "since": 1792168006
+       }
+      }
+     ],
+     "summary": "the newest change on svc:identity is now the rollback (dep:identity-v5.4.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+    }
+   ],
+   "all_cleared": false,
+   "simulated": true
+  }
+ }
+}

@@ -1,0 +1,1783 @@
+{
+ "run_id": "run-b0ba79b96384",
+ "agent": "firefighter",
+ "tenant": "kestrel_pay__eval_play",
+ "alert": {
+  "service_id": "svc:web-checkout",
+  "symptom": "checkout 5xx 7% and p99 3.4s for the last 12 minutes"
+ },
+ "mode": "mock",
+ "model": "mock",
+ "started_at": 1792175204,
+ "status": "ok",
+ "report": {
+  "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v1.10.0 on sanctions-screening, deployed 25 min ago. Contact Mei Lin Chen.",
+  "likely_cause": {
+   "service_id": "svc:sanctions-screening",
+   "deploy_id": "dep:sanctions-screening-v1.10.0",
+   "ticket_key": null,
+   "path": [
+    "svc:web-checkout",
+    "svc:api-gateway",
+    "svc:payments-api",
+    "svc:fraud-scoring",
+    "svc:sanctions-screening"
+   ],
+   "explanation": "Screen every name variant synchronously (no batch cache) (dep:sanctions-screening-v1.10.0, deployed 25 min ago by Ravi Shankar). web-checkout calls sanctions-screening via declared dependencies: web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening."
+  },
+  "blast_radius": [],
+  "contact": {
+   "person_id": "per:mei-lin-chen",
+   "name": "Mei Lin Chen",
+   "reason": "45 commits on sanctions-screening (score 45)"
+  },
+  "bus_factor_warning": null,
+  "conflicting_decision": null,
+  "similar_past_incidents": [],
+  "evidence": [
+   {
+    "node_id": "dep:sanctions-screening-v1.10.0",
+    "claim": "sanctions-screening deployed 25 min ago: Screen every name variant synchronously (no batch cache)"
+   },
+   {
+    "node_id": "per:mei-lin-chen",
+    "claim": "Best active contact: 45 commits on sanctions-screening (score 45)."
+   },
+   {
+    "node_id": "svc:web-checkout",
+    "claim": "0 upstream services (0 tier-1) are exposed."
+   }
+  ],
+  "recommended_actions": [
+   "Roll back dep:sanctions-screening-v1.10.0 on sanctions-screening.",
+   "Page Mei Lin Chen (per:mei-lin-chen)."
+  ],
+  "confidence": "medium",
+  "look_first": null,
+  "industry_pattern": null,
+  "rejected_leads": [],
+  "action_plan": [
+   {
+    "id": "A1",
+    "incident": 0,
+    "kind": "rollback",
+    "target": "dep:sanctions-screening-v1.10.0",
+    "title": "Roll back dep:sanctions-screening-v1.10.0 on sanctions-screening",
+    "justification": {
+     "why": "Screen every name variant synchronously (no batch cache) (dep:sanctions-screening-v1.10.0, deployed 25 min ago by Ravi Shankar). web-checkout calls sanctions-screening via declared dependencies: web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening.",
+     "node_ids": [
+      "dep:sanctions-screening-v1.10.0",
+      "svc:sanctions-screening",
+      "svc:web-checkout",
+      "svc:api-gateway",
+      "svc:payments-api",
+      "svc:fraud-scoring",
+      "svc:sanctions-screening"
+     ],
+     "path": [
+      "svc:web-checkout",
+      "svc:api-gateway",
+      "svc:payments-api",
+      "svc:fraud-scoring",
+      "svc:sanctions-screening"
+     ]
+    },
+    "safety": {
+     "verdict": "safe",
+     "reasons": [
+      "nothing shipped to sanctions-screening after it and nothing in the change looks irreversible"
+     ],
+     "dependents": 7,
+     "later_deploys": [],
+     "blast": "7 service(s) call sanctions-screening (directly or not), 4 of them tier-1: they briefly see the old version"
+    }
+   },
+   {
+    "id": "A2",
+    "incident": 0,
+    "kind": "page",
+    "target": "per:mei-lin-chen",
+    "title": "Page Mei Lin Chen",
+    "justification": {
+     "why": "45 commits on sanctions-screening (score 45)",
+     "node_ids": [
+      "per:mei-lin-chen",
+      "svc:sanctions-screening"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A3",
+    "incident": 0,
+    "kind": "open_ticket",
+    "target": "svc:sanctions-screening",
+    "title": "Open a follow-up ticket for sanctions-screening",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:sanctions-screening"
+     ],
+     "path": []
+    },
+    "safety": null
+   }
+  ],
+  "hypotheses": [
+   {
+    "id": "H1",
+    "claim": "dep:sanctions-screening-v1.10.0 on sanctions-screening caused the web-checkout alert",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "dep:sanctions-screening-v1.10.0",
+      "claim": "deployed 25 min ago: Screen every name variant synchronously (no batch cache)"
+     },
+     {
+      "node_id": "svc:api-gateway",
+      "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+     },
+     {
+      "node_id": "svc:payments-api",
+      "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+     },
+     {
+      "node_id": "svc:fraud-scoring",
+      "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+     },
+     {
+      "node_id": "svc:sanctions-screening",
+      "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+     }
+    ],
+    "contradicting": [],
+    "reason": "a change on the call path (4 hops)"
+   }
+  ],
+  "confidence_breakdown": [
+   {
+    "effect": "+",
+    "factor": "the change is on the alert's call path (4 hops)",
+    "node_id": "dep:sanctions-screening-v1.10.0"
+   },
+   {
+    "effect": "-",
+    "factor": "no recorded decision says it is risky",
+    "node_id": null
+   },
+   {
+    "effect": "-",
+    "factor": "no past incident with the same cause",
+    "node_id": null
+   }
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "ungrounded_ids": [],
+  "errors": []
+ },
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 4,
+  "tool_calls": 10,
+  "duration_ms": 30
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:web-checkout"
+   },
+   "result": {
+    "service": "svc:web-checkout",
+    "scope": [
+     "svc:web-checkout",
+     "svc:api-gateway",
+     "svc:payments-api",
+     "svc:auth-service",
+     "svc:config-service",
+     "svc:config-db",
+     "svc:ledger-service",
+     "svc:card-processor-adapter",
+     "svc:fx-rates-service",
+     "svc:fraud-scoring",
+     "svc:kafka-events"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:web-checkout",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:web-checkout"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:web-checkout",
+        "svc:api-gateway",
+        "svc:payments-api",
+        "svc:auth-service",
+        "svc:config-service",
+        "svc:config-db",
+        "svc:ledger-service",
+        "svc:card-processor-adapter",
+        "svc:fx-rates-service",
+        "svc:fraud-scoring",
+        "svc:kafka-events"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:web-checkout",
+        "svc:api-gateway",
+        "svc:payments-api",
+        "svc:auth-service",
+        "svc:config-service",
+        "svc:config-db",
+        "svc:ledger-service",
+        "svc:card-processor-adapter",
+        "svc:fx-rates-service",
+        "svc:fraud-scoring",
+        "svc:kafka-events"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:web-checkout",
+        "svc:api-gateway",
+        "svc:payments-api",
+        "svc:auth-service",
+        "svc:config-service",
+        "svc:config-db",
+        "svc:ledger-service",
+        "svc:card-processor-adapter",
+        "svc:fx-rates-service",
+        "svc:fraud-scoring",
+        "svc:kafka-events"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:web-checkout"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175204,
+   "ms": 2,
+   "llm_call": 1
+  },
+  {
+   "seq": 2,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120,
+    "limit": 30
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 1,
+    "changes": [
+     {
+      "service": "svc:sanctions-screening",
+      "tier": 2,
+      "deploy": {
+       "id": "dep:sanctions-screening-v1.10.0",
+       "version": "1.10.0",
+       "ts": 1792173704,
+       "minutes_ago": 25,
+       "summary": "Screen every name variant synchronously (no batch cache)",
+       "by": "Ravi Shankar"
+      },
+      "deployer_id": "per:ravi-shankar",
+      "deployer_status": "active",
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 30
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792168004,
+       "limit": 31
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:sanctions-screening-v1.10.0",
+      "svc:sanctions-screening",
+      "per:ravi-shankar"
+     ],
+     "edges": [
+      {
+       "from": "dep:sanctions-screening-v1.10.0",
+       "type": "CHANGED",
+       "to": "svc:sanctions-screening"
+      },
+      {
+       "from": "per:ravi-shankar",
+       "type": "DEPLOYED",
+       "to": "dep:sanctions-screening-v1.10.0"
+      }
+     ]
+    }
+   },
+   "why": "list every recent change in the company: each one is a lead",
+   "summary": "recent_changes → 1 change(s) in 120 min: sanctions-screening 25 min ago",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 1
+  },
+  {
+   "seq": 3,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:web-checkout",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:web-checkout",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:sanctions-screening",
+      "hops": 4,
+      "path": [
+       "svc:web-checkout",
+       "svc:api-gateway",
+       "svc:payments-api",
+       "svc:fraud-scoring",
+       "svc:sanctions-screening"
+      ],
+      "edge_sources": [
+       "declared",
+       "declared",
+       "declared",
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:sanctions-screening-v1.10.0",
+       "version": "1.10.0",
+       "ts": 1792173704,
+       "minutes_ago": 25,
+       "summary": "Screen every name variant synchronously (no batch cache)",
+       "by": "Ravi Shankar"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:web-checkout",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:web-checkout",
+       "since": 1792168004
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:web-checkout",
+       "to": "svc:sanctions-screening",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:web-checkout",
+      "svc:api-gateway",
+      "svc:payments-api",
+      "svc:fraud-scoring",
+      "svc:sanctions-screening",
+      "dep:sanctions-screening-v1.10.0",
+      "per:ravi-shankar"
+     ],
+     "edges": [
+      {
+       "from": "svc:web-checkout",
+       "type": "DEPENDS_ON",
+       "to": "svc:api-gateway"
+      },
+      {
+       "from": "svc:api-gateway",
+       "type": "DEPENDS_ON",
+       "to": "svc:payments-api"
+      },
+      {
+       "from": "svc:payments-api",
+       "type": "DEPENDS_ON",
+       "to": "svc:fraud-scoring"
+      },
+      {
+       "from": "svc:fraud-scoring",
+       "type": "DEPENDS_ON",
+       "to": "svc:sanctions-screening"
+      },
+      {
+       "from": "dep:sanctions-screening-v1.10.0",
+       "type": "CHANGED",
+       "to": "svc:sanctions-screening"
+      },
+      {
+       "from": "per:ravi-shankar",
+       "type": "DEPLOYED",
+       "to": "dep:sanctions-screening-v1.10.0"
+      }
+     ]
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → 1 hit(s): sanctions-screening (deployed 25 min ago by Ravi Shankar)",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 4,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:web-checkout",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:web-checkout",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:web-checkout",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:web-checkout"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:web-checkout",
+       "since": 1792168004,
+       "downstream": [
+        "svc:api-gateway",
+        "svc:payments-api",
+        "svc:auth-service",
+        "svc:config-service",
+        "svc:config-db",
+        "svc:ledger-service",
+        "svc:card-processor-adapter",
+        "svc:fx-rates-service",
+        "svc:fraud-scoring",
+        "svc:kafka-events",
+        "svc:risk-rules",
+        "svc:kyc-service",
+        "svc:sanctions-screening",
+        "svc:rules-store-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 5,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:web-checkout"
+   },
+   "result": {
+    "service": "svc:web-checkout",
+    "max_hops": 4,
+    "upstream_count": 0,
+    "tier1_count": 0,
+    "upstream": []
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:web-checkout",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:web-checkout"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:web-checkout"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:web-checkout"
+     ],
+     "edges": []
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 0 upstream (0 tier-1)",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 6,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:sanctions-screening"
+   },
+   "result": {
+    "service": "svc:sanctions-screening",
+    "maintainers": [
+     {
+      "id": "per:mei-lin-chen",
+      "name": "Mei Lin Chen",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:mei-lin-chen",
+      "name": "Mei Lin Chen",
+      "role": "Senior Engineer",
+      "commits": 45,
+      "last_commit_days_ago": 15,
+      "resolutions": 0,
+      "score": 45
+     },
+     {
+      "id": "per:ravi-shankar",
+      "name": "Ravi Shankar",
+      "role": "Engineer",
+      "commits": 18,
+      "last_commit_days_ago": 15,
+      "resolutions": 0,
+      "score": 18
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:risk-fraud",
+     "name": "Risk & Fraud",
+     "active_members": [
+      "Leo Park",
+      "Dana Okafor",
+      "Mei Lin Chen",
+      "Ravi Shankar"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:sanctions-screening"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:sanctions-screening"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:sanctions-screening"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:sanctions-screening"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:sanctions-screening"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:sanctions-screening"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:mei-lin-chen",
+      "svc:sanctions-screening",
+      "per:ravi-shankar",
+      "team:risk-fraud"
+     ],
+     "edges": [
+      {
+       "from": "per:mei-lin-chen",
+       "type": "WORKED_ON",
+       "to": "svc:sanctions-screening"
+      },
+      {
+       "from": "per:ravi-shankar",
+       "type": "WORKED_ON",
+       "to": "svc:sanctions-screening"
+      },
+      {
+       "from": "per:mei-lin-chen",
+       "type": "MAINTAINS",
+       "to": "svc:sanctions-screening"
+      },
+      {
+       "from": "team:risk-fraud",
+       "type": "OWNS",
+       "to": "svc:sanctions-screening"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Mei Lin Chen (score 45)",
+   "ts": 1792175204,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 7,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "decisions_about",
+   "args": {
+    "service_id": "svc:sanctions-screening"
+   },
+   "result": {
+    "service": "svc:sanctions-screening",
+    "decisions": [],
+    "note": "no recorded decisions about this service"
+   },
+   "receipt": {
+    "tool": "decisions_about",
+    "args": {
+     "service_id": "svc:sanctions-screening"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
+      "params": {
+       "id": "svc:sanctions-screening"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does the change contradict a recorded decision?",
+   "summary": "decisions_about → 0 decision(s)",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 3
+  },
+  {
+   "seq": 8,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "rollback_safety",
+   "args": {
+    "deploy_id": "dep:sanctions-screening-v1.10.0"
+   },
+   "result": {
+    "deploy": "dep:sanctions-screening-v1.10.0",
+    "service": "svc:sanctions-screening",
+    "service_tier": 2,
+    "version": "1.10.0",
+    "later_deploys": [],
+    "dependents": 7,
+    "tier1_dependents": 4,
+    "hard_to_undo_terms": [],
+    "verdict": "safe",
+    "reasons": [
+     "nothing shipped to sanctions-screening after it and nothing in the change looks irreversible"
+    ],
+    "blast_of_rollback": "7 service(s) call sanctions-screening (directly or not), 4 of them tier-1: they briefly see the old version"
+   },
+   "receipt": {
+    "tool": "rollback_safety",
+    "args": {
+     "deploy_id": "dep:sanctions-screening-v1.10.0"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
+      "params": {
+       "id": "dep:sanctions-screening-v1.10.0"
+      }
+     },
+     {
+      "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
+      "params": {
+       "sid": "svc:sanctions-screening",
+       "ts": 1792173704
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
+      "params": {
+       "sid": "svc:sanctions-screening"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:sanctions-screening-v1.10.0",
+      "svc:sanctions-screening"
+     ],
+     "edges": [
+      {
+       "from": "dep:sanctions-screening-v1.10.0",
+       "type": "CHANGED",
+       "to": "svc:sanctions-screening"
+      }
+     ]
+    }
+   },
+   "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
+   "summary": "rollback_safety → rollback safe: nothing shipped to sanctions-screening after it and nothing in the change looks irreversible",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 9,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "stale_knowledge",
+   "args": {
+    "service_id": "svc:sanctions-screening"
+   },
+   "result": {
+    "service": "svc:sanctions-screening",
+    "stale_count": 0,
+    "items": []
+   },
+   "receipt": {
+    "tool": "stale_knowledge",
+    "args": {
+     "service_id": "svc:sanctions-screening"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
+      "params": {
+       "sid": "svc:sanctions-screening"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "which docs and runbooks are out of date?",
+   "summary": "stale_knowledge → 0 stale: ",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 3
+  },
+  {
+   "seq": 10,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:web-checkout",
+     "svc:sanctions-screening"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:web-checkout",
+     "svc:sanctions-screening"
+    ],
+    "incident_count": 1,
+    "incidents": [
+     {
+      "id": "inc:2025-089",
+      "key": "INC-2025-089",
+      "title": "api-gateway routing misconfiguration after config push",
+      "severity": 2,
+      "started": "2025-12-25",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:bad-config-push"
+      ],
+      "resolution": "Reverted routing table and re-applied through canary",
+      "resolved_by": [
+       "Nikhil Rao",
+       "Elena Petrova"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2025-089"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:web-checkout",
+      "svc:sanctions-screening"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:web-checkout",
+        "svc:sanctions-screening"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:web-checkout",
+        "svc:sanctions-screening"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:2025-089"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2025-089",
+      "rc:bad-config-push",
+      "svc:web-checkout",
+      "res:2025-089",
+      "per:nikhil-rao",
+      "per:elena-petrova",
+      "tkt:PM-2025-089"
+     ],
+     "edges": [
+      {
+       "from": "inc:2025-089",
+       "type": "AFFECTED",
+       "to": "svc:web-checkout"
+      },
+      {
+       "from": "inc:2025-089",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:bad-config-push"
+      },
+      {
+       "from": "inc:2025-089",
+       "type": "RESOLVED_BY",
+       "to": "res:2025-089"
+      },
+      {
+       "from": "res:2025-089",
+       "type": "PERFORMED_BY",
+       "to": "per:nikhil-rao"
+      },
+      {
+       "from": "res:2025-089",
+       "type": "PERFORMED_BY",
+       "to": "per:elena-petrova"
+      },
+      {
+       "from": "res:2025-089",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2025-089"
+      }
+     ]
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 11,
+   "agent": "firefighter",
+   "action": "answer",
+   "tool": "submit_report",
+   "args": {
+    "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v1.10.0 on sanctions-screening, deployed 25 min ago. Contact Mei Lin Chen.",
+    "likely_cause": {
+     "service_id": "svc:sanctions-screening",
+     "deploy_id": "dep:sanctions-screening-v1.10.0",
+     "ticket_key": null,
+     "path": [
+      "svc:web-checkout",
+      "svc:api-gateway",
+      "svc:payments-api",
+      "svc:fraud-scoring",
+      "svc:sanctions-screening"
+     ],
+     "explanation": "Screen every name variant synchronously (no batch cache) (dep:sanctions-screening-v1.10.0, deployed 25 min ago by Ravi Shankar). web-checkout calls sanctions-screening via declared dependencies: web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening."
+    },
+    "blast_radius": [],
+    "contact": {
+     "person_id": "per:mei-lin-chen",
+     "name": "Mei Lin Chen",
+     "reason": "45 commits on sanctions-screening (score 45)"
+    },
+    "bus_factor_warning": null,
+    "conflicting_decision": null,
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "dep:sanctions-screening-v1.10.0",
+      "claim": "sanctions-screening deployed 25 min ago: Screen every name variant synchronously (no batch cache)"
+     },
+     {
+      "node_id": "per:mei-lin-chen",
+      "claim": "Best active contact: 45 commits on sanctions-screening (score 45)."
+     },
+     {
+      "node_id": "svc:web-checkout",
+      "claim": "0 upstream services (0 tier-1) are exposed."
+     }
+    ],
+    "recommended_actions": [
+     "Roll back dep:sanctions-screening-v1.10.0 on sanctions-screening.",
+     "Page Mei Lin Chen (per:mei-lin-chen)."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "industry_pattern": null,
+    "rejected_leads": [],
+    "action_plan": [
+     {
+      "id": "A1",
+      "incident": 0,
+      "kind": "rollback",
+      "target": "dep:sanctions-screening-v1.10.0",
+      "title": "Roll back dep:sanctions-screening-v1.10.0 on sanctions-screening",
+      "justification": {
+       "why": "Screen every name variant synchronously (no batch cache) (dep:sanctions-screening-v1.10.0, deployed 25 min ago by Ravi Shankar). web-checkout calls sanctions-screening via declared dependencies: web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening.",
+       "node_ids": [
+        "dep:sanctions-screening-v1.10.0",
+        "svc:sanctions-screening",
+        "svc:web-checkout",
+        "svc:api-gateway",
+        "svc:payments-api",
+        "svc:fraud-scoring",
+        "svc:sanctions-screening"
+       ],
+       "path": [
+        "svc:web-checkout",
+        "svc:api-gateway",
+        "svc:payments-api",
+        "svc:fraud-scoring",
+        "svc:sanctions-screening"
+       ]
+      },
+      "safety": {
+       "verdict": "safe",
+       "reasons": [
+        "nothing shipped to sanctions-screening after it and nothing in the change looks irreversible"
+       ],
+       "dependents": 7,
+       "later_deploys": [],
+       "blast": "7 service(s) call sanctions-screening (directly or not), 4 of them tier-1: they briefly see the old version"
+      }
+     },
+     {
+      "id": "A2",
+      "incident": 0,
+      "kind": "page",
+      "target": "per:mei-lin-chen",
+      "title": "Page Mei Lin Chen",
+      "justification": {
+       "why": "45 commits on sanctions-screening (score 45)",
+       "node_ids": [
+        "per:mei-lin-chen",
+        "svc:sanctions-screening"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A3",
+      "incident": 0,
+      "kind": "open_ticket",
+      "target": "svc:sanctions-screening",
+      "title": "Open a follow-up ticket for sanctions-screening",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:sanctions-screening"
+       ],
+       "path": []
+      },
+      "safety": null
+     }
+    ],
+    "hypotheses": [
+     {
+      "id": "H1",
+      "claim": "dep:sanctions-screening-v1.10.0 on sanctions-screening caused the web-checkout alert",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "dep:sanctions-screening-v1.10.0",
+        "claim": "deployed 25 min ago: Screen every name variant synchronously (no batch cache)"
+       },
+       {
+        "node_id": "svc:api-gateway",
+        "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+       },
+       {
+        "node_id": "svc:payments-api",
+        "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+       },
+       {
+        "node_id": "svc:fraud-scoring",
+        "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+       },
+       {
+        "node_id": "svc:sanctions-screening",
+        "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+       }
+      ],
+      "contradicting": [],
+      "reason": "a change on the call path (4 hops)"
+     }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "the change is on the alert's call path (4 hops)",
+      "node_id": "dep:sanctions-screening-v1.10.0"
+     },
+     {
+      "effect": "-",
+      "factor": "no recorded decision says it is risky",
+      "node_id": null
+     },
+     {
+      "effect": "-",
+      "factor": "no past incident with the same cause",
+      "node_id": null
+     }
+    ]
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v1.10.0 on sanctions-screening, deployed 25 min ago. Contact Mei Lin Chen.",
+     "likely_cause": {
+      "service_id": "svc:sanctions-screening",
+      "deploy_id": "dep:sanctions-screening-v1.10.0",
+      "ticket_key": null,
+      "path": [
+       "svc:web-checkout",
+       "svc:api-gateway",
+       "svc:payments-api",
+       "svc:fraud-scoring",
+       "svc:sanctions-screening"
+      ],
+      "explanation": "Screen every name variant synchronously (no batch cache) (dep:sanctions-screening-v1.10.0, deployed 25 min ago by Ravi Shankar). web-checkout calls sanctions-screening via declared dependencies: web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening."
+     },
+     "blast_radius": [],
+     "contact": {
+      "person_id": "per:mei-lin-chen",
+      "name": "Mei Lin Chen",
+      "reason": "45 commits on sanctions-screening (score 45)"
+     },
+     "bus_factor_warning": null,
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "evidence": [
+      {
+       "node_id": "dep:sanctions-screening-v1.10.0",
+       "claim": "sanctions-screening deployed 25 min ago: Screen every name variant synchronously (no batch cache)"
+      },
+      {
+       "node_id": "per:mei-lin-chen",
+       "claim": "Best active contact: 45 commits on sanctions-screening (score 45)."
+      },
+      {
+       "node_id": "svc:web-checkout",
+       "claim": "0 upstream services (0 tier-1) are exposed."
+      }
+     ],
+     "recommended_actions": [
+      "Roll back dep:sanctions-screening-v1.10.0 on sanctions-screening.",
+      "Page Mei Lin Chen (per:mei-lin-chen)."
+     ],
+     "confidence": "medium",
+     "look_first": null,
+     "industry_pattern": null,
+     "rejected_leads": [],
+     "action_plan": [
+      {
+       "id": "A1",
+       "incident": 0,
+       "kind": "rollback",
+       "target": "dep:sanctions-screening-v1.10.0",
+       "title": "Roll back dep:sanctions-screening-v1.10.0 on sanctions-screening",
+       "justification": {
+        "why": "Screen every name variant synchronously (no batch cache) (dep:sanctions-screening-v1.10.0, deployed 25 min ago by Ravi Shankar). web-checkout calls sanctions-screening via declared dependencies: web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening.",
+        "node_ids": [
+         "dep:sanctions-screening-v1.10.0",
+         "svc:sanctions-screening",
+         "svc:web-checkout",
+         "svc:api-gateway",
+         "svc:payments-api",
+         "svc:fraud-scoring",
+         "svc:sanctions-screening"
+        ],
+        "path": [
+         "svc:web-checkout",
+         "svc:api-gateway",
+         "svc:payments-api",
+         "svc:fraud-scoring",
+         "svc:sanctions-screening"
+        ]
+       },
+       "safety": {
+        "verdict": "safe",
+        "reasons": [
+         "nothing shipped to sanctions-screening after it and nothing in the change looks irreversible"
+        ],
+        "dependents": 7,
+        "later_deploys": [],
+        "blast": "7 service(s) call sanctions-screening (directly or not), 4 of them tier-1: they briefly see the old version"
+       }
+      },
+      {
+       "id": "A2",
+       "incident": 0,
+       "kind": "page",
+       "target": "per:mei-lin-chen",
+       "title": "Page Mei Lin Chen",
+       "justification": {
+        "why": "45 commits on sanctions-screening (score 45)",
+        "node_ids": [
+         "per:mei-lin-chen",
+         "svc:sanctions-screening"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A3",
+       "incident": 0,
+       "kind": "open_ticket",
+       "target": "svc:sanctions-screening",
+       "title": "Open a follow-up ticket for sanctions-screening",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:sanctions-screening"
+        ],
+        "path": []
+       },
+       "safety": null
+      }
+     ],
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "dep:sanctions-screening-v1.10.0 on sanctions-screening caused the web-checkout alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:sanctions-screening-v1.10.0",
+         "claim": "deployed 25 min ago: Screen every name variant synchronously (no batch cache)"
+        },
+        {
+         "node_id": "svc:api-gateway",
+         "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+        },
+        {
+         "node_id": "svc:payments-api",
+         "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+        },
+        {
+         "node_id": "svc:fraud-scoring",
+         "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+        },
+        {
+         "node_id": "svc:sanctions-screening",
+         "claim": "on the path web-checkout -> api-gateway -> payments-api -> fraud-scoring -> sanctions-screening"
+        }
+       ],
+       "contradicting": [],
+       "reason": "a change on the call path (4 hops)"
+      }
+     ],
+     "confidence_breakdown": [
+      {
+       "effect": "+",
+       "factor": "the change is on the alert's call path (4 hops)",
+       "node_id": "dep:sanctions-screening-v1.10.0"
+      },
+      {
+       "effect": "-",
+       "factor": "no recorded decision says it is risky",
+       "node_id": null
+      },
+      {
+       "effect": "-",
+       "factor": "no past incident with the same cause",
+       "node_id": null
+      }
+     ]
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "dep:sanctions-screening-v1.10.0",
+      "per:mei-lin-chen",
+      "svc:api-gateway",
+      "svc:fraud-scoring",
+      "svc:payments-api",
+      "svc:sanctions-screening",
+      "svc:web-checkout"
+     ],
+     "edges": []
+    }
+   },
+   "why": "the evidence is in: submit the grounded report",
+   "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v1.10.0 on sanctions-screening, deployed 25 min ago. Contact Mei Lin Chen.",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 4
+  }
+ ],
+ "twin": "kestrel_pay__eval_play",
+ "scenario": "k-deep",
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:risk-fraud",
+    "label": "Team",
+    "name": "Risk & Fraud",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Risk & Fraud"
+    }
+   },
+   {
+    "id": "per:mei-lin-chen",
+    "label": "Person",
+    "name": "Mei Lin Chen",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Mei Lin Chen",
+     "role": "Senior Engineer",
+     "email": "mei.lin.chen@kestrelpay.example",
+     "joined_at": 1697135204
+    }
+   },
+   {
+    "id": "per:ravi-shankar",
+    "label": "Person",
+    "name": "Ravi Shankar",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Ravi Shankar",
+     "role": "Engineer",
+     "email": "ravi.shankar@kestrelpay.example",
+     "joined_at": 1747247204
+    }
+   },
+   {
+    "id": "per:nikhil-rao",
+    "label": "Person",
+    "name": "Nikhil Rao",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Nikhil Rao",
+     "role": "Staff Engineer",
+     "email": "nikhil.rao@kestrelpay.example",
+     "joined_at": 1610735204
+    }
+   },
+   {
+    "id": "per:elena-petrova",
+    "label": "Person",
+    "name": "Elena Petrova",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Elena Petrova",
+     "role": "Senior Engineer",
+     "email": "elena.petrova@kestrelpay.example",
+     "joined_at": 1679855204
+    }
+   },
+   {
+    "id": "svc:payments-api",
+    "label": "Service",
+    "name": "payments-api",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "payments-api",
+     "description": "Public payments API: authorises, captures and refunds card payments.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/payments-api"
+    }
+   },
+   {
+    "id": "svc:fraud-scoring",
+    "label": "Service",
+    "name": "fraud-scoring",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "fraud-scoring",
+     "description": "Scores every payment for fraud risk in under 150 ms using ML features and rule verdicts.",
+     "tier": 1,
+     "language": "Python",
+     "repo_url": "https://git.kestrelpay.example/fraud-scoring"
+    }
+   },
+   {
+    "id": "svc:sanctions-screening",
+    "label": "Service",
+    "name": "sanctions-screening",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "sanctions-screening",
+     "description": "Screens merchants and beneficiaries against sanctions lists.",
+     "tier": 2,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/sanctions-screening"
+    }
+   },
+   {
+    "id": "svc:api-gateway",
+    "label": "Service",
+    "name": "api-gateway",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "api-gateway",
+     "description": "Edge gateway: routing, rate limiting and request authentication.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/api-gateway"
+    }
+   },
+   {
+    "id": "svc:web-checkout",
+    "label": "Service",
+    "name": "web-checkout",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "web-checkout",
+     "description": "Hosted checkout page and JS SDK embedded by merchants.",
+     "tier": 1,
+     "language": "TypeScript",
+     "repo_url": "https://git.kestrelpay.example/web-checkout"
+    }
+   },
+   {
+    "id": "dep:sanctions-screening-v1.10.0",
+    "label": "Deploy",
+    "name": "1.10.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792173704,
+     "origin": "seed",
+     "summary": "Screen every name variant synchronously (no batch cache)",
+     "version": "1.10.0"
+    }
+   },
+   {
+    "id": "tkt:PM-2025-089",
+    "label": "Ticket",
+    "name": "PM-2025-089",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: api-gateway routing misconfiguration after config push",
+     "text": "INC-2025-089, sev 2. Impact: web-checkout and the merchant dashboard returned 404 for 35 minutes in the EU region. Timeline: api-gateway v8.2.0 shipped a routing table that pointed EU traffic at a service name that did not exist. Root cause: bad config push without validation or canary. Follow-up: PLAT-902, schema validation and canary for routing changes. Resolution: reverted the routing table a…",
+     "key": "PM-2025-089",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "rc:bad-config-push",
+    "label": "RootCause",
+    "name": "Bad configuration push",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Bad configuration push",
+     "description": "An invalid or wrong configuration was rolled out to production without validation or canary."
+    }
+   },
+   {
+    "id": "inc:2025-089",
+    "label": "Incident",
+    "name": "INC-2025-089",
+    "origin": "seed",
+    "props": {
+     "started_at": 1766687204,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "api-gateway routing misconfiguration after config push",
+     "summary": "api-gateway v8.2.0 shipped a routing table pointing EU traffic at a service name that did not exist. Reverted the routing table and re-applied it through a canary step.",
+     "key": "INC-2025-089",
+     "severity": 2,
+     "symptom": "EU traffic returning 404 on web-checkout and merchant dashboard",
+     "resolved_at": 1766690804
+    }
+   },
+   {
+    "id": "res:2025-089",
+    "label": "Resolution",
+    "name": "Reverted routing table and re-applied through canary",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Reverted routing table and re-applied through canary",
+     "steps": "1. Revert the routing table to the previous version. 2. Validate the new table against the service registry. 3. Re-apply to a canary slice, then to all traffic."
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:risk-fraud",
+    "type": "OWNS",
+    "target": "svc:sanctions-screening",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:mei-lin-chen",
+    "type": "MAINTAINS",
+    "target": "svc:sanctions-screening",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:mei-lin-chen",
+    "type": "WORKED_ON",
+    "target": "svc:sanctions-screening",
+    "origin": "seed",
+    "props": {
+     "commits": 45,
+     "last_at": 1790879204
+    }
+   },
+   {
+    "source": "per:ravi-shankar",
+    "type": "WORKED_ON",
+    "target": "svc:sanctions-screening",
+    "origin": "seed",
+    "props": {
+     "commits": 18,
+     "last_at": 1790879204
+    }
+   },
+   {
+    "source": "per:ravi-shankar",
+    "type": "DEPLOYED",
+    "target": "dep:sanctions-screening-v1.10.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "svc:payments-api",
+    "type": "DEPENDS_ON",
+    "target": "svc:fraud-scoring",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:fraud-scoring",
+    "type": "DEPENDS_ON",
+    "target": "svc:sanctions-screening",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:api-gateway",
+    "type": "DEPENDS_ON",
+    "target": "svc:payments-api",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:web-checkout",
+    "type": "DEPENDS_ON",
+    "target": "svc:api-gateway",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "dep:sanctions-screening-v1.10.0",
+    "type": "CHANGED",
+    "target": "svc:sanctions-screening",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-089",
+    "type": "AFFECTED",
+    "target": "svc:web-checkout",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-089",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:bad-config-push",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-089",
+    "type": "RESOLVED_BY",
+    "target": "res:2025-089",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-089",
+    "type": "PERFORMED_BY",
+    "target": "per:nikhil-rao",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-089",
+    "type": "PERFORMED_BY",
+    "target": "per:elena-petrova",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-089",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2025-089",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: reverted the routing table and re-applied it through the new canary step."
+    }
+   }
+  ],
+  "base": [
+   "svc:api-gateway",
+   "svc:web-checkout"
+  ],
+  "alert": "svc:web-checkout"
+ },
+ "execution": {
+  "session_id": "ses:exec-run-b0ba79b96384",
+  "already_executed": false,
+  "results": [
+   {
+    "action": "A1",
+    "kind": "rollback",
+    "title": "Roll back dep:sanctions-screening-v1.10.0 on sanctions-screening",
+    "ok": true,
+    "summary": "rolled back dep:sanctions-screening-v1.10.0 (simulated): wrote dep:sanctions-screening-v1.10.0-rollback"
+   },
+   {
+    "action": "A2",
+    "kind": "page",
+    "title": "Page Mei Lin Chen",
+    "ok": true,
+    "summary": "paged Mei Lin Chen for INC-2026-032 (simulated): 45 commits on sanctions-screening (score 45)"
+   },
+   {
+    "action": "A3",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for sanctions-screening",
+    "ok": true,
+    "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: sanctions-screening"
+   }
+  ],
+  "incidents": [
+   "inc:2026-032"
+  ],
+  "verification": {
+   "checks": [
+    {
+     "incident": 0,
+     "cleared": true,
+     "tool": "recent_changes_downstream",
+     "queries": [
+      {
+       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+       "params": {
+        "id": "svc:web-checkout",
+        "since": 1792168004
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:web-checkout",
+        "to": "svc:sanctions-screening",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:web-checkout",
+        "to": "svc:sanctions-screening",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      }
+     ],
+     "summary": "the newest change on svc:sanctions-screening is now the rollback (dep:sanctions-screening-v1.10.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+    }
+   ],
+   "all_cleared": true,
+   "simulated": true
+  }
+ }
+}

@@ -1,0 +1,2106 @@
+{
+ "run_id": "run-50695b003059",
+ "agent": "firefighter",
+ "tenant": "kestrel_pay__eval_play",
+ "alert": {
+  "service_id": "svc:payouts-service",
+  "symptom": "payout batch API 5xx 6% and failed payout batches rising for 20 minutes"
+ },
+ "mode": "mock",
+ "model": "mock",
+ "started_at": 1792175204,
+ "status": "ok",
+ "report": {
+  "summary": "payouts-service alert most likely caused by dep:bank-connector-v1.20.0 on bank-connector, deployed 45 min ago. Contact Tomasz Kowalski.",
+  "likely_cause": {
+   "service_id": "svc:bank-connector",
+   "deploy_id": "dep:bank-connector-v1.20.0",
+   "ticket_key": null,
+   "path": [
+    "svc:payouts-service",
+    "svc:bank-connector"
+   ],
+   "explanation": "Cut partner-bank socket timeout 30s -> 2s and retry inline (dep:bank-connector-v1.20.0, deployed 45 min ago by Tomasz Kowalski). payouts-service calls bank-connector via declared dependencies: payouts-service -> bank-connector."
+  },
+  "blast_radius": [],
+  "contact": {
+   "person_id": "per:tomasz-kowalski",
+   "name": "Tomasz Kowalski",
+   "reason": "110 commits on bank-connector (score 110)"
+  },
+  "bus_factor_warning": null,
+  "conflicting_decision": null,
+  "similar_past_incidents": [],
+  "evidence": [
+   {
+    "node_id": "dep:bank-connector-v1.20.0",
+    "claim": "bank-connector deployed 45 min ago: Cut partner-bank socket timeout 30s -> 2s and retry inline"
+   },
+   {
+    "node_id": "per:tomasz-kowalski",
+    "claim": "Best active contact: 110 commits on bank-connector (score 110)."
+   },
+   {
+    "node_id": "svc:payouts-service",
+    "claim": "0 upstream services (0 tier-1) are exposed."
+   }
+  ],
+  "recommended_actions": [
+   "Roll back dep:bank-connector-v1.20.0 on bank-connector.",
+   "Page Tomasz Kowalski (per:tomasz-kowalski)."
+  ],
+  "confidence": "medium",
+  "look_first": null,
+  "industry_pattern": null,
+  "rejected_leads": [
+   {
+    "deploy_id": "dep:merchant-dashboard-v7.10.0",
+    "service_id": "svc:merchant-dashboard",
+    "reason": "merchant-dashboard is not called by payouts-service; it only shares hubs with it (config-service (12 callers), kafka-events (12 callers), ledger-service (7 callers), fx-rates-service (5 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+   },
+   {
+    "deploy_id": "dep:email-sender-v1.15.0",
+    "service_id": "svc:email-sender",
+    "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+   }
+  ],
+  "action_plan": [
+   {
+    "id": "A1",
+    "incident": 0,
+    "kind": "rollback",
+    "target": "dep:bank-connector-v1.20.0",
+    "title": "Roll back dep:bank-connector-v1.20.0 on bank-connector",
+    "justification": {
+     "why": "Cut partner-bank socket timeout 30s -> 2s and retry inline (dep:bank-connector-v1.20.0, deployed 45 min ago by Tomasz Kowalski). payouts-service calls bank-connector via declared dependencies: payouts-service -> bank-connector.",
+     "node_ids": [
+      "dep:bank-connector-v1.20.0",
+      "svc:bank-connector",
+      "svc:payouts-service",
+      "svc:bank-connector"
+     ],
+     "path": [
+      "svc:payouts-service",
+      "svc:bank-connector"
+     ]
+    },
+    "safety": {
+     "verdict": "safe",
+     "reasons": [
+      "nothing shipped to bank-connector after it and nothing in the change looks irreversible"
+     ],
+     "dependents": 2,
+     "later_deploys": [],
+     "blast": "2 service(s) call bank-connector (directly or not), 1 of them tier-1: they briefly see the old version"
+    }
+   },
+   {
+    "id": "A2",
+    "incident": 0,
+    "kind": "page",
+    "target": "per:tomasz-kowalski",
+    "title": "Page Tomasz Kowalski",
+    "justification": {
+     "why": "110 commits on bank-connector (score 110)",
+     "node_ids": [
+      "per:tomasz-kowalski",
+      "svc:bank-connector"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A3",
+    "incident": 0,
+    "kind": "open_ticket",
+    "target": "svc:bank-connector",
+    "title": "Open a follow-up ticket for bank-connector",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:bank-connector"
+     ],
+     "path": []
+    },
+    "safety": null
+   }
+  ],
+  "hypotheses": [
+   {
+    "id": "H1",
+    "claim": "dep:bank-connector-v1.20.0 on bank-connector caused the payouts-service alert",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "dep:bank-connector-v1.20.0",
+      "claim": "deployed 45 min ago: Cut partner-bank socket timeout 30s -> 2s and retry inline"
+     },
+     {
+      "node_id": "svc:bank-connector",
+      "claim": "on the path payouts-service -> bank-connector"
+     }
+    ],
+    "contradicting": [],
+    "reason": "a change on the call path (1 hop)"
+   },
+   {
+    "id": "H2",
+    "claim": "dep:merchant-dashboard-v7.10.0 on merchant-dashboard caused it",
+    "status": "rejected",
+    "supporting": [
+     {
+      "node_id": "dep:merchant-dashboard-v7.10.0",
+      "claim": "deployed 5 min ago: Payouts tab: new filters for failed payout batches"
+     }
+    ],
+    "contradicting": [
+     {
+      "node_id": "svc:merchant-dashboard",
+      "claim": "merchant-dashboard is not called by payouts-service; it only shares hubs with it (config-service (12 callers), kafka-events (12 callers), ledger-service (7 callers), fx-rates-service (5 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+     }
+    ],
+    "reason": "merchant-dashboard is not called by payouts-service; it only shares hubs with it (config-service (12 callers), kafka-events (12 callers), ledger-service (7 callers), fx-rates-service (5 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+   },
+   {
+    "id": "H3",
+    "claim": "dep:email-sender-v1.15.0 on email-sender caused it",
+    "status": "rejected",
+    "supporting": [
+     {
+      "node_id": "dep:email-sender-v1.15.0",
+      "claim": "deployed 9 min ago: Switch to the new transactional template engine"
+     }
+    ],
+    "contradicting": [
+     {
+      "node_id": "svc:email-sender",
+      "claim": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+     }
+    ],
+    "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+   }
+  ],
+  "confidence_breakdown": [
+   {
+    "effect": "+",
+    "factor": "the change is on the alert's call path (1 hop)",
+    "node_id": "dep:bank-connector-v1.20.0"
+   },
+   {
+    "effect": "-",
+    "factor": "no recorded decision says it is risky",
+    "node_id": null
+   },
+   {
+    "effect": "-",
+    "factor": "no past incident with the same cause",
+    "node_id": null
+   }
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "ungrounded_ids": [],
+  "errors": []
+ },
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 4,
+  "tool_calls": 10,
+  "duration_ms": 16
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:payouts-service"
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "scope": [
+     "svc:payouts-service",
+     "svc:ledger-service",
+     "svc:bank-connector",
+     "svc:fx-rates-service",
+     "svc:config-service",
+     "svc:kafka-events",
+     "svc:config-db",
+     "svc:ledger-db",
+     "svc:audit-log"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service"
+     ],
+     "edges": []
+    }
+   },
+   "why": "memory first: did an earlier session learn something about this service?",
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792175204,
+   "ms": 2,
+   "llm_call": 1
+  },
+  {
+   "seq": 2,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120,
+    "limit": 30
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 3,
+    "changes": [
+     {
+      "service": "svc:merchant-dashboard",
+      "tier": 2,
+      "deploy": {
+       "id": "dep:merchant-dashboard-v7.10.0",
+       "version": "7.10.0",
+       "ts": 1792174904,
+       "minutes_ago": 5,
+       "summary": "Payouts tab: new filters for failed payout batches",
+       "by": "Fatima Zahra"
+      },
+      "deployer_id": "per:fatima-zahra",
+      "deployer_status": "active",
+      "ticket": null
+     },
+     {
+      "service": "svc:email-sender",
+      "tier": 3,
+      "deploy": {
+       "id": "dep:email-sender-v1.15.0",
+       "version": "1.15.0",
+       "ts": 1792174664,
+       "minutes_ago": 9,
+       "summary": "Switch to the new transactional template engine",
+       "by": "Kenji Watanabe"
+      },
+      "deployer_id": "per:kenji-watanabe",
+      "deployer_status": "active",
+      "ticket": null
+     },
+     {
+      "service": "svc:bank-connector",
+      "tier": 1,
+      "deploy": {
+       "id": "dep:bank-connector-v1.20.0",
+       "version": "1.20.0",
+       "ts": 1792172504,
+       "minutes_ago": 45,
+       "summary": "Cut partner-bank socket timeout 30s -> 2s and retry inline",
+       "by": "Tomasz Kowalski"
+      },
+      "deployer_id": "per:tomasz-kowalski",
+      "deployer_status": "active",
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 30
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792168004,
+       "limit": 31
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:merchant-dashboard-v7.10.0",
+      "svc:merchant-dashboard",
+      "per:fatima-zahra",
+      "dep:email-sender-v1.15.0",
+      "svc:email-sender",
+      "per:kenji-watanabe",
+      "dep:bank-connector-v1.20.0",
+      "svc:bank-connector",
+      "per:tomasz-kowalski"
+     ],
+     "edges": [
+      {
+       "from": "dep:merchant-dashboard-v7.10.0",
+       "type": "CHANGED",
+       "to": "svc:merchant-dashboard"
+      },
+      {
+       "from": "per:fatima-zahra",
+       "type": "DEPLOYED",
+       "to": "dep:merchant-dashboard-v7.10.0"
+      },
+      {
+       "from": "dep:email-sender-v1.15.0",
+       "type": "CHANGED",
+       "to": "svc:email-sender"
+      },
+      {
+       "from": "per:kenji-watanabe",
+       "type": "DEPLOYED",
+       "to": "dep:email-sender-v1.15.0"
+      },
+      {
+       "from": "dep:bank-connector-v1.20.0",
+       "type": "CHANGED",
+       "to": "svc:bank-connector"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "DEPLOYED",
+       "to": "dep:bank-connector-v1.20.0"
+      }
+     ]
+    }
+   },
+   "why": "list every recent change in the company: each one is a lead",
+   "summary": "recent_changes → 3 change(s) in 120 min: merchant-dashboard 5 min ago, email-sender 9 min ago, bank-connector 45 min ago",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 1
+  },
+  {
+   "seq": 3,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:payouts-service",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:bank-connector",
+      "hops": 1,
+      "path": [
+       "svc:payouts-service",
+       "svc:bank-connector"
+      ],
+      "edge_sources": [
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:bank-connector-v1.20.0",
+       "version": "1.20.0",
+       "ts": 1792172504,
+       "minutes_ago": 45,
+       "summary": "Cut partner-bank socket timeout 30s -> 2s and retry inline",
+       "by": "Tomasz Kowalski"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:payouts-service",
+       "since": 1792168004
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:payouts-service",
+       "to": "svc:bank-connector",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service",
+      "svc:bank-connector",
+      "dep:bank-connector-v1.20.0",
+      "per:tomasz-kowalski"
+     ],
+     "edges": [
+      {
+       "from": "svc:payouts-service",
+       "type": "DEPENDS_ON",
+       "to": "svc:bank-connector"
+      },
+      {
+       "from": "dep:bank-connector-v1.20.0",
+       "type": "CHANGED",
+       "to": "svc:bank-connector"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "DEPLOYED",
+       "to": "dep:bank-connector-v1.20.0"
+      }
+     ]
+    }
+   },
+   "why": "is any recent change on the alerting service's own call path?",
+   "summary": "recent_changes_downstream → 1 hit(s): bank-connector (deployed 45 min ago by Tomasz Kowalski)",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 4,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:payouts-service",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "neighbour": "svc:merchant-dashboard",
+      "shared": "svc:config-service",
+      "deploy": {
+       "id": "dep:merchant-dashboard-v7.10.0",
+       "version": "7.10.0",
+       "ts": 1792174904,
+       "minutes_ago": 5,
+       "summary": "Payouts tab: new filters for failed payout batches",
+       "by": "Fatima Zahra"
+      },
+      "ticket": null,
+      "path_to_shared": [
+       "svc:payouts-service",
+       "svc:config-service"
+      ],
+      "path_to_shared_sources": [
+       "declared"
+      ],
+      "neighbour_path": [
+       "svc:merchant-dashboard",
+       "svc:api-gateway",
+       "svc:config-service"
+      ],
+      "neighbour_path_sources": [
+       "declared",
+       "declared"
+      ],
+      "uses_learned_edge": false,
+      "also_shares": [
+       "svc:ledger-service",
+       "svc:fx-rates-service",
+       "svc:kafka-events"
+      ],
+      "shared_callers": 12,
+      "also_shares_callers": [
+       7,
+       5,
+       12
+      ]
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:payouts-service",
+       "since": 1792168004,
+       "downstream": [
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
+      "params": {
+       "ids": [
+        "svc:config-service",
+        "svc:fx-rates-service",
+        "svc:kafka-events",
+        "svc:ledger-service"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service",
+      "svc:config-service",
+      "svc:merchant-dashboard",
+      "svc:api-gateway",
+      "dep:merchant-dashboard-v7.10.0",
+      "per:fatima-zahra"
+     ],
+     "edges": [
+      {
+       "from": "svc:payouts-service",
+       "type": "DEPENDS_ON",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "svc:merchant-dashboard",
+       "type": "DEPENDS_ON",
+       "to": "svc:api-gateway"
+      },
+      {
+       "from": "svc:api-gateway",
+       "type": "DEPENDS_ON",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "dep:merchant-dashboard-v7.10.0",
+       "type": "CHANGED",
+       "to": "svc:merchant-dashboard"
+      },
+      {
+       "from": "per:fatima-zahra",
+       "type": "DEPLOYED",
+       "to": "dep:merchant-dashboard-v7.10.0"
+      }
+     ]
+    }
+   },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+   "summary": "shared_dependency_changes → 1 hit(s): merchant-dashboard via shared config-service, deployed 5 min ago",
+   "ts": 1792175204,
+   "ms": 2,
+   "llm_call": 2
+  },
+  {
+   "seq": 5,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:payouts-service"
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "max_hops": 4,
+    "upstream_count": 0,
+    "tier1_count": 0,
+    "upstream": []
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service"
+     ],
+     "edges": []
+    }
+   },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
+   "summary": "blast_radius → 0 upstream (0 tier-1)",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 6,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:bank-connector"
+   },
+   "result": {
+    "service": "svc:bank-connector",
+    "maintainers": [
+     {
+      "id": "per:tomasz-kowalski",
+      "name": "Tomasz Kowalski",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:tomasz-kowalski",
+      "name": "Tomasz Kowalski",
+      "role": "Engineer",
+      "commits": 110,
+      "last_commit_days_ago": 6,
+      "resolutions": 0,
+      "score": 110
+     },
+     {
+      "id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "role": "Engineer",
+      "commits": 22,
+      "last_commit_days_ago": 40,
+      "resolutions": 0,
+      "score": 22
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:payments-core",
+     "name": "Payments Core",
+     "active_members": [
+      "Priya Nair",
+      "Marcus Webb",
+      "Sofia Alvarez",
+      "Tomasz Kowalski",
+      "Aiko Tanaka"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:bank-connector"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:bank-connector"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:bank-connector"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:bank-connector"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:bank-connector"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:bank-connector"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:sofia-alvarez",
+      "svc:bank-connector",
+      "per:tomasz-kowalski",
+      "team:payments-core"
+     ],
+     "edges": [
+      {
+       "from": "per:sofia-alvarez",
+       "type": "WORKED_ON",
+       "to": "svc:bank-connector"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "WORKED_ON",
+       "to": "svc:bank-connector"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "MAINTAINS",
+       "to": "svc:bank-connector"
+      },
+      {
+       "from": "team:payments-core",
+       "type": "OWNS",
+       "to": "svc:bank-connector"
+      }
+     ]
+    }
+   },
+   "why": "who to page: active people by commits and past incident fixes",
+   "summary": "who_to_call → top: Tomasz Kowalski (score 110)",
+   "ts": 1792175204,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 7,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "decisions_about",
+   "args": {
+    "service_id": "svc:bank-connector"
+   },
+   "result": {
+    "service": "svc:bank-connector",
+    "decisions": [],
+    "note": "no recorded decisions about this service"
+   },
+   "receipt": {
+    "tool": "decisions_about",
+    "args": {
+     "service_id": "svc:bank-connector"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
+      "params": {
+       "id": "svc:bank-connector"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "does the change contradict a recorded decision?",
+   "summary": "decisions_about → 0 decision(s)",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 3
+  },
+  {
+   "seq": 8,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "rollback_safety",
+   "args": {
+    "deploy_id": "dep:bank-connector-v1.20.0"
+   },
+   "result": {
+    "deploy": "dep:bank-connector-v1.20.0",
+    "service": "svc:bank-connector",
+    "service_tier": 1,
+    "version": "1.20.0",
+    "later_deploys": [],
+    "dependents": 2,
+    "tier1_dependents": 1,
+    "hard_to_undo_terms": [],
+    "verdict": "safe",
+    "reasons": [
+     "nothing shipped to bank-connector after it and nothing in the change looks irreversible"
+    ],
+    "blast_of_rollback": "2 service(s) call bank-connector (directly or not), 1 of them tier-1: they briefly see the old version"
+   },
+   "receipt": {
+    "tool": "rollback_safety",
+    "args": {
+     "deploy_id": "dep:bank-connector-v1.20.0"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
+      "params": {
+       "id": "dep:bank-connector-v1.20.0"
+      }
+     },
+     {
+      "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
+      "params": {
+       "sid": "svc:bank-connector",
+       "ts": 1792172504
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
+      "params": {
+       "sid": "svc:bank-connector"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:bank-connector-v1.20.0",
+      "svc:bank-connector"
+     ],
+     "edges": [
+      {
+       "from": "dep:bank-connector-v1.20.0",
+       "type": "CHANGED",
+       "to": "svc:bank-connector"
+      }
+     ]
+    }
+   },
+   "why": "before proposing a rollback: what else would it undo, and how many services depend on it?",
+   "summary": "rollback_safety → rollback safe: nothing shipped to bank-connector after it and nothing in the change looks irreversible",
+   "ts": 1792175204,
+   "ms": 1,
+   "llm_call": 3
+  },
+  {
+   "seq": 9,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "stale_knowledge",
+   "args": {
+    "service_id": "svc:bank-connector"
+   },
+   "result": {
+    "service": "svc:bank-connector",
+    "stale_count": 0,
+    "items": []
+   },
+   "receipt": {
+    "tool": "stale_knowledge",
+    "args": {
+     "service_id": "svc:bank-connector"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
+      "params": {
+       "sid": "svc:bank-connector"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "which docs and runbooks are out of date?",
+   "summary": "stale_knowledge → 0 stale: ",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 3
+  },
+  {
+   "seq": 10,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:payouts-service",
+     "svc:bank-connector"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:payouts-service",
+     "svc:bank-connector"
+    ],
+    "incident_count": 1,
+    "incidents": [
+     {
+      "id": "inc:2025-044",
+      "key": "INC-2025-044",
+      "title": "ledger-service connection pool exhausted during payout run",
+      "severity": 2,
+      "started": "2025-09-16",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:connection-pool-exhaustion"
+      ],
+      "resolution": "Raised pool ceiling and capped payout writer concurrency",
+      "resolved_by": [
+       "Marcus Webb"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2025-044"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:payouts-service",
+      "svc:bank-connector"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:bank-connector"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:bank-connector"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:2025-044"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2025-044",
+      "rc:connection-pool-exhaustion",
+      "svc:payouts-service",
+      "res:2025-044",
+      "per:marcus-webb",
+      "tkt:PM-2025-044"
+     ],
+     "edges": [
+      {
+       "from": "inc:2025-044",
+       "type": "AFFECTED",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:connection-pool-exhaustion"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "RESOLVED_BY",
+       "to": "res:2025-044"
+      },
+      {
+       "from": "res:2025-044",
+       "type": "PERFORMED_BY",
+       "to": "per:marcus-webb"
+      },
+      {
+       "from": "res:2025-044",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2025-044"
+      }
+     ]
+    }
+   },
+   "why": "have we seen this before, and who fixed it?",
+   "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)",
+   "ts": 1792175204,
+   "ms": 2,
+   "llm_call": 3
+  },
+  {
+   "seq": 11,
+   "agent": "firefighter",
+   "action": "answer",
+   "tool": "submit_report",
+   "args": {
+    "summary": "payouts-service alert most likely caused by dep:bank-connector-v1.20.0 on bank-connector, deployed 45 min ago. Contact Tomasz Kowalski.",
+    "likely_cause": {
+     "service_id": "svc:bank-connector",
+     "deploy_id": "dep:bank-connector-v1.20.0",
+     "ticket_key": null,
+     "path": [
+      "svc:payouts-service",
+      "svc:bank-connector"
+     ],
+     "explanation": "Cut partner-bank socket timeout 30s -> 2s and retry inline (dep:bank-connector-v1.20.0, deployed 45 min ago by Tomasz Kowalski). payouts-service calls bank-connector via declared dependencies: payouts-service -> bank-connector."
+    },
+    "blast_radius": [],
+    "contact": {
+     "person_id": "per:tomasz-kowalski",
+     "name": "Tomasz Kowalski",
+     "reason": "110 commits on bank-connector (score 110)"
+    },
+    "bus_factor_warning": null,
+    "conflicting_decision": null,
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "dep:bank-connector-v1.20.0",
+      "claim": "bank-connector deployed 45 min ago: Cut partner-bank socket timeout 30s -> 2s and retry inline"
+     },
+     {
+      "node_id": "per:tomasz-kowalski",
+      "claim": "Best active contact: 110 commits on bank-connector (score 110)."
+     },
+     {
+      "node_id": "svc:payouts-service",
+      "claim": "0 upstream services (0 tier-1) are exposed."
+     }
+    ],
+    "recommended_actions": [
+     "Roll back dep:bank-connector-v1.20.0 on bank-connector.",
+     "Page Tomasz Kowalski (per:tomasz-kowalski)."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "industry_pattern": null,
+    "rejected_leads": [
+     {
+      "deploy_id": "dep:merchant-dashboard-v7.10.0",
+      "service_id": "svc:merchant-dashboard",
+      "reason": "merchant-dashboard is not called by payouts-service; it only shares hubs with it (config-service (12 callers), kafka-events (12 callers), ledger-service (7 callers), fx-rates-service (5 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+     },
+     {
+      "deploy_id": "dep:email-sender-v1.15.0",
+      "service_id": "svc:email-sender",
+      "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+     }
+    ],
+    "action_plan": [
+     {
+      "id": "A1",
+      "incident": 0,
+      "kind": "rollback",
+      "target": "dep:bank-connector-v1.20.0",
+      "title": "Roll back dep:bank-connector-v1.20.0 on bank-connector",
+      "justification": {
+       "why": "Cut partner-bank socket timeout 30s -> 2s and retry inline (dep:bank-connector-v1.20.0, deployed 45 min ago by Tomasz Kowalski). payouts-service calls bank-connector via declared dependencies: payouts-service -> bank-connector.",
+       "node_ids": [
+        "dep:bank-connector-v1.20.0",
+        "svc:bank-connector",
+        "svc:payouts-service",
+        "svc:bank-connector"
+       ],
+       "path": [
+        "svc:payouts-service",
+        "svc:bank-connector"
+       ]
+      },
+      "safety": {
+       "verdict": "safe",
+       "reasons": [
+        "nothing shipped to bank-connector after it and nothing in the change looks irreversible"
+       ],
+       "dependents": 2,
+       "later_deploys": [],
+       "blast": "2 service(s) call bank-connector (directly or not), 1 of them tier-1: they briefly see the old version"
+      }
+     },
+     {
+      "id": "A2",
+      "incident": 0,
+      "kind": "page",
+      "target": "per:tomasz-kowalski",
+      "title": "Page Tomasz Kowalski",
+      "justification": {
+       "why": "110 commits on bank-connector (score 110)",
+       "node_ids": [
+        "per:tomasz-kowalski",
+        "svc:bank-connector"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A3",
+      "incident": 0,
+      "kind": "open_ticket",
+      "target": "svc:bank-connector",
+      "title": "Open a follow-up ticket for bank-connector",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:bank-connector"
+       ],
+       "path": []
+      },
+      "safety": null
+     }
+    ],
+    "hypotheses": [
+     {
+      "id": "H1",
+      "claim": "dep:bank-connector-v1.20.0 on bank-connector caused the payouts-service alert",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "dep:bank-connector-v1.20.0",
+        "claim": "deployed 45 min ago: Cut partner-bank socket timeout 30s -> 2s and retry inline"
+       },
+       {
+        "node_id": "svc:bank-connector",
+        "claim": "on the path payouts-service -> bank-connector"
+       }
+      ],
+      "contradicting": [],
+      "reason": "a change on the call path (1 hop)"
+     },
+     {
+      "id": "H2",
+      "claim": "dep:merchant-dashboard-v7.10.0 on merchant-dashboard caused it",
+      "status": "rejected",
+      "supporting": [
+       {
+        "node_id": "dep:merchant-dashboard-v7.10.0",
+        "claim": "deployed 5 min ago: Payouts tab: new filters for failed payout batches"
+       }
+      ],
+      "contradicting": [
+       {
+        "node_id": "svc:merchant-dashboard",
+        "claim": "merchant-dashboard is not called by payouts-service; it only shares hubs with it (config-service (12 callers), kafka-events (12 callers), ledger-service (7 callers), fx-rates-service (5 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+       }
+      ],
+      "reason": "merchant-dashboard is not called by payouts-service; it only shares hubs with it (config-service (12 callers), kafka-events (12 callers), ledger-service (7 callers), fx-rates-service (5 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+     },
+     {
+      "id": "H3",
+      "claim": "dep:email-sender-v1.15.0 on email-sender caused it",
+      "status": "rejected",
+      "supporting": [
+       {
+        "node_id": "dep:email-sender-v1.15.0",
+        "claim": "deployed 9 min ago: Switch to the new transactional template engine"
+       }
+      ],
+      "contradicting": [
+       {
+        "node_id": "svc:email-sender",
+        "claim": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+     }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "the change is on the alert's call path (1 hop)",
+      "node_id": "dep:bank-connector-v1.20.0"
+     },
+     {
+      "effect": "-",
+      "factor": "no recorded decision says it is risky",
+      "node_id": null
+     },
+     {
+      "effect": "-",
+      "factor": "no past incident with the same cause",
+      "node_id": null
+     }
+    ]
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "payouts-service alert most likely caused by dep:bank-connector-v1.20.0 on bank-connector, deployed 45 min ago. Contact Tomasz Kowalski.",
+     "likely_cause": {
+      "service_id": "svc:bank-connector",
+      "deploy_id": "dep:bank-connector-v1.20.0",
+      "ticket_key": null,
+      "path": [
+       "svc:payouts-service",
+       "svc:bank-connector"
+      ],
+      "explanation": "Cut partner-bank socket timeout 30s -> 2s and retry inline (dep:bank-connector-v1.20.0, deployed 45 min ago by Tomasz Kowalski). payouts-service calls bank-connector via declared dependencies: payouts-service -> bank-connector."
+     },
+     "blast_radius": [],
+     "contact": {
+      "person_id": "per:tomasz-kowalski",
+      "name": "Tomasz Kowalski",
+      "reason": "110 commits on bank-connector (score 110)"
+     },
+     "bus_factor_warning": null,
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "evidence": [
+      {
+       "node_id": "dep:bank-connector-v1.20.0",
+       "claim": "bank-connector deployed 45 min ago: Cut partner-bank socket timeout 30s -> 2s and retry inline"
+      },
+      {
+       "node_id": "per:tomasz-kowalski",
+       "claim": "Best active contact: 110 commits on bank-connector (score 110)."
+      },
+      {
+       "node_id": "svc:payouts-service",
+       "claim": "0 upstream services (0 tier-1) are exposed."
+      }
+     ],
+     "recommended_actions": [
+      "Roll back dep:bank-connector-v1.20.0 on bank-connector.",
+      "Page Tomasz Kowalski (per:tomasz-kowalski)."
+     ],
+     "confidence": "medium",
+     "look_first": null,
+     "industry_pattern": null,
+     "rejected_leads": [
+      {
+       "deploy_id": "dep:merchant-dashboard-v7.10.0",
+       "service_id": "svc:merchant-dashboard",
+       "reason": "merchant-dashboard is not called by payouts-service; it only shares hubs with it (config-service (12 callers), kafka-events (12 callers), ledger-service (7 callers), fx-rates-service (5 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+      },
+      {
+       "deploy_id": "dep:email-sender-v1.15.0",
+       "service_id": "svc:email-sender",
+       "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+      }
+     ],
+     "action_plan": [
+      {
+       "id": "A1",
+       "incident": 0,
+       "kind": "rollback",
+       "target": "dep:bank-connector-v1.20.0",
+       "title": "Roll back dep:bank-connector-v1.20.0 on bank-connector",
+       "justification": {
+        "why": "Cut partner-bank socket timeout 30s -> 2s and retry inline (dep:bank-connector-v1.20.0, deployed 45 min ago by Tomasz Kowalski). payouts-service calls bank-connector via declared dependencies: payouts-service -> bank-connector.",
+        "node_ids": [
+         "dep:bank-connector-v1.20.0",
+         "svc:bank-connector",
+         "svc:payouts-service",
+         "svc:bank-connector"
+        ],
+        "path": [
+         "svc:payouts-service",
+         "svc:bank-connector"
+        ]
+       },
+       "safety": {
+        "verdict": "safe",
+        "reasons": [
+         "nothing shipped to bank-connector after it and nothing in the change looks irreversible"
+        ],
+        "dependents": 2,
+        "later_deploys": [],
+        "blast": "2 service(s) call bank-connector (directly or not), 1 of them tier-1: they briefly see the old version"
+       }
+      },
+      {
+       "id": "A2",
+       "incident": 0,
+       "kind": "page",
+       "target": "per:tomasz-kowalski",
+       "title": "Page Tomasz Kowalski",
+       "justification": {
+        "why": "110 commits on bank-connector (score 110)",
+        "node_ids": [
+         "per:tomasz-kowalski",
+         "svc:bank-connector"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A3",
+       "incident": 0,
+       "kind": "open_ticket",
+       "target": "svc:bank-connector",
+       "title": "Open a follow-up ticket for bank-connector",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:bank-connector"
+        ],
+        "path": []
+       },
+       "safety": null
+      }
+     ],
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "dep:bank-connector-v1.20.0 on bank-connector caused the payouts-service alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:bank-connector-v1.20.0",
+         "claim": "deployed 45 min ago: Cut partner-bank socket timeout 30s -> 2s and retry inline"
+        },
+        {
+         "node_id": "svc:bank-connector",
+         "claim": "on the path payouts-service -> bank-connector"
+        }
+       ],
+       "contradicting": [],
+       "reason": "a change on the call path (1 hop)"
+      },
+      {
+       "id": "H2",
+       "claim": "dep:merchant-dashboard-v7.10.0 on merchant-dashboard caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:merchant-dashboard-v7.10.0",
+         "claim": "deployed 5 min ago: Payouts tab: new filters for failed payout batches"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:merchant-dashboard",
+         "claim": "merchant-dashboard is not called by payouts-service; it only shares hubs with it (config-service (12 callers), kafka-events (12 callers), ledger-service (7 callers), fx-rates-service (5 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+        }
+       ],
+       "reason": "merchant-dashboard is not called by payouts-service; it only shares hubs with it (config-service (12 callers), kafka-events (12 callers), ledger-service (7 callers), fx-rates-service (5 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+      },
+      {
+       "id": "H3",
+       "claim": "dep:email-sender-v1.15.0 on email-sender caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:email-sender-v1.15.0",
+         "claim": "deployed 9 min ago: Switch to the new transactional template engine"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:email-sender",
+         "claim": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+        }
+       ],
+       "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+      }
+     ],
+     "confidence_breakdown": [
+      {
+       "effect": "+",
+       "factor": "the change is on the alert's call path (1 hop)",
+       "node_id": "dep:bank-connector-v1.20.0"
+      },
+      {
+       "effect": "-",
+       "factor": "no recorded decision says it is risky",
+       "node_id": null
+      },
+      {
+       "effect": "-",
+       "factor": "no past incident with the same cause",
+       "node_id": null
+      }
+     ]
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "dep:bank-connector-v1.20.0",
+      "dep:email-sender-v1.15.0",
+      "dep:merchant-dashboard-v7.10.0",
+      "per:tomasz-kowalski",
+      "svc:bank-connector",
+      "svc:email-sender",
+      "svc:merchant-dashboard",
+      "svc:payouts-service"
+     ],
+     "edges": []
+    }
+   },
+   "why": "the evidence is in: submit the grounded report",
+   "summary": "payouts-service alert most likely caused by dep:bank-connector-v1.20.0 on bank-connector, deployed 45 min ago. Contact Tomasz Kowalski.",
+   "ts": 1792175204,
+   "ms": 0,
+   "llm_call": 4
+  }
+ ],
+ "twin": "kestrel_pay__eval_play",
+ "scenario": "k-falselead",
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:payments-core",
+    "label": "Team",
+    "name": "Payments Core",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Payments Core"
+    }
+   },
+   {
+    "id": "per:marcus-webb",
+    "label": "Person",
+    "name": "Marcus Webb",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Marcus Webb",
+     "role": "Staff Engineer",
+     "email": "marcus.webb@kestrelpay.example",
+     "joined_at": 1593455204
+    }
+   },
+   {
+    "id": "per:sofia-alvarez",
+    "label": "Person",
+    "name": "Sofia Alvarez",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Sofia Alvarez",
+     "role": "Engineer",
+     "email": "sofia.alvarez@kestrelpay.example",
+     "joined_at": 1714415204
+    }
+   },
+   {
+    "id": "per:tomasz-kowalski",
+    "label": "Person",
+    "name": "Tomasz Kowalski",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Tomasz Kowalski",
+     "role": "Engineer",
+     "email": "tomasz.kowalski@kestrelpay.example",
+     "joined_at": 1731695204
+    }
+   },
+   {
+    "id": "per:fatima-zahra",
+    "label": "Person",
+    "name": "Fatima Zahra",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Fatima Zahra",
+     "role": "Engineer",
+     "email": "fatima.zahra@kestrelpay.example",
+     "joined_at": 1710095204
+    }
+   },
+   {
+    "id": "per:kenji-watanabe",
+    "label": "Person",
+    "name": "Kenji Watanabe",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Kenji Watanabe",
+     "role": "Engineer",
+     "email": "kenji.watanabe@kestrelpay.example",
+     "joined_at": 1740335204
+    }
+   },
+   {
+    "id": "svc:ledger-service",
+    "label": "Service",
+    "name": "ledger-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "ledger-service",
+     "description": "Double-entry ledger; the system of record for every money movement.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/ledger-service"
+    }
+   },
+   {
+    "id": "svc:bank-connector",
+    "label": "Service",
+    "name": "bank-connector",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "bank-connector",
+     "description": "Connects to partner banks for settlement files and instant-payout rails.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/bank-connector"
+    }
+   },
+   {
+    "id": "svc:payouts-service",
+    "label": "Service",
+    "name": "payouts-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "payouts-service",
+     "description": "Schedules and executes merchant payouts in batches.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/payouts-service"
+    }
+   },
+   {
+    "id": "svc:fx-rates-service",
+    "label": "Service",
+    "name": "fx-rates-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "fx-rates-service",
+     "description": "Serves cached foreign-exchange rates and applies the margin policy.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/fx-rates-service"
+    }
+   },
+   {
+    "id": "svc:api-gateway",
+    "label": "Service",
+    "name": "api-gateway",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "api-gateway",
+     "description": "Edge gateway: routing, rate limiting and request authentication.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/api-gateway"
+    }
+   },
+   {
+    "id": "svc:config-service",
+    "label": "Service",
+    "name": "config-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "config-service",
+     "description": "Central configuration and ruleset distribution service used by many backends.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/config-service"
+    }
+   },
+   {
+    "id": "svc:kafka-events",
+    "label": "Service",
+    "name": "kafka-events",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "kafka-events",
+     "description": "Shared Kafka cluster carrying payment, ledger and notification events.",
+     "tier": 1,
+     "language": "Kafka",
+     "repo_url": "https://git.kestrelpay.example/kafka-events"
+    }
+   },
+   {
+    "id": "svc:merchant-dashboard",
+    "label": "Service",
+    "name": "merchant-dashboard",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "merchant-dashboard",
+     "description": "Web dashboard where merchants view payments, payouts and reports.",
+     "tier": 2,
+     "language": "TypeScript",
+     "repo_url": "https://git.kestrelpay.example/merchant-dashboard"
+    }
+   },
+   {
+    "id": "svc:email-sender",
+    "label": "Service",
+    "name": "email-sender",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "email-sender",
+     "description": "Thin wrapper around the transactional email provider.",
+     "tier": 3,
+     "language": "Node.js",
+     "repo_url": "https://git.kestrelpay.example/email-sender"
+    }
+   },
+   {
+    "id": "dep:bank-connector-v1.20.0",
+    "label": "Deploy",
+    "name": "1.20.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792172504,
+     "origin": "seed",
+     "summary": "Cut partner-bank socket timeout 30s -> 2s and retry inline",
+     "version": "1.20.0"
+    }
+   },
+   {
+    "id": "dep:merchant-dashboard-v7.10.0",
+    "label": "Deploy",
+    "name": "7.10.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792174904,
+     "origin": "seed",
+     "summary": "Payouts tab: new filters for failed payout batches",
+     "version": "7.10.0"
+    }
+   },
+   {
+    "id": "dep:email-sender-v1.15.0",
+    "label": "Deploy",
+    "name": "1.15.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792174664,
+     "origin": "seed",
+     "summary": "Switch to the new transactional template engine",
+     "version": "1.15.0"
+    }
+   },
+   {
+    "id": "tkt:PM-2025-044",
+    "label": "Ticket",
+    "name": "PM-2025-044",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: ledger connection pool exhausted during payout run",
+     "text": "INC-2025-044, sev 2. Impact: payouts were delayed by three hours and some payment captures failed. Timeline: ledger-service v3.4.0 added a parallel payout journal writer. During the daily payout run it opened more connections than the database pool allowed, starving payments-api requests. Root cause: database connection pool exhaustion. Follow-up: load-test payout runs against the pool limit. Res…",
+     "key": "PM-2025-044",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "rc:connection-pool-exhaustion",
+    "label": "RootCause",
+    "name": "Database connection pool exhaustion",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Database connection pool exhaustion",
+     "description": "More concurrent work than the connection pool allows, so requests queue or fail."
+    }
+   },
+   {
+    "id": "inc:2025-044",
+    "label": "Incident",
+    "name": "INC-2025-044",
+    "origin": "seed",
+    "props": {
+     "started_at": 1758047204,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "ledger-service connection pool exhausted during payout run",
+     "summary": "ledger-service v3.4.0 added a parallel payout journal writer that opened more connections than the ledger-db pool allowed, starving payment captures. Raised the pool ceiling and capped writer concurrency.",
+     "key": "INC-2025-044",
+     "severity": 2,
+     "symptom": "payout run stalled; payment captures failing with pool timeout errors",
+     "resolved_at": 1758058004
+    }
+   },
+   {
+    "id": "res:2025-044",
+    "label": "Resolution",
+    "name": "Raised pool ceiling and capped payout writer concurrency",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Raised pool ceiling and capped payout writer concurrency",
+     "steps": "1. Reduce payout writer concurrency to 4. 2. Raise the ledger-db connection pool limit. 3. Re-run the stalled payout batch."
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:payments-core",
+    "type": "OWNS",
+    "target": "svc:bank-connector",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:sofia-alvarez",
+    "type": "WORKED_ON",
+    "target": "svc:bank-connector",
+    "origin": "seed",
+    "props": {
+     "commits": 22,
+     "last_at": 1788719204
+    }
+   },
+   {
+    "source": "per:tomasz-kowalski",
+    "type": "MAINTAINS",
+    "target": "svc:bank-connector",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:tomasz-kowalski",
+    "type": "WORKED_ON",
+    "target": "svc:bank-connector",
+    "origin": "seed",
+    "props": {
+     "commits": 110,
+     "last_at": 1791656804
+    }
+   },
+   {
+    "source": "per:tomasz-kowalski",
+    "type": "DEPLOYED",
+    "target": "dep:bank-connector-v1.20.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:fatima-zahra",
+    "type": "DEPLOYED",
+    "target": "dep:merchant-dashboard-v7.10.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:kenji-watanabe",
+    "type": "DEPLOYED",
+    "target": "dep:email-sender-v1.15.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:ledger-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:bank-connector",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:fx-rates-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:kafka-events",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:api-gateway",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:merchant-dashboard",
+    "type": "DEPENDS_ON",
+    "target": "svc:api-gateway",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "dep:bank-connector-v1.20.0",
+    "type": "CHANGED",
+    "target": "svc:bank-connector",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:merchant-dashboard-v7.10.0",
+    "type": "CHANGED",
+    "target": "svc:merchant-dashboard",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:email-sender-v1.15.0",
+    "type": "CHANGED",
+    "target": "svc:email-sender",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "AFFECTED",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:connection-pool-exhaustion",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "RESOLVED_BY",
+    "target": "res:2025-044",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-044",
+    "type": "PERFORMED_BY",
+    "target": "per:marcus-webb",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-044",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2025-044",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: raised the ledger connection pool ceiling and capped payout writer concurrency."
+    }
+   }
+  ],
+  "base": [
+   "svc:bank-connector",
+   "svc:config-service",
+   "svc:fx-rates-service",
+   "svc:kafka-events",
+   "svc:ledger-service",
+   "svc:payouts-service"
+  ],
+  "alert": "svc:payouts-service"
+ },
+ "execution": {
+  "session_id": "ses:exec-run-50695b003059",
+  "already_executed": false,
+  "results": [
+   {
+    "action": "A1",
+    "kind": "rollback",
+    "title": "Roll back dep:bank-connector-v1.20.0 on bank-connector",
+    "ok": true,
+    "summary": "rolled back dep:bank-connector-v1.20.0 (simulated): wrote dep:bank-connector-v1.20.0-rollback"
+   },
+   {
+    "action": "A2",
+    "kind": "page",
+    "title": "Page Tomasz Kowalski",
+    "ok": true,
+    "summary": "paged Tomasz Kowalski for INC-2026-032 (simulated): 110 commits on bank-connector (score 110)"
+   },
+   {
+    "action": "A3",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for bank-connector",
+    "ok": true,
+    "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: bank-connector"
+   }
+  ],
+  "incidents": [
+   "inc:2026-032"
+  ],
+  "verification": {
+   "checks": [
+    {
+     "incident": 0,
+     "cleared": true,
+     "tool": "recent_changes_downstream",
+     "queries": [
+      {
+       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+       "params": {
+        "id": "svc:payouts-service",
+        "since": 1792168004
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:payouts-service",
+        "to": "svc:bank-connector",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      },
+      {
+       "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+       "params": {
+        "from": "svc:payouts-service",
+        "to": "svc:bank-connector",
+        "dir": "outgoing",
+        "maxlen": 6
+       }
+      }
+     ],
+     "summary": "the newest change on svc:bank-connector is now the rollback (dep:bank-connector-v1.20.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+    }
+   ],
+   "all_cleared": true,
+   "simulated": true
+  }
+ }
+}
