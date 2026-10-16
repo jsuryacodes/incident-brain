@@ -1,7 +1,42 @@
 # Progress
 
-**Current task: `docs/prompts/07-ui.md`** (the demo console: parts 0, A–E, unattended, mock only, zero live API calls).
-Resume line: "Read docs/prompts/07-ui.md and docs/progress.md and continue."
+**Current task: `docs/prompts/08-track1.md`** (Track 1 all-in: scenario eval, hypotheses, alert storm, actions, MCP, scale, UI, docs; unattended, mock only, zero live API calls).
+Resume line: "Read docs/prompts/08-track1.md and docs/progress.md and continue."
+
+## Revert map (08)
+Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `git revert <hash>` undoes one piece).
+
+| Commit | Part | What it changed | Safe to revert alone? |
+|---|---|---|---|
+| e1f9787 | spec | `docs/prompts/08-track1.md` | yes |
+
+## 08 status
+| Part | Status | Commits |
+|---|---|---|
+| 0 Preflight | DONE | (no code) |
+| A Scenario library + eval + baselines | in progress | |
+| B Hypotheses + decision trace | todo | |
+| C Alert storm | todo | |
+| D Actions + safety check + approval | todo | |
+| E MCP for real | todo | |
+| F Scale proof | todo | |
+| G UI | todo | |
+| H Live-readiness | todo | |
+| I Docs | todo | |
+| J Review + final verification | todo | |
+
+**Total live API spend in 08: $0.00** (0 live calls, no key).
+
+## 08-0 — Preflight (baseline before any 08 code)
+- Docker up, `falkordb` container running (`falkordb/falkordb:latest`); `scripts/setup.sh` clean: kestrel_pay **14/14**, northwind_health **8/8** on a fresh seed.
+- `pytest -q` **118 passed** (9 s) · `npm test` (vitest) **17 passed** · `scripts/e2e.sh` Playwright **10/10** (49 s).
+- Brain eval **15/15** (kestrel_pay, after the story) + **3/3** (northwind_health).
+- Machine: macOS (Darwin 25.4), Python 3.15.0 in `.venv`, Node 22.
+- Tag `pre-08` pushed. `.scratch/` added to `.gitignore`.
+
+---
+
+# Earlier: task 07 (`docs/prompts/07-ui.md`, all DONE)
 
 | Part | Status | Commit |
 |---|---|---|
