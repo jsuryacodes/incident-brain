@@ -1,19 +1,27 @@
 # Incident Brain over MCP
 
-`backend/mcp_server.py` exposes the company graph's **read-only** tools over the Model Context Protocol (stdio).
-Any MCP client (Claude Desktop, Claude Code, …) then picks tools itself, the Track 1 "tool selection via MCP" story.
+`backend/mcp_server.py` exposes the company graph's **read-only** tools over the Model Context Protocol, and our own
+agents can pick and call their tools **through MCP** too (Track 1: "tool selection through MCP").
 
-- **Tools:** every tool in `backend/tools/registry.py` (16 today: `find_service`, `blast_radius`,
-  `recent_changes_downstream`, `shared_dependency_changes`, `dependency_path`, `who_to_call`, `decisions_about`,
-  `past_incidents`, `search_knowledge`, `critical_services`, `stale_knowledge`, `node_details`, `read_source`,
-  `get_incident_state`, `memory_recall`, `industry_matches`). Names, descriptions and JSON schemas are generated from the registry, so they never drift
-  from what our own agents use.
-- **Output:** the tool's `result` JSON, plus a second text block **"Cypher receipt"** with the exact parameterised
-  queries that produced it.
+- **Tools:** every tool in `backend/tools/registry.py` (22 today, incl. the algorithm tools `critical_services`,
+  `correlate_alerts`, `connected_impact`, `blast_tiers`, `failure_domains` and the safety check `rollback_safety`).
+  Names, descriptions and JSON schemas are generated from the registry, so they never drift from what our agents use.
+- **Output:** the tool's `result` JSON, a second text block **"Cypher receipt"** with the exact parameterised queries,
+  and the same as MCP `structuredContent` `{result, receipt}` (receipt incl. the highlighted nodes/edges).
+- **Prompts:** `investigate_alert(service, symptom)` and `alert_storm(services)`: the method our Firefighter follows.
+- **Resources:** `incident-brain://schema` (the graph model) and `incident-brain://tools` (every tool's Cypher + real output).
 - **Not exposed:** write/memory tools and agent runs. MCP clients can look but not change the graph or spend API budget.
-- One server process serves one tenant (`--tenant`, must be in `TENANTS`).
-- Built on the official `mcp` Python SDK 2.x low-level `Server` (FastMCP is called `MCPServer` in 2.x; its
-  decorators would re-derive schemas from Python signatures instead of using the registry's).
+  (`connected_impact` copies a projection into its own scratch graph for algo.WCC and deletes it; the company graph is only read.)
+- **Transports:** stdio (`python -m backend.mcp_server --tenant <t>`, one tenant per process) and **streamable HTTP**
+  inside the API: `http://localhost:8000/mcp/<tenant>/` (one server per company, so a connection serves one tenant;
+  stateless JSON responses; rate-limited like `/api/*`; Host/Origin checked against DNS rebinding, configure with
+  `MCP_ALLOWED_HOSTS` / `MCP_ALLOWED_ORIGINS`).
+- **Our agents through MCP:** `python -m backend.agents.firefighter --service svc:payments-api --symptom "5xx" --tools-via mcp`:
+  the tool list comes from `tools/list` and every call is a `tools/call` on an MCP client session
+  (`backend/agents/mcp_tools.py`). `tests/test_mcp.py::test_tools_via_mcp_parity` proves the run is the same as direct.
+- **Transcript:** `docs/mcp-transcript.md` (`python -m backend.agents.mcp_transcript`): a scripted client (no LLM)
+  against the HTTP endpoint: discovery → prompt → tool selection → results and receipts.
+- Built on the official `mcp` Python SDK 2.x low-level `Server`.
 
 Prerequisites: FalkorDB running (`docker start falkordb`), the graph seeded, and the venv installed
 (`pip install -r requirements.txt`). Replace `/ABS/PATH/incident-brain` below with your checkout path.

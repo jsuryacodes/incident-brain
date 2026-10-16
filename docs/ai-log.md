@@ -143,3 +143,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08G: UI for A-D
 - Claude Code (Opus 5.5, unattended) built the Firefighter view, the Eval view, Story hooks (storm, why a graph, why lines, hypotheses tab), playground API + 15 recordings, a Playwright spec with screenshots.
 - Double-check: open `docs/screenshots/ff-storm-1920.png`, `ff-hypotheses-*.png`, `ff-safety-hold-*.png`, `eval-why-a-graph-*.png`.
+
+## 2026-10-16 — 08E: MCP for real
+- Claude Code (Opus 5.5, unattended) added MCP prompts/resources/structured receipts, streamable HTTP at /mcp/<tenant>/, `--tools-via mcp` for the Firefighter (+ parity test), the scripted transcript.
+- Double-check: if you deploy, set MCP_ALLOWED_HOSTS to your host name (the DNS-rebinding check refuses unknown Host headers).

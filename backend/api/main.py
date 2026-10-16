@@ -12,7 +12,7 @@ import sys
 import threading
 import time
 from collections import OrderedDict
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -63,10 +63,33 @@ def seed_on_start():
         print(f"seed on start: demo story played on {hero} (mock)", flush=True)
 
 
+def mcp_apps():
+    """Streamable-HTTP MCP, one read-only server per company: /mcp/<tenant>/ (a connection serves one tenant).
+    Host/Origin checks against DNS rebinding: MCP_ALLOWED_HOSTS / MCP_ALLOWED_ORIGINS (comma-separated)."""
+    from mcp.server.transport_security import TransportSecuritySettings
+
+    from backend.mcp_server import build_server
+    hosts = [h.strip() for h in os.getenv("MCP_ALLOWED_HOSTS", "127.0.0.1:*,localhost:*,testserver").split(",") if h.strip()]
+    origins = [o.strip() for o in os.getenv("MCP_ALLOWED_ORIGINS", "http://127.0.0.1:*,http://localhost:*").split(",") if o.strip()]
+    sec = TransportSecuritySettings(enable_dns_rebinding_protection=True, allowed_hosts=hosts, allowed_origins=origins)
+    out = {}
+    for t in allowed_tenants():
+        server = build_server(t)
+        out[t] = (server, server.streamable_http_app(streamable_http_path="/", stateless_http=True, json_response=True,
+                                                     transport_security=sec))
+    return out
+
+
+MCP = mcp_apps()
+
+
 @asynccontextmanager
 async def lifespan(_app):
     seed_on_start()
-    yield
+    async with AsyncExitStack() as stack:  # mounted sub-apps don't get a lifespan: run each MCP session manager here
+        for server, _ in MCP.values():
+            await stack.enter_async_context(server.session_manager.run())
+        yield
 
 
 app = FastAPI(title="Incident Brain API", version=VERSION, lifespan=lifespan)
@@ -78,7 +101,7 @@ limiter = RateLimiter()
 @app.middleware("http")
 async def rate_limit(request: Request, call_next):
     path = request.url.path  # the SPA's static files are not limited, only the API
-    if path.startswith("/api/") and path != "/api/health" and not limiter.allow(request.client.host if request.client else "?"):
+    if (path.startswith("/api/") or path.startswith("/mcp")) and path != "/api/health" and not limiter.allow(request.client.host if request.client else "?"):
         return JSONResponse({"detail": "rate limit exceeded; slow down"}, status_code=429)
     return await call_next(request)
 
@@ -581,6 +604,10 @@ def explorer(tenant: str = "kestrel_pay", labels: str = "", origin: str | None =
     if origin not in (None, "", "agent"):
         raise HTTPException(400, "origin must be empty or 'agent'")
     return views.explorer(tenant_ok(tenant), [l for l in labels.split(",") if l] or None, origin or None)
+
+
+for _tenant, (_server, _app) in MCP.items():
+    app.mount(f"/mcp/{_tenant}", _app)
 
 
 # ───────────── the SPA (frontend/dist, built by `npm run build` or the Docker image) ─────────────

@@ -18,7 +18,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | B Hypotheses + decision trace | DONE (backend; UI in G) | 08B1–08B2 |
 | C Alert storm | DONE (backend; UI in G) | 08C1–08C3 |
 | D Actions + safety check + approval | DONE (backend; UI in G) | 08D1–08D2 |
-| E MCP for real | todo | |
+| E MCP for real | DONE | 08E |
 | F Scale proof | todo | |
 | G UI | DONE (benchmark panel comes with F) | 08G1–08G2 |
 | H Live-readiness | todo | |
@@ -180,6 +180,14 @@ that explains most alerts" finds nothing and only correlation over the graph poi
   approve + verification with the code, screenshots both themes + `ff-storm-1920.png`). **18/18 passed.** Looked at the
   storm hero, hypotheses and safety screenshots; fixed: end-of-run camera framing, chip wrapping, duplicated reasons,
   step list following the current step, a missing why, a truncated result line.
+
+## 08E — MCP for real
+- `--tools-via mcp`: the Firefighter's tool list and every call go through an MCP client session to our server
+  (`backend/agents/mcp_tools.py`, an anyio blocking portal around `mcp.Client`); parity test vs direct.
+- Streamable HTTP mounted in the API at `/mcp/<tenant>/` (one read-only server per company, stateless JSON, rate-limited,
+  Host/Origin checks), stdio unchanged. Results also travel as structuredContent `{result, receipt}`.
+- Prompts `investigate_alert`, `alert_storm`; resources `incident-brain://schema`, `incident-brain://tools`.
+- `docs/mcp-transcript.md` from a scripted client against the real HTTP endpoint; `docs/mcp.md` updated.
 
 ---
 

@@ -35,3 +35,44 @@ def test_call_recent_changes_downstream(ctx):
 def test_errors_are_tool_errors(ctx):
     r = run(lambda c: c.call_tool("blast_radius", {"service_id": "svc:nope"}), ctx.tenant)
     assert r.is_error and "unknown service id" in r.content[0].text
+
+
+def test_tools_via_mcp_parity(ctx):
+    """Our own Firefighter, with its tool list and every call coming through an MCP session: same run as direct."""
+    from backend.agents.firefighter import run_firefighter
+    from backend.llm import LLMClient
+    alert = {"service_id": "svc:payments-api", "symptom": "5xx rate 12%"}
+    direct = run_firefighter(alert, ctx, LLMClient(mode="mock"), save=False)
+    via = run_firefighter(alert, ctx, LLMClient(mode="mock"), save=False, tools_via="mcp")
+    assert via["tools_via"]["transport"] == "mcp" and via["tools_via"]["mcp_calls"] == direct["totals"]["tool_calls"]
+    assert [s["tool"] for s in via["steps"]] == [s["tool"] for s in direct["steps"]]
+    strip = lambda r: {k: v for k, v in r.items() if k not in ("deploy",)}  # minutes_ago may tick between runs
+    assert [strip(s["result"]) for s in via["steps"][:3]] == [strip(s["result"]) for s in direct["steps"][:3]]
+    assert via["report"]["likely_cause"] == direct["report"]["likely_cause"]
+    assert via["steps"][2]["receipt"]["queries"] == direct["steps"][2]["receipt"]["queries"]
+
+
+def test_prompts_resources_and_structured_receipts(ctx):
+    async def go(c):
+        p = await c.get_prompt("alert_storm", {"services": "svc:a, svc:b"})
+        r = await c.read_resource("incident-brain://schema")
+        t = await c.call_tool("recent_changes", {"since_minutes": 120})
+        return p, r, t
+    p, r, t = run(go, ctx.tenant)
+    assert "correlate_alerts" in p.messages[0].content.text and "Graph Schema" in r.contents[0].text
+    assert set(t.structured_content) == {"result", "receipt"} and t.structured_content["receipt"]["queries"]
+
+
+def test_streamable_http_endpoint_per_tenant(monkeypatch):
+    from fastapi.testclient import TestClient
+    from backend.api import main
+    monkeypatch.setenv("RATE_LIMIT_PER_MIN", "1000")
+    h = {"Accept": "application/json, text/event-stream", "Content-Type": "application/json"}
+    with TestClient(main.app) as c:
+        tenant = next(iter(main.MCP))
+        r = c.post(f"/mcp/{tenant}/", headers=h, json={"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                                                         "params": {"name": "find_service", "arguments": {"query": "payments"}}})
+        body = r.json()
+        assert r.status_code == 200 and body["result"]["structuredContent"]["result"]["matches"]
+        bad = c.post(f"/mcp/{tenant}/", headers={**h, "Host": "evil.example"}, json={"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
+        assert bad.status_code in (400, 403, 421)  # DNS-rebinding protection: unknown Host refused

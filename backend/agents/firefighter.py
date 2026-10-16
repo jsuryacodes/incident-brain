@@ -44,12 +44,23 @@ def save_record(record, prefix):
     return path
 
 
-def run_firefighter(alert, ctx, llm, max_steps=10, on_step=None, save=True, tool_names=None):
+def run_firefighter(alert, ctx, llm, max_steps=10, on_step=None, save=True, tool_names=None, tools_via="direct"):
     """alert: one {service_id | service_query, symptom}, or a list of alerts that fired together.
-    tool_names: restrict the read tools (the eval baselines); default all of them."""
+    tool_names: restrict the read tools (the eval baselines); default all of them.
+    tools_via: 'direct' (the registry in-process) or 'mcp' (tool list and every call through an MCP client session)."""
+    if tools_via == "mcp":
+        from backend.agents.mcp_tools import McpToolbox
+        with McpToolbox(ctx.tenant, names=tool_names) as box:
+            rec = _run(alert, ctx, llm, max_steps, on_step, save, box.tools)
+            rec["tools_via"] = {"transport": "mcp", "tools_listed": len(box.listed), "mcp_calls": box.calls}
+            return rec
+    return _run(alert, ctx, llm, max_steps, on_step, save, read_tools(tool_names))
+
+
+def _run(alert, ctx, llm, max_steps, on_step, save, read):
     t0 = time.time()
     graph = get_graph(ctx.tenant)
-    tools = {**read_tools(tool_names), "submit_report": SUBMIT_REPORT}
+    tools = {**read, "submit_report": SUBMIT_REPORT}
     totals = new_totals()
     many = isinstance(alert, list)
     msg = payload_message(("Several alerts fired at about the same time. Work out which belong to the same incident, "
@@ -119,12 +130,16 @@ def main():
     ap.add_argument("--model")
     ap.add_argument("--max-steps", type=int, default=10)
     ap.add_argument("--show-cypher", action="store_true")
+    ap.add_argument("--tools-via", choices=["direct", "mcp"], default="direct",
+                    help="mcp: discover and call every tool through an MCP client session to our MCP server")
     a = ap.parse_args()
     alert = {"service_id": a.service, "symptom": a.symptom} if a.service else {"service_query": a.service_query, "symptom": a.symptom}
     llm = LLMClient(mode="live" if a.live else None, model=a.model)
     print(f"{BOLD}Firefighter{RST} on {a.tenant} ({llm.mode}{', ' + llm.model if llm.mode == 'live' else ''}): {alert}\n")
     rec = run_firefighter(alert, ToolContext(tenant=a.tenant), llm, a.max_steps,
-                          on_step=lambda s: print(fmt_step(s, a.show_cypher)))
+                          on_step=lambda s: print(fmt_step(s, a.show_cypher)), tools_via=a.tools_via)
+    if rec.get("tools_via"):
+        print(f"via MCP: {rec['tools_via']['tools_listed']} tools listed by the server, {rec['tools_via']['mcp_calls']} tools/call requests")
     print_report(rec["report"])
     print(f"\nstatus: {rec['status']}" + (f" ({rec['abort_reason']})" if rec.get("abort_reason") else "")
           + f"   grounding ok: {rec['grounding']['ok']}" + (f" ungrounded: {rec['grounding']['ungrounded_ids']}" if rec['grounding']['ungrounded_ids'] else ""))
