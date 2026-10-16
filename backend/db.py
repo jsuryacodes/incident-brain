@@ -31,7 +31,24 @@ def nomem_twin(tenant):
     return tenant + NOMEM
 
 
+EVAL = "__eval_"  # internal twin graphs for the scenario eval: <tenant>__eval_<scenario id>; never served over HTTP
+
+
+def eval_twin(tenant, scenario_id):
+    return f"{tenant}{EVAL}{scenario_id}"
+
+
+def base_tenant(name):
+    """The tenant a (twin) graph name belongs to: 'kestrel_pay__nomem' / 'kestrel_pay__eval_x' -> 'kestrel_pay'."""
+    if name.endswith(NOMEM):
+        return name[:-len(NOMEM)]
+    if EVAL in name:
+        base, sid = name.split(EVAL, 1)
+        return base if sid else name  # a twin needs a scenario id
+    return name
+
+
 def get_graph(tenant):
-    if (tenant[:-len(NOMEM)] if tenant.endswith(NOMEM) else tenant) not in allowed_tenants():
+    if base_tenant(tenant) not in allowed_tenants():
         raise ValueError(f"unknown tenant {tenant!r}; allowed: {allowed_tenants()}")
     return client().select_graph(tenant)

@@ -150,12 +150,9 @@ def package_for(graph_name):
     return pkg
 
 
-def load(graph_name, reset=True, now=None, data_package=None, quiet=False):
-    """Validate + load a tenant seed into `graph_name`. data_package defaults to graph_name (seed/data/<pkg>).
-    Returns {"nodes": Counter, "edges": Counter, "now": int}. Raises ValueError listing every validation problem."""
-    load_dotenv()
-    t0 = time.time()
-    pkg = data_package or package_for(graph_name)
+def build(pkg, now=None, transform=None):
+    """The validated seed of package `pkg` as (nodes, edges) lists, optionally changed by transform(nodes, edges, now)
+    first. No database involved (load() writes it; the eval oracle reads it)."""
     timeutil.set_now(now)  # BEFORE the data import: data computes times at import time
     for name in [m for m in sys.modules if m == f"seed.data.{pkg}" or m.startswith(f"seed.data.{pkg}.")]:
         del sys.modules[name]  # force re-evaluation so a new NOW takes effect when called twice in one process
@@ -164,12 +161,25 @@ def load(graph_name, reset=True, now=None, data_package=None, quiet=False):
     pub_nodes, pub_edges = public_layer({n["id"] for n in nodes})
     nodes += pub_nodes
     edges = list(data.EDGES) + pub_edges
+    if transform:
+        transform(nodes, edges, timeutil.NOW)
     for n in nodes:
         n.setdefault("origin", "seed")
         n.setdefault("created_at", timeutil.NOW)
     errs = validate(nodes, edges)
     if errs:
         raise ValueError(f"VALIDATION FAILED ({len(errs)} problems), nothing written:\n" + "\n".join("  - " + e for e in errs))
+    return nodes, edges
+
+
+def load(graph_name, reset=True, now=None, data_package=None, quiet=False, transform=None):
+    """Validate + load a tenant seed into `graph_name`. data_package defaults to graph_name (seed/data/<pkg>).
+    transform(nodes, edges, now) may change the node/edge lists in place before validation (eval scenario fixtures),
+    so a fixture goes through the same validator and writer as the seed.
+    Returns {"nodes": Counter, "edges": Counter, "now": int}. Raises ValueError listing every validation problem."""
+    load_dotenv()
+    t0 = time.time()
+    nodes, edges = build(data_package or package_for(graph_name), now, transform)
 
     db = connect()
     if reset:

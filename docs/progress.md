@@ -34,6 +34,19 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 - Machine: macOS (Darwin 25.4), Python 3.15.0 in `.venv`, Node 22.
 - Tag `pre-08` pushed. `.scratch/` added to `.gitignore`.
 
+## 08A — Scenario library + Firefighter eval + baselines
+**Design pass (3 proposals: two Plan agents + mine), decision:**
+- Fixtures live in `seed/eval_scenarios.py` and are applied through a new `seed.load.load(transform=...)` hook on the seed's own node/edge lists, so every fixture goes through the same validator and writer as the seed (proposal 1). Twins `<tenant>__eval_<id>` are fresh seeds, never copies of the hero graphs (whose story memory would leak in).
+- Ground truth is hand-written but re-derived by an **independent oracle** (plain Python BFS / PageRank / the who-to-call formula over the fixture lists, no Cypher, no agent tools) in `tests/test_eval_scenarios.py` (proposal 2: avoid circular truth).
+- Overfitting guard (proposal 2): a **held-out set of 6 scenarios** written by an agent that never saw the planner code; only its hash is recorded now and it runs once at the end of Part A. **sha256 `57264681bd26cedd7fb4f0b7a8ec52a5adb48adc1db9d34016be2ddb666dbc73`** (`.scratch/holdout/eval_holdout.py`, not opened by me). Plus a seeded random scenario generator.
+- Tools: a flat tenant-wide change log `recent_changes` (both proposals), a change to the alerting service itself counts (proposal 2 found the `*1..` gap), team escalation when nobody active owns the culprit (proposal 2 found `owning_team_fallback` unused), `critical_services(downstream_of=...)` (proposal 1).
+- Planner rule from proposal 2: in a company where everything calls the same hubs, a noisy-neighbour hit is a cause only when corroborated (a learned edge on the path, the shared service is alerting, or the alert names it).
+- "Nothing changed" is never reported as a cause: `look_first` (top PageRank on the call path) is a separate field (proposal 2). PageRank can't separate config-service from config-db (within 1%), so `look_first` expectations list both.
+- Multi-alert in A: per-alert candidates + "the change explaining the most alerts wins" (traversal only). Part C adds the algorithm tools; the eval measures what they add instead of assuming it.
+- Baselines (both proposals): no-graph = full-text + the flat change log (without the log it could not name any deploy; documented as a deviation from "only full-text"); no-algo = every tool except the algo.* ones, and `ToolContext.algorithms=False` makes shortest paths plain Cypher (the eval checks no `algo.` query ran).
+
+**08A1** (fixtures + oracle): 12 dev scenarios (8 Kestrel incl. the hero Session 2 and its ablation, 4 Northwind); verifier PASS, its findings applied (neighbour-lead and "not found" checks in the oracle, unique shortest paths, path edges on neighbour paths, verbatim quotes, "why" wording, twin-name test).
+
 ---
 
 # Earlier: task 07 (`docs/prompts/07-ui.md`, all DONE)

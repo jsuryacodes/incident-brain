@@ -99,3 +99,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-15 — 07E: docs
 - Claude Code (Opus 5.5, unattended) updated README (screenshots, run-the-UI, three views ↔ tracks), `docs/explain.md` (UI data flow, stable layout, gate, judge Q&A), `docs/demo-script.md` (measured replay lengths), `docs/progress.md` (final status, morning list, decisions, gaps).
 - Double-check: (1) the README still says "Draft" and keeps the video / live URL / official-track-bullet `TODO:`s. (2) Commit `c4a4a1b`'s message says "pytest 119"; the real count is 118 (history not rewritten).
+
+## 2026-10-16 — 08A1: eval scenario library + oracle
+- Claude Code (Opus 5.5, unattended) added `seed/eval_scenarios.py` (12 scenarios as fixtures), `seed.load.build()` + `load(transform=)`, internal twin graphs `<tenant>__eval_<id>` in `backend/db.py`, and `tests/test_eval_scenarios.py` (an oracle that re-derives every expectation without Cypher). A held-out set's hash is recorded in progress.md.
+- Double-check: (1) read the "why" line of each scenario in `seed/eval_scenarios.py`: is each a fair test? (2) The departed-owner scenarios drop one WORKED_ON edge in the twin only.
