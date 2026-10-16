@@ -16,6 +16,8 @@ const SET_NAMES: Record<string, string> = { dev: "Scenario library", generated: 
 export default function EvalView() {
   const [res, setRes] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [bench, setBench] = useState<any>(null);
+  useEffect(() => void api.benchmarks().then(setBench, () => setBench(null)), []);
   const setView = useApp((x) => x.setView);
   useEffect(() => void api.evalLatest().then(setRes, (e) => setErr(e.message)), []);
   if (err) return <Empty title="No eval results yet">{err}</Empty>;
@@ -110,8 +112,38 @@ export default function EvalView() {
             </tbody>
           </table>
         </section>
+        {bench && <Benchmarks b={bench} />}
         <p className="text-[12.5px] text-muted">The full write-up, with what each scenario tests and where the algorithms change the outcome, is in docs/eval.md.</p>
       </div>
     </div>
+  );
+}
+
+function Benchmarks({ b }: { b: any }) {
+  const gs: string[] = Object.keys(b.graphs);
+  const raw = Object.keys(b.graphs[gs[0]].raw);
+  const tools = Object.keys(b.graphs[gs[0]].tools);
+  const slow = tools.map((t) => [t, b.graphs[gs.at(-1)!].tools[t]?.db_ms ?? 0] as [string, number]).sort((x, y) => y[1] - x[1]).slice(0, 6);
+  return (
+    <section className="rounded-xl border border-border bg-surface p-4" data-testid="benchmarks">
+      <h2 className="text-base font-semibold">Does it scale? Hero company vs a generated 2,000-service company</h2>
+      <p className="mt-0.5 text-[12.5px] text-muted">Median of {b.runs} runs, {b.machine}, FalkorDB in Docker on the same machine ({b.generated_at}).</p>
+      <div className="mt-3 grid gap-4 md:grid-cols-2">
+        <table className="text-[12.5px]">
+          <thead className="text-left text-muted"><tr><th className="py-1">Algorithm / query</th>{gs.map((g) => <th key={g} className="py-1">{g} ({b.graphs[g].size.services.toLocaleString()} services)</th>)}</tr></thead>
+          <tbody>{raw.map((k) => (
+            <tr key={k} className="border-t border-border"><td className="py-1 pr-2">{k}</td>
+              {gs.map((g) => { const r = b.graphs[g].raw[k]; return <td key={g} className="py-1 tabular-nums">{r.error ? "timeout" : `${r.ms} ms`}</td>; })}</tr>
+          ))}</tbody>
+        </table>
+        <table className="text-[12.5px]">
+          <thead className="text-left text-muted"><tr><th className="py-1">Slowest tools at scale</th>{gs.map((g) => <th key={g} className="py-1">{g}</th>)}</tr></thead>
+          <tbody>{slow.map(([t]) => (
+            <tr key={t} className="border-t border-border"><td className="py-1 pr-2 font-mono">{t}</td>
+              {gs.map((g) => { const x = b.graphs[g].tools[t]; return <td key={g} className="py-1 tabular-nums">{x?.error ? "error" : `${x?.db_ms} ms`}</td>; })}</tr>
+          ))}</tbody>
+        </table>
+      </div>
+    </section>
   );
 }

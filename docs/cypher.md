@@ -100,7 +100,7 @@ RETURN DISTINCT startNode(r).id, endNode(r).id, r.source
 
 **Explanation:** Walks DEPENDS_ON edges backwards (callers of callers) up to N hops. `a DEPENDS_ON b` means a calls b, so if b fails, every a that reaches b is affected. min(length(p)) keeps the shortest distance per service; sorting by tier puts customer-critical services first. The second query returns the edges of all those paths so the UI can draw them (and flags any learned edge).
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:config-service", "max_hops": 2}`, 2 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:config-service", "max_hops": 2}`, 1 ms incl. Python):
 
 ```json
 {"service": "svc:config-service", "max_hops": 2, "upstream_count": 12, "tier1_count": 6, "upstream": [{"id": "svc:api-gateway", "tier": 1, "team": "Platform", "hops": 1}, {"id": "svc:auth-service", "tier": 1, "team": "Platform", "hops": 1}, {"id": "svc:bank-connector", "tier": 1, "team": "Payments Core", "hops": 1}, {"id": "svc:payments-api", "tier": 1, "team": "Payments Core", "hops": 1}, {"id": "svc:payouts-service", "tier": 1, "team": "Payments Core", "hops": 1}, {"id": "svc:web-checkout", "tier": 1, "team": "Merchant Experience", "hops": 2}, {"id": "svc:feature-flags", "tier": 2, "team": "Platform", "hops": 1}, {"id": "svc:merchant-onboarding", "tier": 2, "team": "Merchant Experience", "hops": 1}, {"id": "svc:notifications-service", "tier": 2, "team": "Merchant Experience", "hops": 1}, {"id": "svc:webhook-dispatcher", "tier": 2, "team": "Merchant Experience", "hops": 1}, {"id": "svc: …
@@ -140,7 +140,7 @@ RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN r
 **Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:payments-api"}`, 1 ms incl. Python):
 
 ```json
-{"service": "svc:payments-api", "since_minutes": 120, "hit_count": 1, "hits": [{"service": "svc:risk-rules", "hops": 2, "path": ["svc:payments-api", "svc:fraud-scoring", "svc:risk-rules"], "edge_sources": ["declared", "declared"], "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792172188, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}]}
+{"service": "svc:payments-api", "since_minutes": 120, "hit_count": 1, "hits": [{"service": "svc:risk-rules", "hops": 2, "path": ["svc:payments-api", "svc:fraud-scoring", "svc:risk-rules"], "edge_sources": ["declared", "declared"], "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792173233, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}]}
 ```
 
 ## recent_changes
@@ -167,10 +167,10 @@ ORDER BY d.ts DESC LIMIT $limit
 
 **Explanation:** A flat, one-hop read: Deploy -CHANGED-> Service, newer than the window, plus DEPLOYED (who) and FOR_TICKET (why). It uses the range index on Deploy.ts. On purpose it knows nothing about dependencies: every recent change becomes a hypothesis, and the traversal tools then confirm it (it is on the alerting service's call path) or reject it (it is not). A naive investigator stops at 'the newest deploy'; this is what the graph is for.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"since_minutes": 120}`, 1 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"since_minutes": 120}`, 0 ms incl. Python):
 
 ```json
-{"since_minutes": 120, "change_count": 2, "changes": [{"service": "svc:risk-rules", "tier": 1, "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792172188, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "deployer_id": "per:leo-park", "deployer_status": "active", "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}, {"service": "svc:email-sender", "tier": 3, "deploy": {"id": "dep:email-sender-v1.14.2", "version": "1.14.2", "ts": 1792170988, "minutes_ago": 60, "summary": "Bump transactional email client to 4.2.1; no behaviour change", "by": "Kenji Watanabe"}, "deployer_id": "per:kenji-watanabe", "deployer_status": "active", "ticket": null}]}
+{"since_minutes": 120, "change_count": 2, "changes": [{"service": "svc:risk-rules", "tier": 1, "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792173233, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "deployer_id": "per:leo-park", "deployer_status": "active", "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}, {"service": "svc:email-sender", "tier": 3, "deploy": {"id": "dep:email-sender-v1.14.2", "version": "1.14.2", "ts": 1792172033, "minutes_ago": 60, "summary": "Bump transactional email client to 4.2.1; no behaviour change", "by": "Kenji Watanabe"}, "deployer_id": "per:kenji-watanabe", "deployer_status": "active", "ticket": null}]}
 ```
 
 ## shared_dependency_changes
@@ -395,10 +395,10 @@ ORDER BY score DESC, node.id LIMIT $limit
 
 **Explanation:** Runs FalkorDB's full-text index per label. The query is stripped to plain words (no operator characters) and passed as a parameter. First pass requires all words (precise); if there is room, a second pass accepts any word (recall) ranked lower. Each index's scores are normalised to its best hit because scores are not comparable across indexes; ties go to raw sources (chats, docs, tickets) before derived summaries. No embeddings: the graph supplies context.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"query": "rules cache ttl", "limit": 3}`, 4 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"query": "rules cache ttl", "limit": 3}`, 5 ms incl. Python):
 
 ```json
-{"query": "rules cache ttl", "terms": ["rules", "cache", "ttl"], "hit_count": 12, "hits": [{"id": "chat:risk-eng-config-load", "label": "ChatThread", "title": "How does risk-rules get its rules? (config load)", "snippet": "…I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 18:19] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just…", "date": "2025-08-12", "author": "Arjun Mehta", "author_status": "left", "score": 1.0}, {"id": "tkt:RISK-412", "label": "Ticket", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL", "snippet": "…up to 5 minutes to take effect in production, because risk-rules caches the rule set for RULES_CACHE_TTL (currently 300s). Proposal: reduce RULES_CACHE_TTL from 300s to 5s so edits apply almost immed…", "date": "2026-10-13", "author": "Leo Park", "autho …
+{"query": "rules cache ttl", "terms": ["rules", "cache", "ttl"], "hit_count": 12, "hits": [{"id": "chat:risk-eng-config-load", "label": "ChatThread", "title": "How does risk-rules get its rules? (config load)", "snippet": "…I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 18:36] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just…", "date": "2025-08-12", "author": "Arjun Mehta", "author_status": "left", "score": 1.0}, {"id": "tkt:RISK-412", "label": "Ticket", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL", "snippet": "…up to 5 minutes to take effect in production, because risk-rules caches the rule set for RULES_CACHE_TTL (currently 300s). Proposal: reduce RULES_CACHE_TTL from 300s to 5s so edits apply almost immed…", "date": "2026-10-13", "author": "Leo Park", "autho …
 ```
 
 ## critical_services
@@ -439,7 +439,7 @@ MATCH (s:Service)-[:DEPENDS_ON*1..6]->(d:Service) WHERE s.id IN $ids RETURN DIST
 
 **Explanation:** PageRank over DEPENDS_ON passes credit from callers to callees, so heavily shared dependencies (config-service, its database, kafka-events) rise to the top: single points of failure. Betweenness counts shortest paths running through a node (sampled, fixed seed for repeatable results): it surfaces middle layers like payments-api and api-gateway that everything funnels through. Different questions: 'what do we all depend on' vs 'what sits in the middle'.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"algorithm": "pagerank", "limit": 4, "downstream_of": ["svc:payouts-service"]}`, 1 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"algorithm": "pagerank", "limit": 4, "downstream_of": ["svc:payouts-service"]}`, 2 ms incl. Python):
 
 ```json
 {"algorithm": "pagerank", "meaning": "shared dependencies: services many others call, directly or indirectly", "services": [{"id": "svc:config-db", "name": "config-db", "tier": 1, "team": "Platform", "score": 0.1215}, {"id": "svc:config-service", "name": "config-service", "tier": 1, "team": "Platform", "score": 0.1213}, {"id": "svc:kafka-events", "name": "kafka-events", "tier": 1, "team": "Platform", "score": 0.089}, {"id": "svc:ledger-service", "name": "ledger-service", "tier": 1, "team": "Payments Core", "score": 0.0532}], "downstream_of": ["svc:payouts-service"], "note": "ranked over the whole company, then limited to services the given ones call (directly or not)"}
@@ -508,7 +508,7 @@ LIMIT 300
 **Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"node_id": "per:arjun-mehta"}`, 2 ms incl. Python):
 
 ```json
-{"id": "per:arjun-mehta", "label": "Person", "props": {"status": "left", "origin": "seed", "name": "Arjun Mehta", "role": "Staff Engineer", "email": "arjun.mehta@kestrelpay.example", "joined_at": 1602094588, "left_at": 1783966588}, "dates": {"joined_at": "2020-10-07", "left_at": "2026-07-13"}, "neighbour_counts": {"MEMBER_OF (out)": 1, "MAINTAINS (out)": 2, "WORKED_ON (out)": 3, "DEPLOYED (out)": 1, "AUTHORED (out)": 6, "MENTIONS (in)": 2, "PERFORMED_BY (in)": 1}, "neighbours": [{"edge": "MEMBER_OF", "dir": "out", "id": "team:risk-fraud", "name": "Risk & Fraud"}, {"edge": "MAINTAINS", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "WORKED_ON", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "DEPLOYED", "dir": "out", "id": "dep:risk-rules-v2.3.0", "name": "Lower RULES_CACHE_TTL to 10s"}, {"edge": "AUTHORED", "dir": "out", "id": "cha …
+{"id": "per:arjun-mehta", "label": "Person", "props": {"status": "left", "origin": "seed", "name": "Arjun Mehta", "role": "Staff Engineer", "email": "arjun.mehta@kestrelpay.example", "joined_at": 1602095633, "left_at": 1783967633}, "dates": {"joined_at": "2020-10-07", "left_at": "2026-07-13"}, "neighbour_counts": {"MEMBER_OF (out)": 1, "MAINTAINS (out)": 2, "WORKED_ON (out)": 3, "DEPLOYED (out)": 1, "AUTHORED (out)": 6, "MENTIONS (in)": 2, "PERFORMED_BY (in)": 1}, "neighbours": [{"edge": "MEMBER_OF", "dir": "out", "id": "team:risk-fraud", "name": "Risk & Fraud"}, {"edge": "MAINTAINS", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "WORKED_ON", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "DEPLOYED", "dir": "out", "id": "dep:risk-rules-v2.3.0", "name": "Lower RULES_CACHE_TTL to 10s"}, {"edge": "AUTHORED", "dir": "out", "id": "cha …
 ```
 
 ## read_source
@@ -542,7 +542,7 @@ MATCH (o:Runbook)-[:SUPERSEDES]->(n:Runbook {id:$id}) RETURN o.id
 
 **Explanation:** Looks the node up by its prefixed id and returns its main text field (text, rationale, steps or summary) with AUTHORED for the author and the outgoing MENTIONS / DESCRIBES / ABOUT / SUPERSEDES / SOURCED_FROM links. Agents need the full text because key chat lines sit deep in a thread, and every excerpt they write must be a literal quote of it.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"node_id": "dec:rules-cache-ttl"}`, 1 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"node_id": "dec:rules-cache-ttl"}`, 2 ms incl. Python):
 
 ```json
 {"id": "dec:rules-cache-ttl", "label": "Decision", "title": "RULES_CACHE_TTL must stay ≥ 300s", "author": "Arjun Mehta", "author_status": "left", "date": "2025-08-12", "days_ago": 430, "text": "Below ~30s config-service saturates at checkout peak, because risk-rules refetches rulesets from it on every cache miss. This is what caused INC-2025-031.", "truncated": false, "about": ["svc:risk-rules"], "sourced_from": ["chat:risk-eng-config-load"], "origin": "seed"}
@@ -616,7 +616,7 @@ RETURN r.id, r.summary, collect(p.id), collect(p.name)
 
 **Explanation:** This is how agents hand off: each agent starts with an empty conversation and reads the incident's state from the graph. Sessions point at the incident (FOR_INCIDENT); their Steps (IN_SESSION) with action 'handoff' carry the notes, and Facts WRITTEN_IN those sessions are what the team learned. Nine small queries instead of one big one, because FalkorDB drops rows when a MATCH follows an aggregation.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"incident_id": "inc:2025-031"}`, 4 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"incident_id": "inc:2025-031"}`, 5 ms incl. Python):
 
 ```json
 {"id": "inc:2025-031", "key": "INC-2025-031", "title": "fraud-scoring timeouts during checkout peak", "severity": 2, "status": "resolved", "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%", "summary": "risk-rules v2.3.0 lowered RULES_CACHE_TTL to 10s. At checkout peak every risk-rules pod refetched rulesets, saturating config-service and timing out fraud-scoring. Rolled back the TTL to 300s and added cache warm-up.", "origin": "seed", "started_minutes_ago": 655200, "affected": ["svc:config-service", "svc:fraud-scoring", "svc:payments-api"], "caused_by": [{"id": "dep:risk-rules-v2.3.0", "label": "Deploy", "service": "svc:risk-rules", "summary": "Lower RULES_CACHE_TTL to 10s", "minutes_ago": 655380, "by": "Arjun Mehta", "ticket": null}], "root_causes": [{"id": "rc:cache-ttl-thundering-herd", "name": "Cache TTL too low → thundering herd on a s …

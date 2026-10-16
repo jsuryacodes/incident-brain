@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-16 18:16 UTC",
+ "generated_at": "2026-10-16 18:33 UTC",
  "mode": "mock",
  "profiles": {
   "full": {
@@ -112,7 +112,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sanctions-screening after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -188,7 +188,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sanctions-screening after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -358,7 +358,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to bank-connector after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -445,7 +445,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to bank-connector after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -830,7 +830,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to reconciliation-job after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -906,7 +906,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to reconciliation-job after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -958,7 +958,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 20 hit(s): chat:oncall-handoff-week-41"
+        "summary": "search_knowledge → 19 hit(s): chat:oncall-handoff-week-41"
        },
        {
         "tool": "submit_report",
@@ -1070,7 +1070,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to fx-rates-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -1152,7 +1152,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to fx-rates-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -1316,7 +1316,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to reporting-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -1392,7 +1392,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to reporting-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -1557,7 +1557,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to risk-rules after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -1637,7 +1637,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to risk-rules after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -2081,7 +2081,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -2187,7 +2187,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -2401,7 +2401,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to audit-trail after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -2425,7 +2425,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -2514,7 +2514,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to audit-trail after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -2538,7 +2538,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -2713,7 +2713,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback risky: the change looks hard to undo (rebuild): rolling the code back may not undo the data"
        },
        {
         "tool": "stale_knowledge",
@@ -2800,7 +2800,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback risky: the change looks hard to undo (rebuild): rolling the code back may not undo the data"
        },
        {
         "tool": "stale_knowledge",
@@ -2970,7 +2970,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -3046,7 +3046,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -3363,7 +3363,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to card-processor-adapter after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -3507,7 +3507,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to email-sender after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -3539,7 +3539,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to card-processor-adapter after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -3674,7 +3674,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 13 hit(s): chat:oncall-handoff-week-41"
+        "summary": "search_knowledge → 13 hit(s): chat:incidents-2025-031-war-room"
        },
        {
         "tool": "search_knowledge",
@@ -3682,7 +3682,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 12 hit(s): chat:payments-card-timeouts"
+        "summary": "search_knowledge → 13 hit(s): chat:eng-all-release-freeze"
        },
        {
         "tool": "submit_report",
@@ -3937,7 +3937,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to reporting-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -4082,7 +4082,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to reporting-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -4246,7 +4246,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 13 hit(s): chat:oncall-handoff-week-41"
+        "summary": "search_knowledge → 13 hit(s): chat:incidents-2025-031-war-room"
        },
        {
         "tool": "search_knowledge",
@@ -4484,7 +4484,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to identity after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -4614,7 +4614,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to identity after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -4722,7 +4722,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
+        "summary": "search_knowledge → 5 hit(s): chat:pe-portal-slow-results"
        },
        {
         "tool": "search_knowledge",
@@ -4845,7 +4845,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kyc-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -4927,7 +4927,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kyc-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -5097,7 +5097,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to audit-trail after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -5179,7 +5179,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to audit-trail after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -5359,7 +5359,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sanctions-screening after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -5441,7 +5441,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sanctions-screening after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -5499,7 +5499,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 31 hit(s): chat:payments-core-ledger-dupes"
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-sanctions-refresh"
        },
        {
         "tool": "submit_report",
@@ -5604,7 +5604,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to records-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -5680,7 +5680,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to records-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -5847,7 +5847,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kyc-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -5929,7 +5929,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kyc-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -6094,7 +6094,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to scheduler-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -6170,7 +6170,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to scheduler-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -6336,7 +6336,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kyc-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -6418,7 +6418,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kyc-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -6580,7 +6580,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to lab-results after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -6656,7 +6656,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to lab-results after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -6708,7 +6708,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
+        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
        },
        {
         "tool": "submit_report",
@@ -6823,7 +6823,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kyc-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -6905,7 +6905,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kyc-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -7075,7 +7075,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -7161,7 +7161,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -7223,7 +7223,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 7 hit(s): chat:platform-sms-retries"
+        "summary": "search_knowledge → 6 hit(s): doc:patient-experience-onboarding"
        },
        {
         "tool": "submit_report",
@@ -7336,7 +7336,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to auth-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -7418,7 +7418,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to auth-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -7581,7 +7581,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to records-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -7657,7 +7657,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to records-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -7823,7 +7823,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to audit-log after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -7905,7 +7905,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to audit-log after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -8068,7 +8068,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to records-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -8144,7 +8144,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to records-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -8308,7 +8308,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to api-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -8394,7 +8394,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to api-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -8463,7 +8463,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 31 hit(s): chat:payments-core-ledger-dupes"
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-sanctions-refresh"
        },
        {
         "tool": "submit_report",
@@ -8575,7 +8575,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -8661,7 +8661,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -8839,7 +8839,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -8921,7 +8921,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -9084,7 +9084,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to scheduler-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -9160,7 +9160,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to scheduler-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -9327,7 +9327,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to ledger-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -9409,7 +9409,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to ledger-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -9579,7 +9579,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to records-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -9661,7 +9661,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to records-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -9831,7 +9831,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -9913,7 +9913,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -10075,7 +10075,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to lab-results after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -10151,7 +10151,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to lab-results after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -10316,7 +10316,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -10398,7 +10398,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -10447,7 +10447,7 @@
        {
         "deploy_id": "dep:config-db-v9.52.0",
         "service_id": "svc:config-db",
-        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+        "reason": "2 word(s) in common with the alert vs 3 for the change picked; no dependency data to check it"
        }
       ],
       "look_first": null,
@@ -10458,7 +10458,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 30 hit(s): chat:oncall-handoff-week-41"
+        "summary": "search_knowledge → 30 hit(s): chat:risk-eng-config-load"
        },
        {
         "tool": "submit_report",
@@ -10563,7 +10563,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to scheduler-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -10639,7 +10639,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to scheduler-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -10803,7 +10803,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -10885,7 +10885,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -11057,7 +11057,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -11143,7 +11143,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -11317,7 +11317,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -11399,7 +11399,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -11569,7 +11569,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to scheduler-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -11651,7 +11651,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to scheduler-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -11826,7 +11826,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to ledger-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -11908,7 +11908,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to ledger-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -12081,7 +12081,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -12163,7 +12163,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -12333,7 +12333,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kafka-events after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -12415,7 +12415,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kafka-events after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -12462,7 +12462,7 @@
        {
         "deploy_id": "dep:email-sender-v9.60.1",
         "service_id": "svc:email-sender",
-        "reason": "1 word(s) in common with the alert vs 1 for the change picked (a tie: the newer change was picked); no dependency data to check it"
+        "reason": "1 word(s) in common with the alert vs 3 for the change picked; no dependency data to check it"
        }
       ],
       "look_first": null,
@@ -12473,7 +12473,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 26 hit(s): chat:payments-core-ledger-dupes"
+        "summary": "search_knowledge → 26 hit(s): chat:oncall-handoff-week-41"
        },
        {
         "tool": "submit_report",
@@ -12585,7 +12585,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -12671,7 +12671,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -12848,7 +12848,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sanctions-screening after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -12930,7 +12930,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sanctions-screening after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -13102,7 +13102,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -13188,7 +13188,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -13362,7 +13362,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -13444,7 +13444,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -13504,7 +13504,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 22 hit(s): chat:payments-card-timeouts"
+        "summary": "search_knowledge → 19 hit(s): chat:payments-card-timeouts"
        },
        {
         "tool": "submit_report",
@@ -13617,7 +13617,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -13699,7 +13699,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -13872,7 +13872,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kyc-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -13954,7 +13954,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to kyc-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -14116,7 +14116,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to appointments after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -14192,7 +14192,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to appointments after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -14356,7 +14356,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -14438,7 +14438,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to config-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -14608,7 +14608,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to audit-trail after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -14690,7 +14690,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to audit-trail after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -14869,7 +14869,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to audit-log after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -14951,7 +14951,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to audit-log after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -15009,7 +15009,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 32 hit(s): chat:risk-eng-sanctions-refresh"
+        "summary": "search_knowledge → 32 hit(s): chat:payments-core-ledger-dupes"
        },
        {
         "tool": "submit_report",
@@ -15122,7 +15122,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -15204,7 +15204,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -15375,7 +15375,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to rules-store-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -15457,7 +15457,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to rules-store-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -15620,7 +15620,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to records-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -15696,7 +15696,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to records-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -15861,7 +15861,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to ledger-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -15943,7 +15943,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to ledger-db after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -16113,7 +16113,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -16195,7 +16195,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -16368,7 +16368,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to risk-rules after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -16454,7 +16454,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to risk-rules after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -16516,7 +16516,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 19 hit(s): chat:eng-all-release-freeze"
+        "summary": "search_knowledge → 17 hit(s): chat:eng-all-release-freeze"
        },
        {
         "tool": "submit_report",
@@ -16628,7 +16628,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -16714,7 +16714,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -16890,7 +16890,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to fraud-scoring after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -16972,7 +16972,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to fraud-scoring after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -17143,7 +17143,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -17225,7 +17225,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to sms-gateway after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -17285,7 +17285,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 7 hit(s): chat:platform-sms-retries"
+        "summary": "search_knowledge → 6 hit(s): doc:patient-experience-onboarding"
        },
        {
         "tool": "submit_report",
@@ -17399,7 +17399,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to ledger-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -17485,7 +17485,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to ledger-service after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -17652,7 +17652,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to feature-flags after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -17728,7 +17728,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to feature-flags after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -18134,7 +18134,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback risky: the change looks hard to undo (drop): rolling the code back may not undo the data"
        },
        {
         "tool": "stale_knowledge",
@@ -18236,7 +18236,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback risky: the change looks hard to undo (drop): rolling the code back may not undo the data"
        },
        {
         "tool": "stale_knowledge",
@@ -18306,7 +18306,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 11 hit(s): chat:pe-portal-slow-results"
+        "summary": "search_knowledge → 11 hit(s): chat:platform-sms-retries"
        },
        {
         "tool": "submit_report",
@@ -18412,7 +18412,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -18492,7 +18492,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to notifications after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -18665,7 +18665,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to card-processor-adapter after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -18747,7 +18747,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → ok"
+        "summary": "rollback_safety → rollback safe: nothing shipped to card-processor-adapter after it and nothing in the change looks irreversible"
        },
        {
         "tool": "stale_knowledge",
@@ -18805,7 +18805,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 28 hit(s): chat:eval-reporting-settlement"
+        "summary": "search_knowledge → 26 hit(s): chat:eval-reporting-settlement"
        },
        {
         "tool": "submit_report",
@@ -18817,7 +18817,7 @@
    }
   }
  ],
- "seconds": 7.6,
+ "seconds": 8.8,
  "totals": {
   "dev": {
    "full": {

@@ -68,5 +68,6 @@ export const api = {
   execute: (runId: string, actionIds: string[] | null) =>
     req<Execution>("/api/actions/execute", { method: "POST", body: JSON.stringify({ run_id: runId, action_ids: actionIds }) }),
   evalLatest: () => req<any>("/api/eval/latest"),
+  benchmarks: () => req<any>("/api/benchmarks"),
   stormLatest: (tenant: string) => req<any>(`/api/storm/latest?${q({ tenant })}`),
 };

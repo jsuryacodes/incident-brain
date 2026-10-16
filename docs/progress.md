@@ -19,7 +19,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | C Alert storm | DONE (backend; UI in G) | 08C1–08C3 |
 | D Actions + safety check + approval | DONE (backend; UI in G) | 08D1–08D2 |
 | E MCP for real | DONE | 08E |
-| F Scale proof | todo | |
+| F Scale proof | DONE | 08F |
 | G UI | DONE (benchmark panel comes with F) | 08G1–08G2 |
 | H Live-readiness | todo | |
 | I Docs | todo | |
@@ -188,6 +188,18 @@ that explains most alerts" finds nothing and only correlation over the graph poi
   Host/Origin checks), stdio unchanged. Results also travel as structuredContent `{result, receipt}`.
 - Prompts `investigate_alert`, `alert_storm`; resources `incident-brain://schema`, `incident-brain://tools`.
 - `docs/mcp-transcript.md` from a scripted client against the real HTTP endpoint; `docs/mcp.md` updated.
+
+## 08F — Scale proof
+- `seed/data/scale_demo`: a deterministic generated company (2,000 services in 6 layers, 9,375 DEPENDS_ON with
+  preferential attachment so hubs form, 40 teams, 320 people, 2,000 deploys); loads in ~2 s; seeded by setup.sh;
+  added to the default `TENANTS` (also in `.env.example` and your local `.env`). The UI's company switcher, Explorer
+  (capped at 400 nodes) and the Firefighter's "your own alert" work on it.
+- Every receipt now carries per-query `ms` and a total.
+- `python -m backend.tools.benchmark` → `docs/benchmarks.md` + `runs/eval/benchmarks.json` (+ `GET /api/benchmarks`,
+  a panel in the Eval view). **Result:** everything stays far under the 1 s timeout at 2,000 services; the slowest tools
+  are the path-enumerating ones (~140–165 ms); whole-graph algorithms take ≤ 7 ms; **algo.BFS vs variable-length
+  Cypher reachability is a tie at this size** (written down as such; eval.md's earlier "speed at scale" sentence was
+  corrected).
 
 ---
 

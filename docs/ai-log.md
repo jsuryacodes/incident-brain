@@ -147,3 +147,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08E: MCP for real
 - Claude Code (Opus 5.5, unattended) added MCP prompts/resources/structured receipts, streamable HTTP at /mcp/<tenant>/, `--tools-via mcp` for the Firefighter (+ parity test), the scripted transcript.
 - Double-check: if you deploy, set MCP_ALLOWED_HOSTS to your host name (the DNS-rebinding check refuses unknown Host headers).
+
+## 2026-10-17 — 08F: scale proof
+- Claude Code (Opus 5.5, unattended) added the generated `scale_demo` company, per-query timings in receipts, the benchmark script + docs/benchmarks.md, a benchmark panel and API.
+- Double-check: your local `.env` TENANTS now includes scale_demo (so the company switcher shows it). Remove it there if you don't want it in the demo video.

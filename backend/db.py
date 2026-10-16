@@ -1,4 +1,5 @@
-"""One FalkorDB graph per tenant. Tenant allowlist comes from env TENANTS (comma-separated, default kestrel_pay,northwind_health)."""
+"""One FalkorDB graph per tenant. Tenant allowlist comes from env TENANTS (comma-separated, default
+kestrel_pay,northwind_health,scale_demo)."""
 import os
 
 from dotenv import load_dotenv
@@ -9,7 +10,7 @@ _client = None
 
 
 def allowed_tenants():
-    return [t.strip() for t in os.getenv("TENANTS", "kestrel_pay,northwind_health").split(",") if t.strip()]
+    return [t.strip() for t in os.getenv("TENANTS", "kestrel_pay,northwind_health,scale_demo").split(",") if t.strip()]
 
 
 def client():

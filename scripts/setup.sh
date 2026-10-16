@@ -56,6 +56,9 @@ for t in kestrel_pay northwind_health; do
   .venv/bin/python -m seed.verify --graph "$t" | tail -1
 done
 
+say "Seed scale_demo (generated: 2,000 services, for the benchmarks)"
+.venv/bin/python -m seed.load --graph scale_demo --reset | tail -1
+
 say "Done"
 echo "Next:  scripts/demo.sh            (the whole story, mock mode, free)"
 echo "       source .venv/bin/activate && pytest -q"

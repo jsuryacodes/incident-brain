@@ -54,6 +54,9 @@ def seed_on_start():
     empty = [t for t in allowed_tenants() if is_empty(t)]
     for t in empty:
         load(t, reset=True, quiet=True)
+        if demo.package_for(t) not in ("kestrel_pay", "northwind_health"):  # generated companies have no planted stories to verify
+            print(f"seed on start: {t} seeded", flush=True)
+            continue
         v = subprocess.run([sys.executable, "-m", "seed.verify", "--graph", t, "--data", demo.package_for(t)],
                            capture_output=True, text=True)
         print(f"seed on start: {t} seeded; verify: {(v.stdout.strip().splitlines() or ['?'])[-1]}", flush=True)
@@ -592,6 +595,15 @@ def storm_latest(tenant: str = "kestrel_pay"):
     fresh = LATEST.get(tenant, {}).get("storm")
     rec = fresh or replay_payload(meta["storm"]["replay"])
     return {"tenant": tenant, "source": "fresh" if fresh else "replay", **views.storm_numbers(rec)}
+
+
+@app.get("/api/benchmarks")
+def benchmarks():
+    """Tool and algorithm timings, hero company vs the generated scale company (python -m backend.tools.benchmark)."""
+    f = ROOT / "runs" / "eval" / "benchmarks.json"
+    if not f.is_file():
+        raise HTTPException(404, "no benchmarks yet: run python -m backend.tools.benchmark")
+    return json.loads(f.read_text())
 
 
 @app.get("/api/brain/suggestions")

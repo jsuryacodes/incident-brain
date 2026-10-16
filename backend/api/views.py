@@ -363,4 +363,4 @@ def explorer(tenant, labels=None, origin=None):
     agent_total = sum(c["agent"] for c in counts.values())
     return {"tenant": tenant, "labels": labels, "origin": origin, **els, "counts": counts, "agent_nodes": agent_total,
             "agent_edges": g.ro_query(Q_AGENT_EDGE_COUNT).result_set[0][0],
-            "truncated": len(ids) > EXPLORER_CAP, "pagerank": "algo.pageRank('Service', 'DEPENDS_ON')"}
+            "truncated": len(ids) >= EXPLORER_CAP, "pagerank": "algo.pageRank('Service', 'DEPENDS_ON')"}

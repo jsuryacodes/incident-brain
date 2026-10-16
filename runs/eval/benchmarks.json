@@ -1,0 +1,574 @@
+{
+ "generated_at": "2026-10-16 18:32 UTC",
+ "runs": 5,
+ "machine": "Darwin 25.4.0 arm64, Python 3.15.0",
+ "falkordb": "falkordb/falkordb:latest",
+ "graphs": {
+  "kestrel_pay": {
+   "size": {
+    "services": 27,
+    "depends_on": 43,
+    "nodes": 253
+   },
+   "picks": {
+    "alert": "svc:api-gateway",
+    "hub": "svc:config-service",
+    "storm": [
+     "svc:api-gateway",
+     "svc:auth-service",
+     "svc:bank-connector",
+     "svc:feature-flags",
+     "svc:merchant-onboarding",
+     "svc:notifications-service"
+    ],
+    "deploy": "dep:risk-rules-v2.8.1"
+   },
+   "tools": {
+    "find_service": {
+     "args": {
+      "query": "api-ga"
+     },
+     "tool_ms": 1.6,
+     "db_ms": 1.5,
+     "queries": 1,
+     "error": null
+    },
+    "blast_radius": {
+     "args": {
+      "service_id": "svc:config-service"
+     },
+     "tool_ms": 1.7,
+     "db_ms": 1.3,
+     "queries": 2,
+     "error": null
+    },
+    "recent_changes_downstream": {
+     "args": {
+      "service_id": "svc:api-gateway",
+      "since_minutes": 120,
+      "max_hops": 6
+     },
+     "tool_ms": 1.9,
+     "db_ms": 1.5,
+     "queries": 3,
+     "error": null
+    },
+    "recent_changes": {
+     "args": {
+      "since_minutes": 120
+     },
+     "tool_ms": 0.6,
+     "db_ms": 0.6,
+     "queries": 1,
+     "error": null
+    },
+    "shared_dependency_changes": {
+     "args": {
+      "service_id": "svc:api-gateway",
+      "since_minutes": 120
+     },
+     "tool_ms": 1.3,
+     "db_ms": 0.9,
+     "queries": 2,
+     "error": null
+    },
+    "dependency_path": {
+     "args": {
+      "from_id": "svc:api-gateway",
+      "to_id": "svc:config-service"
+     },
+     "tool_ms": 1.2,
+     "db_ms": 0.4,
+     "queries": 1,
+     "error": null
+    },
+    "who_to_call": {
+     "args": {
+      "service_id": "svc:config-service"
+     },
+     "tool_ms": 3.1,
+     "db_ms": 2.7,
+     "queries": 5,
+     "error": null
+    },
+    "decisions_about": {
+     "args": {
+      "service_id": "svc:config-service"
+     },
+     "tool_ms": 0.6,
+     "db_ms": 0.3,
+     "queries": 1,
+     "error": null
+    },
+    "past_incidents": {
+     "args": {
+      "service_ids": [
+       "svc:api-gateway",
+       "svc:config-service"
+      ]
+     },
+     "tool_ms": 2.3,
+     "db_ms": 1.5,
+     "queries": 3,
+     "error": null
+    },
+    "search_knowledge": {
+     "args": {
+      "query": "cache timeout"
+     },
+     "tool_ms": 5.1,
+     "db_ms": 4.6,
+     "queries": 12,
+     "error": null
+    },
+    "critical_services": {
+     "args": {
+      "algorithm": "pagerank",
+      "downstream_of": [
+       "svc:api-gateway"
+      ]
+     },
+     "tool_ms": 1.4,
+     "db_ms": 1.1,
+     "queries": 2,
+     "error": null
+    },
+    "stale_knowledge": {
+     "args": {
+      "service_id": "svc:config-service"
+     },
+     "tool_ms": 0.8,
+     "db_ms": 0.5,
+     "queries": 1,
+     "error": null
+    },
+    "node_details": {
+     "args": {
+      "node_id": "svc:config-service"
+     },
+     "tool_ms": 2.3,
+     "db_ms": 2.0,
+     "queries": 2,
+     "error": null
+    },
+    "memory_recall": {
+     "args": {
+      "service_id": "svc:api-gateway"
+     },
+     "tool_ms": 2.5,
+     "db_ms": 2.2,
+     "queries": 5,
+     "error": null
+    },
+    "industry_matches": {
+     "args": {
+      "root_cause_id": "rc:retry-storm"
+     },
+     "tool_ms": 0.7,
+     "db_ms": 0.3,
+     "queries": 1,
+     "error": null
+    },
+    "rollback_safety": {
+     "args": {
+      "deploy_id": "dep:risk-rules-v2.8.1"
+     },
+     "tool_ms": 1.3,
+     "db_ms": 1.0,
+     "queries": 3,
+     "error": null
+    },
+    "correlate_alerts": {
+     "args": {
+      "service_ids": [
+       "svc:api-gateway",
+       "svc:auth-service",
+       "svc:bank-connector",
+       "svc:feature-flags",
+       "svc:merchant-onboarding",
+       "svc:notifications-service"
+      ]
+     },
+     "tool_ms": 8.0,
+     "db_ms": 5.3,
+     "queries": 14,
+     "error": null
+    },
+    "connected_impact": {
+     "args": {
+      "service_ids": [
+       "svc:api-gateway",
+       "svc:auth-service",
+       "svc:bank-connector",
+       "svc:feature-flags",
+       "svc:merchant-onboarding",
+       "svc:notifications-service"
+      ]
+     },
+     "tool_ms": 4.9,
+     "db_ms": 1.1,
+     "queries": 5,
+     "error": null
+    },
+    "blast_tiers": {
+     "args": {
+      "service_id": "svc:config-service",
+      "alerting": [
+       "svc:api-gateway",
+       "svc:auth-service",
+       "svc:bank-connector",
+       "svc:feature-flags",
+       "svc:merchant-onboarding",
+       "svc:notifications-service"
+      ]
+     },
+     "tool_ms": 0.6,
+     "db_ms": 0.3,
+     "queries": 1,
+     "error": null
+    },
+    "failure_domains": {
+     "args": {
+      "service_ids": [
+       "svc:api-gateway",
+       "svc:auth-service",
+       "svc:bank-connector",
+       "svc:feature-flags",
+       "svc:merchant-onboarding",
+       "svc:notifications-service"
+      ]
+     },
+     "tool_ms": 4.6,
+     "db_ms": 3.0,
+     "queries": 1,
+     "error": null
+    }
+   },
+   "raw": {
+    "algo.pageRank": {
+     "ms": 0.4,
+     "result": 27,
+     "error": null
+    },
+    "algo.betweenness (sampled 64)": {
+     "ms": 0.4,
+     "result": 27,
+     "error": null
+    },
+    "algo.WCC (all services)": {
+     "ms": 0.3,
+     "result": 27,
+     "error": null
+    },
+    "algo.labelPropagation": {
+     "ms": 2.6,
+     "result": 27,
+     "error": null
+    },
+    "reach 6 hops: algo.BFS": {
+     "ms": 0.3,
+     "result": 15,
+     "error": null
+    },
+    "reach 6 hops: variable-length Cypher": {
+     "ms": 0.3,
+     "result": 15,
+     "error": null
+    },
+    "callers 4 hops: algo.SSpaths": {
+     "ms": 0.3,
+     "result": 14,
+     "error": null
+    },
+    "callers 4 hops: variable-length Cypher": {
+     "ms": 0.3,
+     "result": 14,
+     "error": null
+    }
+   }
+  },
+  "scale_demo": {
+   "size": {
+    "services": 2000,
+    "depends_on": 9375,
+    "nodes": 4389
+   },
+   "picks": {
+    "alert": "svc:audit-api-0088",
+    "hub": "svc:profile-cache-1932",
+    "storm": [
+     "svc:audit-cache-1205",
+     "svc:audit-db-0952",
+     "svc:audit-db-1178",
+     "svc:auth-db-1685",
+     "svc:bank-cache-0790",
+     "svc:bank-db-0998"
+    ],
+    "deploy": "dep:config-db-1757-v2.23.7"
+   },
+   "tools": {
+    "find_service": {
+     "args": {
+      "query": "audit-"
+     },
+     "tool_ms": 2.6,
+     "db_ms": 2.5,
+     "queries": 1,
+     "error": null
+    },
+    "blast_radius": {
+     "args": {
+      "service_id": "svc:profile-cache-1932"
+     },
+     "tool_ms": 138.7,
+     "db_ms": 136.8,
+     "queries": 2,
+     "error": null
+    },
+    "recent_changes_downstream": {
+     "args": {
+      "service_id": "svc:audit-api-0088",
+      "since_minutes": 120,
+      "max_hops": 6
+     },
+     "tool_ms": 2.2,
+     "db_ms": 1.9,
+     "queries": 3,
+     "error": null
+    },
+    "recent_changes": {
+     "args": {
+      "since_minutes": 120
+     },
+     "tool_ms": 0.6,
+     "db_ms": 0.5,
+     "queries": 1,
+     "error": null
+    },
+    "shared_dependency_changes": {
+     "args": {
+      "service_id": "svc:audit-api-0088",
+      "since_minutes": 120
+     },
+     "tool_ms": 165.6,
+     "db_ms": 163.9,
+     "queries": 3,
+     "error": null
+    },
+    "dependency_path": {
+     "args": {
+      "from_id": "svc:audit-api-0088",
+      "to_id": "svc:profile-cache-1932"
+     },
+     "tool_ms": 2.6,
+     "db_ms": 0.7,
+     "queries": 1,
+     "error": null
+    },
+    "who_to_call": {
+     "args": {
+      "service_id": "svc:profile-cache-1932"
+     },
+     "tool_ms": 7.2,
+     "db_ms": 6.2,
+     "queries": 5,
+     "error": null
+    },
+    "decisions_about": {
+     "args": {
+      "service_id": "svc:profile-cache-1932"
+     },
+     "tool_ms": 0.7,
+     "db_ms": 0.4,
+     "queries": 1,
+     "error": null
+    },
+    "past_incidents": {
+     "args": {
+      "service_ids": [
+       "svc:audit-api-0088",
+       "svc:profile-cache-1932"
+      ]
+     },
+     "tool_ms": 1.2,
+     "db_ms": 0.6,
+     "queries": 2,
+     "error": null
+    },
+    "search_knowledge": {
+     "args": {
+      "query": "cache timeout"
+     },
+     "tool_ms": 5.9,
+     "db_ms": 5.6,
+     "queries": 12,
+     "error": null
+    },
+    "critical_services": {
+     "args": {
+      "algorithm": "pagerank",
+      "downstream_of": [
+       "svc:audit-api-0088"
+      ]
+     },
+     "tool_ms": 13.2,
+     "db_ms": 12.6,
+     "queries": 2,
+     "error": null
+    },
+    "stale_knowledge": {
+     "args": {
+      "service_id": "svc:profile-cache-1932"
+     },
+     "tool_ms": 1.0,
+     "db_ms": 0.6,
+     "queries": 1,
+     "error": null
+    },
+    "node_details": {
+     "args": {
+      "node_id": "svc:profile-cache-1932"
+     },
+     "tool_ms": 2.4,
+     "db_ms": 2.2,
+     "queries": 2,
+     "error": null
+    },
+    "memory_recall": {
+     "args": {
+      "service_id": "svc:audit-api-0088"
+     },
+     "tool_ms": 21.7,
+     "db_ms": 20.4,
+     "queries": 4,
+     "error": null
+    },
+    "industry_matches": {
+     "args": {
+      "root_cause_id": "rc:retry-storm"
+     },
+     "tool_ms": 1.8,
+     "db_ms": 0.6,
+     "queries": 1,
+     "error": null
+    },
+    "rollback_safety": {
+     "args": {
+      "deploy_id": "dep:config-db-1757-v2.23.7"
+     },
+     "tool_ms": 2.4,
+     "db_ms": 1.9,
+     "queries": 3,
+     "error": null
+    },
+    "correlate_alerts": {
+     "args": {
+      "service_ids": [
+       "svc:audit-cache-1205",
+       "svc:audit-db-0952",
+       "svc:audit-db-1178",
+       "svc:auth-db-1685",
+       "svc:bank-cache-0790",
+       "svc:bank-db-0998"
+      ]
+     },
+     "tool_ms": 12.4,
+     "db_ms": 9.1,
+     "queries": 8,
+     "error": null
+    },
+    "connected_impact": {
+     "args": {
+      "service_ids": [
+       "svc:audit-cache-1205",
+       "svc:audit-db-0952",
+       "svc:audit-db-1178",
+       "svc:auth-db-1685",
+       "svc:bank-cache-0790",
+       "svc:bank-db-0998"
+      ]
+     },
+     "tool_ms": 18.2,
+     "db_ms": 5.7,
+     "queries": 5,
+     "error": null
+    },
+    "blast_tiers": {
+     "args": {
+      "service_id": "svc:profile-cache-1932",
+      "alerting": [
+       "svc:audit-cache-1205",
+       "svc:audit-db-0952",
+       "svc:audit-db-1178",
+       "svc:auth-db-1685",
+       "svc:bank-cache-0790",
+       "svc:bank-db-0998"
+      ]
+     },
+     "tool_ms": 92.5,
+     "db_ms": 11.2,
+     "queries": 1,
+     "error": null
+    },
+    "failure_domains": {
+     "args": {
+      "service_ids": [
+       "svc:audit-cache-1205",
+       "svc:audit-db-0952",
+       "svc:audit-db-1178",
+       "svc:auth-db-1685",
+       "svc:bank-cache-0790",
+       "svc:bank-db-0998"
+      ]
+     },
+     "tool_ms": 16.1,
+     "db_ms": 13.7,
+     "queries": 1,
+     "error": null
+    }
+   },
+   "raw": {
+    "algo.pageRank": {
+     "ms": 1.3,
+     "result": 2000,
+     "error": null
+    },
+    "algo.betweenness (sampled 64)": {
+     "ms": 2.5,
+     "result": 2000,
+     "error": null
+    },
+    "algo.WCC (all services)": {
+     "ms": 2.9,
+     "result": 2000,
+     "error": null
+    },
+    "algo.labelPropagation": {
+     "ms": 6.1,
+     "result": 2000,
+     "error": null
+    },
+    "reach 6 hops: algo.BFS": {
+     "ms": 0.6,
+     "result": 236,
+     "error": null
+    },
+    "reach 6 hops: variable-length Cypher": {
+     "ms": 0.6,
+     "result": 236,
+     "error": null
+    },
+    "callers 4 hops: algo.SSpaths": {
+     "ms": 10.7,
+     "result": 1303,
+     "error": null
+    },
+    "callers 4 hops: variable-length Cypher": {
+     "ms": 1.5,
+     "result": 1303,
+     "error": null
+    }
+   }
+  }
+ }
+}

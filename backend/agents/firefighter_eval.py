@@ -286,8 +286,9 @@ def render(res):
              + ". Everywhere else the plain traversals find the same answer; the algorithm calls there (shortest "
              "paths) only draw the path. Read the storm results carefully: the no-algorithms profile has no alert-"
              "correlation tool at all, so it pages per alert. At this size (27 services) a variable-length Cypher "
-             "version of correlate_alerts would very likely match the algorithm version; what algo.BFS/algo.WCC buy "
-             "is speed and bounded work at scale (docs/benchmarks.md)." if "no_algo" in ps and "full" in ps else ""),
+             "version of correlate_alerts would very likely match the algorithm version, and docs/benchmarks.md shows "
+             "both stay fast at 2,000 services: the algorithms answer these questions in one call; they are not "
+             "measurably faster here." if "no_algo" in ps and "full" in ps else ""),
           "", "## What each scenario tests", ""]
     for s in res["scenarios"]:
         if s["set"] == "generated":

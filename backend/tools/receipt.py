@@ -124,8 +124,12 @@ class Recorder:
     # --- queries (always read-only, always parameterised) ---
     def q(self, cypher, params=None):
         params = dict(params or {})
-        self.queries.append({"cypher": " ".join(cypher.split()), "params": params})
-        return self.graph.ro_query(cypher, params).result_set
+        entry = {"cypher": " ".join(cypher.split()), "params": params}
+        self.queries.append(entry)
+        t0 = time.perf_counter()
+        rows = self.graph.ro_query(cypher, params).result_set
+        entry["ms"] = round((time.perf_counter() - t0) * 1000, 2)  # wall time incl. the round trip to FalkorDB
+        return rows
 
     def w(self, cypher, params=None):
         """A write (memory tools only). Recorded in the receipt like every read."""
@@ -165,6 +169,7 @@ class Recorder:
                 seen_e.add(k)
                 edges.append(e)
         receipt = {"tool": self.tool, "args": self.args, "queries": self.queries,
+                   "ms": round(sum(q.get("ms", 0) for q in self.queries), 2),
                    "highlight": {"nodes": list(dict.fromkeys(self.nodes)), "edges": edges}}
         return ToolOutput(fit(result, limit), receipt)
 
