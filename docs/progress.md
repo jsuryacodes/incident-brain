@@ -47,6 +47,18 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 
 **08A1** (fixtures + oracle): 12 dev scenarios (8 Kestrel incl. the hero Session 2 and its ablation, 4 Northwind); verifier PASS, its findings applied (neighbour-lead and "not found" checks in the oracle, unique shortest paths, path edges on neighbour paths, verbatim quotes, "why" wording, twin-name test).
 
+**08A2** (tools): `recent_changes` (flat change log), a change to the alerting service itself now counts in
+`recent_changes_downstream` (hops 0), `critical_services(downstream_of=...)`, `ToolContext.algorithms=False` (plain-Cypher
+shortest paths, `critical_services` refuses), docs/cypher.md now pastes each tool's real output from the running DB.
+Verifier PASS; applied: deterministic tie-break in the plain-Cypher shortest path, same 365-day cap everywhere.
+**FalkorDB bug found:** FalkorDB 6.0.2 (graph module 60002) **crashes the whole server** (`panicked at src/reply.rs:655`,
+`reply_compact`, `Option::unwrap()` on `None`) on `recent_changes_downstream`'s aggregation when the row had ~11 columns
+and the optional ticket was NULL (a deploy without a ticket, first hit in an eval fixture). Minimal repro in
+`.scratch/crashprobe*.py`. Workaround: few grouping columns + the details as one list column. Regression test
+`test_24_downstream_hit_without_a_ticket` plus a sweep running every service tool on every service (`test_25`).
+Worth reporting upstream to FalkorDB (decision for Jaya: it's a nice "we found a bug" story for the judges, but check
+the latest image first).
+
 ---
 
 # Earlier: task 07 (`docs/prompts/07-ui.md`, all DONE)

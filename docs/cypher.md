@@ -2,12 +2,13 @@
 
 > **Generated** by `python -m backend.tools.export_docs` from `backend/tools/registry.py`. Do not edit by hand.
 
-Every product answer comes from one of these 16 fixed, parameterised, **read-only** tools (`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.
+Every product answer comes from one of these 17 fixed, parameterised, **read-only** tools (`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.
 
 - `$name` are query parameters. `N` in `*1..N` is a hop bound: variable-length bounds cannot be parameters, so it is clamped to an integer 1..6 before being written into the query.
 - `(a)-[:DEPENDS_ON]->(b)` means *a calls b*. `source` on that edge is `declared` (catalog) or `learned` (written by an agent).
 - Hackathon tracks: Track 1: Agents That Act on Connected Data; Track 2: Agent Memory and Coordination; Track 3: Company Brain.
 - FalkorDB algorithms used: `algo.SPpaths`, `algo.pageRank`, `algo.betweenness`, and full-text `db.idx.fulltext.queryNodes`.
+- Every tool below was run against the live database while generating this file (FalkorDB graph module v6.0.2); its real output is pasted under it.
 
 ## Contents
 
@@ -16,19 +17,20 @@ Every product answer comes from one of these 16 fixed, parameterised, **read-onl
 | 1 | [`find_service`](#find_service) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain | — |
 | 2 | [`blast_radius`](#blast_radius) | Track 1: Agents That Act on Connected Data | — |
 | 3 | [`recent_changes_downstream`](#recent_changes_downstream) | Track 1: Agents That Act on Connected Data | algo.SPpaths (shortest path per hit) |
-| 4 | [`shared_dependency_changes`](#shared_dependency_changes) | Track 1: Agents That Act on Connected Data, Track 2: Agent Memory and Coordination | — |
-| 5 | [`dependency_path`](#dependency_path) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain | algo.SPpaths |
-| 6 | [`who_to_call`](#who_to_call) | Track 1: Agents That Act on Connected Data, Track 2: Agent Memory and Coordination, Track 3: Company Brain | — |
-| 7 | [`decisions_about`](#decisions_about) | Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
-| 8 | [`past_incidents`](#past_incidents) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
-| 9 | [`search_knowledge`](#search_knowledge) | Track 3: Company Brain, Track 2: Agent Memory and Coordination | db.idx.fulltext.queryNodes (RediSearch full-text) |
-| 10 | [`critical_services`](#critical_services) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | algo.pageRank / algo.betweenness |
-| 11 | [`stale_knowledge`](#stale_knowledge) | Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
-| 12 | [`node_details`](#node_details) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
-| 13 | [`read_source`](#read_source) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain | — |
-| 14 | [`get_incident_state`](#get_incident_state) | Track 2: Agent Memory and Coordination | — |
-| 15 | [`memory_recall`](#memory_recall) | Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data | — |
-| 16 | [`industry_matches`](#industry_matches) | Track 3: Company Brain, Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data | — |
+| 4 | [`recent_changes`](#recent_changes) | Track 1: Agents That Act on Connected Data | — |
+| 5 | [`shared_dependency_changes`](#shared_dependency_changes) | Track 1: Agents That Act on Connected Data, Track 2: Agent Memory and Coordination | — |
+| 6 | [`dependency_path`](#dependency_path) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain | algo.SPpaths |
+| 7 | [`who_to_call`](#who_to_call) | Track 1: Agents That Act on Connected Data, Track 2: Agent Memory and Coordination, Track 3: Company Brain | — |
+| 8 | [`decisions_about`](#decisions_about) | Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
+| 9 | [`past_incidents`](#past_incidents) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
+| 10 | [`search_knowledge`](#search_knowledge) | Track 3: Company Brain, Track 2: Agent Memory and Coordination | db.idx.fulltext.queryNodes (RediSearch full-text) |
+| 11 | [`critical_services`](#critical_services) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | algo.pageRank / algo.betweenness |
+| 12 | [`stale_knowledge`](#stale_knowledge) | Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
+| 13 | [`node_details`](#node_details) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain, Track 2: Agent Memory and Coordination | — |
+| 14 | [`read_source`](#read_source) | Track 1: Agents That Act on Connected Data, Track 3: Company Brain | — |
+| 15 | [`get_incident_state`](#get_incident_state) | Track 2: Agent Memory and Coordination | — |
+| 16 | [`memory_recall`](#memory_recall) | Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data | — |
+| 17 | [`industry_matches`](#industry_matches) | Track 3: Company Brain, Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data | — |
 
 ## find_service
 
@@ -57,6 +59,12 @@ RETURN s.id, s.name, s.tier, t.name
 ```
 
 **Explanation:** Lower-cases the query, turns spaces into hyphens and matches it against service name/id with CONTAINS. If nothing matches, falls back to requiring every word to appear in the name or description. Ranks exact, then prefix, then substring matches. Entry point for every conversation that starts from a name.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"query": "payments api"}`, 4 ms incl. Python):
+
+```json
+{"query": "payments api", "matches": [{"id": "svc:payments-api", "name": "payments-api", "tier": 1, "team": "Payments Core"}]}
+```
 
 ## blast_radius
 
@@ -87,9 +95,15 @@ RETURN DISTINCT startNode(r).id, endNode(r).id, r.source
 
 **Explanation:** Walks DEPENDS_ON edges backwards (callers of callers) up to N hops. `a DEPENDS_ON b` means a calls b, so if b fails, every a that reaches b is affected. min(length(p)) keeps the shortest distance per service; sorting by tier puts customer-critical services first. The second query returns the edges of all those paths so the UI can draw them (and flags any learned edge).
 
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:config-service", "max_hops": 2}`, 2 ms incl. Python):
+
+```json
+{"service": "svc:config-service", "max_hops": 2, "upstream_count": 12, "tier1_count": 6, "upstream": [{"id": "svc:api-gateway", "tier": 1, "team": "Platform", "hops": 1}, {"id": "svc:auth-service", "tier": 1, "team": "Platform", "hops": 1}, {"id": "svc:bank-connector", "tier": 1, "team": "Payments Core", "hops": 1}, {"id": "svc:payments-api", "tier": 1, "team": "Payments Core", "hops": 1}, {"id": "svc:payouts-service", "tier": 1, "team": "Payments Core", "hops": 1}, {"id": "svc:web-checkout", "tier": 1, "team": "Merchant Experience", "hops": 2}, {"id": "svc:feature-flags", "tier": 2, "team": "Platform", "hops": 1}, {"id": "svc:merchant-onboarding", "tier": 2, "team": "Merchant Experience", "hops": 1}, {"id": "svc:notifications-service", "tier": 2, "team": "Merchant Experience", "hops": 1}, {"id": "svc:webhook-dispatcher", "tier": 2, "team": "Merchant Experience", "hops": 1}, {"id": "svc: …
+```
+
 ## recent_changes_downstream
 
-**Purpose:** Likely cause of an alert: services DOWNSTREAM of the alerting service (things it calls) that were deployed recently.
+**Purpose:** Likely cause of an alert: the alerting service itself (hops 0) and services DOWNSTREAM of it (things it calls) that were deployed recently.
 
 **Track(s):** Track 1: Agents That Act on Connected Data
 
@@ -97,16 +111,16 @@ RETURN DISTINCT startNode(r).id, endNode(r).id, r.source
 
 **Arguments:** `{"service_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."},"since_minutes":{"type":"integer","minimum":1,"description":"Look-back window in minutes."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
 
-**LLM-facing description:** Likely cause of an alert: services DOWNSTREAM of the alerting service (things it calls) that were deployed recently. Returns hops, the dependency path with each edge's source (declared/learned), the deploy, who shipped it and its ticket.
+**LLM-facing description:** Likely cause of an alert: the alerting service itself (hops 0) and services DOWNSTREAM of it (things it calls) that were deployed recently. Returns hops, the dependency path with each edge's source (declared/learned), the deploy, who shipped it and its ticket.
 
 **Cypher:**
 
 ```cypher
-MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*1..N]->(d:Service)
+MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..N]->(d:Service)
 MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since
 OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep)
 OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket)
-RETURN d.id, min(length(p)) AS hops, dep.id, dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title
+RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title]
 ORDER BY hops, dep.ts DESC
 ```
 
@@ -116,7 +130,43 @@ CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDi
 RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]
 ```
 
-**Explanation:** Follows DEPENDS_ON outwards from the alerting service and keeps services that have a Deploy newer than the window. Failures travel up the call chain, so a fresh deploy anywhere below is the prime suspect. Each hit gets its shortest path via algo.SPpaths, plus DEPLOYED (who) and FOR_TICKET (why the change was made).
+**Explanation:** Follows DEPENDS_ON outwards from the alerting service (0 hops included, so a change to the service itself counts) and keeps services that have a Deploy newer than the window. Failures travel up the call chain, so a fresh deploy anywhere below is the prime suspect. Each hit gets its shortest path via algo.SPpaths, plus DEPLOYED (who) and FOR_TICKET (why the change was made).
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:payments-api"}`, 1 ms incl. Python):
+
+```json
+{"service": "svc:payments-api", "since_minutes": 120, "hit_count": 1, "hits": [{"service": "svc:risk-rules", "hops": 2, "path": ["svc:payments-api", "svc:fraud-scoring", "svc:risk-rules"], "edge_sources": ["declared", "declared"], "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792154520, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}]}
+```
+
+## recent_changes
+
+**Purpose:** The company-wide change log: every deploy in the window (newest first), with the service, who shipped it (and whether they are still here) and its ticket.
+
+**Track(s):** Track 1: Agents That Act on Connected Data
+
+**FalkorDB algorithm:** none (plain pattern matching)
+
+**Arguments:** `{"since_minutes":{"type":"integer","minimum":1,"description":"Look-back window in minutes."},"limit":{"type":"integer","minimum":1,"maximum":30}}` (required: none)
+
+**LLM-facing description:** The company-wide change log: every deploy in the window (newest first), with the service, who shipped it (and whether they are still here) and its ticket. No dependency information: use it to list candidate causes, then check each one against the alerting service with the dependency tools.
+
+**Cypher:**
+
+```cypher
+MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since
+OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d)
+OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket)
+RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title
+ORDER BY d.ts DESC LIMIT $limit
+```
+
+**Explanation:** A flat, one-hop read: Deploy -CHANGED-> Service, newer than the window, plus DEPLOYED (who) and FOR_TICKET (why). It uses the range index on Deploy.ts. On purpose it knows nothing about dependencies: every recent change becomes a hypothesis, and the traversal tools then confirm it (it is on the alerting service's call path) or reject it (it is not). A naive investigator stops at 'the newest deploy'; this is what the graph is for.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"since_minutes": 120}`, 1 ms incl. Python):
+
+```json
+{"since_minutes": 120, "change_count": 2, "changes": [{"service": "svc:risk-rules", "tier": 1, "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792154520, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "deployer_id": "per:leo-park", "deployer_status": "active", "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}, {"service": "svc:email-sender", "tier": 3, "deploy": {"id": "dep:email-sender-v1.14.2", "version": "1.14.2", "ts": 1792153320, "minutes_ago": 60, "summary": "Bump transactional email client to 4.2.1; no behaviour change", "by": "Kenji Watanabe"}, "deployer_id": "per:kenji-watanabe", "deployer_status": "active", "ticket": null}]}
+```
 
 ## shared_dependency_changes
 
@@ -153,6 +203,12 @@ LIMIT 60
 
 **Explanation:** Pattern (s)-[:DEPENDS_ON*]->(shared)<-[:DEPENDS_ON*]-(n)<-[:CHANGED]-(deploy): another service n hammers a dependency that s also needs. Services already downstream of s are excluded (that is recent_changes_downstream's job). This is the tool that gets smarter with memory: once an agent has written a learned DEPENDS_ON edge, the same query finds neighbours through it.
 
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:payouts-service", "since_minutes": 120}`, 1 ms incl. Python):
+
+```json
+{"service": "svc:payouts-service", "since_minutes": 120, "hit_count": 0, "hits": [], "note": "no recently changed service shares a downstream dependency with this one"}
+```
+
 ## dependency_path
 
 **Purpose:** Shortest DEPENDS_ON path between two services, trying caller->callee first, then callee->caller, then either way.
@@ -174,6 +230,12 @@ RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN r
 ```
 
 **Explanation:** Calls FalkorDB's algo.SPpaths with relTypes ['DEPENDS_ON'] (no weight property needed; it counts hops) and tries relDirection outgoing, incoming, then both, reporting which matched. Each hop is returned with its source so answers can say 'via a dependency learned earlier'.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"from_id": "svc:web-checkout", "to_id": "svc:risk-rules"}`, 1 ms incl. Python):
+
+```json
+{"from": "svc:web-checkout", "to": "svc:risk-rules", "found": true, "direction_matched": "outgoing", "length": 4, "nodes": ["svc:web-checkout", "svc:api-gateway", "svc:payments-api", "svc:fraud-scoring", "svc:risk-rules"], "hops": [{"caller": "svc:web-checkout", "callee": "svc:api-gateway", "source": "declared", "kind": "sync"}, {"caller": "svc:api-gateway", "callee": "svc:payments-api", "source": "declared", "kind": "sync"}, {"caller": "svc:payments-api", "callee": "svc:fraud-scoring", "source": "declared", "kind": "sync"}, {"caller": "svc:fraud-scoring", "callee": "svc:risk-rules", "source": "declared", "kind": "sync"}]}
+```
 
 ## who_to_call
 
@@ -216,6 +278,12 @@ RETURN t.id, t.name, collect(m.name)
 
 **Explanation:** Expertise is computed, not stored. MAINTAINS gives the official owner (flagged if they left); WORKED_ON gives commits; incidents that AFFECTED the service or were CAUSED_BY a deploy that CHANGED it give the people who actually fixed things (PERFORMED_BY). Score = commits + 25 x resolutions, so one real incident fix counts like 25 commits. bus_factor_risk is true if the maintainer left or at most one active person has touched the service.
 
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:risk-rules"}`, 2 ms incl. Python):
+
+```json
+{"service": "svc:risk-rules", "maintainers": [{"id": "per:arjun-mehta", "name": "Arjun Mehta", "status": "left", "left_days_ago": 95}], "bus_factor_risk": true, "bus_factor_reasons": ["maintainer Arjun Mehta has left"], "score_formula": "commits + 25 * resolutions", "candidates": [{"id": "per:priya-nair", "name": "Priya Nair", "role": "Senior Engineer", "commits": 23, "last_commit_days_ago": 40, "resolutions": 1, "score": 48}, {"id": "per:leo-park", "name": "Leo Park", "role": "Engineer", "commits": 3, "last_commit_days_ago": 1, "resolutions": 0, "score": 3}, {"id": "per:dana-okafor", "name": "Dana Okafor", "role": "Engineering Manager", "commits": 2, "last_commit_days_ago": 120, "resolutions": 0, "score": 2}], "owning_team_fallback": {"id": "team:risk-fraud", "name": "Risk & Fraud", "active_members": ["Leo Park", "Dana Okafor", "Mei Lin Chen", "Ravi Shankar"]}}
+```
+
 ## decisions_about
 
 **Purpose:** Recorded decisions about a service: what was decided, why, who decided (and whether they left), and the exact quoted source (chat thread, doc or ticket) as the receipt.
@@ -241,6 +309,12 @@ ORDER BY d.decided_at DESC
 ```
 
 **Explanation:** Decision -ABOUT-> Service, with AUTHORED for the author and SOURCED_FROM for the provenance edge carrying the verbatim excerpt. One hop from claim to evidence: 'show the receipt'.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:risk-rules"}`, 1 ms incl. Python):
+
+```json
+{"service": "svc:risk-rules", "decisions": [{"id": "dec:rules-cache-ttl", "title": "RULES_CACHE_TTL must stay ≥ 300s", "rationale": "Below ~30s config-service saturates at checkout peak, because risk-rules refetches rulesets from it on every cache miss. This is what caused INC-2025-031.", "decided": "2025-08-12", "decided_days_ago": 430, "author": "Arjun Mehta", "author_status": "left", "sources": [{"id": "chat:risk-eng-config-load", "label": "ChatThread", "title": "How does risk-rules get its rules? (config load)", "channel": "#risk-eng", "date": "2025-08-12", "excerpt": "Decision: RULES_CACHE_TTL stays at 300s minimum. Below ~30s config-service falls over at checkout peak — that's what bit us in INC-2025-031."}]}]}
+```
 
 ## past_incidents
 
@@ -282,6 +356,12 @@ RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status,
 
 **Explanation:** Two routes into an incident: AFFECTED (it hurt the service) and CAUSED_BY a Deploy that CHANGED the service (it came from there). Ranked by how many of the given services it touches, then recency. Detail query follows HAS_ROOT_CAUSE, RESOLVED_BY, PERFORMED_BY and SOURCED_FROM; SIMILAR_TO is read in both directions so links written by agents show up. Nothing filters on origin, so agent-written incidents are recalled too.
 
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_ids": ["svc:risk-rules"], "limit": 2}`, 2 ms incl. Python):
+
+```json
+{"service_ids": ["svc:risk-rules"], "incident_count": 1, "incidents": [{"id": "inc:2025-031", "key": "INC-2025-031", "title": "fraud-scoring timeouts during checkout peak", "severity": 2, "started": "2025-07-18", "origin": "seed", "status": "resolved", "overlap": 1, "via": ["caused_by_deploy"], "caused_by_change_to": ["svc:risk-rules"], "root_causes": ["rc:cache-ttl-thundering-herd"], "resolution": "Rolled back TTL to 300s and added cache warm-up", "resolved_by": ["Priya Nair", "Arjun Mehta"], "resolution_sources": ["tkt:PM-2025-031"], "similar_to": []}]}
+```
+
 ## search_knowledge
 
 **Purpose:** Full-text search over docs, tickets, chat threads, decisions, incidents and runbooks (also root causes and public postmortems if listed in labels).
@@ -306,6 +386,12 @@ ORDER BY score DESC LIMIT $limit
 
 **Explanation:** Runs FalkorDB's full-text index per label. The query is stripped to plain words (no operator characters) and passed as a parameter. First pass requires all words (precise); if there is room, a second pass accepts any word (recall) ranked lower. Each index's scores are normalised to its best hit because scores are not comparable across indexes; ties go to raw sources (chats, docs, tickets) before derived summaries. No embeddings: the graph supplies context.
 
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"query": "rules cache ttl", "limit": 3}`, 5 ms incl. Python):
+
+```json
+{"query": "rules cache ttl", "terms": ["rules", "cache", "ttl"], "hit_count": 12, "hits": [{"id": "chat:risk-eng-config-load", "label": "ChatThread", "title": "How does risk-rules get its rules? (config load)", "snippet": "…I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 13:25] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just…", "date": "2025-08-12", "author": "Arjun Mehta", "author_status": "left", "score": 1.0}, {"id": "tkt:RISK-412", "label": "Ticket", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL", "snippet": "…up to 5 minutes to take effect in production, because risk-rules caches the rule set for RULES_CACHE_TTL (currently 300s). Proposal: reduce RULES_CACHE_TTL from 300s to 5s so edits apply almost immed…", "date": "2026-10-13", "author": "Leo Park", "autho …
+```
+
 ## critical_services
 
 **Purpose:** Rank services by structural importance.
@@ -314,9 +400,9 @@ ORDER BY score DESC LIMIT $limit
 
 **FalkorDB algorithm:** algo.pageRank / algo.betweenness
 
-**Arguments:** `{"algorithm":{"enum":["pagerank","betweenness"]},"limit":{"type":"integer","minimum":1,"maximum":27}}` (required: none)
+**Arguments:** `{"algorithm":{"enum":["pagerank","betweenness"]},"limit":{"type":"integer","minimum":1,"maximum":50},"downstream_of":{"type":"array","items":{"type":"string"},"maxItems":10,"description":"Optional service ids: only rank services these call (directly or not), e.g. where to look first on an alert's call path."}}` (required: none)
 
-**LLM-facing description:** Rank services by structural importance. 'pagerank' finds shared dependencies many services rely on; 'betweenness' finds chokepoints on many call paths. Returns name, tier, team and score.
+**LLM-facing description:** Rank services by structural importance. 'pagerank' finds shared dependencies many services rely on; 'betweenness' finds chokepoints on many call paths. With downstream_of, only services on those services' call paths are ranked (where to look first when nothing changed). Returns name, tier, team and score.
 
 **Cypher:**
 
@@ -332,7 +418,17 @@ MATCH (t:Team)-[:OWNS]->(node)
 RETURN node.id, node.name, node.tier, t.name, score ORDER BY score DESC LIMIT $limit
 ```
 
+```cypher
+MATCH (s:Service)-[:DEPENDS_ON*1..6]->(d:Service) WHERE s.id IN $ids RETURN DISTINCT d.id
+```
+
 **Explanation:** PageRank over DEPENDS_ON passes credit from callers to callees, so heavily shared dependencies (config-service, its database, kafka-events) rise to the top: single points of failure. Betweenness counts shortest paths running through a node (sampled, fixed seed for repeatable results): it surfaces middle layers like payments-api and api-gateway that everything funnels through. Different questions: 'what do we all depend on' vs 'what sits in the middle'.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"algorithm": "pagerank", "limit": 4, "downstream_of": ["svc:payouts-service"]}`, 2 ms incl. Python):
+
+```json
+{"algorithm": "pagerank", "meaning": "shared dependencies: services many others call, directly or indirectly", "services": [{"id": "svc:config-db", "name": "config-db", "tier": 1, "team": "Platform", "score": 0.1215}, {"id": "svc:config-service", "name": "config-service", "tier": 1, "team": "Platform", "score": 0.1213}, {"id": "svc:kafka-events", "name": "kafka-events", "tier": 1, "team": "Platform", "score": 0.089}, {"id": "svc:ledger-service", "name": "ledger-service", "tier": 1, "team": "Payments Core", "score": 0.0532}], "downstream_of": ["svc:payouts-service"], "note": "ranked over the whole company, then limited to services the given ones call (directly or not)"}
+```
 
 ## stale_knowledge
 
@@ -362,6 +458,12 @@ ORDER BY x.updated_at
 
 **Explanation:** Documentation rots in ways the graph can see: the AUTHORED person has status left, the text MENTIONS a departed person, the document is older than a year while the service it DESCRIBES kept getting CHANGED by deploys, or a DEPENDS_ON edge with source 'learned' was written after the document's updated_at. Only items with at least one reason are returned.
 
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:risk-rules"}`, 1 ms incl. Python):
+
+```json
+{"service": "svc:risk-rules", "stale_count": 1, "items": [{"id": "doc:risk-rules-readme", "kind": "Doc", "title": "risk-rules README", "describes": "svc:risk-rules", "updated": "2025-02-23", "updated_days_ago": 600, "flagged": false, "reasons": ["author_left", "names_departed_person", "old_vs_changes"], "author": "Arjun Mehta", "departed_people": ["Arjun Mehta"], "deploys_since_update": 3}]}
+```
+
 ## node_details
 
 **Purpose:** Drill down into any node by id: its label, properties (long text shortened), counts of edges by type and up to 25 neighbours.
@@ -387,6 +489,12 @@ LIMIT 300
 ```
 
 **Explanation:** Looks the node up by its prefixed id (the prefix selects the label, so the index on id is used) and lists one-hop neighbours with edge type and direction. Neighbours are taken round-robin across edge types so a node with many mentions still shows its maintainer, dependencies and owner.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"node_id": "per:arjun-mehta"}`, 2 ms incl. Python):
+
+```json
+{"id": "per:arjun-mehta", "label": "Person", "props": {"status": "left", "origin": "seed", "name": "Arjun Mehta", "role": "Staff Engineer", "email": "arjun.mehta@kestrelpay.example", "joined_at": 1602076920, "left_at": 1783948920}, "dates": {"joined_at": "2020-10-07", "left_at": "2026-07-13"}, "neighbour_counts": {"MEMBER_OF (out)": 1, "MAINTAINS (out)": 2, "WORKED_ON (out)": 3, "DEPLOYED (out)": 1, "AUTHORED (out)": 6, "MENTIONS (in)": 2, "PERFORMED_BY (in)": 1}, "neighbours": [{"edge": "MEMBER_OF", "dir": "out", "id": "team:risk-fraud", "name": "Risk & Fraud"}, {"edge": "MAINTAINS", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "WORKED_ON", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "DEPLOYED", "dir": "out", "id": "dep:risk-rules-v2.3.0", "name": "Lower RULES_CACHE_TTL to 10s"}, {"edge": "AUTHORED", "dir": "out", "id": "cha …
+```
 
 ## read_source
 
@@ -418,6 +526,12 @@ MATCH (o:Runbook)-[:SUPERSEDES]->(n:Runbook {id:$id}) RETURN o.id
 ```
 
 **Explanation:** Looks the node up by its prefixed id and returns its main text field (text, rationale, steps or summary) with AUTHORED for the author and the outgoing MENTIONS / DESCRIBES / ABOUT / SUPERSEDES / SOURCED_FROM links. Agents need the full text because key chat lines sit deep in a thread, and every excerpt they write must be a literal quote of it.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"node_id": "dec:rules-cache-ttl"}`, 2 ms incl. Python):
+
+```json
+{"id": "dec:rules-cache-ttl", "label": "Decision", "title": "RULES_CACHE_TTL must stay ≥ 300s", "author": "Arjun Mehta", "author_status": "left", "date": "2025-08-12", "days_ago": 430, "text": "Below ~30s config-service saturates at checkout peak, because risk-rules refetches rulesets from it on every cache miss. This is what caused INC-2025-031.", "truncated": false, "about": ["svc:risk-rules"], "sourced_from": ["chat:risk-eng-config-load"], "origin": "seed"}
+```
 
 ## get_incident_state
 
@@ -487,6 +601,12 @@ RETURN r.id, r.summary, collect(p.id), collect(p.name)
 
 **Explanation:** This is how agents hand off: each agent starts with an empty conversation and reads the incident's state from the graph. Sessions point at the incident (FOR_INCIDENT); their Steps (IN_SESSION) with action 'handoff' carry the notes, and Facts WRITTEN_IN those sessions are what the team learned. Nine small queries instead of one big one, because FalkorDB drops rows when a MATCH follows an aggregation.
 
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"incident_id": "inc:2025-031"}`, 4 ms incl. Python):
+
+```json
+{"id": "inc:2025-031", "key": "INC-2025-031", "title": "fraud-scoring timeouts during checkout peak", "severity": 2, "status": "resolved", "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%", "summary": "risk-rules v2.3.0 lowered RULES_CACHE_TTL to 10s. At checkout peak every risk-rules pod refetched rulesets, saturating config-service and timing out fraud-scoring. Rolled back the TTL to 300s and added cache warm-up.", "origin": "seed", "started_minutes_ago": 655200, "affected": ["svc:config-service", "svc:fraud-scoring", "svc:payments-api"], "caused_by": [{"id": "dep:risk-rules-v2.3.0", "label": "Deploy", "service": "svc:risk-rules", "summary": "Lower RULES_CACHE_TTL to 10s", "minutes_ago": 655380, "by": "Arjun Mehta", "ticket": null}], "root_causes": [{"id": "rc:cache-ttl-thundering-herd", "name": "Cache TTL too low → thundering herd on a s …
+```
+
 ## memory_recall
 
 **Purpose:** Call FIRST on an alert: what earlier agent sessions learned about this service and its dependencies (DEPENDS_ON 1..3 hops).
@@ -546,6 +666,12 @@ RETURN DISTINCT i.id, latest.id, latest.title, latest.version, latest.steps
 
 **Explanation:** Memory-first recall. The scope is the alerting service plus everything it calls within N hops (declared or learned edges). Then four small queries: learned DEPENDS_ON edges touching the scope (with the Fact on learned_from, its SOURCED_FROM excerpt and the Session it was WRITTEN_IN); other agent Facts ABOUT scope services; incidents with origin 'agent' and status 'resolved' that AFFECTED the scope (CAUSED_BY, HAS_ROOT_CAUSE, RESOLVED_BY, PERFORMED_BY); and for those incidents the newest runbook, found by following SUPERSEDES*0..5 back to a runbook that nothing supersedes. A learned edge into one of my dependencies makes its caller a noisy-neighbour suspect; a learned edge on my own path or the cause of a recalled incident makes that service a suspect too. Only agent-written memory is recalled: seeded history stays with past_incidents, so a first session honestly recalls nothing.
 
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:payments-api"}`, 2 ms incl. Python):
+
+```json
+{"service": "svc:payments-api", "scope": ["svc:payments-api", "svc:ledger-service", "svc:card-processor-adapter", "svc:fx-rates-service", "svc:fraud-scoring", "svc:config-service", "svc:kafka-events", "svc:config-db", "svc:risk-rules", "svc:kyc-service", "svc:sanctions-screening", "svc:rules-store-db", "svc:ledger-db", "svc:audit-log"], "learned_edges": [], "facts": [], "incidents": [], "suspects": [], "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"}
+```
+
 ## industry_matches
 
 **Purpose:** Real public postmortems from other companies (Cloudflare, AWS, GitHub, Slack, ...) that share a root cause with an incident or a root-cause id.
@@ -577,6 +703,12 @@ RETURN pm.id, pm.company, pm.title, pm.url, pm.published_at, pm.summary, collect
 ```
 
 **Explanation:** The industry-pattern layer: every tenant graph holds the same ~20 PublicPostmortem nodes, each HAS_ROOT_CAUSE -> RootCause. Incident -[:HAS_ROOT_CAUSE]-> RootCause <-[:HAS_ROOT_CAUSE]- PublicPostmortem is a two-hop join, so 'has anyone else had this?' is a graph query, not a web search. Ranked by number of shared root causes, then words shared with the incident's title/symptom/summary, then recency. SIMILAR_TO edges an agent already wrote are flagged as already_linked.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"root_cause_id": "rc:retry-storm", "limit": 2}`, 1 ms incl. Python):
+
+```json
+{"root_causes": ["rc:retry-storm"], "match_count": 2, "matches": [{"id": "pm:gcp-2025-06-12", "company": "Google Cloud", "title": "Multiple GCP products are experiencing Service issues", "url": "https://status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW", "published": "2025-06-12", "summary": "A policy with blank fields replicated globally within seconds and hit new, unflagged Service Control code without error handling, which crashed in a loop. A kill switch disabled the path quickly, but restarting tasks without randomized backoff overloaded the Spanner backend in a large region, stretching recovery there by hours.", "shared_root_causes": ["rc:retry-storm"], "overlap_terms": []}, {"id": "pm:aws-2021-12-07", "company": "Amazon Web Services", "title": "Summary of the AWS Service Event in the Northern Virginia (US-EAST-1) Region", "url": "https://aws.amazon.com/message/12721/", "publi …
+```
 
 ## FalkorDB notes
 

@@ -2,14 +2,54 @@
 import json
 from pathlib import Path
 
-from backend.tools.registry import ALL_TRACKS, TOOLS
+from backend.tools.registry import ALL_TRACKS, TOOLS, call
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "docs" / "cypher.md"
 PM_OUT = ROOT / "docs" / "postmortems.md"
 
 
-def render():
+# one real call per tool, run against a fresh seed of the first company (pasted into docs/cypher.md as proof it runs)
+EXAMPLES = {
+    "find_service": {"query": "payments api"}, "blast_radius": {"service_id": "svc:config-service", "max_hops": 2},
+    "recent_changes_downstream": {"service_id": "svc:payments-api"}, "recent_changes": {"since_minutes": 120},
+    "shared_dependency_changes": {"service_id": "svc:payouts-service", "since_minutes": 120},
+    "dependency_path": {"from_id": "svc:web-checkout", "to_id": "svc:risk-rules"},
+    "who_to_call": {"service_id": "svc:risk-rules"}, "decisions_about": {"service_id": "svc:risk-rules"},
+    "past_incidents": {"service_ids": ["svc:risk-rules"], "limit": 2}, "search_knowledge": {"query": "rules cache ttl", "limit": 3},
+    "critical_services": {"algorithm": "pagerank", "limit": 4, "downstream_of": ["svc:payouts-service"]},
+    "stale_knowledge": {"service_id": "svc:risk-rules"}, "node_details": {"node_id": "per:arjun-mehta"},
+    "read_source": {"node_id": "dec:rules-cache-ttl"}, "memory_recall": {"service_id": "svc:payments-api"},
+    "industry_matches": {"root_cause_id": "rc:retry-storm", "limit": 2}, "get_incident_state": {"incident_id": "inc:2025-031"},
+}
+DOCS_GRAPH = "kestrel_pay__eval_docs"
+
+
+def verified_outputs():
+    """{tool: (args, result json, ms)} from a fresh seed in a scratch twin (deleted afterwards)."""
+    import time
+
+    from backend.db import client
+    from backend.tools.receipt import ToolContext
+    from seed.load import load
+    summary = load(DOCS_GRAPH, reset=True, data_package="kestrel_pay", quiet=True)
+    ctx = ToolContext(tenant=DOCS_GRAPH, now=summary["now"])
+    out = {}
+    try:
+        for name, args in EXAMPLES.items():
+            if name in TOOLS:
+                t0 = time.perf_counter()
+                res = call(name, args, ctx).result
+                out[name] = (args, res, (time.perf_counter() - t0) * 1000)
+        mods = client().connection.execute_command("MODULE", "LIST")
+        n = int(next((m[3] for m in mods if m[1] in (b"graph", "graph")), 0))
+        ver = f"v{n // 10000}.{n // 100 % 100}.{n % 100}" if n else "?"
+    finally:
+        client().select_graph(DOCS_GRAPH).delete()
+    return out, ver
+
+
+def render(verified=None, version="?"):
     L = ["# Cypher queries & graph algorithms",
          "",
          "> **Generated** by `python -m backend.tools.export_docs` from `backend/tools/registry.py`. Do not edit by hand.",
@@ -23,6 +63,8 @@ def render():
          "- `(a)-[:DEPENDS_ON]->(b)` means *a calls b*. `source` on that edge is `declared` (catalog) or `learned` (written by an agent).",
          f"- Hackathon tracks: {'; '.join(ALL_TRACKS)}.",
          "- FalkorDB algorithms used: `algo.SPpaths`, `algo.pageRank`, `algo.betweenness`, and full-text `db.idx.fulltext.queryNodes`.",
+         f"- Every tool below was run against the live database while generating this file (FalkorDB graph module "
+         f"{version}); its real output is pasted under it.",
          "",
          "## Contents",
          "",
@@ -40,6 +82,11 @@ def render():
         for q in t["cypher"]:
             L += ["```cypher", q.replace("__N__", "N").replace("__LABEL__", "<Label from id prefix>"), "```", ""]
         L += ["**Explanation:** " + t["explanation"]]
+        if verified and name in verified:
+            args, res, ms = verified[name]
+            text = json.dumps(res, ensure_ascii=False, default=str)
+            L += ["", f"**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{json.dumps(args)}`, "
+                      f"{ms:.0f} ms incl. Python):", "", "```json", text[:900] + (" …" if len(text) > 900 else ""), "```"]
     L += ["", "## FalkorDB notes", "",
           "- Variable-length paths use `p=(a)-[:DEPENDS_ON*1..N]->(b)`; `min(length(p))` gives shortest distance per target.",
           "- A `MATCH` placed after `WITH … aggregate` can silently return nothing in FalkorDB, so aggregations are always the last step (in `RETURN`).",
@@ -73,6 +120,7 @@ def render_postmortems():
 
 
 if __name__ == "__main__":
-    OUT.write_text(render())
+    v, ver = verified_outputs()
+    OUT.write_text(render(v, ver))
     PM_OUT.write_text(render_postmortems())
     print(f"wrote {OUT} ({len(OUT.read_text().splitlines())} lines) and {PM_OUT}")

@@ -21,6 +21,7 @@ class ToolContext:
     tenant: str = "kestrel_pay"
     now: int = field(default_factory=lambda: int(time.time()))  # not part of the LLM-facing schema
     session_id: str | None = None  # set by agent runs; write tools hang WRITTEN_IN / FOR_INCIDENT on it
+    algorithms: bool = True  # False = the "graph, no algorithms" eval baseline: no algo.* procedure may run
 
 
 @dataclass

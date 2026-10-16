@@ -34,10 +34,16 @@ TOOLS = {
         explanation="Walks DEPENDS_ON edges backwards (callers of callers) up to N hops. `a DEPENDS_ON b` means a calls b, so if b fails, every a that reaches b is affected. min(length(p)) keeps the shortest distance per service; sorting by tier puts customer-critical services first. The second query returns the edges of all those paths so the UI can draw them (and flags any learned edge)."),
     "recent_changes_downstream": dict(
         fn=gt.recent_changes_downstream, track=[F],
-        description="Likely cause of an alert: services DOWNSTREAM of the alerting service (things it calls) that were deployed recently. Returns hops, the dependency path with each edge's source (declared/learned), the deploy, who shipped it and its ticket.",
+        description="Likely cause of an alert: the alerting service itself (hops 0) and services DOWNSTREAM of it (things it calls) that were deployed recently. Returns hops, the dependency path with each edge's source (declared/learned), the deploy, who shipped it and its ticket.",
         input_schema=_obj({"service_id": _SVC, "since_minutes": _SINCE, "max_hops": _HOPS}, ["service_id"]),
         cypher=[gt.Q_RECENT, gt.Q_SP], algorithm="algo.SPpaths (shortest path per hit)",
-        explanation="Follows DEPENDS_ON outwards from the alerting service and keeps services that have a Deploy newer than the window. Failures travel up the call chain, so a fresh deploy anywhere below is the prime suspect. Each hit gets its shortest path via algo.SPpaths, plus DEPLOYED (who) and FOR_TICKET (why the change was made)."),
+        explanation="Follows DEPENDS_ON outwards from the alerting service (0 hops included, so a change to the service itself counts) and keeps services that have a Deploy newer than the window. Failures travel up the call chain, so a fresh deploy anywhere below is the prime suspect. Each hit gets its shortest path via algo.SPpaths, plus DEPLOYED (who) and FOR_TICKET (why the change was made)."),
+    "recent_changes": dict(
+        fn=gt.recent_changes, track=[F],
+        description="The company-wide change log: every deploy in the window (newest first), with the service, who shipped it (and whether they are still here) and its ticket. No dependency information: use it to list candidate causes, then check each one against the alerting service with the dependency tools.",
+        input_schema=_obj({"since_minutes": _SINCE, "limit": {"type": "integer", "minimum": 1, "maximum": 30}}),
+        cypher=[gt.Q_CHANGES], algorithm=None,
+        explanation="A flat, one-hop read: Deploy -CHANGED-> Service, newer than the window, plus DEPLOYED (who) and FOR_TICKET (why). It uses the range index on Deploy.ts. On purpose it knows nothing about dependencies: every recent change becomes a hypothesis, and the traversal tools then confirm it (it is on the alerting service's call path) or reject it (it is not). A naive investigator stops at 'the newest deploy'; this is what the graph is for."),
     "shared_dependency_changes": dict(
         fn=gt.shared_dependency_changes, track=[F, T],
         description="Noisy-neighbour check: services that are NOT downstream of this one but share a dependency with it and were deployed recently. Shows the shared service and both paths with edge sources; learned edges can reveal neighbours that declared edges miss.",
@@ -81,9 +87,11 @@ TOOLS = {
         explanation="Runs FalkorDB's full-text index per label. The query is stripped to plain words (no operator characters) and passed as a parameter. First pass requires all words (precise); if there is room, a second pass accepts any word (recall) ranked lower. Each index's scores are normalised to its best hit because scores are not comparable across indexes; ties go to raw sources (chats, docs, tickets) before derived summaries. No embeddings: the graph supplies context."),
     "critical_services": dict(
         fn=gt.critical_services, track=[F, B, T],
-        description="Rank services by structural importance. 'pagerank' finds shared dependencies many services rely on; 'betweenness' finds chokepoints on many call paths. Returns name, tier, team and score.",
-        input_schema=_obj({"algorithm": {"enum": ["pagerank", "betweenness"]}, "limit": {"type": "integer", "minimum": 1, "maximum": 27}}),
-        cypher=[gt.Q_PAGERANK, gt.Q_BETWEENNESS], algorithm="algo.pageRank / algo.betweenness",
+        description="Rank services by structural importance. 'pagerank' finds shared dependencies many services rely on; 'betweenness' finds chokepoints on many call paths. With downstream_of, only services on those services' call paths are ranked (where to look first when nothing changed). Returns name, tier, team and score.",
+        input_schema=_obj({"algorithm": {"enum": ["pagerank", "betweenness"]}, "limit": {"type": "integer", "minimum": 1, "maximum": 50},
+                           "downstream_of": {"type": "array", "items": {"type": "string"}, "maxItems": 10,
+                                             "description": "Optional service ids: only rank services these call (directly or not), e.g. where to look first on an alert's call path."}}),
+        cypher=[gt.Q_PAGERANK, gt.Q_BETWEENNESS, gt.Q_DOWNSTREAM_OF], algorithm="algo.pageRank / algo.betweenness",
         explanation="PageRank over DEPENDS_ON passes credit from callers to callees, so heavily shared dependencies (config-service, its database, kafka-events) rise to the top: single points of failure. Betweenness counts shortest paths running through a node (sampled, fixed seed for repeatable results): it surfaces middle layers like payments-api and api-gateway that everything funnels through. Different questions: 'what do we all depend on' vs 'what sits in the middle'."),
     "stale_knowledge": dict(
         fn=gt.stale_knowledge, track=[B, T],

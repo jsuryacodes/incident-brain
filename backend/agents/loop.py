@@ -171,6 +171,8 @@ _SUM = {
     "memory_recall": _recall,
     "industry_matches": lambda a, r: f"{r['match_count']} public postmortem(s)" + (
         f": {r['matches'][0]['company']} — {r['matches'][0]['title']}" if r.get("matches") else ""),
+    "recent_changes": lambda a, r: f"{r['change_count']} change(s) in {r['since_minutes']} min" + (
+        ": " + ", ".join(f"{_name(c['service'])} {c['deploy']['minutes_ago']} min ago" for c in r["changes"][:3]) if r.get("changes") else ""),
     "find_service": lambda a, r: "matches: " + (", ".join(m["id"] for m in r.get("matches", [])) or "none"),
     "blast_radius": lambda a, r: f"{r['upstream_count']} upstream ({r['tier1_count']} tier-1)",
     "recent_changes_downstream": _recent,

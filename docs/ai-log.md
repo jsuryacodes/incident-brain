@@ -103,3 +103,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08A1: eval scenario library + oracle
 - Claude Code (Opus 5.5, unattended) added `seed/eval_scenarios.py` (12 scenarios as fixtures), `seed.load.build()` + `load(transform=)`, internal twin graphs `<tenant>__eval_<id>` in `backend/db.py`, and `tests/test_eval_scenarios.py` (an oracle that re-derives every expectation without Cypher). A held-out set's hash is recorded in progress.md.
 - Double-check: (1) read the "why" line of each scenario in `seed/eval_scenarios.py`: is each a fair test? (2) The departed-owner scenarios drop one WORKED_ON edge in the twin only.
+
+## 2026-10-16 — 08A2: tools for the eval
+- Claude Code (Opus 5.5, unattended) added `recent_changes`, self-change hits (hops 0) in `recent_changes_downstream`, `critical_services(downstream_of)`, the no-algorithms mode, and real tool output in docs/cypher.md. Found a FalkorDB 6.0.2 server crash on a NULL-heavy aggregation and worked around it.
+- Double-check: (1) `dependency_path` from a service to itself now answers found, length 0. (2) docs/cypher.md's "Verified" blocks change on every regeneration (times are relative to the seed).

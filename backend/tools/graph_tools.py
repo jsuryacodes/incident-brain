@@ -84,20 +84,35 @@ def blast_radius(ctx, service_id, max_hops=4):
 
 
 # ───────────── 3. recent_changes_downstream ─────────────
-Q_RECENT = """MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*1..__N__]->(d:Service)
+Q_RECENT = """MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..__N__]->(d:Service)
 MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since
 OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep)
 OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket)
-RETURN d.id, min(length(p)) AS hops, dep.id, dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title
+RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title]
 ORDER BY hops, dep.ts DESC"""
+# The details travel as ONE list column: FalkorDB 6.0.2 crashed (server panic in reply_compact) on this aggregation when
+# it had ~11 separate columns and the optional ticket was NULL. Few grouping columns + a list avoids it.
 # algo.SPpaths: shortest DEPENDS_ON path; $dir is one of outgoing / incoming / both
 Q_SP = """MATCH (a:Service {id:$from}), (b:Service {id:$to})
 CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path
 RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]"""
 
 
+# the same shortest path with plain variable-length Cypher, for the "graph, no algorithms" baseline (ctx.algorithms False)
+Q_SP_CYPHER = {d: """MATCH (a:Service {id:$from}), (b:Service {id:$to})
+MATCH path=(a)__PAT__(b)
+RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]
+ORDER BY length(path), [x IN nodes(path) | x.id] LIMIT 1""".replace("__PAT__", pat) for d, pat in
+               (("outgoing", "-[:DEPENDS_ON*1..__N__]->"), ("incoming", "<-[:DEPENDS_ON*1..__N__]-"), ("both", "-[:DEPENDS_ON*1..__N__]-"))}
+
+
 def _sp(rec, a, b, direction, maxlen):
-    rows = rec.q(Q_SP, {"from": a, "to": b, "dir": direction, "maxlen": maxlen})
+    if a == b:  # the alerting service changed itself: a path of one node
+        return {"ids": [a], "sources": [], "starts": [], "kinds": []}
+    if rec.ctx.algorithms:
+        rows = rec.q(Q_SP, {"from": a, "to": b, "dir": direction, "maxlen": maxlen})
+    else:
+        rows = rec.q(_n(Q_SP_CYPHER[direction], clamp(maxlen, 1, MAX_HOPS, MAX_HOPS)), {"from": a, "to": b})
     if not rows:
         return None
     ids, sources, starts, kinds = rows[0]
@@ -113,7 +128,7 @@ def recent_changes_downstream(ctx, service_id, since_minutes=120, max_hops=4):
     mins = clamp(since_minutes, 1, 60 * 24 * 365, 120)
     rows = rec.q(_n(Q_RECENT, n), {"id": service_id, "since": ctx.now - mins * 60})
     hits = []
-    for svc, hops, did, ver, ts, summ, wid, wname, tid, tkey, ttitle in rows[:6]:
+    for svc, did, hops, (ver, ts, summ, wid, wname, tid, tkey, ttitle) in rows[:6]:
         sp = _sp(rec, service_id, svc, "outgoing", n)
         ids, sources = (sp["ids"], sp["sources"]) if sp else ([service_id, svc], [])
         rec.hl_path(ids)
@@ -129,7 +144,36 @@ def recent_changes_downstream(ctx, service_id, since_minutes=120, max_hops=4):
     if len(rows) > 6:
         res["truncated"] = True
     if not rows:
-        res["note"] = "no downstream service was deployed in this window"
+        res["note"] = "neither this service nor anything it calls was deployed in this window"
+    return rec.done(res)
+
+
+# ───────────── 3b. recent_changes (tenant-wide change log) ─────────────
+Q_CHANGES = """MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since
+OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d)
+OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket)
+RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title
+ORDER BY d.ts DESC LIMIT $limit"""
+
+
+def recent_changes(ctx, since_minutes=120, limit=15):
+    rec = Recorder(ctx, "recent_changes", {"since_minutes": since_minutes, "limit": limit})
+    mins = clamp(since_minutes, 1, 60 * 24 * 365, 120)
+    limit = clamp(limit, 1, 30, 15)
+    rows = rec.q(Q_CHANGES, {"since": ctx.now - mins * 60, "limit": limit + 1})
+    changes = []
+    for sid, tier, did, ver, ts, summ, wid, wname, wstat, tkey, ttitle in rows[:limit]:
+        rec.hl_edge(did, "CHANGED", sid)
+        if wid:
+            rec.hl_edge(wid, "DEPLOYED", did)
+        changes.append({"service": sid, "tier": tier, "deploy": _deploy(ctx.now, did, ver, ts, summ, wname),
+                        "deployer_id": wid, "deployer_status": wstat,
+                        "ticket": {"key": tkey, "title": clip(ttitle, 100)} if tkey else None})
+    res = {"since_minutes": mins, "change_count": len(changes), "changes": changes}
+    if len(rows) > limit:
+        res["truncated"] = True
+    if not changes:
+        res["note"] = "no deploy anywhere in this company in this window"
     return rec.done(res)
 
 
@@ -438,18 +482,38 @@ MATCH (t:Team)-[:OWNS]->(node)
 RETURN node.id, node.name, node.tier, t.name, score ORDER BY score DESC LIMIT $limit"""
 
 
-def critical_services(ctx, algorithm="pagerank", limit=8):
-    rec = Recorder(ctx, "critical_services", {"algorithm": algorithm, "limit": limit})
+Q_DOWNSTREAM_OF = """MATCH (s:Service)-[:DEPENDS_ON*1..6]->(d:Service) WHERE s.id IN $ids RETURN DISTINCT d.id"""
+
+
+def critical_services(ctx, algorithm="pagerank", limit=8, downstream_of=None):
+    rec = Recorder(ctx, "critical_services", {"algorithm": algorithm, "limit": limit, "downstream_of": downstream_of})
     if algorithm not in ("pagerank", "betweenness"):
         return rec.error("algorithm must be 'pagerank' or 'betweenness'")
-    limit = clamp(limit, 1, 27, 8)
+    if not rec.ctx.algorithms:
+        return rec.error("graph algorithms are switched off in this run")
+    limit = clamp(limit, 1, 50, 8)
+    scope = None
+    if downstream_of is not None:
+        if isinstance(downstream_of, str):
+            downstream_of = [downstream_of]
+        if not isinstance(downstream_of, list) or not downstream_of:
+            return rec.error("downstream_of must be a non-empty list of service ids")
+        for sid in downstream_of[:10]:
+            if err := rec.check(sid, "Service"):
+                return rec.error(err)
+        scope = {r[0] for r in rec.q(Q_DOWNSTREAM_OF, {"ids": downstream_of[:10]})}
     q = Q_PAGERANK if algorithm == "pagerank" else Q_BETWEENNESS
-    rows = rec.q(q, {"limit": limit})
+    rows = rec.q(q, {"limit": 1000 if scope is not None else limit})  # ranked over the whole company, then scoped
+    rows = [r for r in rows if scope is None or r[0] in scope][:limit]
     rec.hl(*[r[0] for r in rows])
     meaning = ("shared dependencies: services many others call, directly or indirectly" if algorithm == "pagerank"
                else "chokepoints: services that sit on many shortest call paths")
-    return rec.done({"algorithm": algorithm, "meaning": meaning,
-                     "services": [{"id": r[0], "name": r[1], "tier": r[2], "team": r[3], "score": round(r[4], 4)} for r in rows]})
+    res = {"algorithm": algorithm, "meaning": meaning,
+           "services": [{"id": r[0], "name": r[1], "tier": r[2], "team": r[3], "score": round(r[4], 4)} for r in rows]}
+    if scope is not None:
+        res["downstream_of"] = downstream_of[:10]
+        res["note"] = "ranked over the whole company, then limited to services the given ones call (directly or not)"
+    return rec.done(res)
 
 
 # ───────────── 11. stale_knowledge ─────────────

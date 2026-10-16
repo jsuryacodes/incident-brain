@@ -135,6 +135,8 @@ def test_12_node_details(ctx):
 
 
 GOOD = [
+    ("recent_changes", {}), ("recent_changes", {"since_minutes": 43200, "limit": 30}),
+    ("critical_services", {"algorithm": "pagerank", "downstream_of": [PO]}),
     ("find_service", {"query": "payments api"}), ("blast_radius", {"service_id": CS}), ("blast_radius", {"service_id": CS, "max_hops": 6}),
     ("recent_changes_downstream", {"service_id": PA}), ("recent_changes_downstream", {"service_id": PA, "since_minutes": 43200, "max_hops": 6}),
     ("shared_dependency_changes", {"service_id": PO}), ("shared_dependency_changes", {"service_id": PO, "since_minutes": 43200}),
@@ -152,6 +154,7 @@ GOOD = [
 LIMITS = {"read_source": gt.SOURCE_CHARS + 1200, "get_incident_state": gt.STATE_CHARS, "memory_recall": 4500,
           "industry_matches": 4000}  # deliberately bigger
 BAD = [
+    ("critical_services", {"algorithm": "pagerank", "downstream_of": ["svc:nope"]}),
     ("find_service", {"query": ""}), ("blast_radius", {"service_id": "svc:nope"}), ("blast_radius", {"service_id": "per:priya-nair"}),
     ("recent_changes_downstream", {"service_id": "nope"}), ("shared_dependency_changes", {"service_id": "svc:nope"}),
     ("dependency_path", {"from_id": PA, "to_id": "svc:nope"}), ("who_to_call", {"service_id": "svc:nope"}),
@@ -244,3 +247,50 @@ def test_19_industry_matches_share_a_root_cause(ctx):
     assert all(m["url"].startswith("https://") and "rc:cache-ttl-thundering-herd" in m["shared_root_causes"] for m in r["matches"])
     many = call("industry_matches", {"root_cause_id": "rc:bad-config-push", "limit": 10}, ctx).result
     assert many["match_count"] >= 5 and len({m["company"] for m in many["matches"]}) >= 3
+
+
+def test_20_recent_changes_is_a_flat_change_log(ctx):
+    r = call("recent_changes", {"since_minutes": 120}, ctx).result
+    assert [c["deploy"]["id"] for c in r["changes"]] == ["dep:risk-rules-v2.8.0", "dep:email-sender-v1.14.2"]  # newest first
+    c = r["changes"][0]
+    assert c["service"] == RR and c["deployer_status"] == "active" and c["ticket"]["key"] == "RISK-412"
+    assert "DEPENDS_ON" not in " ".join(q["cypher"] for q in call("recent_changes", {}, ctx).receipt["queries"])
+
+
+def test_21_a_change_to_the_alerting_service_itself_counts(ctx):
+    r = call("recent_changes_downstream", {"service_id": RR, "since_minutes": 120}, ctx).result
+    assert r["hits"][0]["service"] == RR and r["hits"][0]["hops"] == 0 and r["hits"][0]["path"] == [RR]
+
+
+def test_22_critical_services_scoped_to_a_call_path(ctx):
+    r = call("critical_services", {"algorithm": "pagerank", "downstream_of": [PO], "limit": 3}, ctx).result
+    ids = [s["id"] for s in r["services"]]
+    assert set(ids[:2]) == {CS, "svc:config-db"} and "svc:fraud-scoring" not in ids  # a hub and its database: a near-tie
+
+
+def test_23_no_algorithms_mode_uses_plain_cypher_with_the_same_path(ctx):
+    from dataclasses import replace
+    algo = call("recent_changes_downstream", {"service_id": "svc:web-checkout", "since_minutes": 120}, ctx)
+    plain = call("recent_changes_downstream", {"service_id": "svc:web-checkout", "since_minutes": 120}, replace(ctx, algorithms=False))
+    assert plain.result["hits"][0]["path"] == algo.result["hits"][0]["path"]
+    assert not any("algo." in q["cypher"] for q in plain.receipt["queries"])
+    assert any("algo.SPpaths" in q["cypher"] for q in algo.receipt["queries"])
+    assert "switched off" in call("critical_services", {}, replace(ctx, algorithms=False)).result["error"]
+
+
+def test_24_downstream_hit_without_a_ticket(ctx):
+    """email-sender's deploy has no ticket: the aggregation with a NULL ticket used to crash FalkorDB 6.0.2."""
+    r = call("recent_changes_downstream", {"service_id": "svc:notifications-service", "since_minutes": 120}, ctx).result
+    assert r["hits"][0]["service"] == "svc:email-sender" and r["hits"][0]["ticket"] is None
+
+
+def test_25_every_service_tool_on_every_service(ctx, graph):
+    """A sweep: no tool errors (or takes the database down) on any service of the company."""
+    svcs = [r[0] for r in graph.ro_query("MATCH (s:Service) RETURN s.id ORDER BY s.id").result_set]
+    for s in svcs:
+        for name, args in (("blast_radius", {"service_id": s}), ("recent_changes_downstream", {"service_id": s, "since_minutes": 43200}),
+                           ("shared_dependency_changes", {"service_id": s, "since_minutes": 43200}), ("who_to_call", {"service_id": s}),
+                           ("decisions_about", {"service_id": s}), ("past_incidents", {"service_ids": [s]}),
+                           ("stale_knowledge", {"service_id": s}), ("memory_recall", {"service_id": s}),
+                           ("critical_services", {"downstream_of": [s]})):
+            assert "error" not in call(name, args, ctx).result, (name, s)
