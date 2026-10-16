@@ -127,3 +127,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08A8: held-out eval set
 - Claude Code (Opus 5.5, unattended) ran the held-out scenarios once (6/6 full), then committed them as `seed/eval_holdout.py` (now a permanent eval set) with the hash and a caveat about the author's brief.
 - Double-check: the caveat in the file header.
+
+## 2026-10-16 — 08C: alert storm
+- Claude Code (Opus 5.5, unattended) added four algorithm tools (storm_tools.py), storm correlation in the Firefighter planner, 3 storm scenarios, the storm story beat backend (golden replay, /api/storm/latest), tests.
+- Double-check: (1) `connected_impact` writes a temporary projection graph (not the tenant graph) — the MCP "read-only" wording should mention it; (2) `python -m backend.demo storm` prints the naive-vs-agent numbers.

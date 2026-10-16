@@ -170,6 +170,12 @@ def run_graph(tenant, rec):
     """Snapshot of every node/edge any step of the run highlights or writes, plus the alert's neighbourhood. Taken
     right after the run (golden runs embed it, so replays never depend on the live graph's state)."""
     g = get_graph(tenant)
+    if isinstance(rec.get("alert"), list):  # several alerts at once (an alert storm): every alerting service is the base
+        storm = [a["service_id"] for a in rec["alert"] if a.get("service_id")]
+        els = elements(g, run_ids(rec) | set(storm))
+        keys = {edge_key(e) for s in rec.get("steps", []) for e in step_highlight(s)[1]}
+        return {"nodes": els["nodes"], "edges": [e for e in els["edges"] if edge_key(e) in keys], "base": sorted(storm),
+                "alert": storm[0] if storm else None, "alerts": storm}
     alert = (rec.get("alert") or {}).get("service_id") or rec.get("incident_id")
     base = {alert} | {r[0] for r in g.ro_query(Q_NEIGHBOURS, {"id": alert}).result_set} if alert else set()
     ids = run_ids(rec) | base
@@ -239,6 +245,37 @@ def compare_column(key, title, rec, source):
             "llm_calls_total": (rec.get("totals") or {}).get("llm_calls"),
             "recalled_incident": recalled(rec), "contact": (rep.get("contact") or {}).get("name"),
             "industry_match": rep.get("industry_pattern"), "confidence": rep.get("confidence")}
+
+
+# ───────────── alert storm: naive paging vs the agent ─────────────
+def storm_numbers(rec):
+    """Compare-style numbers for a several-alert Firefighter run, all read from the run itself: one incident and one
+    page per alert (naive, the alert's own top contact from who_to_call) vs what the agent decided."""
+    alerts = [a["service_id"] for a in rec.get("alert") or [] if a.get("service_id")]
+    rep = rec.get("report") or {}
+    incs = rep.get("incidents") or ([{"alerts": alerts, **rep}] if rep else [])
+    who = {}
+    for st in rec.get("steps", []):
+        if st["tool"] == "who_to_call" and "error" not in (st.get("result") or {}):
+            c = (st["result"].get("candidates") or [{}])[0]
+            team = st["result"].get("owning_team_fallback") or {}
+            who[st["args"].get("service_id")] = c.get("name") or team.get("name")
+    naive = [who.get(a) for a in alerts]
+    agent = [(i.get("contact") or {}).get("name") or (i.get("contact") or {}).get("team_id") for i in incs]
+    algos = sorted({q["cypher"].split("algo.", 1)[1].split("(", 1)[0] for st in rec.get("steps", [])
+                    for q in (st.get("receipt") or {}).get("queries", []) if "algo." in q["cypher"]})
+    return {"alerts": len(alerts),
+            "columns": [{"key": "naive", "title": "One page per alert", "incidents": len(alerts), "pages": len(alerts),
+                         "people_woken": len({n for n in naive if n}), "paged": naive},
+                        {"key": "agent", "title": "Incident Brain", "incidents": len(incs), "pages": len([a for a in agent if a]),
+                         "people_woken": len({a for a in agent if a}), "paged": agent,
+                         "suppressed": len(rep.get("suppressed_pages") or []),
+                         "tool_calls": (rec.get("totals") or {}).get("tool_calls"), "algorithms": algos}],
+            "incidents": [{"alerts": i.get("alerts"), "root": (i.get("root") or {}).get("service_id"),
+                           "cause": (i.get("likely_cause") or {}).get("deploy_id"), "contact": (i.get("contact") or {}).get("name")}
+                          for i in incs],
+            "suppressed_pages": rep.get("suppressed_pages") or [],
+            "rejected_leads": rep.get("rejected_leads") or []}
 
 
 # ───────────── Brain suggestions ─────────────

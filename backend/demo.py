@@ -10,9 +10,14 @@ from pathlib import Path
 from backend.agents.loop import BOLD, CYAN, RST
 from backend.agents.firefighter import print_report
 from backend.agents.team import resolve_incident, run_team, tracer
+from backend.agents.firefighter import run_firefighter
 from backend.agents.brain import ask
+from backend.api import views
 from backend.api.views import run_graph
-from backend.db import allowed_tenants, get_graph, nomem_twin
+from backend.agents.loop import fmt_step
+from backend.db import allowed_tenants, eval_twin, get_graph, nomem_twin
+from backend.tools.receipt import ToolContext
+from seed.eval_scenarios import BY_ID as SCENARIOS
 from backend.llm import LLMClient
 from seed import scenario
 from seed.load import load, package_for
@@ -25,7 +30,8 @@ GOLDEN = Path(__file__).resolve().parents[1] / "runs" / "golden"
 
 
 GOLDEN_FILES = (("s1", "team-session1"), ("resolve", "resolve-session1"), ("s2", "team-session2"),
-                ("s2_nomem", "team-session2-nomem"))
+                ("s2_nomem", "team-session2-nomem"), ("storm", "firefighter-storm"))
+STORM = SCENARIOS["k-storm"]  # the alert-storm beat replays this eval scenario (seed/eval_scenarios.py)
 
 
 def save_golden(out):
@@ -56,6 +62,10 @@ BEATS = [
      "replay": "team-session2-nomem", "title": "Session 2, no memory",
      "caption": "The same alert on a fresh copy of the company without Session 1's memory."},
 ]
+STORM_BEAT = {"id": "storm", "label": "Alert storm", "kind": "firefighter", "alerts": STORM["alerts"], "memory": False,
+              "replay": "firefighter-storm", "title": "Alert storm",
+              "caption": f"{len(STORM['alerts'])} alerts fire at once. The Firefighter asks the graph which ones share a cause "
+                         "before anyone is paged."}
 
 
 def tenant_name(tenant):
@@ -73,7 +83,7 @@ def story_meta(tenant):
     """What the UI's Story view renders: the beats, their button labels, alerts and the resolve step."""
     if not has_story(tenant):
         return {"tenant": tenant, "name": tenant_name(tenant), "has_story": False, "beats": []}
-    return {"tenant": tenant, "name": tenant_name(tenant), "has_story": True, "beats": BEATS,
+    return {"tenant": tenant, "name": tenant_name(tenant), "has_story": True, "beats": BEATS, "storm": STORM_BEAT,
             "intro": "An alert fires. Three agents (Triage, Investigator, Communicator) find the cause in the company "
                      "graph, show every query they ran, and write what they learned back into it."}
 
@@ -83,9 +93,37 @@ def golden(name):
     return json.loads(path.read_text()) if path.parent == GOLDEN and path.is_file() else None
 
 
+def storm_twin(tenant):
+    return eval_twin(tenant, "story_storm")
+
+
+def run_storm(tenant, llm=None, on_step=None, keep=False):
+    """The alert-storm beat: the storm fixture on a fresh twin of the company (never the hero graph, whose memory would
+    change the answer), one read-only Firefighter run, the graph snapshot. The twin is deleted unless keep."""
+    twin = storm_twin(tenant)
+    summary = load(twin, reset=True, data_package=package_for(tenant), quiet=True, transform=storm_fixture())
+    try:
+        rec = run_firefighter(STORM["alerts"], ToolContext(tenant=twin, now=summary["now"]), llm or LLMClient(),
+                              on_step=on_step, save=False)
+        return snap(twin, rec)
+    finally:
+        if not keep:
+            get_graph(twin).delete()
+
+
+def storm_fixture():
+    from seed.eval_scenarios import fixture
+    return fixture(STORM)
+
+
 def run_beat(tenant, beat_id, llm, on_event, latest):
     """A FRESH run of one beat (it writes to the graph; the API only allows it with an access code).
     latest: {beat_id: record} of this tenant's earlier fresh beats. Returns the record with its graph snapshot."""
+    if beat_id == "storm":
+        rec = run_storm(tenant, llm, on_step=lambda st: on_event("step", st))
+        on_event("report", {"report": rec["report"], "incident_id": None, "time_to_cause": None})
+        on_event("done", {"status": rec["status"], "session_id": None, "totals": rec["totals"]})
+        return rec
     beat = next(b for b in BEATS if b["id"] == beat_id)
     if beat_id == "session1":
         load(tenant, reset=True, data_package=package_for(tenant), quiet=True)
@@ -247,7 +285,7 @@ def svc_name(sid):
 
 def main():
     ap = argparse.ArgumentParser(prog="python -m backend.demo")
-    ap.add_argument("cmd", choices=["story"])
+    ap.add_argument("cmd", choices=["story", "storm"])
     ap.add_argument("--graph", default="kestrel_pay")
     ap.add_argument("--live", action="store_true")
     ap.add_argument("--model")
@@ -255,6 +293,14 @@ def main():
     ap.add_argument("--compare-no-memory", action="store_true")
     ap.add_argument("--save-golden", action="store_true", help="write the runs to runs/golden/ for /api/replay")
     a = ap.parse_args()
+    if a.cmd == "storm":
+        rec = run_storm(a.graph, LLMClient(mode="live" if a.live else None, model=a.model),
+                        on_step=None if a.quiet else lambda s: print(fmt_step(s)))
+        print(json.dumps(views.storm_numbers(rec), indent=1, ensure_ascii=False)[:3000])
+        if a.save_golden:
+            save_golden({"storm": rec})
+            print(f"golden run written to {GOLDEN / 'firefighter-storm.json'}")
+        return
     out = story(a.graph, LLMClient(mode="live" if a.live else None, model=a.model), a.quiet, a.compare_no_memory)
     if a.save_golden:
         save_golden(out)

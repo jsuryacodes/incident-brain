@@ -365,7 +365,7 @@ def remember(tenant, beat, rec):
 
 def beat_or_404(tenant, beat_id):
     meta = demo.story_meta(tenant_ok(tenant))
-    beat = next((b for b in meta["beats"] if b["id"] == beat_id), None)
+    beat = next((b for b in meta["beats"] + ([meta["storm"]] if meta.get("storm") else []) if b["id"] == beat_id), None)
     if not beat:
         raise HTTPException(404, f"no story beat {beat_id!r} for tenant {tenant!r}")
     return beat
@@ -439,7 +439,7 @@ def story_stream(token: str):
     lock = BUSY.setdefault(tenant, threading.Lock())
     if not lock.acquire(blocking=False):
         raise HTTPException(409, f"a fresh story run is already in progress on {tenant}; try again in a moment")
-    run_tenant = tenant if beat.get("memory", True) else demo.nomem_twin(tenant)
+    run_tenant = demo.storm_twin(tenant) if beat_id == "storm" else tenant if beat.get("memory", True) else demo.nomem_twin(tenant)
 
     def work(ev):
         try:
@@ -480,6 +480,17 @@ def eval_latest():
     if not EVAL_LATEST.is_file():
         raise HTTPException(404, "no eval results yet: run python -m backend.agents.firefighter_eval")
     return json.loads(EVAL_LATEST.read_text())
+
+
+@app.get("/api/storm/latest")
+def storm_latest(tenant: str = "kestrel_pay"):
+    """Alert-storm numbers (one page per alert vs the agent): this process's latest fresh storm run, else the recording."""
+    meta = demo.story_meta(tenant_ok(tenant))
+    if not meta.get("storm"):
+        raise HTTPException(404, f"tenant {tenant!r} has no alert-storm beat")
+    fresh = LATEST.get(tenant, {}).get("storm")
+    rec = fresh or replay_payload(meta["storm"]["replay"])
+    return {"tenant": tenant, "source": "fresh" if fresh else "replay", **views.storm_numbers(rec)}
 
 
 @app.get("/api/brain/suggestions")

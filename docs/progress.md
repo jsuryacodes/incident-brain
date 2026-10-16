@@ -16,7 +16,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | 0 Preflight | DONE | (no code) |
 | A Scenario library + eval + baselines | DONE | 08A1–08A8 |
 | B Hypotheses + decision trace | todo | |
-| C Alert storm | todo | |
+| C Alert storm | DONE (backend; UI in G) | 08C1–08C3 |
 | D Actions + safety check + approval | todo | |
 | E MCP for real | todo | |
 | F Scale proof | todo | |
@@ -108,6 +108,35 @@ author's brief listed the shapes to cover, including one of the planner's corrob
 passes nothing (no paths) but gets 10/13 dev causes and 38/50 generated causes right, takes the bait on false leads
 (4/7 rejected) and recommends 11 + 50 wrong actions. The graph (traversals) is what finds and defends the cause; on
 single alerts the algorithms add nothing measurable, which docs/eval.md states from the data.
+
+**Part A flake check:** pytest 161 passed ×3, Playwright 10/10 ×3 (on the Part A head).
+
+**Usage note (Jaya, mid-run):** "my usage is getting burnt like crazy … reduce testing, focus more on building". From
+here on: no design-pass or per-commit verifier agents, no 3× flake runs, tests once per part, one small final review.
+This overrides QUALITY MODE in the spec.
+
+## 08C — Alert storm
+**Design** (two proposals, merged): storms run as a read-only Firefighter run (the team is single-alert; teaching it N
+incidents would risk Sessions 1/2), on a fresh twin with a fixture from the scenario library, never on the hero graph
+(Session 1's learned edge would change the answer). The root of the storm is pure saturation (no deploy), so "the change
+that explains most alerts" finds nothing and only correlation over the graph points at it.
+- `backend/tools/storm_tools.py`: `correlate_alerts` (algo.BFS reach per alert + algo.SPpaths paths; coverage, alerting
+  first, total hops), `connected_impact` (algo.WCC on a scratch projection graph `<tenant>__proj_<hex>`: the alerting
+  services + their downstream closure; deleted at once; the tenant graph is only read), `blast_tiers` (algo.SSpaths
+  incoming: callers per tier, alerting vs silent), `failure_domains` (algo.labelPropagation, context only).
+  All verified against the running DB (docs/cypher.md pastes their real output).
+- Planner: for 3+ alerts, the top correlated root opens ONE incident when it explains more alerts than any single change
+  (a lone change on one alert's path becomes a rejected lead); one page to the root's owner, every other page
+  suppressed with its path as the reason, silent callers listed to notify.
+- Scenarios: `k-storm` (5 config-service callers + an unrelated card-processor-adapter with its own change; email-sender
+  change on 2 alerts' paths rejected), `k-storm-hub` (an unrelated alert that shares only kafka-events), `n-storm`.
+  Eval: **full 15/15; no-algorithms 12/15 (fails the 3 storms: it has no correlation tool, so it pages per alert)**.
+  eval.md says plainly that a Cypher version of correlate_alerts would likely match at 27 services; the algorithms'
+  case at scale is Part F.
+- Story beat (backend): `STORM_BEAT` in `backend/demo.py` (+ `python -m backend.demo storm [--save-golden]`), golden
+  replay `runs/golden/firefighter-storm.json`, fresh run via `/api/story/storm/run` (access code), numbers
+  `GET /api/storm/latest`: naive 6 incidents / 6 pages / 5 people woken vs agent 2 / 2 / 2, 5 pages suppressed, 35 tool
+  calls, algorithms BFS, SPpaths, SSpaths, WCC, labelPropagation.
 
 ---
 

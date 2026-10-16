@@ -1,0 +1,6075 @@
+{
+ "run_id": "run-50086975bdd2",
+ "agent": "firefighter",
+ "tenant": "kestrel_pay__eval_story_storm",
+ "alert": [
+  {
+   "service_id": "svc:auth-service",
+   "symptom": "token validation p99 2.4s, 4% 5xx"
+  },
+  {
+   "service_id": "svc:payouts-service",
+   "symptom": "payout batch API p99 3.1s"
+  },
+  {
+   "service_id": "svc:merchant-onboarding",
+   "symptom": "signup step 2 timing out for 9% of merchants"
+  },
+  {
+   "service_id": "svc:webhook-dispatcher",
+   "symptom": "webhook delivery lag 6 min and climbing"
+  },
+  {
+   "service_id": "svc:notifications-service",
+   "symptom": "notification send latency p99 5s"
+  },
+  {
+   "service_id": "svc:card-processor-adapter",
+   "symptom": "TLS handshake errors to the acquirer, 35% of authorisations failing"
+  }
+ ],
+ "mode": "mock",
+ "model": "mock",
+ "started_at": 1792173354,
+ "status": "ok",
+ "report": {
+  "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
+  "likely_cause": {
+   "service_id": null,
+   "deploy_id": null,
+   "ticket_key": null,
+   "path": [],
+   "explanation": "No recent change explains these 5 alerts, and all of them call config-service (5 hops in total; it is not alerting itself): one shared dependency under load, so one incident, not 5."
+  },
+  "blast_radius": [
+   "svc:api-gateway",
+   "svc:web-checkout",
+   "svc:merchant-dashboard"
+  ],
+  "contact": {
+   "person_id": "per:omar-haddad",
+   "name": "Omar Haddad",
+   "reason": "95 commits on config-service (score 95)"
+  },
+  "bus_factor_warning": null,
+  "conflicting_decision": null,
+  "similar_past_incidents": [],
+  "evidence": [
+   {
+    "node_id": "svc:config-service",
+    "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+   },
+   {
+    "node_id": "svc:config-db",
+    "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+   },
+   {
+    "node_id": "per:omar-haddad",
+    "claim": "Best active contact: 95 commits on config-service (score 95)."
+   },
+   {
+    "node_id": "svc:auth-service",
+    "claim": "3 upstream services (2 tier-1) are exposed."
+   }
+  ],
+  "recommended_actions": [
+   "Page Omar Haddad (per:omar-haddad).",
+   "Check config-service, config-db capacity and saturation first."
+  ],
+  "confidence": "medium",
+  "look_first": {
+   "service_ids": [
+    "svc:config-service",
+    "svc:config-db"
+   ],
+   "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+   "reason": "config-service is reached by 5 of the alerting services (5 hops in total); config-db right behind it is reached by as many: check its load first."
+  },
+  "industry_pattern": null,
+  "rejected_leads": [
+   {
+    "deploy_id": "dep:email-sender-v1.15.0",
+    "service_id": "svc:email-sender",
+    "reason": "email-sender is on merchant-onboarding's call path (2 hops), but no change explains this storm: 5 alerts all call config-service (correlate_alerts), this change explains 2 of them"
+   }
+  ],
+  "incidents": [
+   {
+    "alerts": [
+     "svc:auth-service",
+     "svc:payouts-service",
+     "svc:merchant-onboarding",
+     "svc:webhook-dispatcher",
+     "svc:notifications-service"
+    ],
+    "summary": "5 alerts (auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service) are one incident: they all call config-service, and no recent change explains them. Page Omar Haddad once instead of 5 times.",
+    "likely_cause": {
+     "service_id": null,
+     "deploy_id": null,
+     "ticket_key": null,
+     "path": [],
+     "explanation": "No recent change explains these 5 alerts, and all of them call config-service (5 hops in total; it is not alerting itself): one shared dependency under load, so one incident, not 5."
+    },
+    "contact": {
+     "person_id": "per:omar-haddad",
+     "name": "Omar Haddad",
+     "reason": "95 commits on config-service (score 95)"
+    },
+    "bus_factor_warning": null,
+    "blast_radius": [
+     "svc:api-gateway",
+     "svc:web-checkout",
+     "svc:merchant-dashboard"
+    ],
+    "recommended_actions": [
+     "Page Omar Haddad (per:omar-haddad).",
+     "Check config-service, config-db capacity and saturation first."
+    ],
+    "confidence": "medium",
+    "look_first": {
+     "service_ids": [
+      "svc:config-service",
+      "svc:config-db"
+     ],
+     "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+     "reason": "config-service is reached by 5 of the alerting services (5 hops in total); config-db right behind it is reached by as many: check its load first."
+    },
+    "root": {
+     "service_id": "svc:config-service",
+     "covers": [
+      "svc:auth-service",
+      "svc:merchant-onboarding",
+      "svc:notifications-service",
+      "svc:payouts-service",
+      "svc:webhook-dispatcher"
+     ],
+     "alerting": false,
+     "total_hops": 5,
+     "tied": [
+      "svc:config-db"
+     ]
+    },
+    "suppressed_pages": [
+     {
+      "alert": "svc:auth-service",
+      "person_id": "per:elena-petrova",
+      "name": "Elena Petrova",
+      "team_id": null,
+      "reason": "auth-service is part of this incident: auth-service -> config-service; one page goes to Omar Haddad instead"
+     },
+     {
+      "alert": "svc:payouts-service",
+      "person_id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "team_id": null,
+      "reason": "payouts-service is part of this incident: payouts-service -> config-service; one page goes to Omar Haddad instead"
+     },
+     {
+      "alert": "svc:merchant-onboarding",
+      "person_id": "per:kenji-watanabe",
+      "name": "Kenji Watanabe",
+      "team_id": null,
+      "reason": "merchant-onboarding is part of this incident: merchant-onboarding -> config-service; one page goes to Omar Haddad instead"
+     },
+     {
+      "alert": "svc:webhook-dispatcher",
+      "person_id": "per:ben-walker",
+      "name": "Ben Walker",
+      "team_id": null,
+      "reason": "webhook-dispatcher is part of this incident: webhook-dispatcher -> config-service; one page goes to Omar Haddad instead"
+     },
+     {
+      "alert": "svc:notifications-service",
+      "person_id": "per:fatima-zahra",
+      "name": "Fatima Zahra",
+      "team_id": null,
+      "reason": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead"
+     }
+    ],
+    "notify": [
+     {
+      "service_id": "svc:api-gateway",
+      "hops": 1
+     },
+     {
+      "service_id": "svc:bank-connector",
+      "hops": 1
+     },
+     {
+      "service_id": "svc:feature-flags",
+      "hops": 1
+     },
+     {
+      "service_id": "svc:payments-api",
+      "hops": 1
+     },
+     {
+      "service_id": "svc:merchant-dashboard",
+      "hops": 2
+     },
+     {
+      "service_id": "svc:reconciliation-job",
+      "hops": 2
+     },
+     {
+      "service_id": "svc:web-checkout",
+      "hops": 2
+     }
+    ]
+   },
+   {
+    "alerts": [
+     "svc:card-processor-adapter"
+    ],
+    "summary": "card-processor-adapter alert most likely caused by dep:card-processor-adapter-v2.9.0 on card-processor-adapter, deployed 25 min ago. Contact Sofia Alvarez.",
+    "likely_cause": {
+     "service_id": "svc:card-processor-adapter",
+     "deploy_id": "dep:card-processor-adapter-v2.9.0",
+     "ticket_key": null,
+     "path": [
+      "svc:card-processor-adapter"
+     ],
+     "explanation": "Rotate the acquirer client certificate bundle (dep:card-processor-adapter-v2.9.0, deployed 25 min ago by Sofia Alvarez). card-processor-adapter itself was changed."
+    },
+    "contact": {
+     "person_id": "per:sofia-alvarez",
+     "name": "Sofia Alvarez",
+     "reason": "95 commits, 1 past incident fix(es) on card-processor-adapter (score 120)"
+    },
+    "bus_factor_warning": null,
+    "blast_radius": [
+     "svc:payments-api",
+     "svc:api-gateway",
+     "svc:web-checkout",
+     "svc:merchant-dashboard"
+    ],
+    "recommended_actions": [
+     "Roll back dep:card-processor-adapter-v2.9.0 on card-processor-adapter.",
+     "Page Sofia Alvarez (per:sofia-alvarez)."
+    ],
+    "confidence": "medium",
+    "look_first": null,
+    "root": null,
+    "suppressed_pages": [],
+    "notify": []
+   }
+  ],
+  "suppressed_pages": [
+   {
+    "alert": "svc:auth-service",
+    "person_id": "per:elena-petrova",
+    "name": "Elena Petrova",
+    "team_id": null,
+    "reason": "auth-service is part of this incident: auth-service -> config-service; one page goes to Omar Haddad instead"
+   },
+   {
+    "alert": "svc:payouts-service",
+    "person_id": "per:sofia-alvarez",
+    "name": "Sofia Alvarez",
+    "team_id": null,
+    "reason": "payouts-service is part of this incident: payouts-service -> config-service; one page goes to Omar Haddad instead"
+   },
+   {
+    "alert": "svc:merchant-onboarding",
+    "person_id": "per:kenji-watanabe",
+    "name": "Kenji Watanabe",
+    "team_id": null,
+    "reason": "merchant-onboarding is part of this incident: merchant-onboarding -> config-service; one page goes to Omar Haddad instead"
+   },
+   {
+    "alert": "svc:webhook-dispatcher",
+    "person_id": "per:ben-walker",
+    "name": "Ben Walker",
+    "team_id": null,
+    "reason": "webhook-dispatcher is part of this incident: webhook-dispatcher -> config-service; one page goes to Omar Haddad instead"
+   },
+   {
+    "alert": "svc:notifications-service",
+    "person_id": "per:fatima-zahra",
+    "name": "Fatima Zahra",
+    "team_id": null,
+    "reason": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead"
+   }
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "ungrounded_ids": [],
+  "errors": []
+ },
+ "totals": {
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cost_usd": 0.0,
+  "llm_calls": 5,
+  "tool_calls": 35,
+  "duration_ms": 80
+ },
+ "steps": [
+  {
+   "seq": 1,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:auth-service"
+   },
+   "result": {
+    "service": "svc:auth-service",
+    "scope": [
+     "svc:auth-service",
+     "svc:config-service",
+     "svc:config-db"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:auth-service",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:auth-service"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:auth-service",
+        "svc:config-service",
+        "svc:config-db"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:auth-service",
+        "svc:config-service",
+        "svc:config-db"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:auth-service",
+        "svc:config-service",
+        "svc:config-db"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:auth-service"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792173354,
+   "ms": 2,
+   "llm_call": 1
+  },
+  {
+   "seq": 2,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:payouts-service"
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "scope": [
+     "svc:payouts-service",
+     "svc:ledger-service",
+     "svc:bank-connector",
+     "svc:fx-rates-service",
+     "svc:config-service",
+     "svc:kafka-events",
+     "svc:config-db",
+     "svc:ledger-db",
+     "svc:audit-log"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:payouts-service",
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payouts-service"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 3,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:merchant-onboarding"
+   },
+   "result": {
+    "service": "svc:merchant-onboarding",
+    "scope": [
+     "svc:merchant-onboarding",
+     "svc:kyc-service",
+     "svc:config-service",
+     "svc:notifications-service",
+     "svc:kafka-events",
+     "svc:email-sender",
+     "svc:config-db",
+     "svc:sanctions-screening"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:merchant-onboarding",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:merchant-onboarding"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:merchant-onboarding",
+        "svc:kyc-service",
+        "svc:config-service",
+        "svc:notifications-service",
+        "svc:kafka-events",
+        "svc:email-sender",
+        "svc:config-db",
+        "svc:sanctions-screening"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:merchant-onboarding",
+        "svc:kyc-service",
+        "svc:config-service",
+        "svc:notifications-service",
+        "svc:kafka-events",
+        "svc:email-sender",
+        "svc:config-db",
+        "svc:sanctions-screening"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:merchant-onboarding",
+        "svc:kyc-service",
+        "svc:config-service",
+        "svc:notifications-service",
+        "svc:kafka-events",
+        "svc:email-sender",
+        "svc:config-db",
+        "svc:sanctions-screening"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:merchant-onboarding"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 4,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:webhook-dispatcher"
+   },
+   "result": {
+    "service": "svc:webhook-dispatcher",
+    "scope": [
+     "svc:webhook-dispatcher",
+     "svc:config-service",
+     "svc:kafka-events",
+     "svc:config-db"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:webhook-dispatcher",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:webhook-dispatcher",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:webhook-dispatcher",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:webhook-dispatcher",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:webhook-dispatcher"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 5,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:notifications-service"
+   },
+   "result": {
+    "service": "svc:notifications-service",
+    "scope": [
+     "svc:notifications-service",
+     "svc:config-service",
+     "svc:kafka-events",
+     "svc:email-sender",
+     "svc:config-db"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:notifications-service",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:notifications-service"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:notifications-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:email-sender",
+        "svc:config-db"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:notifications-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:email-sender",
+        "svc:config-db"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:notifications-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:email-sender",
+        "svc:config-db"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:notifications-service"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 6,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "memory_recall",
+   "args": {
+    "service_id": "svc:card-processor-adapter"
+   },
+   "result": {
+    "service": "svc:card-processor-adapter",
+    "scope": [
+     "svc:card-processor-adapter"
+    ],
+    "learned_edges": [],
+    "facts": [],
+    "incidents": [],
+    "suspects": [],
+    "note": "no memory yet: earlier agent sessions learned nothing about this service or its dependencies"
+   },
+   "receipt": {
+    "tool": "memory_recall",
+    "args": {
+     "service_id": "svc:card-processor-adapter",
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..3]->(d:Service) RETURN DISTINCT d.id",
+      "params": {
+       "id": "svc:card-processor-adapter"
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[r:DEPENDS_ON {source:'learned'}]->(b:Service) WHERE a.id IN $ids OR b.id IN $ids OPTIONAL MATCH (f:Fact) WHERE f.id = r.learned_from OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN a.id, b.id, r.kind, r.learned_at, f.id, f.statement, src.id, sf.excerpt, ses.id",
+      "params": {
+       "ids": [
+        "svc:card-processor-adapter"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (f:Fact)-[:ABOUT]->(s:Service) WHERE s.id IN $ids AND NOT f.id IN $skip OPTIONAL MATCH (f)-[sf:SOURCED_FROM]->(src) OPTIONAL MATCH (f)-[:WRITTEN_IN]->(ses:Session) RETURN f.id, f.statement, f.confidence, collect(DISTINCT s.id), collect(DISTINCT [src.id, sf.excerpt]), collect(DISTINCT ses.id)",
+      "params": {
+       "ids": [
+        "svc:card-processor-adapter"
+       ],
+       "skip": []
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident {origin:'agent', status:'resolved'})-[:AFFECTED]->(s:Service) WHERE s.id IN $ids OPTIONAL MATCH (i)-[:CAUSED_BY]->(c) OPTIONAL MATCH (c)-[:CHANGED]->(cs:Service) OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (i)-[:WRITTEN_IN]->(ses:Session) RETURN i.id, i.key, i.title, i.resolved_at, collect(DISTINCT s.id), collect(DISTINCT [c.id, labels(c)[0], cs.id]), collect(DISTINCT rc.id), r.id, r.summary, collect(DISTINCT [p.id, p.name]), collect(DISTINCT ses.id) ORDER BY i.resolved_at DESC",
+      "params": {
+       "ids": [
+        "svc:card-processor-adapter"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:card-processor-adapter"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "memory_recall → nothing recalled (no memory yet)",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 1
+  },
+  {
+   "seq": 7,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120,
+    "limit": 30
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 2,
+    "changes": [
+     {
+      "service": "svc:email-sender",
+      "tier": 3,
+      "deploy": {
+       "id": "dep:email-sender-v1.15.0",
+       "version": "1.15.0",
+       "ts": 1792172634,
+       "minutes_ago": 12,
+       "summary": "Switch to the new transactional template engine",
+       "by": "Kenji Watanabe"
+      },
+      "deployer_id": "per:kenji-watanabe",
+      "deployer_status": "active",
+      "ticket": null
+     },
+     {
+      "service": "svc:card-processor-adapter",
+      "tier": 1,
+      "deploy": {
+       "id": "dep:card-processor-adapter-v2.9.0",
+       "version": "2.9.0",
+       "ts": 1792171854,
+       "minutes_ago": 25,
+       "summary": "Rotate the acquirer client certificate bundle",
+       "by": "Sofia Alvarez"
+      },
+      "deployer_id": "per:sofia-alvarez",
+      "deployer_status": "active",
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 30
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792166154,
+       "limit": 31
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:email-sender-v1.15.0",
+      "svc:email-sender",
+      "per:kenji-watanabe",
+      "dep:card-processor-adapter-v2.9.0",
+      "svc:card-processor-adapter",
+      "per:sofia-alvarez"
+     ],
+     "edges": [
+      {
+       "from": "dep:email-sender-v1.15.0",
+       "type": "CHANGED",
+       "to": "svc:email-sender"
+      },
+      {
+       "from": "per:kenji-watanabe",
+       "type": "DEPLOYED",
+       "to": "dep:email-sender-v1.15.0"
+      },
+      {
+       "from": "dep:card-processor-adapter-v2.9.0",
+       "type": "CHANGED",
+       "to": "svc:card-processor-adapter"
+      },
+      {
+       "from": "per:sofia-alvarez",
+       "type": "DEPLOYED",
+       "to": "dep:card-processor-adapter-v2.9.0"
+      }
+     ]
+    }
+   },
+   "summary": "recent_changes → 2 change(s) in 120 min: email-sender 12 min ago, card-processor-adapter 25 min ago",
+   "ts": 1792173354,
+   "ms": 0,
+   "llm_call": 1
+  },
+  {
+   "seq": 8,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:auth-service",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:auth-service",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "neither this service nor anything it calls was deployed in this window"
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:auth-service",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:auth-service",
+       "since": 1792166154
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "recent_changes_downstream → no recent downstream deploys",
+   "ts": 1792173354,
+   "ms": 0,
+   "llm_call": 2
+  },
+  {
+   "seq": 9,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:auth-service",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:auth-service",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:auth-service",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:auth-service"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:auth-service",
+       "since": 1792166154,
+       "downstream": [
+        "svc:config-service",
+        "svc:config-db"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 10,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:payouts-service",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "neither this service nor anything it calls was deployed in this window"
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:payouts-service",
+       "since": 1792166154
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "recent_changes_downstream → no recent downstream deploys",
+   "ts": 1792173354,
+   "ms": 0,
+   "llm_call": 2
+  },
+  {
+   "seq": 11,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:payouts-service",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:payouts-service",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:payouts-service",
+       "since": 1792166154,
+       "downstream": [
+        "svc:ledger-service",
+        "svc:bank-connector",
+        "svc:fx-rates-service",
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db",
+        "svc:ledger-db",
+        "svc:audit-log"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 12,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:merchant-onboarding",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:merchant-onboarding",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:email-sender",
+      "hops": 2,
+      "path": [
+       "svc:merchant-onboarding",
+       "svc:notifications-service",
+       "svc:email-sender"
+      ],
+      "edge_sources": [
+       "declared",
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:email-sender-v1.15.0",
+       "version": "1.15.0",
+       "ts": 1792172634,
+       "minutes_ago": 12,
+       "summary": "Switch to the new transactional template engine",
+       "by": "Kenji Watanabe"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:merchant-onboarding",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:merchant-onboarding",
+       "since": 1792166154
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:merchant-onboarding",
+       "to": "svc:email-sender",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:merchant-onboarding",
+      "svc:notifications-service",
+      "svc:email-sender",
+      "dep:email-sender-v1.15.0",
+      "per:kenji-watanabe"
+     ],
+     "edges": [
+      {
+       "from": "svc:merchant-onboarding",
+       "type": "DEPENDS_ON",
+       "to": "svc:notifications-service"
+      },
+      {
+       "from": "svc:notifications-service",
+       "type": "DEPENDS_ON",
+       "to": "svc:email-sender"
+      },
+      {
+       "from": "dep:email-sender-v1.15.0",
+       "type": "CHANGED",
+       "to": "svc:email-sender"
+      },
+      {
+       "from": "per:kenji-watanabe",
+       "type": "DEPLOYED",
+       "to": "dep:email-sender-v1.15.0"
+      }
+     ]
+    }
+   },
+   "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 13,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:merchant-onboarding",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:merchant-onboarding",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:merchant-onboarding",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:merchant-onboarding"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:merchant-onboarding",
+       "since": 1792166154,
+       "downstream": [
+        "svc:kyc-service",
+        "svc:config-service",
+        "svc:notifications-service",
+        "svc:kafka-events",
+        "svc:email-sender",
+        "svc:config-db",
+        "svc:sanctions-screening"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 14,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:webhook-dispatcher",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:webhook-dispatcher",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "neither this service nor anything it calls was deployed in this window"
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:webhook-dispatcher",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:webhook-dispatcher",
+       "since": 1792166154
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "recent_changes_downstream → no recent downstream deploys",
+   "ts": 1792173354,
+   "ms": 0,
+   "llm_call": 2
+  },
+  {
+   "seq": 15,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:webhook-dispatcher",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:webhook-dispatcher",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:webhook-dispatcher",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:webhook-dispatcher",
+       "since": 1792166154,
+       "downstream": [
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:config-db"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 16,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:notifications-service",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:notifications-service",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:email-sender",
+      "hops": 1,
+      "path": [
+       "svc:notifications-service",
+       "svc:email-sender"
+      ],
+      "edge_sources": [
+       "declared"
+      ],
+      "deploy": {
+       "id": "dep:email-sender-v1.15.0",
+       "version": "1.15.0",
+       "ts": 1792172634,
+       "minutes_ago": 12,
+       "summary": "Switch to the new transactional template engine",
+       "by": "Kenji Watanabe"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:notifications-service",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:notifications-service",
+       "since": 1792166154
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:notifications-service",
+       "to": "svc:email-sender",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:notifications-service",
+      "svc:email-sender",
+      "dep:email-sender-v1.15.0",
+      "per:kenji-watanabe"
+     ],
+     "edges": [
+      {
+       "from": "svc:notifications-service",
+       "type": "DEPENDS_ON",
+       "to": "svc:email-sender"
+      },
+      {
+       "from": "dep:email-sender-v1.15.0",
+       "type": "CHANGED",
+       "to": "svc:email-sender"
+      },
+      {
+       "from": "per:kenji-watanabe",
+       "type": "DEPLOYED",
+       "to": "dep:email-sender-v1.15.0"
+      }
+     ]
+    }
+   },
+   "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 17,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:notifications-service",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:notifications-service",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:notifications-service",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:notifications-service"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:notifications-service",
+       "since": 1792166154,
+       "downstream": [
+        "svc:config-service",
+        "svc:kafka-events",
+        "svc:email-sender",
+        "svc:config-db"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 18,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "recent_changes_downstream",
+   "args": {
+    "service_id": "svc:card-processor-adapter",
+    "since_minutes": 120,
+    "max_hops": 6
+   },
+   "result": {
+    "service": "svc:card-processor-adapter",
+    "since_minutes": 120,
+    "hit_count": 1,
+    "hits": [
+     {
+      "service": "svc:card-processor-adapter",
+      "hops": 0,
+      "path": [
+       "svc:card-processor-adapter"
+      ],
+      "edge_sources": [],
+      "deploy": {
+       "id": "dep:card-processor-adapter-v2.9.0",
+       "version": "2.9.0",
+       "ts": 1792171854,
+       "minutes_ago": 25,
+       "summary": "Rotate the acquirer client certificate bundle",
+       "by": "Sofia Alvarez"
+      },
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes_downstream",
+    "args": {
+     "service_id": "svc:card-processor-adapter",
+     "since_minutes": 120,
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+      "params": {
+       "id": "svc:card-processor-adapter",
+       "since": 1792166154
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:card-processor-adapter-v2.9.0",
+      "svc:card-processor-adapter",
+      "per:sofia-alvarez"
+     ],
+     "edges": [
+      {
+       "from": "dep:card-processor-adapter-v2.9.0",
+       "type": "CHANGED",
+       "to": "svc:card-processor-adapter"
+      },
+      {
+       "from": "per:sofia-alvarez",
+       "type": "DEPLOYED",
+       "to": "dep:card-processor-adapter-v2.9.0"
+      }
+     ]
+    }
+   },
+   "summary": "recent_changes_downstream → 1 hit(s): card-processor-adapter (deployed 25 min ago by Sofia Alvarez)",
+   "ts": 1792173354,
+   "ms": 0,
+   "llm_call": 2
+  },
+  {
+   "seq": 19,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "shared_dependency_changes",
+   "args": {
+    "service_id": "svc:card-processor-adapter",
+    "since_minutes": 120
+   },
+   "result": {
+    "service": "svc:card-processor-adapter",
+    "since_minutes": 120,
+    "hit_count": 0,
+    "hits": [],
+    "note": "no recently changed service shares a downstream dependency with this one"
+   },
+   "receipt": {
+    "tool": "shared_dependency_changes",
+    "args": {
+     "service_id": "svc:card-processor-adapter",
+     "since_minutes": 120,
+     "max_hops": 3
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id",
+      "params": {
+       "id": "svc:card-processor-adapter"
+      }
+     },
+     {
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "params": {
+       "id": "svc:card-processor-adapter",
+       "since": 1792166154,
+       "downstream": []
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "summary": "shared_dependency_changes → no noisy neighbours",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 2
+  },
+  {
+   "seq": 20,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "correlate_alerts",
+   "args": {
+    "service_ids": [
+     "svc:auth-service",
+     "svc:payouts-service",
+     "svc:merchant-onboarding",
+     "svc:webhook-dispatcher",
+     "svc:notifications-service",
+     "svc:card-processor-adapter"
+    ]
+   },
+   "result": {
+    "alerts": [
+     "svc:auth-service",
+     "svc:payouts-service",
+     "svc:merchant-onboarding",
+     "svc:webhook-dispatcher",
+     "svc:notifications-service",
+     "svc:card-processor-adapter"
+    ],
+    "max_hops": 6,
+    "roots": [
+     {
+      "id": "svc:config-service",
+      "covers": [
+       "svc:auth-service",
+       "svc:merchant-onboarding",
+       "svc:notifications-service",
+       "svc:payouts-service",
+       "svc:webhook-dispatcher"
+      ],
+      "coverage": 5,
+      "alerting": false,
+      "total_hops": 5,
+      "callers": 12,
+      "paths": {
+       "svc:auth-service": [
+        "svc:auth-service",
+        "svc:config-service"
+       ],
+       "svc:merchant-onboarding": [
+        "svc:merchant-onboarding",
+        "svc:config-service"
+       ],
+       "svc:notifications-service": [
+        "svc:notifications-service",
+        "svc:config-service"
+       ],
+       "svc:payouts-service": [
+        "svc:payouts-service",
+        "svc:config-service"
+       ],
+       "svc:webhook-dispatcher": [
+        "svc:webhook-dispatcher",
+        "svc:config-service"
+       ]
+      }
+     },
+     {
+      "id": "svc:config-db",
+      "covers": [
+       "svc:auth-service",
+       "svc:merchant-onboarding",
+       "svc:notifications-service",
+       "svc:payouts-service",
+       "svc:webhook-dispatcher"
+      ],
+      "coverage": 5,
+      "alerting": false,
+      "total_hops": 10,
+      "callers": 13,
+      "paths": {
+       "svc:auth-service": [
+        "svc:auth-service",
+        "svc:config-service",
+        "svc:config-db"
+       ],
+       "svc:merchant-onboarding": [
+        "svc:merchant-onboarding",
+        "svc:config-service",
+        "svc:config-db"
+       ],
+       "svc:notifications-service": [
+        "svc:notifications-service",
+        "svc:config-service",
+        "svc:config-db"
+       ],
+       "svc:payouts-service": [
+        "svc:payouts-service",
+        "svc:config-service",
+        "svc:config-db"
+       ],
+       "svc:webhook-dispatcher": [
+        "svc:webhook-dispatcher",
+        "svc:config-service",
+        "svc:config-db"
+       ]
+      }
+     },
+     {
+      "id": "svc:kafka-events",
+      "covers": [
+       "svc:merchant-onboarding",
+       "svc:notifications-service",
+       "svc:payouts-service",
+       "svc:webhook-dispatcher"
+      ],
+      "coverage": 4,
+      "alerting": false,
+      "total_hops": 5,
+      "callers": 12,
+      "paths": {
+       "svc:merchant-onboarding": [
+        "svc:merchant-onboarding",
+        "svc:notifications-service",
+        "svc:kafka-events"
+       ],
+       "svc:notifications-service": [
+        "svc:notifications-service",
+        "svc:kafka-events"
+       ],
+       "svc:payouts-service": [
+        "svc:payouts-service",
+        "svc:kafka-events"
+       ],
+       "svc:webhook-dispatcher": [
+        "svc:webhook-dispatcher",
+        "svc:kafka-events"
+       ]
+      }
+     }
+    ],
+    "uncovered_by_top": [
+     "svc:card-processor-adapter"
+    ],
+    "ranking": "alerts covered (desc), alerting before silent, total hops (asc)",
+    "other_shared": 2
+   },
+   "receipt": {
+    "tool": "correlate_alerts",
+    "args": {
+     "service_ids": [
+      "svc:auth-service",
+      "svc:payouts-service",
+      "svc:merchant-onboarding",
+      "svc:webhook-dispatcher",
+      "svc:notifications-service",
+      "svc:card-processor-adapter"
+     ],
+     "max_hops": 6
+    },
+    "queries": [
+     {
+      "cypher": "UNWIND $ids AS sid MATCH (s:Service {id:sid}) CALL algo.BFS(s, $depth, 'DEPENDS_ON') YIELD nodes UNWIND nodes AS d RETURN d.id, collect(DISTINCT sid)",
+      "params": {
+       "ids": [
+        "svc:auth-service",
+        "svc:payouts-service",
+        "svc:merchant-onboarding",
+        "svc:webhook-dispatcher",
+        "svc:notifications-service",
+        "svc:card-processor-adapter"
+       ],
+       "depth": 6
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
+      "params": {
+       "ids": [
+        "svc:config-db",
+        "svc:config-service",
+        "svc:kafka-events"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:auth-service",
+       "to": "svc:config-db",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:merchant-onboarding",
+       "to": "svc:config-db",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:notifications-service",
+       "to": "svc:config-db",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:payouts-service",
+       "to": "svc:config-db",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:webhook-dispatcher",
+       "to": "svc:config-db",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:auth-service",
+       "to": "svc:config-service",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:merchant-onboarding",
+       "to": "svc:config-service",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:notifications-service",
+       "to": "svc:config-service",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:payouts-service",
+       "to": "svc:config-service",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:webhook-dispatcher",
+       "to": "svc:config-service",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:merchant-onboarding",
+       "to": "svc:kafka-events",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:notifications-service",
+       "to": "svc:kafka-events",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:payouts-service",
+       "to": "svc:kafka-events",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service {id:$from}), (b:Service {id:$to}) CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]",
+      "params": {
+       "from": "svc:webhook-dispatcher",
+       "to": "svc:kafka-events",
+       "dir": "outgoing",
+       "maxlen": 6
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:auth-service",
+      "svc:config-service",
+      "svc:merchant-onboarding",
+      "svc:notifications-service",
+      "svc:payouts-service",
+      "svc:webhook-dispatcher",
+      "svc:config-db",
+      "svc:kafka-events",
+      "svc:card-processor-adapter"
+     ],
+     "edges": [
+      {
+       "from": "svc:auth-service",
+       "type": "DEPENDS_ON",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "svc:merchant-onboarding",
+       "type": "DEPENDS_ON",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "svc:notifications-service",
+       "type": "DEPENDS_ON",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "svc:payouts-service",
+       "type": "DEPENDS_ON",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "svc:webhook-dispatcher",
+       "type": "DEPENDS_ON",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "svc:config-service",
+       "type": "DEPENDS_ON",
+       "to": "svc:config-db"
+      },
+      {
+       "from": "svc:merchant-onboarding",
+       "type": "DEPENDS_ON",
+       "to": "svc:notifications-service"
+      },
+      {
+       "from": "svc:notifications-service",
+       "type": "DEPENDS_ON",
+       "to": "svc:kafka-events"
+      },
+      {
+       "from": "svc:payouts-service",
+       "type": "DEPENDS_ON",
+       "to": "svc:kafka-events"
+      },
+      {
+       "from": "svc:webhook-dispatcher",
+       "type": "DEPENDS_ON",
+       "to": "svc:kafka-events"
+      }
+     ]
+    }
+   },
+   "summary": "correlate_alerts → shared root config-service reached by 5 of 6 alerts",
+   "ts": 1792173354,
+   "ms": 8,
+   "llm_call": 3
+  },
+  {
+   "seq": 21,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "connected_impact",
+   "args": {
+    "service_ids": [
+     "svc:auth-service",
+     "svc:payouts-service",
+     "svc:merchant-onboarding",
+     "svc:webhook-dispatcher",
+     "svc:notifications-service",
+     "svc:card-processor-adapter"
+    ]
+   },
+   "result": {
+    "alerts": [
+     "svc:auth-service",
+     "svc:payouts-service",
+     "svc:merchant-onboarding",
+     "svc:webhook-dispatcher",
+     "svc:notifications-service",
+     "svc:card-processor-adapter"
+    ],
+    "projection": {
+     "services": 17,
+     "edges": 21
+    },
+    "components": [
+     {
+      "alerts": [
+       "svc:auth-service",
+       "svc:merchant-onboarding",
+       "svc:notifications-service",
+       "svc:payouts-service",
+       "svc:webhook-dispatcher"
+      ],
+      "size": 16
+     },
+     {
+      "alerts": [
+       "svc:card-processor-adapter"
+      ],
+      "size": 1
+     }
+    ],
+    "incidents_at_least": 2,
+    "meaning": "alerts in different components share no dependency at all, so no single cause can explain them together"
+   },
+   "receipt": {
+    "tool": "connected_impact",
+    "args": {
+     "service_ids": [
+      "svc:auth-service",
+      "svc:payouts-service",
+      "svc:merchant-onboarding",
+      "svc:webhook-dispatcher",
+      "svc:notifications-service",
+      "svc:card-processor-adapter"
+     ]
+    },
+    "queries": [
+     {
+      "cypher": "UNWIND $ids AS sid MATCH (s:Service {id:sid}) CALL algo.BFS(s, 6, 'DEPENDS_ON') YIELD nodes UNWIND nodes AS d RETURN DISTINCT d.id",
+      "params": {
+       "ids": [
+        "svc:auth-service",
+        "svc:payouts-service",
+        "svc:merchant-onboarding",
+        "svc:webhook-dispatcher",
+        "svc:notifications-service",
+        "svc:card-processor-adapter"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (a:Service)-[:DEPENDS_ON]->(b:Service) WHERE a.id IN $ids AND b.id IN $ids RETURN a.id, b.id",
+      "params": {
+       "ids": [
+        "svc:audit-log",
+        "svc:auth-service",
+        "svc:bank-connector",
+        "svc:card-processor-adapter",
+        "svc:config-db",
+        "svc:config-service",
+        "svc:email-sender",
+        "svc:fx-rates-service",
+        "svc:kafka-events",
+        "svc:kyc-service",
+        "svc:ledger-db",
+        "svc:ledger-service",
+        "svc:merchant-onboarding",
+        "svc:notifications-service",
+        "svc:payouts-service",
+        "svc:sanctions-screening",
+        "svc:webhook-dispatcher"
+       ]
+      }
+     },
+     {
+      "cypher": "UNWIND $ids AS i CREATE (:Service {id: i})",
+      "params": {
+       "ids": "<17 items>"
+      },
+      "write": true,
+      "graph": "scratch projection"
+     },
+     {
+      "cypher": "UNWIND $pairs AS p MATCH (a:Service {id: p[0]}), (b:Service {id: p[1]}) CREATE (a)-[:DEPENDS_ON]->(b)",
+      "params": {
+       "pairs": "<21 items>"
+      },
+      "write": true,
+      "graph": "scratch projection"
+     },
+     {
+      "cypher": "CALL algo.WCC({nodeLabels: ['Service'], relationshipTypes: ['DEPENDS_ON']}) YIELD node, componentId RETURN node.id, componentId",
+      "params": {},
+      "graph": "scratch projection"
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:auth-service",
+      "svc:payouts-service",
+      "svc:merchant-onboarding",
+      "svc:webhook-dispatcher",
+      "svc:notifications-service",
+      "svc:card-processor-adapter"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "connected_impact → 2 group(s) that cannot share a cause: auth-service, merchant-onboarding, notifications-service, payouts-service, webhook-dispatcher | card-processor-adapter",
+   "ts": 1792173354,
+   "ms": 6,
+   "llm_call": 3
+  },
+  {
+   "seq": 22,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:auth-service"
+   },
+   "result": {
+    "service": "svc:auth-service",
+    "max_hops": 4,
+    "upstream_count": 3,
+    "tier1_count": 2,
+    "upstream": [
+     {
+      "id": "svc:api-gateway",
+      "tier": 1,
+      "team": "Platform",
+      "hops": 1
+     },
+     {
+      "id": "svc:web-checkout",
+      "tier": 1,
+      "team": "Merchant Experience",
+      "hops": 2
+     },
+     {
+      "id": "svc:merchant-dashboard",
+      "tier": 2,
+      "team": "Merchant Experience",
+      "hops": 2
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:auth-service",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:auth-service"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:auth-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:api-gateway",
+      "svc:auth-service",
+      "svc:web-checkout",
+      "svc:merchant-dashboard"
+     ],
+     "edges": [
+      {
+       "from": "svc:api-gateway",
+       "type": "DEPENDS_ON",
+       "to": "svc:auth-service"
+      },
+      {
+       "from": "svc:web-checkout",
+       "type": "DEPENDS_ON",
+       "to": "svc:api-gateway"
+      },
+      {
+       "from": "svc:merchant-dashboard",
+       "type": "DEPENDS_ON",
+       "to": "svc:api-gateway"
+      }
+     ]
+    }
+   },
+   "summary": "blast_radius → 3 upstream (2 tier-1)",
+   "ts": 1792173354,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 23,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:config-service"
+   },
+   "result": {
+    "service": "svc:config-service",
+    "maintainers": [
+     {
+      "id": "per:omar-haddad",
+      "name": "Omar Haddad",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:omar-haddad",
+      "name": "Omar Haddad",
+      "role": "Engineer",
+      "commits": 95,
+      "last_commit_days_ago": 17,
+      "resolutions": 0,
+      "score": 95
+     },
+     {
+      "id": "per:nikhil-rao",
+      "name": "Nikhil Rao",
+      "role": "Staff Engineer",
+      "commits": 70,
+      "last_commit_days_ago": 80,
+      "resolutions": 0,
+      "score": 70
+     },
+     {
+      "id": "per:priya-nair",
+      "name": "Priya Nair",
+      "role": "Senior Engineer",
+      "commits": 0,
+      "last_commit_days_ago": null,
+      "resolutions": 2,
+      "score": 50
+     },
+     {
+      "id": "per:jonas-eriksson",
+      "name": "Jonas Eriksson",
+      "role": "Site Reliability Engineer",
+      "commits": 15,
+      "last_commit_days_ago": 45,
+      "resolutions": 0,
+      "score": 15
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:platform",
+     "name": "Platform",
+     "active_members": [
+      "Nikhil Rao",
+      "Elena Petrova",
+      "Omar Haddad",
+      "Grace Liu",
+      "Jonas Eriksson"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:config-service"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:config-service"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:config-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:config-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:config-service"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:config-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:nikhil-rao",
+      "svc:config-service",
+      "per:omar-haddad",
+      "per:jonas-eriksson",
+      "team:platform",
+      "per:priya-nair"
+     ],
+     "edges": [
+      {
+       "from": "per:nikhil-rao",
+       "type": "WORKED_ON",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "per:omar-haddad",
+       "type": "WORKED_ON",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "per:jonas-eriksson",
+       "type": "WORKED_ON",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "per:omar-haddad",
+       "type": "MAINTAINS",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "team:platform",
+       "type": "OWNS",
+       "to": "svc:config-service"
+      }
+     ]
+    }
+   },
+   "summary": "who_to_call → top: Omar Haddad (score 95)",
+   "ts": 1792173354,
+   "ms": 3,
+   "llm_call": 4
+  },
+  {
+   "seq": 24,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_tiers",
+   "args": {
+    "service_id": "svc:config-service",
+    "alerting": [
+     "svc:auth-service",
+     "svc:payouts-service",
+     "svc:merchant-onboarding",
+     "svc:webhook-dispatcher",
+     "svc:notifications-service",
+     "svc:card-processor-adapter"
+    ]
+   },
+   "result": {
+    "service": "svc:config-service",
+    "max_hops": 4,
+    "tiers": [
+     {
+      "hops": 1,
+      "alerting": [
+       "svc:auth-service",
+       "svc:merchant-onboarding",
+       "svc:notifications-service",
+       "svc:payouts-service",
+       "svc:webhook-dispatcher"
+      ],
+      "silent": [
+       "svc:api-gateway",
+       "svc:bank-connector",
+       "svc:feature-flags",
+       "svc:payments-api"
+      ]
+     },
+     {
+      "hops": 2,
+      "alerting": [],
+      "silent": [
+       "svc:merchant-dashboard",
+       "svc:reconciliation-job",
+       "svc:web-checkout"
+      ]
+     }
+    ],
+    "callers": 12,
+    "silent_callers": [
+     "svc:api-gateway",
+     "svc:bank-connector",
+     "svc:feature-flags",
+     "svc:merchant-dashboard",
+     "svc:payments-api",
+     "svc:reconciliation-job",
+     "svc:web-checkout"
+    ],
+    "meaning": "tier n = services that call this one at n hops (shortest); silent ones have not alerted yet"
+   },
+   "receipt": {
+    "tool": "blast_tiers",
+    "args": {
+     "service_id": "svc:config-service",
+     "alerting": [
+      "svc:auth-service",
+      "svc:payouts-service",
+      "svc:merchant-onboarding",
+      "svc:webhook-dispatcher",
+      "svc:notifications-service",
+      "svc:card-processor-adapter"
+     ],
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (s:Service {id:$id}) CALL algo.SSpaths({sourceNode: s, relTypes: ['DEPENDS_ON'], relDirection: 'incoming', maxLen: $depth, pathCount: 1000}) YIELD path, pathWeight RETURN last(nodes(path)).id, min(pathWeight)",
+      "params": {
+       "id": "svc:config-service",
+       "depth": 4
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:config-service",
+      "svc:feature-flags",
+      "svc:notifications-service",
+      "svc:payments-api",
+      "svc:api-gateway",
+      "svc:payouts-service",
+      "svc:auth-service",
+      "svc:merchant-onboarding",
+      "svc:webhook-dispatcher",
+      "svc:bank-connector",
+      "svc:reconciliation-job",
+      "svc:merchant-dashboard",
+      "svc:web-checkout"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "blast_tiers → 12 caller(s) in 2 tier(s); 7 silent so far",
+   "ts": 1792173354,
+   "ms": 0,
+   "llm_call": 4
+  },
+  {
+   "seq": 25,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:auth-service"
+   },
+   "result": {
+    "service": "svc:auth-service",
+    "maintainers": [
+     {
+      "id": "per:elena-petrova",
+      "name": "Elena Petrova",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:elena-petrova",
+      "name": "Elena Petrova",
+      "role": "Senior Engineer",
+      "commits": 130,
+      "last_commit_days_ago": 7,
+      "resolutions": 0,
+      "score": 130
+     },
+     {
+      "id": "per:nikhil-rao",
+      "name": "Nikhil Rao",
+      "role": "Staff Engineer",
+      "commits": 35,
+      "last_commit_days_ago": 60,
+      "resolutions": 0,
+      "score": 35
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:platform",
+     "name": "Platform",
+     "active_members": [
+      "Nikhil Rao",
+      "Elena Petrova",
+      "Omar Haddad",
+      "Grace Liu",
+      "Jonas Eriksson"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:auth-service"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:auth-service"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:auth-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:auth-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:auth-service"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:auth-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:nikhil-rao",
+      "svc:auth-service",
+      "per:elena-petrova",
+      "team:platform"
+     ],
+     "edges": [
+      {
+       "from": "per:nikhil-rao",
+       "type": "WORKED_ON",
+       "to": "svc:auth-service"
+      },
+      {
+       "from": "per:elena-petrova",
+       "type": "WORKED_ON",
+       "to": "svc:auth-service"
+      },
+      {
+       "from": "per:elena-petrova",
+       "type": "MAINTAINS",
+       "to": "svc:auth-service"
+      },
+      {
+       "from": "team:platform",
+       "type": "OWNS",
+       "to": "svc:auth-service"
+      }
+     ]
+    }
+   },
+   "summary": "who_to_call → top: Elena Petrova (score 130)",
+   "ts": 1792173354,
+   "ms": 3,
+   "llm_call": 4
+  },
+  {
+   "seq": 26,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:payouts-service"
+   },
+   "result": {
+    "service": "svc:payouts-service",
+    "maintainers": [
+     {
+      "id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "role": "Engineer",
+      "commits": 140,
+      "last_commit_days_ago": 5,
+      "resolutions": 0,
+      "score": 140
+     },
+     {
+      "id": "per:tomasz-kowalski",
+      "name": "Tomasz Kowalski",
+      "role": "Engineer",
+      "commits": 37,
+      "last_commit_days_ago": 19,
+      "resolutions": 0,
+      "score": 37
+     },
+     {
+      "id": "per:marcus-webb",
+      "name": "Marcus Webb",
+      "role": "Staff Engineer",
+      "commits": 0,
+      "last_commit_days_ago": null,
+      "resolutions": 1,
+      "score": 25
+     },
+     {
+      "id": "per:priya-nair",
+      "name": "Priya Nair",
+      "role": "Senior Engineer",
+      "commits": 12,
+      "last_commit_days_ago": 55,
+      "resolutions": 0,
+      "score": 12
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:payments-core",
+     "name": "Payments Core",
+     "active_members": [
+      "Priya Nair",
+      "Marcus Webb",
+      "Sofia Alvarez",
+      "Tomasz Kowalski",
+      "Aiko Tanaka"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:payouts-service"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:payouts-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:priya-nair",
+      "svc:payouts-service",
+      "per:sofia-alvarez",
+      "per:tomasz-kowalski",
+      "team:payments-core",
+      "per:marcus-webb"
+     ],
+     "edges": [
+      {
+       "from": "per:priya-nair",
+       "type": "WORKED_ON",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "per:sofia-alvarez",
+       "type": "WORKED_ON",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "per:tomasz-kowalski",
+       "type": "WORKED_ON",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "per:sofia-alvarez",
+       "type": "MAINTAINS",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "team:payments-core",
+       "type": "OWNS",
+       "to": "svc:payouts-service"
+      }
+     ]
+    }
+   },
+   "summary": "who_to_call → top: Sofia Alvarez (score 140)",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 27,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:merchant-onboarding"
+   },
+   "result": {
+    "service": "svc:merchant-onboarding",
+    "maintainers": [
+     {
+      "id": "per:kenji-watanabe",
+      "name": "Kenji Watanabe",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:kenji-watanabe",
+      "name": "Kenji Watanabe",
+      "role": "Engineer",
+      "commits": 120,
+      "last_commit_days_ago": 12,
+      "resolutions": 0,
+      "score": 120
+     },
+     {
+      "id": "per:fatima-zahra",
+      "name": "Fatima Zahra",
+      "role": "Engineer",
+      "commits": 34,
+      "last_commit_days_ago": 50,
+      "resolutions": 0,
+      "score": 34
+     },
+     {
+      "id": "per:priya-nair",
+      "name": "Priya Nair",
+      "role": "Senior Engineer",
+      "commits": 6,
+      "last_commit_days_ago": 148,
+      "resolutions": 1,
+      "score": 31
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:merchant-exp",
+     "name": "Merchant Experience",
+     "active_members": [
+      "Camila Torres",
+      "Ben Walker",
+      "Fatima Zahra",
+      "Kenji Watanabe"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:merchant-onboarding"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:merchant-onboarding"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:merchant-onboarding"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:merchant-onboarding"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:merchant-onboarding"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:merchant-onboarding"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:priya-nair",
+      "svc:merchant-onboarding",
+      "per:fatima-zahra",
+      "per:kenji-watanabe",
+      "team:merchant-exp"
+     ],
+     "edges": [
+      {
+       "from": "per:priya-nair",
+       "type": "WORKED_ON",
+       "to": "svc:merchant-onboarding"
+      },
+      {
+       "from": "per:fatima-zahra",
+       "type": "WORKED_ON",
+       "to": "svc:merchant-onboarding"
+      },
+      {
+       "from": "per:kenji-watanabe",
+       "type": "WORKED_ON",
+       "to": "svc:merchant-onboarding"
+      },
+      {
+       "from": "per:kenji-watanabe",
+       "type": "MAINTAINS",
+       "to": "svc:merchant-onboarding"
+      },
+      {
+       "from": "team:merchant-exp",
+       "type": "OWNS",
+       "to": "svc:merchant-onboarding"
+      }
+     ]
+    }
+   },
+   "summary": "who_to_call → top: Kenji Watanabe (score 120)",
+   "ts": 1792173354,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 28,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:webhook-dispatcher"
+   },
+   "result": {
+    "service": "svc:webhook-dispatcher",
+    "maintainers": [
+     {
+      "id": "per:ben-walker",
+      "name": "Ben Walker",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:ben-walker",
+      "name": "Ben Walker",
+      "role": "Senior Engineer",
+      "commits": 70,
+      "last_commit_days_ago": 14,
+      "resolutions": 1,
+      "score": 95
+     },
+     {
+      "id": "per:kenji-watanabe",
+      "name": "Kenji Watanabe",
+      "role": "Engineer",
+      "commits": 25,
+      "last_commit_days_ago": 80,
+      "resolutions": 0,
+      "score": 25
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:merchant-exp",
+     "name": "Merchant Experience",
+     "active_members": [
+      "Camila Torres",
+      "Ben Walker",
+      "Fatima Zahra",
+      "Kenji Watanabe"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:webhook-dispatcher"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:webhook-dispatcher"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:ben-walker",
+      "svc:webhook-dispatcher",
+      "per:kenji-watanabe",
+      "team:merchant-exp"
+     ],
+     "edges": [
+      {
+       "from": "per:ben-walker",
+       "type": "WORKED_ON",
+       "to": "svc:webhook-dispatcher"
+      },
+      {
+       "from": "per:kenji-watanabe",
+       "type": "WORKED_ON",
+       "to": "svc:webhook-dispatcher"
+      },
+      {
+       "from": "per:ben-walker",
+       "type": "MAINTAINS",
+       "to": "svc:webhook-dispatcher"
+      },
+      {
+       "from": "team:merchant-exp",
+       "type": "OWNS",
+       "to": "svc:webhook-dispatcher"
+      }
+     ]
+    }
+   },
+   "summary": "who_to_call → top: Ben Walker (score 95)",
+   "ts": 1792173354,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 29,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:notifications-service"
+   },
+   "result": {
+    "service": "svc:notifications-service",
+    "maintainers": [
+     {
+      "id": "per:fatima-zahra",
+      "name": "Fatima Zahra",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:fatima-zahra",
+      "name": "Fatima Zahra",
+      "role": "Engineer",
+      "commits": 60,
+      "last_commit_days_ago": 9,
+      "resolutions": 0,
+      "score": 60
+     },
+     {
+      "id": "per:kenji-watanabe",
+      "name": "Kenji Watanabe",
+      "role": "Engineer",
+      "commits": 28,
+      "last_commit_days_ago": 40,
+      "resolutions": 0,
+      "score": 28
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:merchant-exp",
+     "name": "Merchant Experience",
+     "active_members": [
+      "Camila Torres",
+      "Ben Walker",
+      "Fatima Zahra",
+      "Kenji Watanabe"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:notifications-service"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:notifications-service"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:notifications-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:notifications-service"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:notifications-service"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:notifications-service"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:fatima-zahra",
+      "svc:notifications-service",
+      "per:kenji-watanabe",
+      "team:merchant-exp"
+     ],
+     "edges": [
+      {
+       "from": "per:fatima-zahra",
+       "type": "WORKED_ON",
+       "to": "svc:notifications-service"
+      },
+      {
+       "from": "per:kenji-watanabe",
+       "type": "WORKED_ON",
+       "to": "svc:notifications-service"
+      },
+      {
+       "from": "per:fatima-zahra",
+       "type": "MAINTAINS",
+       "to": "svc:notifications-service"
+      },
+      {
+       "from": "team:merchant-exp",
+       "type": "OWNS",
+       "to": "svc:notifications-service"
+      }
+     ]
+    }
+   },
+   "summary": "who_to_call → top: Fatima Zahra (score 60)",
+   "ts": 1792173354,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 30,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:auth-service",
+     "svc:payouts-service",
+     "svc:merchant-onboarding",
+     "svc:webhook-dispatcher",
+     "svc:notifications-service",
+     "svc:config-service"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:auth-service",
+     "svc:payouts-service",
+     "svc:merchant-onboarding",
+     "svc:webhook-dispatcher",
+     "svc:notifications-service",
+     "svc:config-service"
+    ],
+    "incident_count": 4,
+    "incidents": [
+     {
+      "id": "inc:2026-012",
+      "key": "INC-2026-012",
+      "title": "merchant-onboarding config reads timing out",
+      "severity": 3,
+      "started": "2026-05-19",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 2,
+      "via": [
+       "affected",
+       "caused_by_deploy"
+      ],
+      "caused_by_change_to": [
+       "svc:merchant-onboarding"
+      ],
+      "root_causes": [
+       "rc:cache-ttl-thundering-herd"
+      ],
+      "resolution": "Re-enabled local config cache with jittered TTL",
+      "resolved_by": [
+       "Priya Nair"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2026-012"
+      ],
+      "similar_to": []
+     },
+     {
+      "id": "inc:2026-031",
+      "key": "INC-2026-031",
+      "title": "webhook-dispatcher retry storm after merchant outage",
+      "severity": 3,
+      "started": "2026-07-28",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:retry-storm"
+      ],
+      "resolution": "Paused retry queue and redelivered with capped attempts and jitter",
+      "resolved_by": [
+       "Ben Walker"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2026-031"
+      ],
+      "similar_to": []
+     },
+     {
+      "id": "inc:2025-044",
+      "key": "INC-2025-044",
+      "title": "ledger-service connection pool exhausted during payout run",
+      "severity": 2,
+      "started": "2025-09-16",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:connection-pool-exhaustion"
+      ],
+      "resolution": "Raised pool ceiling and capped payout writer concurrency",
+      "resolved_by": [
+       "Marcus Webb"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2025-044"
+      ],
+      "similar_to": []
+     },
+     {
+      "id": "inc:2025-031",
+      "key": "INC-2025-031",
+      "title": "fraud-scoring timeouts during checkout peak",
+      "severity": 2,
+      "started": "2025-07-18",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:cache-ttl-thundering-herd"
+      ],
+      "resolution": "Rolled back TTL to 300s and added cache warm-up",
+      "resolved_by": [
+       "Priya Nair",
+       "Arjun Mehta"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2025-031"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:auth-service",
+      "svc:payouts-service",
+      "svc:merchant-onboarding",
+      "svc:webhook-dispatcher",
+      "svc:notifications-service",
+      "svc:config-service"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:auth-service",
+        "svc:payouts-service",
+        "svc:merchant-onboarding",
+        "svc:webhook-dispatcher",
+        "svc:notifications-service",
+        "svc:config-service"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:auth-service",
+        "svc:payouts-service",
+        "svc:merchant-onboarding",
+        "svc:webhook-dispatcher",
+        "svc:notifications-service",
+        "svc:config-service"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:2025-044",
+        "inc:2025-031",
+        "inc:2026-012",
+        "inc:2026-031"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2026-012",
+      "rc:cache-ttl-thundering-herd",
+      "svc:config-service",
+      "svc:merchant-onboarding",
+      "dep:merchant-onboarding-v2.11.0",
+      "res:2026-012",
+      "per:priya-nair",
+      "tkt:PM-2026-012",
+      "inc:2026-031",
+      "rc:retry-storm",
+      "svc:webhook-dispatcher",
+      "res:2026-031",
+      "per:ben-walker",
+      "tkt:PM-2026-031",
+      "inc:2025-044",
+      "rc:connection-pool-exhaustion",
+      "svc:payouts-service",
+      "res:2025-044",
+      "per:marcus-webb",
+      "tkt:PM-2025-044",
+      "inc:2025-031",
+      "res:2025-031",
+      "per:arjun-mehta",
+      "tkt:PM-2025-031"
+     ],
+     "edges": [
+      {
+       "from": "inc:2026-012",
+       "type": "AFFECTED",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "inc:2026-012",
+       "type": "AFFECTED",
+       "to": "svc:merchant-onboarding"
+      },
+      {
+       "from": "inc:2026-012",
+       "type": "CAUSED_BY",
+       "to": "dep:merchant-onboarding-v2.11.0"
+      },
+      {
+       "from": "dep:merchant-onboarding-v2.11.0",
+       "type": "CHANGED",
+       "to": "svc:merchant-onboarding"
+      },
+      {
+       "from": "inc:2026-012",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:cache-ttl-thundering-herd"
+      },
+      {
+       "from": "inc:2026-012",
+       "type": "RESOLVED_BY",
+       "to": "res:2026-012"
+      },
+      {
+       "from": "res:2026-012",
+       "type": "PERFORMED_BY",
+       "to": "per:priya-nair"
+      },
+      {
+       "from": "res:2026-012",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2026-012"
+      },
+      {
+       "from": "inc:2026-031",
+       "type": "AFFECTED",
+       "to": "svc:webhook-dispatcher"
+      },
+      {
+       "from": "inc:2026-031",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:retry-storm"
+      },
+      {
+       "from": "inc:2026-031",
+       "type": "RESOLVED_BY",
+       "to": "res:2026-031"
+      },
+      {
+       "from": "res:2026-031",
+       "type": "PERFORMED_BY",
+       "to": "per:ben-walker"
+      },
+      {
+       "from": "res:2026-031",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2026-031"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "AFFECTED",
+       "to": "svc:payouts-service"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:connection-pool-exhaustion"
+      },
+      {
+       "from": "inc:2025-044",
+       "type": "RESOLVED_BY",
+       "to": "res:2025-044"
+      },
+      {
+       "from": "res:2025-044",
+       "type": "PERFORMED_BY",
+       "to": "per:marcus-webb"
+      },
+      {
+       "from": "res:2025-044",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2025-044"
+      },
+      {
+       "from": "inc:2025-031",
+       "type": "AFFECTED",
+       "to": "svc:config-service"
+      },
+      {
+       "from": "inc:2025-031",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:cache-ttl-thundering-herd"
+      },
+      {
+       "from": "inc:2025-031",
+       "type": "RESOLVED_BY",
+       "to": "res:2025-031"
+      },
+      {
+       "from": "res:2025-031",
+       "type": "PERFORMED_BY",
+       "to": "per:priya-nair"
+      },
+      {
+       "from": "res:2025-031",
+       "type": "PERFORMED_BY",
+       "to": "per:arjun-mehta"
+      },
+      {
+       "from": "res:2025-031",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2025-031"
+      }
+     ]
+    }
+   },
+   "summary": "past_incidents → 4 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2026-031 (fixed by Ben Walker), INC-2025-044 (fixed by Marcus Webb)",
+   "ts": 1792173354,
+   "ms": 3,
+   "llm_call": 4
+  },
+  {
+   "seq": 31,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "blast_radius",
+   "args": {
+    "service_id": "svc:card-processor-adapter"
+   },
+   "result": {
+    "service": "svc:card-processor-adapter",
+    "max_hops": 4,
+    "upstream_count": 4,
+    "tier1_count": 3,
+    "upstream": [
+     {
+      "id": "svc:payments-api",
+      "tier": 1,
+      "team": "Payments Core",
+      "hops": 1
+     },
+     {
+      "id": "svc:api-gateway",
+      "tier": 1,
+      "team": "Platform",
+      "hops": 2
+     },
+     {
+      "id": "svc:web-checkout",
+      "tier": 1,
+      "team": "Merchant Experience",
+      "hops": 3
+     },
+     {
+      "id": "svc:merchant-dashboard",
+      "tier": 2,
+      "team": "Merchant Experience",
+      "hops": 3
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "blast_radius",
+    "args": {
+     "service_id": "svc:card-processor-adapter",
+     "max_hops": 4
+    },
+    "queries": [
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) MATCH (t:Team)-[:OWNS]->(up) RETURN up.id, up.tier, t.name, min(length(p)) AS hops ORDER BY up.tier, hops, up.id",
+      "params": {
+       "id": "svc:card-processor-adapter"
+      }
+     },
+     {
+      "cypher": "MATCH p=(s:Service {id:$id})<-[:DEPENDS_ON*1..4]-(up:Service) UNWIND relationships(p) AS r RETURN DISTINCT startNode(r).id, endNode(r).id, r.source",
+      "params": {
+       "id": "svc:card-processor-adapter"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:payments-api",
+      "svc:card-processor-adapter",
+      "svc:api-gateway",
+      "svc:web-checkout",
+      "svc:merchant-dashboard"
+     ],
+     "edges": [
+      {
+       "from": "svc:payments-api",
+       "type": "DEPENDS_ON",
+       "to": "svc:card-processor-adapter"
+      },
+      {
+       "from": "svc:api-gateway",
+       "type": "DEPENDS_ON",
+       "to": "svc:payments-api"
+      },
+      {
+       "from": "svc:web-checkout",
+       "type": "DEPENDS_ON",
+       "to": "svc:api-gateway"
+      },
+      {
+       "from": "svc:merchant-dashboard",
+       "type": "DEPENDS_ON",
+       "to": "svc:api-gateway"
+      }
+     ]
+    }
+   },
+   "summary": "blast_radius → 4 upstream (3 tier-1)",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 32,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "who_to_call",
+   "args": {
+    "service_id": "svc:card-processor-adapter"
+   },
+   "result": {
+    "service": "svc:card-processor-adapter",
+    "maintainers": [
+     {
+      "id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "status": "active",
+      "left_days_ago": null
+     }
+    ],
+    "bus_factor_risk": false,
+    "bus_factor_reasons": [],
+    "score_formula": "commits + 25 * resolutions",
+    "candidates": [
+     {
+      "id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "role": "Engineer",
+      "commits": 95,
+      "last_commit_days_ago": 4,
+      "resolutions": 1,
+      "score": 120
+     },
+     {
+      "id": "per:marcus-webb",
+      "name": "Marcus Webb",
+      "role": "Staff Engineer",
+      "commits": 40,
+      "last_commit_days_ago": 21,
+      "resolutions": 1,
+      "score": 65
+     }
+    ],
+    "owning_team_fallback": {
+     "id": "team:payments-core",
+     "name": "Payments Core",
+     "active_members": [
+      "Priya Nair",
+      "Marcus Webb",
+      "Sofia Alvarez",
+      "Tomasz Kowalski",
+      "Aiko Tanaka"
+     ]
+    }
+   },
+   "receipt": {
+    "tool": "who_to_call",
+    "args": {
+     "service_id": "svc:card-processor-adapter"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (p:Person)-[:MAINTAINS]->(s:Service {id:$id}) RETURN p.id, p.name, p.status, p.left_at",
+      "params": {
+       "id": "svc:card-processor-adapter"
+      }
+     },
+     {
+      "cypher": "MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id}) RETURN p.id, p.name, p.role, w.commits, w.last_at",
+      "params": {
+       "id": "svc:card-processor-adapter"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:AFFECTED]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:card-processor-adapter"
+      }
+     },
+     {
+      "cypher": "MATCH (s:Service {id:$id})<-[:CHANGED]-(:Deploy)<-[:CAUSED_BY]-(i:Incident)-[:RESOLVED_BY]->(r:Resolution)-[:PERFORMED_BY]->(p:Person {status:'active'}) RETURN p.id, p.name, p.role, collect(DISTINCT r.id)",
+      "params": {
+       "id": "svc:card-processor-adapter"
+      }
+     },
+     {
+      "cypher": "MATCH (t:Team)-[:OWNS]->(s:Service {id:$id}) OPTIONAL MATCH (m:Person {status:'active'})-[:MEMBER_OF]->(t) RETURN t.id, t.name, collect(m.name)",
+      "params": {
+       "id": "svc:card-processor-adapter"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "per:marcus-webb",
+      "svc:card-processor-adapter",
+      "per:sofia-alvarez",
+      "team:payments-core"
+     ],
+     "edges": [
+      {
+       "from": "per:marcus-webb",
+       "type": "WORKED_ON",
+       "to": "svc:card-processor-adapter"
+      },
+      {
+       "from": "per:sofia-alvarez",
+       "type": "WORKED_ON",
+       "to": "svc:card-processor-adapter"
+      },
+      {
+       "from": "per:sofia-alvarez",
+       "type": "MAINTAINS",
+       "to": "svc:card-processor-adapter"
+      },
+      {
+       "from": "team:payments-core",
+       "type": "OWNS",
+       "to": "svc:card-processor-adapter"
+      }
+     ]
+    }
+   },
+   "summary": "who_to_call → top: Sofia Alvarez (score 120)",
+   "ts": 1792173354,
+   "ms": 2,
+   "llm_call": 4
+  },
+  {
+   "seq": 33,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "decisions_about",
+   "args": {
+    "service_id": "svc:card-processor-adapter"
+   },
+   "result": {
+    "service": "svc:card-processor-adapter",
+    "decisions": [
+     {
+      "id": "dec:card-processor-timeout-budget",
+      "title": "Card processor gets a 2.5s total budget per authorisation",
+      "rationale": "A single end-to-end budget keeps customers from waiting 6s and avoids double authorisations during 3DS.",
+      "decided": "2025-10-01",
+      "decided_days_ago": 380,
+      "author": "Marcus Webb",
+      "author_status": "active",
+      "sources": [
+       {
+        "id": "chat:payments-card-timeouts",
+        "label": "ChatThread",
+        "title": "Card processor timeout budget",
+        "channel": "#payments-core",
+        "date": "2025-10-01",
+        "excerpt": "Decision: the card processor gets a 2.5s total budget per authorisation: 1.2s for the first attempt, at most one retry, never inside the 3DS challenge window."
+       }
+      ]
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "decisions_about",
+    "args": {
+     "service_id": "svc:card-processor-adapter"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Decision)-[:ABOUT]->(s:Service {id:$id}) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(d) OPTIONAL MATCH (d)-[r:SOURCED_FROM]->(src) RETURN d.id, d.title, d.rationale, d.decided_at, a.id, a.name, a.status, src.id, labels(src)[0], coalesce(src.title, src.key), src.channel, coalesce(src.ts, src.updated_at, src.created_at, src.started_at), r.excerpt ORDER BY d.decided_at DESC",
+      "params": {
+       "id": "svc:card-processor-adapter"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dec:card-processor-timeout-budget",
+      "svc:card-processor-adapter",
+      "per:marcus-webb",
+      "chat:payments-card-timeouts"
+     ],
+     "edges": [
+      {
+       "from": "dec:card-processor-timeout-budget",
+       "type": "ABOUT",
+       "to": "svc:card-processor-adapter"
+      },
+      {
+       "from": "per:marcus-webb",
+       "type": "AUTHORED",
+       "to": "dec:card-processor-timeout-budget"
+      },
+      {
+       "from": "dec:card-processor-timeout-budget",
+       "type": "SOURCED_FROM",
+       "to": "chat:payments-card-timeouts"
+      }
+     ]
+    }
+   },
+   "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation",
+   "ts": 1792173354,
+   "ms": 0,
+   "llm_call": 4
+  },
+  {
+   "seq": 34,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "past_incidents",
+   "args": {
+    "service_ids": [
+     "svc:card-processor-adapter"
+    ]
+   },
+   "result": {
+    "service_ids": [
+     "svc:card-processor-adapter"
+    ],
+    "incident_count": 1,
+    "incidents": [
+     {
+      "id": "inc:2025-067",
+      "key": "INC-2025-067",
+      "title": "card-processor-adapter TLS handshake failures",
+      "severity": 1,
+      "started": "2025-11-10",
+      "origin": "seed",
+      "status": "resolved",
+      "overlap": 1,
+      "via": [
+       "affected"
+      ],
+      "caused_by_change_to": [],
+      "root_causes": [
+       "rc:expired-tls-certificate"
+      ],
+      "resolution": "Installed renewed acquirer certificate and added expiry alerting",
+      "resolved_by": [
+       "Marcus Webb",
+       "Sofia Alvarez"
+      ],
+      "resolution_sources": [
+       "tkt:PM-2025-067"
+      ],
+      "similar_to": []
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "past_incidents",
+    "args": {
+     "service_ids": [
+      "svc:card-processor-adapter"
+     ],
+     "limit": 5
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (i:Incident)-[:AFFECTED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id",
+      "params": {
+       "ids": [
+        "svc:card-processor-adapter"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident)-[:CAUSED_BY]->(dep:Deploy)-[:CHANGED]->(s:Service) WHERE s.id IN $ids RETURN DISTINCT i.id, s.id, dep.id",
+      "params": {
+       "ids": [
+        "svc:card-processor-adapter"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (i:Incident) WHERE i.id IN $iids OPTIONAL MATCH (i)-[:HAS_ROOT_CAUSE]->(rc:RootCause) OPTIONAL MATCH (i)-[:RESOLVED_BY]->(r:Resolution) OPTIONAL MATCH (r)-[:PERFORMED_BY]->(p:Person) OPTIONAL MATCH (r)-[:SOURCED_FROM]->(src) OPTIONAL MATCH (i)-[sim:SIMILAR_TO]-(o) OPTIONAL MATCH (rb:Runbook)-[:SOURCED_FROM]->(i) RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status, collect(DISTINCT rc.id), collect(DISTINCT r.id), collect(DISTINCT r.summary), collect(DISTINCT p.id), collect(DISTINCT p.name), collect(DISTINCT src.id), collect(DISTINCT {id: o.id, score: sim.score}), collect(DISTINCT rb.id)",
+      "params": {
+       "iids": [
+        "inc:2025-067"
+       ]
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "inc:2025-067",
+      "rc:expired-tls-certificate",
+      "svc:card-processor-adapter",
+      "res:2025-067",
+      "per:marcus-webb",
+      "per:sofia-alvarez",
+      "tkt:PM-2025-067"
+     ],
+     "edges": [
+      {
+       "from": "inc:2025-067",
+       "type": "AFFECTED",
+       "to": "svc:card-processor-adapter"
+      },
+      {
+       "from": "inc:2025-067",
+       "type": "HAS_ROOT_CAUSE",
+       "to": "rc:expired-tls-certificate"
+      },
+      {
+       "from": "inc:2025-067",
+       "type": "RESOLVED_BY",
+       "to": "res:2025-067"
+      },
+      {
+       "from": "res:2025-067",
+       "type": "PERFORMED_BY",
+       "to": "per:marcus-webb"
+      },
+      {
+       "from": "res:2025-067",
+       "type": "PERFORMED_BY",
+       "to": "per:sofia-alvarez"
+      },
+      {
+       "from": "res:2025-067",
+       "type": "SOURCED_FROM",
+       "to": "tkt:PM-2025-067"
+      }
+     ]
+    }
+   },
+   "summary": "past_incidents → 1 incident(s): INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)",
+   "ts": 1792173354,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 35,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "failure_domains",
+   "args": {
+    "service_ids": [
+     "svc:auth-service",
+     "svc:payouts-service",
+     "svc:merchant-onboarding",
+     "svc:webhook-dispatcher",
+     "svc:notifications-service",
+     "svc:card-processor-adapter"
+    ]
+   },
+   "result": {
+    "algorithm": "algo.labelPropagation (CDLP) over DEPENDS_ON",
+    "communities": 2,
+    "sizes": [
+     22,
+     5
+    ],
+    "services": [
+     {
+      "id": "svc:auth-service",
+      "community": 0,
+      "community_size": 22
+     },
+     {
+      "id": "svc:payouts-service",
+      "community": 0,
+      "community_size": 22
+     },
+     {
+      "id": "svc:merchant-onboarding",
+      "community": 0,
+      "community_size": 22
+     },
+     {
+      "id": "svc:webhook-dispatcher",
+      "community": 0,
+      "community_size": 22
+     },
+     {
+      "id": "svc:notifications-service",
+      "community": 0,
+      "community_size": 22
+     },
+     {
+      "id": "svc:card-processor-adapter",
+      "community": 1,
+      "community_size": 5
+     }
+    ],
+    "same_community": false,
+    "caveat": "communities come from link density; in a hub-heavy graph they are coarse, so treat them as context, not as proof that alerts are related"
+   },
+   "receipt": {
+    "tool": "failure_domains",
+    "args": {
+     "service_ids": [
+      "svc:auth-service",
+      "svc:payouts-service",
+      "svc:merchant-onboarding",
+      "svc:webhook-dispatcher",
+      "svc:notifications-service",
+      "svc:card-processor-adapter"
+     ]
+    },
+    "queries": [
+     {
+      "cypher": "CALL algo.labelPropagation({nodeLabels: ['Service'], relationshipTypes: ['DEPENDS_ON'], maxIterations: 20}) YIELD node, communityId RETURN node.id, communityId",
+      "params": {}
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "svc:auth-service",
+      "svc:payouts-service",
+      "svc:merchant-onboarding",
+      "svc:webhook-dispatcher",
+      "svc:notifications-service",
+      "svc:card-processor-adapter"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "failure_domains → 2 communities; the given services span 2",
+   "ts": 1792173354,
+   "ms": 5,
+   "llm_call": 4
+  },
+  {
+   "seq": 36,
+   "agent": "firefighter",
+   "action": "answer",
+   "tool": "submit_report",
+   "args": {
+    "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
+    "likely_cause": {
+     "service_id": null,
+     "deploy_id": null,
+     "ticket_key": null,
+     "path": [],
+     "explanation": "No recent change explains these 5 alerts, and all of them call config-service (5 hops in total; it is not alerting itself): one shared dependency under load, so one incident, not 5."
+    },
+    "blast_radius": [
+     "svc:api-gateway",
+     "svc:web-checkout",
+     "svc:merchant-dashboard"
+    ],
+    "contact": {
+     "person_id": "per:omar-haddad",
+     "name": "Omar Haddad",
+     "reason": "95 commits on config-service (score 95)"
+    },
+    "bus_factor_warning": null,
+    "conflicting_decision": null,
+    "similar_past_incidents": [],
+    "evidence": [
+     {
+      "node_id": "svc:config-service",
+      "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+     },
+     {
+      "node_id": "svc:config-db",
+      "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+     },
+     {
+      "node_id": "per:omar-haddad",
+      "claim": "Best active contact: 95 commits on config-service (score 95)."
+     },
+     {
+      "node_id": "svc:auth-service",
+      "claim": "3 upstream services (2 tier-1) are exposed."
+     }
+    ],
+    "recommended_actions": [
+     "Page Omar Haddad (per:omar-haddad).",
+     "Check config-service, config-db capacity and saturation first."
+    ],
+    "confidence": "medium",
+    "look_first": {
+     "service_ids": [
+      "svc:config-service",
+      "svc:config-db"
+     ],
+     "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+     "reason": "config-service is reached by 5 of the alerting services (5 hops in total); config-db right behind it is reached by as many: check its load first."
+    },
+    "industry_pattern": null,
+    "rejected_leads": [
+     {
+      "deploy_id": "dep:email-sender-v1.15.0",
+      "service_id": "svc:email-sender",
+      "reason": "email-sender is on merchant-onboarding's call path (2 hops), but no change explains this storm: 5 alerts all call config-service (correlate_alerts), this change explains 2 of them"
+     }
+    ],
+    "incidents": [
+     {
+      "alerts": [
+       "svc:auth-service",
+       "svc:payouts-service",
+       "svc:merchant-onboarding",
+       "svc:webhook-dispatcher",
+       "svc:notifications-service"
+      ],
+      "summary": "5 alerts (auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service) are one incident: they all call config-service, and no recent change explains them. Page Omar Haddad once instead of 5 times.",
+      "likely_cause": {
+       "service_id": null,
+       "deploy_id": null,
+       "ticket_key": null,
+       "path": [],
+       "explanation": "No recent change explains these 5 alerts, and all of them call config-service (5 hops in total; it is not alerting itself): one shared dependency under load, so one incident, not 5."
+      },
+      "contact": {
+       "person_id": "per:omar-haddad",
+       "name": "Omar Haddad",
+       "reason": "95 commits on config-service (score 95)"
+      },
+      "bus_factor_warning": null,
+      "blast_radius": [
+       "svc:api-gateway",
+       "svc:web-checkout",
+       "svc:merchant-dashboard"
+      ],
+      "recommended_actions": [
+       "Page Omar Haddad (per:omar-haddad).",
+       "Check config-service, config-db capacity and saturation first."
+      ],
+      "confidence": "medium",
+      "look_first": {
+       "service_ids": [
+        "svc:config-service",
+        "svc:config-db"
+       ],
+       "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+       "reason": "config-service is reached by 5 of the alerting services (5 hops in total); config-db right behind it is reached by as many: check its load first."
+      },
+      "root": {
+       "service_id": "svc:config-service",
+       "covers": [
+        "svc:auth-service",
+        "svc:merchant-onboarding",
+        "svc:notifications-service",
+        "svc:payouts-service",
+        "svc:webhook-dispatcher"
+       ],
+       "alerting": false,
+       "total_hops": 5,
+       "tied": [
+        "svc:config-db"
+       ]
+      },
+      "suppressed_pages": [
+       {
+        "alert": "svc:auth-service",
+        "person_id": "per:elena-petrova",
+        "name": "Elena Petrova",
+        "team_id": null,
+        "reason": "auth-service is part of this incident: auth-service -> config-service; one page goes to Omar Haddad instead"
+       },
+       {
+        "alert": "svc:payouts-service",
+        "person_id": "per:sofia-alvarez",
+        "name": "Sofia Alvarez",
+        "team_id": null,
+        "reason": "payouts-service is part of this incident: payouts-service -> config-service; one page goes to Omar Haddad instead"
+       },
+       {
+        "alert": "svc:merchant-onboarding",
+        "person_id": "per:kenji-watanabe",
+        "name": "Kenji Watanabe",
+        "team_id": null,
+        "reason": "merchant-onboarding is part of this incident: merchant-onboarding -> config-service; one page goes to Omar Haddad instead"
+       },
+       {
+        "alert": "svc:webhook-dispatcher",
+        "person_id": "per:ben-walker",
+        "name": "Ben Walker",
+        "team_id": null,
+        "reason": "webhook-dispatcher is part of this incident: webhook-dispatcher -> config-service; one page goes to Omar Haddad instead"
+       },
+       {
+        "alert": "svc:notifications-service",
+        "person_id": "per:fatima-zahra",
+        "name": "Fatima Zahra",
+        "team_id": null,
+        "reason": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead"
+       }
+      ],
+      "notify": [
+       {
+        "service_id": "svc:api-gateway",
+        "hops": 1
+       },
+       {
+        "service_id": "svc:bank-connector",
+        "hops": 1
+       },
+       {
+        "service_id": "svc:feature-flags",
+        "hops": 1
+       },
+       {
+        "service_id": "svc:payments-api",
+        "hops": 1
+       },
+       {
+        "service_id": "svc:merchant-dashboard",
+        "hops": 2
+       },
+       {
+        "service_id": "svc:reconciliation-job",
+        "hops": 2
+       },
+       {
+        "service_id": "svc:web-checkout",
+        "hops": 2
+       }
+      ]
+     },
+     {
+      "alerts": [
+       "svc:card-processor-adapter"
+      ],
+      "summary": "card-processor-adapter alert most likely caused by dep:card-processor-adapter-v2.9.0 on card-processor-adapter, deployed 25 min ago. Contact Sofia Alvarez.",
+      "likely_cause": {
+       "service_id": "svc:card-processor-adapter",
+       "deploy_id": "dep:card-processor-adapter-v2.9.0",
+       "ticket_key": null,
+       "path": [
+        "svc:card-processor-adapter"
+       ],
+       "explanation": "Rotate the acquirer client certificate bundle (dep:card-processor-adapter-v2.9.0, deployed 25 min ago by Sofia Alvarez). card-processor-adapter itself was changed."
+      },
+      "contact": {
+       "person_id": "per:sofia-alvarez",
+       "name": "Sofia Alvarez",
+       "reason": "95 commits, 1 past incident fix(es) on card-processor-adapter (score 120)"
+      },
+      "bus_factor_warning": null,
+      "blast_radius": [
+       "svc:payments-api",
+       "svc:api-gateway",
+       "svc:web-checkout",
+       "svc:merchant-dashboard"
+      ],
+      "recommended_actions": [
+       "Roll back dep:card-processor-adapter-v2.9.0 on card-processor-adapter.",
+       "Page Sofia Alvarez (per:sofia-alvarez)."
+      ],
+      "confidence": "medium",
+      "look_first": null,
+      "root": null,
+      "suppressed_pages": [],
+      "notify": []
+     }
+    ],
+    "suppressed_pages": [
+     {
+      "alert": "svc:auth-service",
+      "person_id": "per:elena-petrova",
+      "name": "Elena Petrova",
+      "team_id": null,
+      "reason": "auth-service is part of this incident: auth-service -> config-service; one page goes to Omar Haddad instead"
+     },
+     {
+      "alert": "svc:payouts-service",
+      "person_id": "per:sofia-alvarez",
+      "name": "Sofia Alvarez",
+      "team_id": null,
+      "reason": "payouts-service is part of this incident: payouts-service -> config-service; one page goes to Omar Haddad instead"
+     },
+     {
+      "alert": "svc:merchant-onboarding",
+      "person_id": "per:kenji-watanabe",
+      "name": "Kenji Watanabe",
+      "team_id": null,
+      "reason": "merchant-onboarding is part of this incident: merchant-onboarding -> config-service; one page goes to Omar Haddad instead"
+     },
+     {
+      "alert": "svc:webhook-dispatcher",
+      "person_id": "per:ben-walker",
+      "name": "Ben Walker",
+      "team_id": null,
+      "reason": "webhook-dispatcher is part of this incident: webhook-dispatcher -> config-service; one page goes to Omar Haddad instead"
+     },
+     {
+      "alert": "svc:notifications-service",
+      "person_id": "per:fatima-zahra",
+      "name": "Fatima Zahra",
+      "team_id": null,
+      "reason": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead"
+     }
+    ]
+   },
+   "result": {
+    "ok": true,
+    "accepted": "submit_report"
+   },
+   "receipt": {
+    "tool": "submit_report",
+    "args": {
+     "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
+     "likely_cause": {
+      "service_id": null,
+      "deploy_id": null,
+      "ticket_key": null,
+      "path": [],
+      "explanation": "No recent change explains these 5 alerts, and all of them call config-service (5 hops in total; it is not alerting itself): one shared dependency under load, so one incident, not 5."
+     },
+     "blast_radius": [
+      "svc:api-gateway",
+      "svc:web-checkout",
+      "svc:merchant-dashboard"
+     ],
+     "contact": {
+      "person_id": "per:omar-haddad",
+      "name": "Omar Haddad",
+      "reason": "95 commits on config-service (score 95)"
+     },
+     "bus_factor_warning": null,
+     "conflicting_decision": null,
+     "similar_past_incidents": [],
+     "evidence": [
+      {
+       "node_id": "svc:config-service",
+       "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+      },
+      {
+       "node_id": "svc:config-db",
+       "claim": "most depended-on service on the call path (correlate_alerts (algo.BFS coverage + algo.SPpaths))"
+      },
+      {
+       "node_id": "per:omar-haddad",
+       "claim": "Best active contact: 95 commits on config-service (score 95)."
+      },
+      {
+       "node_id": "svc:auth-service",
+       "claim": "3 upstream services (2 tier-1) are exposed."
+      }
+     ],
+     "recommended_actions": [
+      "Page Omar Haddad (per:omar-haddad).",
+      "Check config-service, config-db capacity and saturation first."
+     ],
+     "confidence": "medium",
+     "look_first": {
+      "service_ids": [
+       "svc:config-service",
+       "svc:config-db"
+      ],
+      "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+      "reason": "config-service is reached by 5 of the alerting services (5 hops in total); config-db right behind it is reached by as many: check its load first."
+     },
+     "industry_pattern": null,
+     "rejected_leads": [
+      {
+       "deploy_id": "dep:email-sender-v1.15.0",
+       "service_id": "svc:email-sender",
+       "reason": "email-sender is on merchant-onboarding's call path (2 hops), but no change explains this storm: 5 alerts all call config-service (correlate_alerts), this change explains 2 of them"
+      }
+     ],
+     "incidents": [
+      {
+       "alerts": [
+        "svc:auth-service",
+        "svc:payouts-service",
+        "svc:merchant-onboarding",
+        "svc:webhook-dispatcher",
+        "svc:notifications-service"
+       ],
+       "summary": "5 alerts (auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service) are one incident: they all call config-service, and no recent change explains them. Page Omar Haddad once instead of 5 times.",
+       "likely_cause": {
+        "service_id": null,
+        "deploy_id": null,
+        "ticket_key": null,
+        "path": [],
+        "explanation": "No recent change explains these 5 alerts, and all of them call config-service (5 hops in total; it is not alerting itself): one shared dependency under load, so one incident, not 5."
+       },
+       "contact": {
+        "person_id": "per:omar-haddad",
+        "name": "Omar Haddad",
+        "reason": "95 commits on config-service (score 95)"
+       },
+       "bus_factor_warning": null,
+       "blast_radius": [
+        "svc:api-gateway",
+        "svc:web-checkout",
+        "svc:merchant-dashboard"
+       ],
+       "recommended_actions": [
+        "Page Omar Haddad (per:omar-haddad).",
+        "Check config-service, config-db capacity and saturation first."
+       ],
+       "confidence": "medium",
+       "look_first": {
+        "service_ids": [
+         "svc:config-service",
+         "svc:config-db"
+        ],
+        "algorithm": "correlate_alerts (algo.BFS coverage + algo.SPpaths)",
+        "reason": "config-service is reached by 5 of the alerting services (5 hops in total); config-db right behind it is reached by as many: check its load first."
+       },
+       "root": {
+        "service_id": "svc:config-service",
+        "covers": [
+         "svc:auth-service",
+         "svc:merchant-onboarding",
+         "svc:notifications-service",
+         "svc:payouts-service",
+         "svc:webhook-dispatcher"
+        ],
+        "alerting": false,
+        "total_hops": 5,
+        "tied": [
+         "svc:config-db"
+        ]
+       },
+       "suppressed_pages": [
+        {
+         "alert": "svc:auth-service",
+         "person_id": "per:elena-petrova",
+         "name": "Elena Petrova",
+         "team_id": null,
+         "reason": "auth-service is part of this incident: auth-service -> config-service; one page goes to Omar Haddad instead"
+        },
+        {
+         "alert": "svc:payouts-service",
+         "person_id": "per:sofia-alvarez",
+         "name": "Sofia Alvarez",
+         "team_id": null,
+         "reason": "payouts-service is part of this incident: payouts-service -> config-service; one page goes to Omar Haddad instead"
+        },
+        {
+         "alert": "svc:merchant-onboarding",
+         "person_id": "per:kenji-watanabe",
+         "name": "Kenji Watanabe",
+         "team_id": null,
+         "reason": "merchant-onboarding is part of this incident: merchant-onboarding -> config-service; one page goes to Omar Haddad instead"
+        },
+        {
+         "alert": "svc:webhook-dispatcher",
+         "person_id": "per:ben-walker",
+         "name": "Ben Walker",
+         "team_id": null,
+         "reason": "webhook-dispatcher is part of this incident: webhook-dispatcher -> config-service; one page goes to Omar Haddad instead"
+        },
+        {
+         "alert": "svc:notifications-service",
+         "person_id": "per:fatima-zahra",
+         "name": "Fatima Zahra",
+         "team_id": null,
+         "reason": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead"
+        }
+       ],
+       "notify": [
+        {
+         "service_id": "svc:api-gateway",
+         "hops": 1
+        },
+        {
+         "service_id": "svc:bank-connector",
+         "hops": 1
+        },
+        {
+         "service_id": "svc:feature-flags",
+         "hops": 1
+        },
+        {
+         "service_id": "svc:payments-api",
+         "hops": 1
+        },
+        {
+         "service_id": "svc:merchant-dashboard",
+         "hops": 2
+        },
+        {
+         "service_id": "svc:reconciliation-job",
+         "hops": 2
+        },
+        {
+         "service_id": "svc:web-checkout",
+         "hops": 2
+        }
+       ]
+      },
+      {
+       "alerts": [
+        "svc:card-processor-adapter"
+       ],
+       "summary": "card-processor-adapter alert most likely caused by dep:card-processor-adapter-v2.9.0 on card-processor-adapter, deployed 25 min ago. Contact Sofia Alvarez.",
+       "likely_cause": {
+        "service_id": "svc:card-processor-adapter",
+        "deploy_id": "dep:card-processor-adapter-v2.9.0",
+        "ticket_key": null,
+        "path": [
+         "svc:card-processor-adapter"
+        ],
+        "explanation": "Rotate the acquirer client certificate bundle (dep:card-processor-adapter-v2.9.0, deployed 25 min ago by Sofia Alvarez). card-processor-adapter itself was changed."
+       },
+       "contact": {
+        "person_id": "per:sofia-alvarez",
+        "name": "Sofia Alvarez",
+        "reason": "95 commits, 1 past incident fix(es) on card-processor-adapter (score 120)"
+       },
+       "bus_factor_warning": null,
+       "blast_radius": [
+        "svc:payments-api",
+        "svc:api-gateway",
+        "svc:web-checkout",
+        "svc:merchant-dashboard"
+       ],
+       "recommended_actions": [
+        "Roll back dep:card-processor-adapter-v2.9.0 on card-processor-adapter.",
+        "Page Sofia Alvarez (per:sofia-alvarez)."
+       ],
+       "confidence": "medium",
+       "look_first": null,
+       "root": null,
+       "suppressed_pages": [],
+       "notify": []
+      }
+     ],
+     "suppressed_pages": [
+      {
+       "alert": "svc:auth-service",
+       "person_id": "per:elena-petrova",
+       "name": "Elena Petrova",
+       "team_id": null,
+       "reason": "auth-service is part of this incident: auth-service -> config-service; one page goes to Omar Haddad instead"
+      },
+      {
+       "alert": "svc:payouts-service",
+       "person_id": "per:sofia-alvarez",
+       "name": "Sofia Alvarez",
+       "team_id": null,
+       "reason": "payouts-service is part of this incident: payouts-service -> config-service; one page goes to Omar Haddad instead"
+      },
+      {
+       "alert": "svc:merchant-onboarding",
+       "person_id": "per:kenji-watanabe",
+       "name": "Kenji Watanabe",
+       "team_id": null,
+       "reason": "merchant-onboarding is part of this incident: merchant-onboarding -> config-service; one page goes to Omar Haddad instead"
+      },
+      {
+       "alert": "svc:webhook-dispatcher",
+       "person_id": "per:ben-walker",
+       "name": "Ben Walker",
+       "team_id": null,
+       "reason": "webhook-dispatcher is part of this incident: webhook-dispatcher -> config-service; one page goes to Omar Haddad instead"
+      },
+      {
+       "alert": "svc:notifications-service",
+       "person_id": "per:fatima-zahra",
+       "name": "Fatima Zahra",
+       "team_id": null,
+       "reason": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead"
+      }
+     ]
+    },
+    "queries": [],
+    "highlight": {
+     "nodes": [
+      "dep:card-processor-adapter-v2.9.0",
+      "dep:email-sender-v1.15.0",
+      "per:ben-walker",
+      "per:elena-petrova",
+      "per:fatima-zahra",
+      "per:kenji-watanabe",
+      "per:omar-haddad",
+      "per:sofia-alvarez",
+      "svc:api-gateway",
+      "svc:auth-service",
+      "svc:bank-connector",
+      "svc:card-processor-adapter",
+      "svc:config-db",
+      "svc:config-service",
+      "svc:email-sender",
+      "svc:feature-flags",
+      "svc:merchant-dashboard",
+      "svc:merchant-onboarding",
+      "svc:notifications-service",
+      "svc:payments-api",
+      "svc:payouts-service",
+      "svc:reconciliation-job",
+      "svc:web-checkout",
+      "svc:webhook-dispatcher"
+     ],
+     "edges": []
+    }
+   },
+   "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
+   "ts": 1792173354,
+   "ms": 0,
+   "llm_call": 5
+  }
+ ],
+ "graph": {
+  "nodes": [
+   {
+    "id": "team:payments-core",
+    "label": "Team",
+    "name": "Payments Core",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Payments Core"
+    }
+   },
+   {
+    "id": "team:platform",
+    "label": "Team",
+    "name": "Platform",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Platform"
+    }
+   },
+   {
+    "id": "team:merchant-exp",
+    "label": "Team",
+    "name": "Merchant Experience",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Merchant Experience"
+    }
+   },
+   {
+    "id": "per:priya-nair",
+    "label": "Person",
+    "name": "Priya Nair",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Priya Nair",
+     "role": "Senior Engineer",
+     "email": "priya.nair@kestrelpay.example",
+     "joined_at": 1662573354
+    }
+   },
+   {
+    "id": "per:marcus-webb",
+    "label": "Person",
+    "name": "Marcus Webb",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Marcus Webb",
+     "role": "Staff Engineer",
+     "email": "marcus.webb@kestrelpay.example",
+     "joined_at": 1593453354
+    }
+   },
+   {
+    "id": "per:sofia-alvarez",
+    "label": "Person",
+    "name": "Sofia Alvarez",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Sofia Alvarez",
+     "role": "Engineer",
+     "email": "sofia.alvarez@kestrelpay.example",
+     "joined_at": 1714413354
+    }
+   },
+   {
+    "id": "per:tomasz-kowalski",
+    "label": "Person",
+    "name": "Tomasz Kowalski",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Tomasz Kowalski",
+     "role": "Engineer",
+     "email": "tomasz.kowalski@kestrelpay.example",
+     "joined_at": 1731693354
+    }
+   },
+   {
+    "id": "per:arjun-mehta",
+    "label": "Person",
+    "name": "Arjun Mehta",
+    "origin": "seed",
+    "props": {
+     "status": "left",
+     "origin": "seed",
+     "name": "Arjun Mehta",
+     "role": "Staff Engineer",
+     "email": "arjun.mehta@kestrelpay.example",
+     "joined_at": 1602093354,
+     "left_at": 1783965354
+    }
+   },
+   {
+    "id": "per:nikhil-rao",
+    "label": "Person",
+    "name": "Nikhil Rao",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Nikhil Rao",
+     "role": "Staff Engineer",
+     "email": "nikhil.rao@kestrelpay.example",
+     "joined_at": 1610733354
+    }
+   },
+   {
+    "id": "per:elena-petrova",
+    "label": "Person",
+    "name": "Elena Petrova",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Elena Petrova",
+     "role": "Senior Engineer",
+     "email": "elena.petrova@kestrelpay.example",
+     "joined_at": 1679853354
+    }
+   },
+   {
+    "id": "per:omar-haddad",
+    "label": "Person",
+    "name": "Omar Haddad",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Omar Haddad",
+     "role": "Engineer",
+     "email": "omar.haddad@kestrelpay.example",
+     "joined_at": 1723053354
+    }
+   },
+   {
+    "id": "per:jonas-eriksson",
+    "label": "Person",
+    "name": "Jonas Eriksson",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Jonas Eriksson",
+     "role": "Site Reliability Engineer",
+     "email": "jonas.eriksson@kestrelpay.example",
+     "joined_at": 1736877354
+    }
+   },
+   {
+    "id": "per:ben-walker",
+    "label": "Person",
+    "name": "Ben Walker",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Ben Walker",
+     "role": "Senior Engineer",
+     "email": "ben.walker@kestrelpay.example",
+     "joined_at": 1645293354
+    }
+   },
+   {
+    "id": "per:fatima-zahra",
+    "label": "Person",
+    "name": "Fatima Zahra",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Fatima Zahra",
+     "role": "Engineer",
+     "email": "fatima.zahra@kestrelpay.example",
+     "joined_at": 1710093354
+    }
+   },
+   {
+    "id": "per:kenji-watanabe",
+    "label": "Person",
+    "name": "Kenji Watanabe",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Kenji Watanabe",
+     "role": "Engineer",
+     "email": "kenji.watanabe@kestrelpay.example",
+     "joined_at": 1740333354
+    }
+   },
+   {
+    "id": "svc:payments-api",
+    "label": "Service",
+    "name": "payments-api",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "payments-api",
+     "description": "Public payments API: authorises, captures and refunds card payments.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/payments-api"
+    }
+   },
+   {
+    "id": "svc:card-processor-adapter",
+    "label": "Service",
+    "name": "card-processor-adapter",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "card-processor-adapter",
+     "description": "Translates internal payment requests into card-network and acquirer protocols.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/card-processor-adapter"
+    }
+   },
+   {
+    "id": "svc:bank-connector",
+    "label": "Service",
+    "name": "bank-connector",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "bank-connector",
+     "description": "Connects to partner banks for settlement files and instant-payout rails.",
+     "tier": 1,
+     "language": "Java",
+     "repo_url": "https://git.kestrelpay.example/bank-connector"
+    }
+   },
+   {
+    "id": "svc:payouts-service",
+    "label": "Service",
+    "name": "payouts-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "payouts-service",
+     "description": "Schedules and executes merchant payouts in batches.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/payouts-service"
+    }
+   },
+   {
+    "id": "svc:reconciliation-job",
+    "label": "Service",
+    "name": "reconciliation-job",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "reconciliation-job",
+     "description": "Nightly job matching ledger entries against bank statements.",
+     "tier": 2,
+     "language": "Python",
+     "repo_url": "https://git.kestrelpay.example/reconciliation-job"
+    }
+   },
+   {
+    "id": "svc:api-gateway",
+    "label": "Service",
+    "name": "api-gateway",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "api-gateway",
+     "description": "Edge gateway: routing, rate limiting and request authentication.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/api-gateway"
+    }
+   },
+   {
+    "id": "svc:auth-service",
+    "label": "Service",
+    "name": "auth-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "auth-service",
+     "description": "Issues and validates API keys and OAuth tokens.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/auth-service"
+    }
+   },
+   {
+    "id": "svc:config-service",
+    "label": "Service",
+    "name": "config-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "config-service",
+     "description": "Central configuration and ruleset distribution service used by many backends.",
+     "tier": 1,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/config-service"
+    }
+   },
+   {
+    "id": "svc:config-db",
+    "label": "Service",
+    "name": "config-db",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "config-db",
+     "description": "PostgreSQL store for config-service.",
+     "tier": 1,
+     "language": "PostgreSQL",
+     "repo_url": "https://git.kestrelpay.example/config-db"
+    }
+   },
+   {
+    "id": "svc:kafka-events",
+    "label": "Service",
+    "name": "kafka-events",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "kafka-events",
+     "description": "Shared Kafka cluster carrying payment, ledger and notification events.",
+     "tier": 1,
+     "language": "Kafka",
+     "repo_url": "https://git.kestrelpay.example/kafka-events"
+    }
+   },
+   {
+    "id": "svc:feature-flags",
+    "label": "Service",
+    "name": "feature-flags",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "feature-flags",
+     "description": "Feature flag evaluation with gradual rollouts.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/feature-flags"
+    }
+   },
+   {
+    "id": "svc:web-checkout",
+    "label": "Service",
+    "name": "web-checkout",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "web-checkout",
+     "description": "Hosted checkout page and JS SDK embedded by merchants.",
+     "tier": 1,
+     "language": "TypeScript",
+     "repo_url": "https://git.kestrelpay.example/web-checkout"
+    }
+   },
+   {
+    "id": "svc:merchant-dashboard",
+    "label": "Service",
+    "name": "merchant-dashboard",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "merchant-dashboard",
+     "description": "Web dashboard where merchants view payments, payouts and reports.",
+     "tier": 2,
+     "language": "TypeScript",
+     "repo_url": "https://git.kestrelpay.example/merchant-dashboard"
+    }
+   },
+   {
+    "id": "svc:merchant-onboarding",
+    "label": "Service",
+    "name": "merchant-onboarding",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "merchant-onboarding",
+     "description": "Merchant signup, KYC orchestration and account activation.",
+     "tier": 2,
+     "language": "Kotlin",
+     "repo_url": "https://git.kestrelpay.example/merchant-onboarding"
+    }
+   },
+   {
+    "id": "svc:notifications-service",
+    "label": "Service",
+    "name": "notifications-service",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "notifications-service",
+     "description": "Routes email, SMS and in-app notifications to merchants and customers.",
+     "tier": 2,
+     "language": "Node.js",
+     "repo_url": "https://git.kestrelpay.example/notifications-service"
+    }
+   },
+   {
+    "id": "svc:email-sender",
+    "label": "Service",
+    "name": "email-sender",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "email-sender",
+     "description": "Thin wrapper around the transactional email provider.",
+     "tier": 3,
+     "language": "Node.js",
+     "repo_url": "https://git.kestrelpay.example/email-sender"
+    }
+   },
+   {
+    "id": "svc:webhook-dispatcher",
+    "label": "Service",
+    "name": "webhook-dispatcher",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "webhook-dispatcher",
+     "description": "Delivers signed webhook events to merchant endpoints with retries.",
+     "tier": 2,
+     "language": "Go",
+     "repo_url": "https://git.kestrelpay.example/webhook-dispatcher"
+    }
+   },
+   {
+    "id": "dep:merchant-onboarding-v2.11.0",
+    "label": "Deploy",
+    "name": "2.11.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1779209754,
+     "origin": "seed",
+     "summary": "Disable local config cache; read config on every request",
+     "version": "2.11.0"
+    }
+   },
+   {
+    "id": "dep:card-processor-adapter-v2.9.0",
+    "label": "Deploy",
+    "name": "2.9.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792171854,
+     "origin": "seed",
+     "summary": "Rotate the acquirer client certificate bundle",
+     "version": "2.9.0"
+    }
+   },
+   {
+    "id": "dep:email-sender-v1.15.0",
+    "label": "Deploy",
+    "name": "1.15.0",
+    "origin": "seed",
+    "props": {
+     "ts": 1792172634,
+     "origin": "seed",
+     "summary": "Switch to the new transactional template engine",
+     "version": "1.15.0"
+    }
+   },
+   {
+    "id": "chat:payments-card-timeouts",
+    "label": "ChatThread",
+    "name": "Card processor timeout budget",
+    "origin": "seed",
+    "props": {
+     "ts": 1759341354,
+     "origin": "seed",
+     "title": "Card processor timeout budget",
+     "text": "[2025-10-01 17:55] Marcus Webb: We keep arguing about timeouts for the acquirer. Proposal: one number for the whole authorisation, not per-call. [2025-10-01 17:59] Sofia Alvarez: Today we do 3s then retry 3s, so customers can wait 6s plus 3DS. Too long. [2025-10-01 18:01] Priya Nair: Retries inside a 3DS challenge also risk double authorisations, ledger saw some of those. [2025-10-01 18:04] Marcu…",
+     "channel": "#payments-core"
+    }
+   },
+   {
+    "id": "tkt:PM-2025-031",
+    "label": "Ticket",
+    "name": "PM-2025-031",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: fraud-scoring timeouts during checkout peak",
+     "text": "INC-2025-031, sev 2. Impact: about 11% of card payments failed or were declined for two hours at the evening checkout peak. Timeline: risk-rules v2.3.0 lowered RULES_CACHE_TTL to 10s. At peak, config-service CPU reached 98%, fraud-scoring calls timed out and payments-api returned 5xx. Root cause: cache TTL too low, causing a thundering herd on a shared config store. Follow-ups: alert on config-se…",
+     "key": "PM-2025-031",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "tkt:PM-2026-012",
+    "label": "Ticket",
+    "name": "PM-2026-012",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: merchant-onboarding config reads timing out",
+     "text": "INC-2026-012, sev 3. Impact: merchant signups were slow or failed for about 40 minutes. Timeline: merchant-onboarding v2.11.0 disabled the local config cache, so every request read config-service directly. Latency on config-service rose and onboarding calls timed out. Root cause: no local cache in front of a shared config store, a thundering herd under signup load. Follow-up: document that the lo…",
+     "key": "PM-2026-012",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "tkt:PM-2025-044",
+    "label": "Ticket",
+    "name": "PM-2025-044",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: ledger connection pool exhausted during payout run",
+     "text": "INC-2025-044, sev 2. Impact: payouts were delayed by three hours and some payment captures failed. Timeline: ledger-service v3.4.0 added a parallel payout journal writer. During the daily payout run it opened more connections than the database pool allowed, starving payments-api requests. Root cause: database connection pool exhaustion. Follow-up: load-test payout runs against the pool limit. Res…",
+     "key": "PM-2025-044",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "tkt:PM-2025-067",
+    "label": "Ticket",
+    "name": "PM-2025-067",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: card-processor-adapter TLS handshake failures",
+     "text": "INC-2025-067, sev 1. Impact: all card authorisations failed for 25 minutes. Timeline: the acquirer client certificate expired at midnight UTC. card-processor-adapter failed every TLS handshake and payments-api returned errors. Root cause: expired TLS certificate; renewal was a manual calendar reminder that was missed. Follow-up: automate renewal and alert 30 days before expiry. Resolution: instal…",
+     "key": "PM-2025-067",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "tkt:PM-2026-031",
+    "label": "Ticket",
+    "name": "PM-2026-031",
+    "origin": "seed",
+    "props": {
+     "status": "done",
+     "origin": "seed",
+     "title": "Postmortem: webhook-dispatcher retry storm after merchant outage",
+     "text": "INC-2026-031, sev 3. Impact: a large merchant's endpoint was kept down for two hours and kafka-events consumer lag grew. Timeline: after the merchant endpoint recovered from an outage, webhook-dispatcher retried every queued event at once. The burst took the endpoint down again, repeatedly. Root cause: retry storm, with no cap and no jitter on the backoff. Follow-up: MX-655, cap attempts and add …",
+     "key": "PM-2026-031",
+     "kind": "postmortem",
+     "priority": "P2"
+    }
+   },
+   {
+    "id": "dec:card-processor-timeout-budget",
+    "label": "Decision",
+    "name": "Card processor gets a 2.5s total budget per authorisation",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "title": "Card processor gets a 2.5s total budget per authorisation",
+     "rationale": "A single end-to-end budget keeps customers from waiting 6s and avoids double authorisations during 3DS.",
+     "decided_at": 1759341354
+    }
+   },
+   {
+    "id": "rc:cache-ttl-thundering-herd",
+    "label": "RootCause",
+    "name": "Cache TTL too low → thundering herd on a shared config store",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Cache TTL too low → thundering herd on a shared config store",
+     "description": "A client cache expires too often or is disabled, so many instances refetch from a shared store at once and overload it."
+    }
+   },
+   {
+    "id": "rc:connection-pool-exhaustion",
+    "label": "RootCause",
+    "name": "Database connection pool exhaustion",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Database connection pool exhaustion",
+     "description": "More concurrent work than the connection pool allows, so requests queue or fail."
+    }
+   },
+   {
+    "id": "rc:expired-tls-certificate",
+    "label": "RootCause",
+    "name": "Expired TLS certificate",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Expired TLS certificate",
+     "description": "A certificate expired without renewal, and every TLS handshake to the peer fails."
+    }
+   },
+   {
+    "id": "rc:retry-storm",
+    "label": "RootCause",
+    "name": "Retry storm",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "Retry storm",
+     "description": "Uncapped, unjittered retries amplify load on a recovering dependency and keep it down."
+    }
+   },
+   {
+    "id": "inc:2025-031",
+    "label": "Incident",
+    "name": "INC-2025-031",
+    "origin": "seed",
+    "props": {
+     "started_at": 1752861354,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "fraud-scoring timeouts during checkout peak",
+     "summary": "risk-rules v2.3.0 lowered RULES_CACHE_TTL to 10s. At checkout peak every risk-rules pod refetched rulesets, saturating config-service and timing out fraud-scoring. Rolled back the TTL to 300s and added cache warm-up.",
+     "key": "INC-2025-031",
+     "severity": 2,
+     "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%",
+     "resolved_at": 1752868554
+    }
+   },
+   {
+    "id": "inc:2026-012",
+    "label": "Incident",
+    "name": "INC-2026-012",
+    "origin": "seed",
+    "props": {
+     "started_at": 1779213354,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "merchant-onboarding config reads timing out",
+     "summary": "merchant-onboarding v2.11.0 disabled its local config cache, so every request hit config-service and timed out under signup load. Re-enabled the cache with a jittered TTL.",
+     "key": "INC-2026-012",
+     "severity": 3,
+     "symptom": "merchant signups slow or failing; config-service latency elevated",
+     "resolved_at": 1779216954
+    }
+   },
+   {
+    "id": "inc:2025-044",
+    "label": "Incident",
+    "name": "INC-2025-044",
+    "origin": "seed",
+    "props": {
+     "started_at": 1758045354,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "ledger-service connection pool exhausted during payout run",
+     "summary": "ledger-service v3.4.0 added a parallel payout journal writer that opened more connections than the ledger-db pool allowed, starving payment captures. Raised the pool ceiling and capped writer concurrency.",
+     "key": "INC-2025-044",
+     "severity": 2,
+     "symptom": "payout run stalled; payment captures failing with pool timeout errors",
+     "resolved_at": 1758056154
+    }
+   },
+   {
+    "id": "inc:2025-067",
+    "label": "Incident",
+    "name": "INC-2025-067",
+    "origin": "seed",
+    "props": {
+     "started_at": 1762797354,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "card-processor-adapter TLS handshake failures",
+     "summary": "The acquirer client certificate expired at midnight UTC. Every TLS handshake from card-processor-adapter failed until the renewed certificate was installed.",
+     "key": "INC-2025-067",
+     "severity": 1,
+     "symptom": "all card authorisations failing; TLS handshake errors in card-processor-adapter",
+     "resolved_at": 1762800954
+    }
+   },
+   {
+    "id": "inc:2026-031",
+    "label": "Incident",
+    "name": "INC-2026-031",
+    "origin": "seed",
+    "props": {
+     "started_at": 1785261354,
+     "status": "resolved",
+     "origin": "seed",
+     "title": "webhook-dispatcher retry storm after merchant outage",
+     "summary": "After a merchant endpoint recovered, webhook-dispatcher retried every queued event at once and took it down again. Paused the retry queue and redelivered with capped attempts and jitter.",
+     "key": "INC-2026-031",
+     "severity": 3,
+     "symptom": "merchant endpoint repeatedly overloaded; kafka-events consumer lag growing",
+     "resolved_at": 1785268554
+    }
+   },
+   {
+    "id": "res:2025-031",
+    "label": "Resolution",
+    "name": "Rolled back TTL to 300s and added cache warm-up",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Rolled back TTL to 300s and added cache warm-up",
+     "steps": "1. Roll back RULES_CACHE_TTL to 300s. 2. Restart risk-rules pods gradually. 3. Add cache warm-up on pod start. 4. Watch config-service CPU until it is below 40%."
+    }
+   },
+   {
+    "id": "res:2026-012",
+    "label": "Resolution",
+    "name": "Re-enabled local config cache with jittered TTL",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Re-enabled local config cache with jittered TTL",
+     "steps": "1. Redeploy merchant-onboarding with the local config cache enabled. 2. Add +/-20% jitter to the cache TTL. 3. Confirm config-service latency returns to normal."
+    }
+   },
+   {
+    "id": "res:2025-044",
+    "label": "Resolution",
+    "name": "Raised pool ceiling and capped payout writer concurrency",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Raised pool ceiling and capped payout writer concurrency",
+     "steps": "1. Reduce payout writer concurrency to 4. 2. Raise the ledger-db connection pool limit. 3. Re-run the stalled payout batch."
+    }
+   },
+   {
+    "id": "res:2025-067",
+    "label": "Resolution",
+    "name": "Installed renewed acquirer certificate and added expiry ale…",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Installed renewed acquirer certificate and added expiry alerting",
+     "steps": "1. Request the renewed certificate from the acquirer. 2. Install it and restart card-processor-adapter. 3. Add an alert 30 days before certificate expiry."
+    }
+   },
+   {
+    "id": "res:2026-031",
+    "label": "Resolution",
+    "name": "Paused retry queue and redelivered with capped attempts and…",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "summary": "Paused retry queue and redelivered with capped attempts and jitter",
+     "steps": "1. Pause the webhook retry queue. 2. Deploy capped retry attempts with jittered backoff. 3. Resume and redeliver gradually."
+    }
+   }
+  ],
+  "edges": [
+   {
+    "source": "team:payments-core",
+    "type": "OWNS",
+    "target": "svc:card-processor-adapter",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:payments-core",
+    "type": "OWNS",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:platform",
+    "type": "OWNS",
+    "target": "svc:auth-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:platform",
+    "type": "OWNS",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:merchant-exp",
+    "type": "OWNS",
+    "target": "svc:merchant-onboarding",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:merchant-exp",
+    "type": "OWNS",
+    "target": "svc:notifications-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "team:merchant-exp",
+    "type": "OWNS",
+    "target": "svc:webhook-dispatcher",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:priya-nair",
+    "type": "WORKED_ON",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {
+     "commits": 12,
+     "last_at": 1787421354
+    }
+   },
+   {
+    "source": "per:priya-nair",
+    "type": "WORKED_ON",
+    "target": "svc:merchant-onboarding",
+    "origin": "seed",
+    "props": {
+     "commits": 6,
+     "last_at": 1779386154
+    }
+   },
+   {
+    "source": "per:marcus-webb",
+    "type": "WORKED_ON",
+    "target": "svc:card-processor-adapter",
+    "origin": "seed",
+    "props": {
+     "commits": 40,
+     "last_at": 1790358954
+    }
+   },
+   {
+    "source": "per:marcus-webb",
+    "type": "AUTHORED",
+    "target": "dec:card-processor-timeout-budget",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:sofia-alvarez",
+    "type": "MAINTAINS",
+    "target": "svc:card-processor-adapter",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:sofia-alvarez",
+    "type": "WORKED_ON",
+    "target": "svc:card-processor-adapter",
+    "origin": "seed",
+    "props": {
+     "commits": 95,
+     "last_at": 1791827754
+    }
+   },
+   {
+    "source": "per:sofia-alvarez",
+    "type": "MAINTAINS",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:sofia-alvarez",
+    "type": "WORKED_ON",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {
+     "commits": 140,
+     "last_at": 1791741354
+    }
+   },
+   {
+    "source": "per:sofia-alvarez",
+    "type": "DEPLOYED",
+    "target": "dep:card-processor-adapter-v2.9.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:tomasz-kowalski",
+    "type": "WORKED_ON",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {
+     "commits": 37,
+     "last_at": 1790531754
+    }
+   },
+   {
+    "source": "per:nikhil-rao",
+    "type": "WORKED_ON",
+    "target": "svc:auth-service",
+    "origin": "seed",
+    "props": {
+     "commits": 35,
+     "last_at": 1786989354
+    }
+   },
+   {
+    "source": "per:nikhil-rao",
+    "type": "WORKED_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "commits": 70,
+     "last_at": 1785261354
+    }
+   },
+   {
+    "source": "per:elena-petrova",
+    "type": "MAINTAINS",
+    "target": "svc:auth-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:elena-petrova",
+    "type": "WORKED_ON",
+    "target": "svc:auth-service",
+    "origin": "seed",
+    "props": {
+     "commits": 130,
+     "last_at": 1791568554
+    }
+   },
+   {
+    "source": "per:omar-haddad",
+    "type": "MAINTAINS",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:omar-haddad",
+    "type": "WORKED_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "commits": 95,
+     "last_at": 1790704554
+    }
+   },
+   {
+    "source": "per:jonas-eriksson",
+    "type": "WORKED_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "commits": 15,
+     "last_at": 1788285354
+    }
+   },
+   {
+    "source": "per:ben-walker",
+    "type": "MAINTAINS",
+    "target": "svc:webhook-dispatcher",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:ben-walker",
+    "type": "WORKED_ON",
+    "target": "svc:webhook-dispatcher",
+    "origin": "seed",
+    "props": {
+     "commits": 70,
+     "last_at": 1790963754
+    }
+   },
+   {
+    "source": "per:fatima-zahra",
+    "type": "WORKED_ON",
+    "target": "svc:merchant-onboarding",
+    "origin": "seed",
+    "props": {
+     "commits": 34,
+     "last_at": 1787853354
+    }
+   },
+   {
+    "source": "per:fatima-zahra",
+    "type": "MAINTAINS",
+    "target": "svc:notifications-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:fatima-zahra",
+    "type": "WORKED_ON",
+    "target": "svc:notifications-service",
+    "origin": "seed",
+    "props": {
+     "commits": 60,
+     "last_at": 1791395754
+    }
+   },
+   {
+    "source": "per:kenji-watanabe",
+    "type": "MAINTAINS",
+    "target": "svc:merchant-onboarding",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "per:kenji-watanabe",
+    "type": "WORKED_ON",
+    "target": "svc:merchant-onboarding",
+    "origin": "seed",
+    "props": {
+     "commits": 120,
+     "last_at": 1791136554
+    }
+   },
+   {
+    "source": "per:kenji-watanabe",
+    "type": "WORKED_ON",
+    "target": "svc:notifications-service",
+    "origin": "seed",
+    "props": {
+     "commits": 28,
+     "last_at": 1788717354
+    }
+   },
+   {
+    "source": "per:kenji-watanabe",
+    "type": "WORKED_ON",
+    "target": "svc:webhook-dispatcher",
+    "origin": "seed",
+    "props": {
+     "commits": 25,
+     "last_at": 1785261354
+    }
+   },
+   {
+    "source": "per:kenji-watanabe",
+    "type": "DEPLOYED",
+    "target": "dep:email-sender-v1.15.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "svc:payments-api",
+    "type": "DEPENDS_ON",
+    "target": "svc:card-processor-adapter",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:payouts-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:kafka-events",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:api-gateway",
+    "type": "DEPENDS_ON",
+    "target": "svc:payments-api",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:api-gateway",
+    "type": "DEPENDS_ON",
+    "target": "svc:auth-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:auth-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:config-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-db",
+    "origin": "seed",
+    "props": {
+     "kind": "db",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:web-checkout",
+    "type": "DEPENDS_ON",
+    "target": "svc:api-gateway",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:merchant-dashboard",
+    "type": "DEPENDS_ON",
+    "target": "svc:api-gateway",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:merchant-onboarding",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:merchant-onboarding",
+    "type": "DEPENDS_ON",
+    "target": "svc:notifications-service",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:notifications-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:notifications-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:kafka-events",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:notifications-service",
+    "type": "DEPENDS_ON",
+    "target": "svc:email-sender",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:webhook-dispatcher",
+    "type": "DEPENDS_ON",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {
+     "kind": "sync",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "svc:webhook-dispatcher",
+    "type": "DEPENDS_ON",
+    "target": "svc:kafka-events",
+    "origin": "seed",
+    "props": {
+     "kind": "async",
+     "source": "declared"
+    }
+   },
+   {
+    "source": "dep:merchant-onboarding-v2.11.0",
+    "type": "CHANGED",
+    "target": "svc:merchant-onboarding",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:card-processor-adapter-v2.9.0",
+    "type": "CHANGED",
+    "target": "svc:card-processor-adapter",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:email-sender-v1.15.0",
+    "type": "CHANGED",
+    "target": "svc:email-sender",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dec:card-processor-timeout-budget",
+    "type": "ABOUT",
+    "target": "svc:card-processor-adapter",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dec:card-processor-timeout-budget",
+    "type": "SOURCED_FROM",
+    "target": "chat:payments-card-timeouts",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Decision: the card processor gets a 2.5s total budget per authorisation: 1.2s for the first attempt, at most one retry, never inside the 3DS challenge window."
+    }
+   },
+   {
+    "source": "inc:2025-031",
+    "type": "AFFECTED",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-031",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:cache-ttl-thundering-herd",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-031",
+    "type": "RESOLVED_BY",
+    "target": "res:2025-031",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-012",
+    "type": "AFFECTED",
+    "target": "svc:config-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-012",
+    "type": "AFFECTED",
+    "target": "svc:merchant-onboarding",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-012",
+    "type": "CAUSED_BY",
+    "target": "dep:merchant-onboarding-v2.11.0",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-012",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:cache-ttl-thundering-herd",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-012",
+    "type": "RESOLVED_BY",
+    "target": "res:2026-012",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "AFFECTED",
+    "target": "svc:payouts-service",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:connection-pool-exhaustion",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-044",
+    "type": "RESOLVED_BY",
+    "target": "res:2025-044",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-067",
+    "type": "AFFECTED",
+    "target": "svc:card-processor-adapter",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-067",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:expired-tls-certificate",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2025-067",
+    "type": "RESOLVED_BY",
+    "target": "res:2025-067",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-031",
+    "type": "AFFECTED",
+    "target": "svc:webhook-dispatcher",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-031",
+    "type": "HAS_ROOT_CAUSE",
+    "target": "rc:retry-storm",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "inc:2026-031",
+    "type": "RESOLVED_BY",
+    "target": "res:2026-031",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-031",
+    "type": "PERFORMED_BY",
+    "target": "per:priya-nair",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-031",
+    "type": "PERFORMED_BY",
+    "target": "per:arjun-mehta",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-031",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2025-031",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: rolled back TTL to 300s and added cache warm-up on pod start."
+    }
+   },
+   {
+    "source": "res:2026-012",
+    "type": "PERFORMED_BY",
+    "target": "per:priya-nair",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2026-012",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2026-012",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: re-enabled the local config cache with a jittered TTL."
+    }
+   },
+   {
+    "source": "res:2025-044",
+    "type": "PERFORMED_BY",
+    "target": "per:marcus-webb",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-044",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2025-044",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: raised the ledger connection pool ceiling and capped payout writer concurrency."
+    }
+   },
+   {
+    "source": "res:2025-067",
+    "type": "PERFORMED_BY",
+    "target": "per:marcus-webb",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-067",
+    "type": "PERFORMED_BY",
+    "target": "per:sofia-alvarez",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2025-067",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2025-067",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: installed the renewed acquirer certificate and added a 30-day expiry alert."
+    }
+   },
+   {
+    "source": "res:2026-031",
+    "type": "PERFORMED_BY",
+    "target": "per:ben-walker",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "res:2026-031",
+    "type": "SOURCED_FROM",
+    "target": "tkt:PM-2026-031",
+    "origin": "seed",
+    "props": {
+     "excerpt": "Resolution: paused the retry queue, then redelivered with capped attempts and jitter."
+    }
+   }
+  ],
+  "base": [
+   "svc:auth-service",
+   "svc:card-processor-adapter",
+   "svc:merchant-onboarding",
+   "svc:notifications-service",
+   "svc:payouts-service",
+   "svc:webhook-dispatcher"
+  ],
+  "alert": "svc:auth-service",
+  "alerts": [
+   "svc:auth-service",
+   "svc:payouts-service",
+   "svc:merchant-onboarding",
+   "svc:webhook-dispatcher",
+   "svc:notifications-service",
+   "svc:card-processor-adapter"
+  ]
+ }
+}
