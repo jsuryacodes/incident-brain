@@ -135,6 +135,7 @@ def test_12_node_details(ctx):
 
 
 GOOD = [
+    ("rollback_safety", {"deploy_id": "dep:risk-rules-v2.8.0"}),
     ("correlate_alerts", {"service_ids": [PO, "svc:auth-service", "svc:webhook-dispatcher"]}),
     ("connected_impact", {"service_ids": [PO, "svc:auth-service", "svc:card-processor-adapter"]}),
     ("blast_tiers", {"service_id": CS, "alerting": [PO]}), ("failure_domains", {"service_ids": [PO, PA]}), ("failure_domains", {}),
@@ -157,6 +158,7 @@ GOOD = [
 LIMITS = {"read_source": gt.SOURCE_CHARS + 1200, "get_incident_state": gt.STATE_CHARS, "memory_recall": 4500,
           "industry_matches": 4000}  # deliberately bigger
 BAD = [
+    ("rollback_safety", {"deploy_id": "dep:nope"}), ("rollback_safety", {"deploy_id": "svc:risk-rules"}),
     ("correlate_alerts", {"service_ids": []}), ("connected_impact", {"service_ids": ["svc:nope"]}),
     ("blast_tiers", {"service_id": "svc:nope"}), ("blast_tiers", {"service_id": CS, "alerting": "svc:x"}),
     ("critical_services", {"algorithm": "pagerank", "downstream_of": ["svc:nope"]}),

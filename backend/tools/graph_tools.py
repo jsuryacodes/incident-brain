@@ -894,3 +894,41 @@ def industry_matches(ctx, root_cause_id=None, incident_id=None, limit=5):
     if not rows:
         res["note"] = "no public postmortem shares these root causes"
     return rec.done(res, limit=4000)
+
+
+# ───────────── 17. rollback_safety ─────────────
+Q_RB = """MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary"""
+Q_RB_LATER = """MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts"""
+Q_RB_CALLERS = """MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)"""
+IRREVERSIBLE = re.compile(r"\b(migrat\w*|schema|drop\w*|rebuild\w*|delet\w*|backfill\w*|truncat\w*|re-?index\w*)\b", re.I)
+
+
+def rollback_safety(ctx, deploy_id):
+    rec = Recorder(ctx, "rollback_safety", {"deploy_id": deploy_id})
+    if err := rec.check(deploy_id, "Deploy"):
+        return rec.error(err)
+    rows = rec.q(Q_RB, {"id": deploy_id})
+    if not rows:
+        return rec.error(f"{deploy_id} did not change any service")
+    sid, tier, ts, ver, summ = rows[0]
+    later = rec.q(Q_RB_LATER, {"sid": sid, "ts": ts})
+    callers = dict(rec.q(Q_RB_CALLERS, {"sid": sid}))
+    words = sorted({m.group(0).lower() for m in IRREVERSIBLE.finditer(summ or "")})
+    reasons = []
+    if later:
+        reasons.append(f"{len(later)} later deploy(s) to {sid.split(':', 1)[1]} would be rolled back too: "
+                       + ", ".join(x[0] for x in later[:3]))
+    if words:
+        reasons.append(f"the change looks hard to undo ({', '.join(words)}): rolling the code back may not undo the data")
+    rec.hl_edge(deploy_id, "CHANGED", sid)
+    for x in later[:3]:
+        rec.hl_edge(x[0], "CHANGED", sid)
+    n = sum(callers.values())
+    res = {"deploy": deploy_id, "service": sid, "service_tier": tier, "version": ver,
+           "later_deploys": [{"id": x[0], "minutes_after": (x[1] - ts) // 60, "summary": clip(x[2], 100)} for x in later[:5]],
+           "dependents": n, "tier1_dependents": callers.get(1, 0), "hard_to_undo_terms": words,
+           "verdict": "risky" if reasons else "safe",
+           "reasons": reasons or [f"nothing shipped to {sid.split(':', 1)[1]} after it and nothing in the change looks irreversible"],
+           "blast_of_rollback": f"{n} service(s) call {sid.split(':', 1)[1]} (directly or not), {callers.get(1, 0)} of them tier-1: "
+                                "they briefly see the old version"}
+    return rec.done(res)

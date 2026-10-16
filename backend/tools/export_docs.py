@@ -25,6 +25,7 @@ EXAMPLES = {
     "connected_impact": {"service_ids": ["svc:auth-service", "svc:payouts-service", "svc:card-processor-adapter"]},
     "blast_tiers": {"service_id": "svc:config-service", "alerting": ["svc:auth-service", "svc:payouts-service"], "max_hops": 2},
     "failure_domains": {"service_ids": ["svc:auth-service", "svc:card-processor-adapter"]},
+    "rollback_safety": {"deploy_id": "dep:risk-rules-v2.8.0"},
 }
 DOCS_GRAPH = "kestrel_pay__eval_docs"
 

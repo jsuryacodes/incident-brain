@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-16 18:07 UTC",
+ "generated_at": "2026-10-16 18:16 UTC",
  "mode": "mock",
  "profiles": {
   "full": {
@@ -66,7 +66,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -111,6 +111,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -136,7 +144,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -177,6 +185,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -224,7 +240,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 17 hit(s): chat:platform-kafka-retention"
+        "summary": "search_knowledge → 16 hit(s): chat:platform-kafka-retention"
        },
        {
         "tool": "submit_report",
@@ -285,7 +301,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -341,6 +357,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)"
        },
@@ -366,7 +390,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -418,6 +442,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -754,7 +786,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -795,6 +827,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -822,7 +862,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -863,6 +903,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -910,7 +958,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 22 hit(s): chat:payments-core-ledger-dupes"
+        "summary": "search_knowledge → 20 hit(s): chat:oncall-handoff-week-41"
        },
        {
         "tool": "submit_report",
@@ -970,7 +1018,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -1021,6 +1069,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 0 incident(s)"
        },
@@ -1046,7 +1102,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -1093,6 +1149,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -1206,7 +1270,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -1251,6 +1315,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -1276,7 +1348,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -1317,6 +1389,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -1372,7 +1452,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 29 hit(s): chat:payments-core-ledger-dupes"
+        "summary": "search_knowledge → 29 hit(s): chat:platform-kafka-retention"
        },
        {
         "tool": "submit_report",
@@ -1433,7 +1513,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -1474,6 +1554,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 1 stale: doc:risk-rules-readme"
        },
        {
         "tool": "past_incidents",
@@ -1505,7 +1593,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -1546,6 +1634,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 1 stale: doc:risk-rules-readme"
        },
        {
         "tool": "past_incidents",
@@ -1911,7 +2007,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 1,
-     "tool_calls": 16,
+     "tool_calls": 18,
      "llm_calls": 6,
      "grounding_ok": true,
      "used_algorithms": [
@@ -1984,6 +2080,14 @@
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
+       },
+       {
         "tool": "who_to_call",
         "summary": "who_to_call → top: Tariq Hassan (score 90)"
        },
@@ -2021,7 +2125,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 1,
-     "tool_calls": 14,
+     "tool_calls": 16,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -2080,6 +2184,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
        },
        {
         "tool": "who_to_call",
@@ -2220,7 +2332,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 17,
+     "tool_calls": 21,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -2288,6 +2400,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 0 incident(s)"
        },
@@ -2302,6 +2422,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
        },
        {
         "tool": "past_incidents",
@@ -2329,7 +2457,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 15,
+     "tool_calls": 19,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -2385,6 +2513,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 0 incident(s)"
        },
@@ -2399,6 +2535,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
        },
        {
         "tool": "past_incidents",
@@ -2512,7 +2656,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -2568,6 +2712,14 @@
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -2593,7 +2745,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -2645,6 +2797,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -2764,7 +2924,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -2809,6 +2969,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -2834,7 +3002,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -2875,6 +3043,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -3019,7 +3195,7 @@
      "look_first_ok": null,
      "pages_sent": 2,
      "pages_suppressed": 5,
-     "tool_calls": 35,
+     "tool_calls": 37,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -3186,6 +3362,14 @@
         "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)"
        },
@@ -3215,7 +3399,7 @@
      "look_first_ok": null,
      "pages_sent": 4,
      "pages_suppressed": 1,
-     "tool_calls": 44,
+     "tool_calls": 48,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -3322,6 +3506,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "who_to_call",
         "summary": "who_to_call → top: Kenji Watanabe (score 120)"
        },
@@ -3344,6 +3536,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -3474,7 +3674,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 13 hit(s): chat:platform-kafka-retention"
+        "summary": "search_knowledge → 13 hit(s): chat:oncall-handoff-week-41"
        },
        {
         "tool": "search_knowledge",
@@ -3575,7 +3775,7 @@
      "look_first_ok": null,
      "pages_sent": 2,
      "pages_suppressed": 5,
-     "tool_calls": 35,
+     "tool_calls": 37,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -3736,6 +3936,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 0 incident(s)"
        },
@@ -3765,7 +3973,7 @@
      "look_first_ok": null,
      "pages_sent": 5,
      "pages_suppressed": 0,
-     "tool_calls": 48,
+     "tool_calls": 50,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -3871,6 +4079,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -4030,7 +4246,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 13 hit(s): chat:platform-kafka-retention"
+        "summary": "search_knowledge → 13 hit(s): chat:oncall-handoff-week-41"
        },
        {
         "tool": "search_knowledge",
@@ -4126,7 +4342,7 @@
      "look_first_ok": null,
      "pages_sent": 2,
      "pages_suppressed": 2,
-     "tool_calls": 30,
+     "tool_calls": 32,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -4267,6 +4483,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 0 incident(s)"
        },
@@ -4296,7 +4520,7 @@
      "look_first_ok": null,
      "pages_sent": 3,
      "pages_suppressed": 2,
-     "tool_calls": 32,
+     "tool_calls": 34,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -4387,6 +4611,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "who_to_call",
@@ -4490,7 +4722,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 5 hit(s): chat:pe-portal-slow-results"
+        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
        },
        {
         "tool": "search_knowledge",
@@ -4561,7 +4793,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -4612,6 +4844,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -4637,7 +4877,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -4684,6 +4924,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -4797,7 +5045,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -4848,6 +5096,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -4873,7 +5129,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -4920,6 +5176,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -5043,7 +5307,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -5094,6 +5358,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -5119,7 +5391,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -5166,6 +5438,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -5219,7 +5499,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-sanctions-refresh"
+        "summary": "search_knowledge → 31 hit(s): chat:payments-core-ledger-dupes"
        },
        {
         "tool": "submit_report",
@@ -5278,7 +5558,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -5323,6 +5603,14 @@
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -5348,7 +5636,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -5389,6 +5677,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -5499,7 +5795,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -5550,6 +5846,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -5575,7 +5879,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -5622,6 +5926,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -5736,7 +6048,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -5781,6 +6093,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -5806,7 +6126,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -5847,6 +6167,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -5956,7 +6284,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -6007,6 +6335,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -6032,7 +6368,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -6079,6 +6415,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -6190,7 +6534,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -6235,6 +6579,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -6260,7 +6612,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -6301,6 +6653,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -6411,7 +6771,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -6462,6 +6822,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -6487,7 +6855,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -6534,6 +6902,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -6647,7 +7023,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -6698,6 +7074,14 @@
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -6727,7 +7111,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -6774,6 +7158,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
        },
        {
         "tool": "past_incidents",
@@ -6892,7 +7284,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -6943,6 +7335,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -6968,7 +7368,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -7015,6 +7415,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -7127,7 +7535,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -7172,6 +7580,14 @@
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -7197,7 +7613,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -7238,6 +7654,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -7347,7 +7771,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -7398,6 +7822,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -7423,7 +7855,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -7470,6 +7902,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -7582,7 +8022,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -7627,6 +8067,14 @@
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -7652,7 +8100,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -7693,6 +8141,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -7800,7 +8256,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -7851,6 +8307,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -7880,7 +8344,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -7927,6 +8391,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -7991,7 +8463,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-sanctions-refresh"
+        "summary": "search_knowledge → 31 hit(s): chat:payments-core-ledger-dupes"
        },
        {
         "tool": "submit_report",
@@ -8051,7 +8523,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -8102,6 +8574,14 @@
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -8131,7 +8611,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -8178,6 +8658,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
        },
        {
         "tool": "past_incidents",
@@ -8299,7 +8787,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -8350,6 +8838,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 0 incident(s)"
        },
@@ -8375,7 +8871,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -8422,6 +8918,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -8534,7 +9038,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -8579,6 +9083,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -8604,7 +9116,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -8645,6 +9157,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -8755,7 +9275,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -8806,6 +9326,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -8831,7 +9359,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -8878,6 +9406,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -8931,7 +9467,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 21 hit(s): chat:oncall-handoff-week-41"
+        "summary": "search_knowledge → 20 hit(s): chat:oncall-handoff-week-41"
        },
        {
         "tool": "submit_report",
@@ -8991,7 +9527,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -9042,6 +9578,14 @@
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -9067,7 +9611,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -9114,6 +9658,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -9227,7 +9779,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -9278,6 +9830,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 3 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
        },
@@ -9303,7 +9863,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -9350,6 +9910,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -9461,7 +10029,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -9506,6 +10074,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -9531,7 +10107,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -9572,6 +10148,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -9680,7 +10264,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -9731,6 +10315,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)"
        },
@@ -9756,7 +10348,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -9805,6 +10397,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)"
        },
@@ -9847,7 +10447,7 @@
        {
         "deploy_id": "dep:config-db-v9.52.0",
         "service_id": "svc:config-db",
-        "reason": "2 word(s) in common with the alert vs 3 for the change picked; no dependency data to check it"
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
        }
       ],
       "look_first": null,
@@ -9858,7 +10458,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 30 hit(s): chat:risk-eng-config-load"
+        "summary": "search_knowledge → 30 hit(s): chat:oncall-handoff-week-41"
        },
        {
         "tool": "submit_report",
@@ -9917,7 +10517,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -9962,6 +10562,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -9987,7 +10595,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -10028,6 +10636,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -10135,7 +10751,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -10186,6 +10802,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 3 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2025-044 (fixed by Marcus Webb), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
        },
@@ -10211,7 +10835,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -10258,6 +10882,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -10373,7 +11005,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -10424,6 +11056,14 @@
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -10453,7 +11093,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -10500,6 +11140,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
        },
        {
         "tool": "past_incidents",
@@ -10617,7 +11265,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -10668,6 +11316,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 3 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2025-044 (fixed by Marcus Webb), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
        },
@@ -10693,7 +11349,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -10740,6 +11396,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -10853,7 +11517,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -10904,6 +11568,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -10929,7 +11601,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -10976,6 +11648,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -11094,7 +11774,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -11145,6 +11825,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -11170,7 +11858,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -11217,6 +11905,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -11272,7 +11968,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 18 hit(s): chat:incidents-2025-031-war-room"
+        "summary": "search_knowledge → 18 hit(s): chat:payments-card-timeouts"
        },
        {
         "tool": "submit_report",
@@ -11333,7 +12029,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -11384,6 +12080,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -11409,7 +12113,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -11456,6 +12160,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -11569,7 +12281,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -11620,6 +12332,14 @@
         "summary": "decisions_about → 1 decision(s): kafka-events retention is 7 days"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 4 incident(s): INC-2026-031 (fixed by Ben Walker), INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez), INC-2025-044 (fixed by Marcus Webb)"
        },
@@ -11645,7 +12365,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -11692,6 +12412,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): kafka-events retention is 7 days"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -11805,7 +12533,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -11856,6 +12584,14 @@
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -11885,7 +12621,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -11932,6 +12668,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
        },
        {
         "tool": "past_incidents",
@@ -12052,7 +12796,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -12103,6 +12847,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -12128,7 +12880,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -12175,6 +12927,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -12290,7 +13050,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -12341,6 +13101,14 @@
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -12370,7 +13138,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -12417,6 +13185,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
        },
        {
         "tool": "past_incidents",
@@ -12474,7 +13250,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 7 hit(s): chat:pe-portal-slow-results"
+        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
        },
        {
         "tool": "submit_report",
@@ -12534,7 +13310,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -12585,6 +13361,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 3 incident(s): INC-2026-031 (fixed by Ben Walker), INC-2026-012 (fixed by Priya Nair), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
        },
@@ -12610,7 +13394,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -12657,6 +13441,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -12712,7 +13504,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 19 hit(s): chat:payments-card-timeouts"
+        "summary": "search_knowledge → 22 hit(s): chat:payments-card-timeouts"
        },
        {
         "tool": "submit_report",
@@ -12773,7 +13565,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -12824,6 +13616,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -12849,7 +13649,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -12896,6 +13696,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -13012,7 +13820,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -13063,6 +13871,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -13088,7 +13904,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -13135,6 +13951,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -13246,7 +14070,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -13291,6 +14115,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -13316,7 +14148,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -13357,6 +14189,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -13464,7 +14304,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -13515,6 +14355,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
        },
@@ -13540,7 +14388,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -13587,6 +14435,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -13640,7 +14496,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 30 hit(s): chat:payments-core-ledger-dupes"
+        "summary": "search_knowledge → 30 hit(s): chat:risk-eng-config-load"
        },
        {
         "tool": "submit_report",
@@ -13700,7 +14556,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -13751,6 +14607,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -13776,7 +14640,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -13823,6 +14687,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -13945,7 +14817,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -13996,6 +14868,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
        },
@@ -14021,7 +14901,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -14068,6 +14948,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -14121,7 +15009,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 32 hit(s): chat:payments-core-ledger-dupes"
+        "summary": "search_knowledge → 32 hit(s): chat:risk-eng-sanctions-refresh"
        },
        {
         "tool": "submit_report",
@@ -14182,7 +15070,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -14233,6 +15121,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -14258,7 +15154,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -14305,6 +15201,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -14419,7 +15323,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -14470,6 +15374,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
        },
@@ -14495,7 +15407,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -14542,6 +15454,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -14654,7 +15574,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -14699,6 +15619,14 @@
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
        },
@@ -14724,7 +15652,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -14765,6 +15693,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -14873,7 +15809,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -14924,6 +15860,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 3 incident(s): INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez), INC-2025-044 (fixed by Marcus Webb), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
        },
@@ -14949,7 +15893,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -14996,6 +15940,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -15109,7 +16061,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -15160,6 +16112,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -15185,7 +16145,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -15232,6 +16192,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -15348,7 +16316,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -15399,6 +16367,14 @@
         "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 1 stale: doc:risk-rules-readme"
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
        },
@@ -15428,7 +16404,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -15475,6 +16451,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 1 stale: doc:risk-rules-readme"
        },
        {
         "tool": "past_incidents",
@@ -15592,7 +16576,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -15643,6 +16627,14 @@
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -15672,7 +16664,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -15719,6 +16711,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
        },
        {
         "tool": "past_incidents",
@@ -15838,7 +16838,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -15889,6 +16889,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:fraud-scoring-readme, rb:fraud-scoring-latency"
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
        },
@@ -15914,7 +16922,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -15961,6 +16969,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:fraud-scoring-readme, rb:fraud-scoring-latency"
        },
        {
         "tool": "past_incidents",
@@ -16014,7 +17030,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 28 hit(s): chat:risk-eng-sanctions-refresh"
+        "summary": "search_knowledge → 28 hit(s): chat:oncall-handoff-week-41"
        },
        {
         "tool": "submit_report",
@@ -16075,7 +17091,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -16126,6 +17142,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -16151,7 +17175,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -16198,6 +17222,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -16315,7 +17347,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -16366,6 +17398,14 @@
         "summary": "decisions_about → 1 decision(s): Ledger idempotency keys are honoured for 24 hours"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-044 (fixed by Marcus Webb)"
        },
@@ -16395,7 +17435,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -16442,6 +17482,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): Ledger idempotency keys are honoured for 24 hours"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -16501,7 +17549,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 17 hit(s): chat:payments-card-timeouts"
+        "summary": "search_knowledge → 16 hit(s): chat:payments-card-timeouts"
        },
        {
         "tool": "submit_report",
@@ -16560,7 +17608,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -16601,6 +17649,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -16628,7 +17684,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -16669,6 +17725,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -16996,7 +18060,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 1,
-     "tool_calls": 15,
+     "tool_calls": 17,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -17069,6 +18133,14 @@
         "summary": "decisions_about → 0 decision(s)"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "who_to_call",
         "summary": "who_to_call → top: Tariq Hassan (score 90)"
        },
@@ -17102,7 +18174,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 1,
-     "tool_calls": 13,
+     "tool_calls": 15,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -17161,6 +18233,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "who_to_call",
@@ -17226,7 +18306,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 11 hit(s): chat:platform-sms-retries"
+        "summary": "search_knowledge → 11 hit(s): chat:pe-portal-slow-results"
        },
        {
         "tool": "submit_report",
@@ -17286,7 +18366,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [
@@ -17331,6 +18411,14 @@
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
        },
@@ -17360,7 +18448,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 9,
+     "tool_calls": 11,
      "llm_calls": 5,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -17401,6 +18489,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 2 stale: doc:notifications-readme, rb:notifications-delivery"
        },
        {
         "tool": "past_incidents",
@@ -17517,7 +18613,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [
@@ -17568,6 +18664,14 @@
         "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation"
        },
        {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
+       },
+       {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)"
        },
@@ -17593,7 +18697,7 @@
      "look_first_ok": null,
      "pages_sent": 1,
      "pages_suppressed": 0,
-     "tool_calls": 8,
+     "tool_calls": 10,
      "llm_calls": 4,
      "grounding_ok": true,
      "used_algorithms": [],
@@ -17640,6 +18744,14 @@
        {
         "tool": "decisions_about",
         "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation"
+       },
+       {
+        "tool": "rollback_safety",
+        "summary": "rollback_safety → ok"
+       },
+       {
+        "tool": "stale_knowledge",
+        "summary": "stale_knowledge → 0 stale: "
        },
        {
         "tool": "past_incidents",
@@ -17693,7 +18805,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 27 hit(s): chat:eval-reporting-settlement"
+        "summary": "search_knowledge → 28 hit(s): chat:eval-reporting-settlement"
        },
        {
         "tool": "submit_report",
@@ -17705,7 +18817,7 @@
    }
   }
  ],
- "seconds": 7.0,
+ "seconds": 7.6,
  "totals": {
   "dev": {
    "full": {
@@ -17717,7 +18829,7 @@
     "false_leads": 8,
     "paged_right": 19,
     "wrong_actions": 0,
-    "tool_calls": 212,
+    "tool_calls": 240,
     "scenarios": 15,
     "paged_left_person": 0,
     "grounding_ok": 15
@@ -17731,7 +18843,7 @@
     "false_leads": 8,
     "paged_right": 16,
     "wrong_actions": 13,
-    "tool_calls": 234,
+    "tool_calls": 264,
     "scenarios": 15,
     "paged_left_person": 0,
     "grounding_ok": 15
@@ -17761,7 +18873,7 @@
     "false_leads": 40,
     "paged_right": 50,
     "wrong_actions": 0,
-    "tool_calls": 408,
+    "tool_calls": 508,
     "scenarios": 50,
     "paged_left_person": 0,
     "grounding_ok": 50
@@ -17775,7 +18887,7 @@
     "false_leads": 40,
     "paged_right": 50,
     "wrong_actions": 0,
-    "tool_calls": 408,
+    "tool_calls": 508,
     "scenarios": 50,
     "paged_left_person": 0,
     "grounding_ok": 50
@@ -17805,7 +18917,7 @@
     "false_leads": 3,
     "paged_right": 6,
     "wrong_actions": 0,
-    "tool_calls": 55,
+    "tool_calls": 65,
     "scenarios": 6,
     "paged_left_person": 0,
     "grounding_ok": 6
@@ -17819,7 +18931,7 @@
     "false_leads": 3,
     "paged_right": 6,
     "wrong_actions": 0,
-    "tool_calls": 54,
+    "tool_calls": 64,
     "scenarios": 6,
     "paged_left_person": 0,
     "grounding_ok": 6

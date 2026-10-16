@@ -58,6 +58,12 @@ FIREFIGHTER_EXTRA = {  # optional: the Firefighter's leads, its pointer when not
                                   "supporting": {"type": "array", "items": _obj({"node_id": _S, "claim": _S})},
                                   "contradicting": {"type": "array", "items": _obj({"node_id": _S, "claim": _S})},
                                   "reason": _S})},
+    "action_plan": {"type": "array", "description": "What to do, each step with its graph justification; nothing runs until a person approves it.",
+                    "items": _obj({"id": _S, "incident": {"type": "integer"},
+                                   "kind": {"enum": ["rollback", "hold", "page", "escalate", "suppress_page", "notify", "open_ticket", "flag_stale"]},
+                                   "target": _S, "title": _S,
+                                   "justification": _obj({"why": _S, "node_ids": _IDS, "path": _IDS}),
+                                   "safety": {"type": ["object", "null"]}})},
     "confidence_breakdown": {"type": "array", "description": "What raised (+) or lowered (-) the confidence.",
                              "items": _obj({"effect": {"enum": ["+", "-"]}, "factor": _S, "node_id": _SN})},
 }

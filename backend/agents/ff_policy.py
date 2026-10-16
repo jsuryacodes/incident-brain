@@ -484,7 +484,8 @@ def firefighter(v):
         focus = c["service"] if c else root["id"] if root else inc["alerts"][0]
         detail += [("blast_radius", {"service_id": inc["alerts"][0]}), ("who_to_call", {"service_id": focus})]
         if c:
-            detail.append(("decisions_about", {"service_id": c["service"]}))
+            detail += [("decisions_about", {"service_id": c["service"]}), ("rollback_safety", {"deploy_id": c["deploy"]["id"]}),
+                       ("stale_knowledge", {"service_id": c["service"]})]
         elif root:
             detail.append(("blast_tiers", {"service_id": root["id"], "alerting": svcs}))
         else:
@@ -528,10 +529,60 @@ def firefighter(v):
         if rc and "industry_matches" in v.tools and not v.called("industry_matches"):
             return turn(v.turns, ("industry_matches", {"root_cause_id": rc}))
     rejected = rejected_leads(changes, incidents, cands, weak, cut, v.tools)
+    for inc, rep in zip(incidents, reps):  # a rollback the graph says is risky becomes "hold"
+        safety = v.last("rollback_safety", deploy_id=inc["cause"]["deploy"]["id"]) if inc["cause"] else None
+        if safety and safety.get("verdict") == "risky":
+            rep["recommended_actions"] = [f"Hold the rollback of {safety['deploy']}: {safety['reasons'][0]}; page the owner first."
+                                          if a.startswith("Roll back") else a for a in rep["recommended_actions"]]
     report = assemble(alerts, incidents, reps, rejected, industry_line(v.last("industry_matches")), notes)
+    report["action_plan"] = action_plan(v, incidents, reps)
     report["hypotheses"] = hypotheses(incidents, reps, rejected, changes, cands, weak)
     report["confidence_breakdown"] = confidence_breakdown(incidents[0], reps[0]) if incidents else []
     return turn(v.turns, ("submit_report", report))
+
+
+def action_plan(v, incidents, reps):
+    """What the agent proposes to DO, each step with its graph justification. Nothing runs until a person approves it
+    (POST /api/actions/execute with the access code); execution is simulated and writes only agent-origin nodes."""
+    plan = []
+
+    def add(k, kind, target, title, why, node_ids, path=None, safety=None):
+        plan.append({"id": f"A{len(plan) + 1}", "incident": k, "kind": kind, "target": target, "title": title,
+                     "justification": {"why": why, "node_ids": [x for x in node_ids if x], "path": path or []},
+                     "safety": safety})
+    for k, (inc, rep) in enumerate(zip(incidents, reps)):
+        c, root = inc["cause"], inc.get("root")
+        if c:
+            sf = v.last("rollback_safety", deploy_id=c["deploy"]["id"])
+            safety = {"verdict": sf["verdict"], "reasons": sf["reasons"], "dependents": sf["dependents"],
+                      "later_deploys": [x["id"] for x in sf["later_deploys"]], "blast": sf["blast_of_rollback"]} if sf else None
+            risky = bool(sf) and sf["verdict"] == "risky"
+            add(k, "hold" if risky else "rollback", c["deploy"]["id"],
+                (f"Hold the rollback of {c['deploy']['id']} (risky): page the owner first" if risky else
+                 f"Roll back {c['deploy']['id']} on {svc_name(c['service'])}"),
+                rep["likely_cause"]["explanation"], [c["deploy"]["id"], c["service"]] + c["path"], c["path"], safety)
+        ct = rep.get("contact") or {}
+        if ct.get("person_id"):
+            add(k, "page", ct["person_id"], f"Page {ct['name']}", ct["reason"], [ct["person_id"], (c or {}).get("service")
+                                                                               or (root or {}).get("id") or inc["alerts"][0]])
+        elif ct.get("team_id"):
+            add(k, "escalate", ct["team_id"], f"Escalate to {ct['team_id']} (nobody active to page)", ct["reason"], [ct["team_id"]])
+        for sp in rep.get("suppressed_pages") or []:
+            who = sp.get("person_id") or sp.get("team_id")
+            add(k, "suppress_page", who, f"Don't page {sp.get('name') or who} for {svc_name(sp['alert'])}", sp["reason"],
+                [who, sp["alert"]], (root["paths"].get(sp["alert"]) if root else c and c["path"]) or [])
+        if rep.get("notify"):
+            ids = [n["service_id"] for n in rep["notify"]]
+            add(k, "notify", ",".join(ids), "Tell the owners of " + ", ".join(map(svc_name, ids[:4])) + (" …" if len(ids) > 4 else "")
+                + " (not alerting yet)", f"they call {svc_name(root['id'])} and will feel it next (blast_tiers)", ids)
+        focus = (c or {}).get("service") or (root or {}).get("id") or inc["alerts"][0]
+        add(k, "open_ticket", focus, f"Open a follow-up ticket for {svc_name(focus)}",
+            "track the fix and the lessons on the service that needs them", [focus])
+        if c:
+            for it in (v.last("stale_knowledge", service_id=c["service"]) or {}).get("items", []):
+                if not it.get("flagged"):
+                    add(k, "flag_stale", it["id"], f"Flag {it['title']} as stale", ", ".join(it["reasons"]), [it["id"], c["service"]])
+    return plan
 
 
 def _ev(node_id, claim):
