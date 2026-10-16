@@ -207,13 +207,12 @@ def look_first_from(crit, alert_svcs):
                       f"({crit['algorithm']} {svcs[0]['score']}): check {'their' if len(top) > 1 else 'its'} capacity first."}
 
 
-def incident_report(alerts, inc, who, blast, dec, past, crit, text_only=False, extra=None, contact_reason=None):
-    """One incident: cause (or none), contact, actions. Built only from tool results."""
+def incident_report(alerts, inc, who, blast, dec, past, crit, text_only=False, extra=None, contact=None):
+    """One incident: cause (or none), contact, actions. Built only from tool results. contact: given directly (the
+    no-graph path builds it from the change log / catalog) instead of from who_to_call."""
     a0 = inc["alerts"][0]
     c = inc["cause"]
-    contact, warn = contact_or_team(who)
-    if contact and contact_reason:
-        contact["reason"] = contact_reason
+    contact, warn = (dict(contact), None) if contact else contact_or_team(who)
     actions, evidence = [], []
     look = None
     if c:
@@ -309,13 +308,17 @@ def text_only(v, alerts, changes):
     picks, words = {}, {}
     for a in alerts:
         hits = (v.last("search_knowledge", **_search_args(a)) or {}).get("hits", [])
-        ctx = _words(f"{svc_name(a['service_id'])} {a.get('symptom', '')} " + " ".join(h["title"] for h in hits))
+        ctx = _words(f"{svc_name(a['service_id'])} {a.get('symptom', '')} " + " ".join(f"{h['title']} {h.get('snippet', '')}" for h in hits))
         overlap = lambda ch: len(ctx & _words(f"{svc_name(ch['service'])} {ch['deploy']['summary']} "
                                               f"{(ch.get('ticket') or {}).get('title', '')}"))
         for ch in changes or []:
             words[ch["deploy"]["id"]] = max(words.get(ch["deploy"]["id"], 0), overlap(ch))
         best = max(changes or [], key=lambda ch: (overlap(ch), -ch["deploy"]["minutes_ago"]), default=None)
         picks[a["service_id"]] = best if best and overlap(best) else None  # no word in common: no basis to pick one
+    lookups = _calls_needed(v, [("find_service", {"query": svc_name(ch["service"])}) for ch in picks.values()
+                                if ch and not (ch.get("deployer_id") and ch.get("deployer_status") == "active")])
+    if lookups:  # nobody active shipped it: find the owning team in the catalog
+        return lookups
     incidents, whos, extra = [], {}, {}
     for a in alerts:
         ch = picks[a["service_id"]]
@@ -329,8 +332,15 @@ def text_only(v, alerts, changes):
         incidents.append(inc)
         k = len(incidents) - 1
         if ch and ch.get("deployer_id") and ch.get("deployer_status") == "active":
-            whos[k] = {"service": ch["service"], "maintainers": [], "candidates": [
-                {"id": ch["deployer_id"], "name": ch["deploy"]["by"], "commits": 0, "score": 0}]}
+            whos[k] = {"person_id": ch["deployer_id"], "name": ch["deploy"]["by"],
+                       "reason": f"shipped the change picked for this alert ({ch['deploy']['id']})"}
+        elif ch:
+            m = next((x for x in (v.last("find_service", query=svc_name(ch["service"])) or {}).get("matches", [])
+                      if x["id"] == ch["service"]), None)
+            if m:
+                whos[k] = {"person_id": None, "name": None, "team_id": m["team_id"],
+                           "reason": f"nobody active shipped {ch['deploy']['id']}; escalate to the team that owns "
+                                     f"{svc_name(ch['service'])} ({m['team']}, from the service catalog)"}
         hits = (v.last("search_knowledge", **_search_args(a)) or {}).get("hits", [])
         extra[k] = [{"node_id": h["id"], "claim": f"full-text match for the alert: {h['title']}"} for h in hits[:3]] + [
             {"node_id": c["deploy"]["id"], "claim": "recent change (a lead)"} for c in changes or []] + [
@@ -386,9 +396,8 @@ def firefighter(v):
         if isinstance(out, list):
             return turn(v.turns, *out)
         incidents, whos, extra, words = out
-        reps = [incident_report(alerts, inc, whos.get(k), None, None, None, None, text_only=True, extra=extra.get(k),
-                                contact_reason=f"shipped the change picked for this alert ({inc['cause']['deploy']['id']})"
-                                if k in whos else None) for k, inc in enumerate(incidents)]
+        reps = [incident_report(alerts, inc, None, None, None, None, None, text_only=True, extra=extra.get(k),
+                                contact=whos.get(k)) for k, inc in enumerate(incidents)]
         causes = {i["cause"]["deploy"]["id"] for i in incidents if i["cause"]}
         best = max((words.get(d, 0) for d in causes), default=0)
         rejected = [{"deploy_id": ch["deploy"]["id"], "service_id": ch["service"],

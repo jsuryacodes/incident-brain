@@ -61,3 +61,13 @@ def test_no_algorithms_baseline_is_honest(twins):
     assert r["k-nochange"]["used_algorithms"] == [] and r["k-learned"]["used_algorithms"] == []  # no algo.* query ran
     assert r["k-nochange"]["passed"]  # without PageRank, counting who reaches each service points at the same hubs
     assert r["k-learned"]["passed"]  # traversals alone find the learned-edge cause
+
+
+def test_no_graph_baseline_is_honest(twins):
+    res = fe.run_eval(only=["k-learned", "k-falselead", "n-departed"], profiles=["no_graph"], write=False, generated=0)
+    r = {s["id"]: s["results"]["no_graph"] for s in res["scenarios"]}
+    assert all(x["used_algorithms"] == [] and x["grounding_ok"] for x in r.values())  # loses on the graph, not on format
+    assert r["k-learned"]["path_correct"] == 0  # no dependency data, no path
+    assert r["k-falselead"]["false_leads_rejected"] < r["k-falselead"]["false_leads"]  # word matching takes the bait
+    assert r["n-departed"]["paged_right"] == 1  # automated deploy: it escalates to the owning team from the catalog
+

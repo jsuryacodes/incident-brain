@@ -90,6 +90,15 @@ cell reads "no cause: right", eval.md lists (from the data) the scenarios where 
 **Honest result: on single alerts it ties the full profile (dev 12/12, generated 50/50).** The plain traversals are
 what finds causes; the algorithm calls there only draw paths. The algorithms have to earn their place in Part C.
 
+**08A7** (baseline "no graph", `backend/agents/baseline_text.py`): full-text search (titles + snippets), the service
+catalog (`find_service`, now also returns the owning team id) and the flat change log. It picks the change whose words
+best match the alert and its search hits, pages whoever shipped it, or escalates to the owning team when nobody active
+did. Verifier findings applied: it uses snippets, escalates to the team, `read_source` (never needed) dropped from its
+list, results are now deterministic (the full-text query's LIMIT cut among tied scores in server order; `ORDER BY
+score DESC, node.id`; three identical runs). Brain eval still 15/15 + 3/3.
+**Honest result: dev 0/12 (it can never give a dependency path), causes right 10/13, false leads rejected 4/7, right
+person 4/13, 11 wrong actions; generated: causes right 38/50, 50 wrong actions.**
+
 ---
 
 # Earlier: task 07 (`docs/prompts/07-ui.md`, all DONE)

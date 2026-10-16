@@ -28,10 +28,10 @@ def _deploy(now, did, version, ts, summary, by):
 # ───────────── 1. find_service ─────────────
 Q_FIND = """MATCH (s:Service)<-[:OWNS]-(t:Team)
 WHERE toLower(s.name) CONTAINS $q OR toLower(s.id) CONTAINS $q
-RETURN s.id, s.name, s.tier, t.name"""
+RETURN s.id, s.name, s.tier, t.name, t.id"""
 Q_FIND_TOKENS = """MATCH (s:Service)<-[:OWNS]-(t:Team)
 WHERE all(tok IN $tokens WHERE toLower(s.name) CONTAINS tok OR toLower(s.description) CONTAINS tok)
-RETURN s.id, s.name, s.tier, t.name"""
+RETURN s.id, s.name, s.tier, t.name, t.id"""
 
 
 def find_service(ctx, query=""):
@@ -44,7 +44,7 @@ def find_service(ctx, query=""):
         tokens = re.findall(r"[a-z0-9]+", q)
         rows = rec.q(Q_FIND_TOKENS, {"tokens": tokens}) if tokens else []
     rows.sort(key=lambda r: (0 if r[1] == q else 1 if r[1].startswith(q) else 2, r[1]))
-    matches = [{"id": r[0], "name": r[1], "tier": r[2], "team": r[3]} for r in rows[:5]]
+    matches = [{"id": r[0], "name": r[1], "tier": r[2], "team": r[3], "team_id": r[4]} for r in rows[:5]]
     rec.hl(*[m["id"] for m in matches])
     res = {"query": query, "matches": matches}
     if not matches:
@@ -439,7 +439,7 @@ Q_SEARCH = """CALL db.idx.fulltext.queryNodes($label, $q) YIELD node, score
 OPTIONAL MATCH (a:Person)-[:AUTHORED]->(node)
 RETURN node.id, score, coalesce(node.title, node.key, node.name), coalesce(node.text, node.rationale, node.summary, node.steps, node.description),
        coalesce(node.ts, node.updated_at, node.decided_at, node.started_at, node.created_at), a.name, a.status
-ORDER BY score DESC LIMIT $limit"""
+ORDER BY score DESC, node.id LIMIT $limit"""
 _STOP = {"the", "a", "an", "of", "to", "in", "on", "and", "or", "is", "are", "was", "we", "why", "did", "do", "how", "what", "for", "it"}
 
 

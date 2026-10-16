@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-16 17:59 UTC",
+ "generated_at": "2026-10-16 18:02 UTC",
  "mode": "mock",
  "profiles": {
   "full": {
@@ -9,6 +9,10 @@
   "no_algo": {
    "title": "Graph, no algorithms",
    "about": "traversals and full-text only: no PageRank, betweenness, shortest-path or other algo.* procedure (removed: dependency_path; shortest paths become plain Cypher; instead of PageRank, critical_services can only count how many services reach each one)"
+  },
+  "no_graph": {
+   "title": "No graph (full-text + change log)",
+   "about": "full-text search over docs, tickets and chats, the service catalog (name, owning team) and a flat change log (no dependency traversals, no algorithms)"
   }
  },
  "scenarios": [
@@ -181,6 +185,50 @@
        {
         "tool": "submit_report",
         "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v1.10.0 on sanctions-screening, deployed 25 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v1.10.0 on sanctions-screening, deployed 25 min ago. Contact Ravi Shankar.",
+      "status": "ok",
+      "causes": [
+       "dep:sanctions-screening-v1.10.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: sanctions-screening 25 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 16 hit(s): chat:platform-kafka-retention"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v1.10.0 on sanctions-screening, deployed 25 min ago. Contact Ravi Shankar."
        }
       ]
      }
@@ -381,6 +429,63 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 2,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [
+      "dep:bank-connector-v1.20.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:merchant-dashboard-v7.10.0 on merchant-dashboard, deployed 5 min ago. Contact Fatima Zahra.",
+      "status": "ok",
+      "causes": [
+       "dep:merchant-dashboard-v7.10.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v1.15.0",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 4 for the change picked; no dependency data to check it"
+       },
+       {
+        "deploy_id": "dep:bank-connector-v1.20.0",
+        "service_id": "svc:bank-connector",
+        "reason": "3 word(s) in common with the alert vs 4 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 3 change(s) in 120 min: merchant-dashboard 5 min ago, email-sender 9 min ago, bank-connector 45 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-config-load"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:merchant-dashboard-v7.10.0 on merchant-dashboard, deployed 5 min ago. Contact Fatima Zahra."
+       }
+      ]
+     }
     }
    }
   },
@@ -554,6 +659,50 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": false,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": false,
+     "pages_sent": 0,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "No recent change explains the payouts-service alert; the cause is unknown.",
+      "status": "ok",
+      "causes": [
+       null
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 0 change(s) in 120 min"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 33 hit(s): chat:payouts-bank-cutoff"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "No recent change explains the payouts-service alert; the cause is unknown."
+       }
+      ]
+     }
     }
    }
   },
@@ -718,6 +867,50 @@
        {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-2026-031 (fixed by Ben Walker)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "webhook-dispatcher alert most likely caused by dep:reconciliation-job-v1.8.0 on reconciliation-job, deployed 20 min ago. Contact Tomasz Kowalski."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "webhook-dispatcher alert most likely caused by dep:reconciliation-job-v1.8.0 on reconciliation-job, deployed 20 min ago. Contact Tomasz Kowalski.",
+      "status": "ok",
+      "causes": [
+       "dep:reconciliation-job-v1.8.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: reconciliation-job 20 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 21 hit(s): chat:oncall-handoff-week-41"
        },
        {
         "tool": "submit_report",
@@ -911,6 +1104,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "reconciliation-job alert most likely caused by dep:fx-rates-service-v2.3.0 on fx-rates-service, deployed 30 min ago. Contact Sofia Alvarez.",
+      "status": "ok",
+      "causes": [
+       "dep:fx-rates-service-v2.3.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:feature-flags-v1.13.0",
+        "service_id": "svc:feature-flags",
+        "reason": "1 word(s) in common with the alert vs 4 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: feature-flags 8 min ago, fx-rates-service 30 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 13 hit(s): chat:payments-core-ledger-dupes"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "reconciliation-job alert most likely caused by dep:fx-rates-service-v2.3.0 on fx-rates-service, deployed 30 min ago. Contact Sofia Alvarez."
+       }
+      ]
+     }
     }
    }
   },
@@ -1082,6 +1325,58 @@
        {
         "tool": "submit_report",
         "summary": "merchant-dashboard alert most likely caused by dep:reporting-service-v1.4.0 on reporting-service, deployed 18 min ago. Escalate to team:merchant-exp."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:reporting-service-v1.4.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 0,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "No recent change explains the merchant-dashboard alert; the cause is unknown.",
+      "status": "ok",
+      "causes": [
+       null
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:reporting-service-v1.4.0",
+        "service_id": "svc:reporting-service",
+        "reason": "no word in common with the alert; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: reporting-service 18 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 29 hit(s): chat:platform-kafka-retention"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "No recent change explains the merchant-dashboard alert; the cause is unknown."
        }
       ]
      }
@@ -1263,6 +1558,50 @@
        {
         "tool": "submit_report",
         "summary": "payouts-service alert most likely caused by dep:risk-rules-v2.8.1 on risk-rules, deployed 5 min ago. The change contradicts decision dec:rules-cache-ttl. Contact Priya Nair."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:risk-rules-v2.8.1 on risk-rules, deployed 5 min ago. Contact Leo Park.",
+      "status": "ok",
+      "causes": [
+       "dep:risk-rules-v2.8.1"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: risk-rules 5 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-config-load"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:risk-rules-v2.8.1 on risk-rules, deployed 5 min ago. Contact Leo Park."
        }
       ]
      }
@@ -1466,6 +1805,50 @@
        {
         "tool": "submit_report",
         "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db first."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": false,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": false,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:risk-rules-v2.8.1 on risk-rules, deployed 5 min ago. Contact Leo Park.",
+      "status": "ok",
+      "causes": [
+       "dep:risk-rules-v2.8.1"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: risk-rules 5 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-config-load"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:risk-rules-v2.8.1 on risk-rules, deployed 5 min ago. Contact Leo Park."
        }
       ]
      }
@@ -1691,6 +2074,55 @@
        {
         "tool": "submit_report",
         "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": false,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 3,
+     "look_first_ok": null,
+     "pages_sent": 2,
+     "pages_suppressed": 0,
+     "tool_calls": 3,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "2 alerts, 2 separate incidents: appointments -> dep:notifications-v3.3.0; lab-results -> dep:records-db-v15.2.0.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v3.3.0",
+       "dep:records-db-v15.2.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: records-db 6 min ago, notifications 22 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 8 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "2 alerts, 2 separate incidents: appointments -> dep:notifications-v3.3.0; lab-results -> dep:records-db-v15.2.0."
        }
       ]
      }
@@ -1942,6 +2374,55 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 2,
+     "path_correct": 0,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 2,
+     "pages_suppressed": 0,
+     "tool_calls": 3,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "2 alerts, 2 separate incidents: appointments -> dep:notifications-v3.3.0; identity -> dep:audit-trail-v2.5.0.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v3.3.0",
+       "dep:audit-trail-v2.5.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: audit-trail 12 min ago, notifications 25 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 8 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 2 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "2 alerts, 2 separate incidents: appointments -> dep:notifications-v3.3.0; identity -> dep:audit-trail-v2.5.0."
+       }
+      ]
+     }
     }
    }
   },
@@ -2139,6 +2620,61 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 2,
+     "false_leads_rejected": 2,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:records-db-v15.2.0 on records-db, deployed 40 min ago. Contact Hana Sato.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v15.2.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v14.9.0",
+        "service_id": "svc:scheduler-db",
+        "reason": "no word in common with the alert vs 4 for the change picked; no dependency data to check it"
+       },
+       {
+        "deploy_id": "dep:identity-v5.4.0",
+        "service_id": "svc:identity",
+        "reason": "no word in common with the alert vs 4 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 3 change(s) in 120 min: scheduler-db 4 min ago, identity 10 min ago, records-db 40 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:records-db-v15.2.0 on records-db, deployed 40 min ago. Contact Hana Sato."
+       }
+      ]
+     }
     }
    }
   },
@@ -2307,6 +2843,54 @@
        {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:sms-gateway-v1.8.0 on sms-gateway, deployed 15 min ago. Escalate to team:clinical-platform."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 3,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:sms-gateway-v1.8.0 on sms-gateway, deployed 15 min ago. Escalate to team:clinical-platform.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v1.8.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: sms-gateway 15 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 8 hit(s): chat:platform-sms-retries"
+       },
+       {
+        "tool": "find_service",
+        "summary": "find_service → matches: svc:sms-gateway"
        },
        {
         "tool": "submit_report",
@@ -2503,6 +3087,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.30.0 on kyc-service, deployed 23 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:kyc-service-v9.30.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.30.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 16 min ago, kyc-service 23 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 31 hit(s): chat:payments-core-ledger-dupes"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.30.0 on kyc-service, deployed 23 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
     }
    }
   },
@@ -2686,6 +3320,63 @@
        {
         "tool": "submit_report",
         "summary": "lab-results alert most likely caused by dep:audit-trail-v9.31.0 on audit-trail, deployed 63 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [
+      "dep:audit-trail-v9.31.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 0,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "No recent change explains the lab-results alert; the cause is unknown.",
+      "status": "ok",
+      "causes": [
+       null
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.31.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "no word in common with the alert; no dependency data to check it"
+       },
+       {
+        "deploy_id": "dep:audit-trail-v9.31.0",
+        "service_id": "svc:audit-trail",
+        "reason": "no word in common with the alert; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 26 min ago, audit-trail 63 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 7 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "No recent change explains the lab-results alert; the cause is unknown."
        }
       ]
      }
@@ -2878,6 +3569,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:sanctions-screening-v9.32.0 on sanctions-screening, deployed 50 min ago. Contact Elena Petrova.",
+      "status": "ok",
+      "causes": [
+       "dep:sanctions-screening-v9.32.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.32.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 40 min ago, sanctions-screening 50 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-sanctions-refresh"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:sanctions-screening-v9.32.0 on sanctions-screening, deployed 50 min ago. Contact Elena Petrova."
+       }
+      ]
+     }
     }
    }
   },
@@ -3048,6 +3789,50 @@
        {
         "tool": "submit_report",
         "summary": "patient-portal alert most likely caused by dep:records-db-v9.33.0 on records-db, deployed 74 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:records-db-v9.33.0 on records-db, deployed 74 min ago. Contact Ines Moreau.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v9.33.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: records-db 74 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 7 hit(s): chat:platform-sms-retries"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:records-db-v9.33.0 on records-db, deployed 74 min ago. Contact Ines Moreau."
        }
       ]
      }
@@ -3240,6 +4025,58 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:kyc-service-v9.34.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:email-sender-v9.34.1 on email-sender, deployed 104 min ago. Contact Elena Petrova.",
+      "status": "ok",
+      "causes": [
+       "dep:email-sender-v9.34.1"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:kyc-service-v9.34.0",
+        "service_id": "svc:kyc-service",
+        "reason": "1 word(s) in common with the alert vs 2 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: kyc-service 58 min ago, email-sender 104 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 28 hit(s): chat:oncall-handoff-week-41"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:email-sender-v9.34.1 on email-sender, deployed 104 min ago. Contact Elena Petrova."
+       }
+      ]
+     }
     }
    }
   },
@@ -3410,6 +4247,50 @@
        {
         "tool": "submit_report",
         "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.35.0 on scheduler-db, deployed 67 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.35.0 on scheduler-db, deployed 67 min ago. Contact Sam Reyes.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v9.35.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: scheduler-db 67 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.35.0 on scheduler-db, deployed 67 min ago. Contact Sam Reyes."
        }
       ]
      }
@@ -3601,6 +4482,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "api-gateway alert most likely caused by dep:kyc-service-v9.36.0 on kyc-service, deployed 16 min ago. Contact Priya Nair.",
+      "status": "ok",
+      "causes": [
+       "dep:kyc-service-v9.36.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.36.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: kyc-service 16 min ago, email-sender 58 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 29 hit(s): chat:payments-core-ledger-dupes"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "api-gateway alert most likely caused by dep:kyc-service-v9.36.0 on kyc-service, deployed 16 min ago. Contact Priya Nair."
+       }
+      ]
+     }
     }
    }
   },
@@ -3770,6 +4701,50 @@
        {
         "tool": "submit_report",
         "summary": "patient-portal alert most likely caused by dep:lab-results-v9.37.0 on lab-results, deployed 54 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:lab-results-v9.37.0 on lab-results, deployed 54 min ago. Contact Ines Moreau.",
+      "status": "ok",
+      "causes": [
+       "dep:lab-results-v9.37.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: lab-results 54 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:lab-results-v9.37.0 on lab-results, deployed 54 min ago. Contact Ines Moreau."
        }
       ]
      }
@@ -3959,6 +4934,56 @@
        {
         "tool": "submit_report",
         "summary": "web-checkout alert most likely caused by dep:kyc-service-v9.38.0 on kyc-service, deployed 21 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:kyc-service-v9.38.0 on kyc-service, deployed 21 min ago. Contact Dana Okafor.",
+      "status": "ok",
+      "causes": [
+       "dep:kyc-service-v9.38.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.38.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: kyc-service 21 min ago, email-sender 97 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 29 hit(s): chat:risk-eng-sanctions-refresh"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:kyc-service-v9.38.0 on kyc-service, deployed 21 min ago. Contact Dana Okafor."
        }
       ]
      }
@@ -4156,6 +5181,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:notifications-v9.39.0 on notifications, deployed 81 min ago. Contact Hana Sato.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.39.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:identity-v9.39.1",
+        "service_id": "svc:identity",
+        "reason": "1 word(s) in common with the alert vs 1 for the change picked (a tie: the newer change was picked); no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: notifications 81 min ago, identity 110 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 6 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:notifications-v9.39.0 on notifications, deployed 81 min ago. Contact Hana Sato."
+       }
+      ]
+     }
     }
    }
   },
@@ -4343,6 +5418,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:auth-service-v9.40.0 on auth-service, deployed 70 min ago. Contact Omar Haddad.",
+      "status": "ok",
+      "causes": [
+       "dep:auth-service-v9.40.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.40.1",
+        "service_id": "svc:email-sender",
+        "reason": "2 word(s) in common with the alert vs 3 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 58 min ago, auth-service 70 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 28 hit(s): chat:merchant-exp-onboarding-cache"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:auth-service-v9.40.0 on auth-service, deployed 70 min ago. Contact Omar Haddad."
+       }
+      ]
+     }
     }
    }
   },
@@ -4513,6 +5638,50 @@
        {
         "tool": "submit_report",
         "summary": "patient-portal alert most likely caused by dep:records-db-v9.41.0 on records-db, deployed 68 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:records-db-v9.41.0 on records-db, deployed 68 min ago. Contact Hana Sato.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v9.41.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: records-db 68 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 7 hit(s): chat:platform-sms-retries"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:records-db-v9.41.0 on records-db, deployed 68 min ago. Contact Hana Sato."
        }
       ]
      }
@@ -4704,6 +5873,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:audit-log-v9.42.0 on audit-log, deployed 41 min ago. Contact Nikhil Rao.",
+      "status": "ok",
+      "causes": [
+       "dep:audit-log-v9.42.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.42.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 30 min ago, audit-log 41 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-sanctions-refresh"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:audit-log-v9.42.0 on audit-log, deployed 41 min ago. Contact Nikhil Rao."
+       }
+      ]
+     }
     }
    }
   },
@@ -4874,6 +6093,50 @@
        {
         "tool": "submit_report",
         "summary": "patient-portal alert most likely caused by dep:records-db-v9.43.0 on records-db, deployed 38 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:records-db-v9.43.0 on records-db, deployed 38 min ago. Contact Tariq Hassan.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v9.43.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: records-db 38 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:records-db-v9.43.0 on records-db, deployed 38 min ago. Contact Tariq Hassan."
        }
       ]
      }
@@ -5071,6 +6334,63 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [
+      "dep:api-gateway-v9.44.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 0,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "No recent change explains the merchant-dashboard alert; the cause is unknown.",
+      "status": "ok",
+      "causes": [
+       null
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:api-gateway-v9.44.0",
+        "service_id": "svc:api-gateway",
+        "reason": "no word in common with the alert; no dependency data to check it"
+       },
+       {
+        "deploy_id": "dep:email-sender-v9.44.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: api-gateway 69 min ago, email-sender 109 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-sanctions-refresh"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "No recent change explains the merchant-dashboard alert; the cause is unknown."
+       }
+      ]
+     }
     }
    }
   },
@@ -5265,6 +6585,58 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:notifications-v9.45.0"
+     ],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:scheduler-db-v9.45.1 on scheduler-db, deployed 42 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v9.45.1"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:notifications-v9.45.0",
+        "service_id": "svc:notifications",
+        "reason": "1 word(s) in common with the alert vs 2 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 42 min ago, notifications 66 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 8 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:scheduler-db-v9.45.1 on scheduler-db, deployed 42 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
     }
    }
   },
@@ -5453,6 +6825,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "reconciliation-job alert most likely caused by dep:config-db-v9.46.0 on config-db, deployed 36 min ago. Contact Tomasz Kowalski.",
+      "status": "ok",
+      "causes": [
+       "dep:config-db-v9.46.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:risk-rules-v9.46.1",
+        "service_id": "svc:risk-rules",
+        "reason": "2 word(s) in common with the alert vs 3 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: risk-rules 34 min ago, config-db 36 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 28 hit(s): chat:payments-core-ledger-dupes"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "reconciliation-job alert most likely caused by dep:config-db-v9.46.0 on config-db, deployed 36 min ago. Contact Tomasz Kowalski."
+       }
+      ]
+     }
     }
    }
   },
@@ -5623,6 +7045,50 @@
        {
         "tool": "submit_report",
         "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.47.0 on scheduler-db, deployed 27 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.47.0 on scheduler-db, deployed 27 min ago. Contact Ines Moreau.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v9.47.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: scheduler-db 27 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.47.0 on scheduler-db, deployed 27 min ago. Contact Ines Moreau."
        }
       ]
      }
@@ -5815,6 +7281,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.48.0 on ledger-db, deployed 90 min ago. Contact Jonas Eriksson.",
+      "status": "ok",
+      "causes": [
+       "dep:ledger-db-v9.48.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.48.1",
+        "service_id": "svc:email-sender",
+        "reason": "1 word(s) in common with the alert vs 2 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 26 min ago, ledger-db 90 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 21 hit(s): chat:oncall-handoff-week-41"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.48.0 on ledger-db, deployed 90 min ago. Contact Jonas Eriksson."
+       }
+      ]
+     }
     }
    }
   },
@@ -5998,6 +7514,56 @@
        {
         "tool": "submit_report",
         "summary": "lab-results alert most likely caused by dep:records-db-v9.49.0 on records-db, deployed 45 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:records-db-v9.49.0 on records-db, deployed 45 min ago. Contact Hana Sato.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v9.49.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.49.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: records-db 45 min ago, scheduler-db 75 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:records-db-v9.49.0 on records-db, deployed 45 min ago. Contact Hana Sato."
        }
       ]
      }
@@ -6187,6 +7753,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "api-gateway alert most likely caused by dep:config-service-v9.50.0 on config-service, deployed 89 min ago. Contact Nikhil Rao.",
+      "status": "ok",
+      "causes": [
+       "dep:config-service-v9.50.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.50.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 2 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 25 min ago, config-service 89 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 22 hit(s): chat:oncall-handoff-week-41"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "api-gateway alert most likely caused by dep:config-service-v9.50.0 on config-service, deployed 89 min ago. Contact Nikhil Rao."
+       }
+      ]
+     }
     }
    }
   },
@@ -6356,6 +7972,50 @@
        {
         "tool": "submit_report",
         "summary": "patient-portal alert most likely caused by dep:lab-results-v9.51.0 on lab-results, deployed 47 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:lab-results-v9.51.0 on lab-results, deployed 47 min ago. Contact Ines Moreau.",
+      "status": "ok",
+      "causes": [
+       "dep:lab-results-v9.51.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: lab-results 47 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 7 hit(s): chat:platform-sms-retries"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:lab-results-v9.51.0 on lab-results, deployed 47 min ago. Contact Ines Moreau."
        }
       ]
      }
@@ -6546,6 +8206,58 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:config-db-v9.52.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:risk-rules-v9.52.1 on risk-rules, deployed 24 min ago. Contact Camila Torres.",
+      "status": "ok",
+      "causes": [
+       "dep:risk-rules-v9.52.1"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:config-db-v9.52.0",
+        "service_id": "svc:config-db",
+        "reason": "2 word(s) in common with the alert vs 3 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: risk-rules 24 min ago, config-db 26 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 30 hit(s): chat:risk-eng-config-load"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:risk-rules-v9.52.1 on risk-rules, deployed 24 min ago. Contact Camila Torres."
+       }
+      ]
+     }
     }
    }
   },
@@ -6716,6 +8428,50 @@
        {
         "tool": "submit_report",
         "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.53.0 on scheduler-db, deployed 31 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.53.0 on scheduler-db, deployed 31 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v9.53.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: scheduler-db 31 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.53.0 on scheduler-db, deployed 31 min ago. Contact Maya Okoro."
        }
       ]
      }
@@ -6902,6 +8658,56 @@
        {
         "tool": "submit_report",
         "summary": "payouts-service alert most likely caused by dep:config-service-v9.54.0 on config-service, deployed 56 min ago. Contact Omar Haddad."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:config-service-v9.54.0 on config-service, deployed 56 min ago. Contact Nikhil Rao.",
+      "status": "ok",
+      "causes": [
+       "dep:config-service-v9.54.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:sanctions-screening-v9.54.1",
+        "service_id": "svc:sanctions-screening",
+        "reason": "1 word(s) in common with the alert vs 2 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: sanctions-screening 26 min ago, config-service 56 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 29 hit(s): chat:oncall-handoff-week-41"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:config-service-v9.54.0 on config-service, deployed 56 min ago. Contact Nikhil Rao."
        }
       ]
      }
@@ -7099,6 +8905,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:notifications-v9.55.0 on notifications, deployed 59 min ago. Contact Ines Moreau.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.55.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:audit-trail-v9.55.1",
+        "service_id": "svc:audit-trail",
+        "reason": "2 word(s) in common with the alert vs 2 for the change picked (a tie: the newer change was picked); no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: notifications 59 min ago, audit-trail 75 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 8 hit(s): chat:platform-sms-retries"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:notifications-v9.55.0 on notifications, deployed 59 min ago. Contact Ines Moreau."
+       }
+      ]
+     }
     }
    }
   },
@@ -7285,6 +9141,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:config-service-v9.56.0 on config-service, deployed 48 min ago. Contact Nikhil Rao.",
+      "status": "ok",
+      "causes": [
+       "dep:config-service-v9.56.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:fraud-scoring-v9.56.1",
+        "service_id": "svc:fraud-scoring",
+        "reason": "no word in common with the alert vs 3 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: fraud-scoring 29 min ago, config-service 48 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 32 hit(s): chat:payouts-bank-cutoff"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:config-service-v9.56.0 on config-service, deployed 48 min ago. Contact Nikhil Rao."
+       }
+      ]
+     }
     }
    }
   },
@@ -7468,6 +9374,58 @@
        {
         "tool": "submit_report",
         "summary": "appointments alert most likely caused by dep:scheduler-db-v9.57.0 on scheduler-db, deployed 77 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:scheduler-db-v9.57.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:audit-trail-v9.57.1 on audit-trail, deployed 55 min ago. Contact Victor Lund.",
+      "status": "ok",
+      "causes": [
+       "dep:audit-trail-v9.57.1"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.57.0",
+        "service_id": "svc:scheduler-db",
+        "reason": "2 word(s) in common with the alert vs 2 for the change picked (a tie: the newer change was picked); no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: audit-trail 55 min ago, scheduler-db 77 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 8 hit(s): chat:platform-sms-retries"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:audit-trail-v9.57.1 on audit-trail, deployed 55 min ago. Contact Victor Lund."
        }
       ]
      }
@@ -7660,6 +9618,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.58.0 on ledger-db, deployed 74 min ago. Contact Grace Liu.",
+      "status": "ok",
+      "causes": [
+       "dep:ledger-db-v9.58.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.58.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 28 min ago, ledger-db 74 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 19 hit(s): chat:payouts-bank-cutoff"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.58.0 on ledger-db, deployed 74 min ago. Contact Grace Liu."
+       }
+      ]
+     }
     }
    }
   },
@@ -7847,6 +9855,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.59.0 on sms-gateway, deployed 63 min ago. Contact Lena Fischer.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v9.59.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.59.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "1 word(s) in common with the alert vs 2 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: sms-gateway 63 min ago, scheduler-db 70 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.59.0 on sms-gateway, deployed 63 min ago. Contact Lena Fischer."
+       }
+      ]
+     }
     }
    }
   },
@@ -8030,6 +10088,56 @@
        {
         "tool": "submit_report",
         "summary": "payments-api alert most likely caused by dep:kafka-events-v9.60.0 on kafka-events, deployed 72 min ago. Contact Nikhil Rao."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "payments-api alert most likely caused by dep:kafka-events-v9.60.0 on kafka-events, deployed 72 min ago. Contact Grace Liu.",
+      "status": "ok",
+      "causes": [
+       "dep:kafka-events-v9.60.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.60.1",
+        "service_id": "svc:email-sender",
+        "reason": "1 word(s) in common with the alert vs 1 for the change picked (a tie: the newer change was picked); no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: kafka-events 72 min ago, email-sender 101 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 26 hit(s): chat:payments-core-ledger-dupes"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payments-api alert most likely caused by dep:kafka-events-v9.60.0 on kafka-events, deployed 72 min ago. Contact Grace Liu."
        }
       ]
      }
@@ -8227,6 +10335,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:notifications-v9.61.0 on notifications, deployed 20 min ago. Contact Lena Fischer.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.61.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:identity-v9.61.1",
+        "service_id": "svc:identity",
+        "reason": "no word in common with the alert vs 3 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: notifications 20 min ago, identity 56 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 8 hit(s): chat:platform-sms-retries"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:notifications-v9.61.0 on notifications, deployed 20 min ago. Contact Lena Fischer."
+       }
+      ]
+     }
     }
    }
   },
@@ -8413,6 +10571,58 @@
        {
         "tool": "submit_report",
         "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v9.62.0 on sanctions-screening, deployed 58 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:sanctions-screening-v9.62.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:email-sender-v9.62.1 on email-sender, deployed 48 min ago. Contact Grace Liu.",
+      "status": "ok",
+      "causes": [
+       "dep:email-sender-v9.62.1"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:sanctions-screening-v9.62.0",
+        "service_id": "svc:sanctions-screening",
+        "reason": "1 word(s) in common with the alert vs 1 for the change picked (a tie: the newer change was picked); no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 48 min ago, sanctions-screening 58 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 16 hit(s): chat:merchant-exp-onboarding-cache"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:email-sender-v9.62.1 on email-sender, deployed 48 min ago. Contact Grace Liu."
        }
       ]
      }
@@ -8610,6 +10820,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:notifications-v9.63.0 on notifications, deployed 24 min ago. Contact Hana Sato.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.63.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.63.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 15 min ago, notifications 24 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:notifications-v9.63.0 on notifications, deployed 24 min ago. Contact Hana Sato."
+       }
+      ]
+     }
     }
    }
   },
@@ -8793,6 +11053,58 @@
        {
         "tool": "submit_report",
         "summary": "webhook-dispatcher alert most likely caused by dep:config-service-v9.64.0 on config-service, deployed 27 min ago. Contact Omar Haddad."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:config-service-v9.64.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "webhook-dispatcher alert most likely caused by dep:email-sender-v9.64.1 on email-sender, deployed 27 min ago. Contact Nikhil Rao.",
+      "status": "ok",
+      "causes": [
+       "dep:email-sender-v9.64.1"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:config-service-v9.64.0",
+        "service_id": "svc:config-service",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: config-service 27 min ago, email-sender 27 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 19 hit(s): chat:payments-card-timeouts"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "webhook-dispatcher alert most likely caused by dep:email-sender-v9.64.1 on email-sender, deployed 27 min ago. Contact Nikhil Rao."
        }
       ]
      }
@@ -8980,6 +11292,56 @@
        {
         "tool": "submit_report",
         "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.65.0 on sms-gateway, deployed 24 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.65.0 on sms-gateway, deployed 24 min ago. Contact Ines Moreau.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v9.65.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.65.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "no word in common with the alert vs 2 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 19 min ago, sms-gateway 24 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.65.0 on sms-gateway, deployed 24 min ago. Contact Ines Moreau."
        }
       ]
      }
@@ -9172,6 +11534,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.66.0 on kyc-service, deployed 24 min ago. Contact Ben Walker.",
+      "status": "ok",
+      "causes": [
+       "dep:kyc-service-v9.66.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.66.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 3 min ago, kyc-service 24 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 31 hit(s): chat:risk-eng-sanctions-refresh"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.66.0 on kyc-service, deployed 24 min ago. Contact Ben Walker."
+       }
+      ]
+     }
     }
    }
   },
@@ -9337,6 +11749,50 @@
        {
         "tool": "past_incidents",
         "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:appointments-v9.67.0 on appointments, deployed 78 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:appointments-v9.67.0 on appointments, deployed 78 min ago. Contact Tariq Hassan.",
+      "status": "ok",
+      "causes": [
+       "dep:appointments-v9.67.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: appointments 78 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
        },
        {
         "tool": "submit_report",
@@ -9530,6 +11986,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "auth-service alert most likely caused by dep:config-service-v9.68.0 on config-service, deployed 30 min ago. Contact Elena Petrova.",
+      "status": "ok",
+      "causes": [
+       "dep:config-service-v9.68.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:fx-rates-service-v9.68.1",
+        "service_id": "svc:fx-rates-service",
+        "reason": "1 word(s) in common with the alert vs 3 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: fx-rates-service 17 min ago, config-service 30 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 30 hit(s): chat:platform-kafka-retention"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "auth-service alert most likely caused by dep:config-service-v9.68.0 on config-service, deployed 30 min ago. Contact Elena Petrova."
+       }
+      ]
+     }
     }
    }
   },
@@ -9713,6 +12219,63 @@
        {
         "tool": "submit_report",
         "summary": "lab-results alert most likely caused by dep:audit-trail-v9.69.0 on audit-trail, deployed 44 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [
+      "dep:audit-trail-v9.69.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 0,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "No recent change explains the lab-results alert; the cause is unknown.",
+      "status": "ok",
+      "causes": [
+       null
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:audit-trail-v9.69.0",
+        "service_id": "svc:audit-trail",
+        "reason": "no word in common with the alert; no dependency data to check it"
+       },
+       {
+        "deploy_id": "dep:scheduler-db-v9.69.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "no word in common with the alert; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: audit-trail 44 min ago, scheduler-db 65 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 7 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "No recent change explains the lab-results alert; the cause is unknown."
        }
       ]
      }
@@ -9904,6 +12467,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:audit-log-v9.70.0 on audit-log, deployed 49 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:audit-log-v9.70.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.70.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: audit-log 49 min ago, email-sender 88 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 32 hit(s): chat:payments-core-ledger-dupes"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:audit-log-v9.70.0 on audit-log, deployed 49 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
     }
    }
   },
@@ -10084,6 +12697,56 @@
        {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.71.0 on sms-gateway, deployed 16 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.71.0 on sms-gateway, deployed 16 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v9.71.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.71.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: sms-gateway 16 min ago, scheduler-db 43 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 7 hit(s): chat:pe-portal-slow-results"
        },
        {
         "tool": "submit_report",
@@ -10278,6 +12941,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "fraud-scoring alert most likely caused by dep:rules-store-db-v9.72.0 on rules-store-db, deployed 57 min ago. Contact Ben Walker.",
+      "status": "ok",
+      "causes": [
+       "dep:rules-store-db-v9.72.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:ledger-service-v9.72.1",
+        "service_id": "svc:ledger-service",
+        "reason": "2 word(s) in common with the alert vs 3 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: ledger-service 21 min ago, rules-store-db 57 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 18 hit(s): chat:risk-eng-config-load"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "fraud-scoring alert most likely caused by dep:rules-store-db-v9.72.0 on rules-store-db, deployed 57 min ago. Contact Ben Walker."
+       }
+      ]
+     }
     }
    }
   },
@@ -10444,6 +13157,50 @@
        {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:records-db-v9.73.0 on records-db, deployed 45 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:records-db-v9.73.0 on records-db, deployed 45 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v9.73.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: records-db 45 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
        },
        {
         "tool": "submit_report",
@@ -10638,6 +13395,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "payments-api alert most likely caused by dep:ledger-db-v9.74.0 on ledger-db, deployed 19 min ago. Contact Priya Nair.",
+      "status": "ok",
+      "causes": [
+       "dep:ledger-db-v9.74.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.74.1",
+        "service_id": "svc:email-sender",
+        "reason": "1 word(s) in common with the alert vs 2 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: ledger-db 19 min ago, email-sender 37 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 27 hit(s): chat:payments-core-ledger-dupes"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payments-api alert most likely caused by dep:ledger-db-v9.74.0 on ledger-db, deployed 19 min ago. Contact Priya Nair."
+       }
+      ]
+     }
     }
    }
   },
@@ -10817,6 +13624,56 @@
        {
         "tool": "past_incidents",
         "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "notifications alert most likely caused by dep:sms-gateway-v9.75.0 on sms-gateway, deployed 29 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "notifications alert most likely caused by dep:sms-gateway-v9.75.0 on sms-gateway, deployed 29 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v9.75.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.75.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 25 min ago, sms-gateway 29 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 8 hit(s): chat:platform-sms-retries"
        },
        {
         "tool": "submit_report",
@@ -11021,6 +13878,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:risk-rules-v9.76.0 on risk-rules, deployed 61 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:risk-rules-v9.76.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.76.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 3 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 56 min ago, risk-rules 61 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 17 hit(s): chat:eng-all-release-freeze"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:risk-rules-v9.76.0 on risk-rules, deployed 61 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
     }
    }
   },
@@ -11215,6 +14122,56 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:notifications-v9.77.0 on notifications, deployed 74 min ago. Contact Lena Fischer.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.77.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.77.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "no word in common with the alert vs 1 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 49 min ago, notifications 74 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 7 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:notifications-v9.77.0 on notifications, deployed 74 min ago. Contact Lena Fischer."
+       }
+      ]
+     }
     }
    }
   },
@@ -11400,6 +14357,56 @@
        {
         "tool": "submit_report",
         "summary": "merchant-dashboard alert most likely caused by dep:fraud-scoring-v9.78.0 on fraud-scoring, deployed 22 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:fraud-scoring-v9.78.0 on fraud-scoring, deployed 22 min ago. Contact Grace Liu.",
+      "status": "ok",
+      "causes": [
+       "dep:fraud-scoring-v9.78.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.78.1",
+        "service_id": "svc:email-sender",
+        "reason": "no word in common with the alert vs 3 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 15 min ago, fraud-scoring 22 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 28 hit(s): chat:risk-eng-sanctions-refresh"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:fraud-scoring-v9.78.0 on fraud-scoring, deployed 22 min ago. Contact Grace Liu."
        }
       ]
      }
@@ -11590,11 +14597,63 @@
        }
       ]
      }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:sms-gateway-v9.79.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:audit-trail-v9.79.1 on audit-trail, deployed 6 min ago. Contact Hana Sato.",
+      "status": "ok",
+      "causes": [
+       "dep:audit-trail-v9.79.1"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:sms-gateway-v9.79.0",
+        "service_id": "svc:sms-gateway",
+        "reason": "1 word(s) in common with the alert vs 1 for the change picked (a tie: the newer change was picked); no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: audit-trail 6 min ago, sms-gateway 57 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 6 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:audit-trail-v9.79.1 on audit-trail, deployed 6 min ago. Contact Hana Sato."
+       }
+      ]
+     }
     }
    }
   }
  ],
- "seconds": 6.2,
+ "seconds": 6.9,
  "totals": {
   "dev": {
    "full": {
@@ -11621,6 +14680,20 @@
     "paged_right": 13,
     "wrong_actions": 0,
     "tool_calls": 108,
+    "scenarios": 12,
+    "paged_left_person": 0,
+    "grounding_ok": 12
+   },
+   "no_graph": {
+    "passed": 0,
+    "cause_correct": 10,
+    "incidents_expected": 13,
+    "path_correct": 2,
+    "false_leads_rejected": 4,
+    "false_leads": 7,
+    "paged_right": 4,
+    "wrong_actions": 11,
+    "tool_calls": 27,
     "scenarios": 12,
     "paged_left_person": 0,
     "grounding_ok": 12
@@ -11651,6 +14724,20 @@
     "paged_right": 50,
     "wrong_actions": 0,
     "tool_calls": 408,
+    "scenarios": 50,
+    "paged_left_person": 0,
+    "grounding_ok": 50
+   },
+   "no_graph": {
+    "passed": 0,
+    "cause_correct": 40,
+    "incidents_expected": 50,
+    "path_correct": 0,
+    "false_leads_rejected": 33,
+    "false_leads": 40,
+    "paged_right": 6,
+    "wrong_actions": 48,
+    "tool_calls": 100,
     "scenarios": 50,
     "paged_left_person": 0,
     "grounding_ok": 50

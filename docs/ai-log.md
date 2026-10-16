@@ -119,3 +119,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08A6: "graph, no algorithms" baseline
 - Claude Code (Opus 5.5, unattended) added `backend/agents/baseline_noalgo.py`, a plain-Cypher `fan_in` mode for critical_services, a PageRank→fan_in fallback in the planner, a deterministic tie-break in search_knowledge, eval table/wording fixes.
 - Double-check: the baseline ties the full profile on single alerts; that is the honest result and docs/eval.md says so.
+
+## 2026-10-16 — 08A7: "no graph" baseline
+- Claude Code (Opus 5.5, unattended) added `backend/agents/baseline_text.py`, team ids in `find_service`, snippet matching and team escalation for the no-graph path, deterministic full-text ordering.
+- Double-check: docs/eval.md's fairness note under the table (why "scenarios passed" is 0 for this profile by construction).
