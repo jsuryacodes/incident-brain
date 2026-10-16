@@ -19,7 +19,9 @@ REPORT_PROPS = {
                           "path": {**_IDS, "description": "Service ids from the alerting service to the culprit."},
                           "explanation": _S}),
     "blast_radius": {**_IDS, "description": "Upstream service ids hurt by this."},
-    "contact": _obj({"person_id": _SN, "name": _SN, "reason": _S}),
+    "contact": _obj({"person_id": _SN, "name": _SN, "reason": _S,
+                     "team_id": {**_SN, "description": "Only when no active person can be paged: the owning team to escalate to."}},
+                    ["person_id", "name", "reason"]),
     "bus_factor_warning": {**_SN, "description": "Say so if the maintainer has left; null otherwise."},
     "conflicting_decision": {"anyOf": [{"type": "null"}, _obj({
         "decision_id": _S, "source_id": _S, "excerpt": {"type": "string", "description": "Verbatim quote from the source."},
@@ -31,10 +33,22 @@ REPORT_PROPS = {
     "industry_pattern": {**_SN, "description": "'Matches known industry pattern: <company> — <title> (<url>)' from "
                                                 "industry_matches, or null if nothing matched."},
 }
+_LC = REPORT_PROPS["likely_cause"]
+FIREFIGHTER_EXTRA = {  # optional: the Firefighter's leads, its pointer when nothing changed, and several incidents
+    "rejected_leads": {"type": "array", "description": "Every recent change that is NOT the cause, with the graph's reason.",
+                       "items": _obj({"deploy_id": _S, "service_id": _S, "reason": _S})},
+    "look_first": {"anyOf": [{"type": "null"}, _obj({"service_ids": _IDS, "algorithm": _S, "reason": _S})],
+                   "description": "Only when no cause was found: where to look first (e.g. the top PageRank hub on the call path). Never a cause."},
+    "incidents": {"type": "array", "description": "Several alerts: one entry per separate incident.",
+                  "items": _obj({"alerts": _IDS, "summary": _S, "likely_cause": _LC, "contact": REPORT_PROPS["contact"],
+                                 "bus_factor_warning": REPORT_PROPS["bus_factor_warning"], "blast_radius": _IDS,
+                                 "recommended_actions": REPORT_PROPS["recommended_actions"],
+                                 "confidence": REPORT_PROPS["confidence"], "look_first": {"type": ["object", "null"]}})},
+}
 SUBMIT_REPORT = {
     "description": "Submit the final incident report. Call exactly once, at the end. Every id must have come back "
                    "from a tool; excerpts must be verbatim quotes.",
-    "input_schema": _obj(REPORT_PROPS),
+    "input_schema": _obj({**REPORT_PROPS, **FIREFIGHTER_EXTRA}, list(REPORT_PROPS)),
     "action": "answer",
 }
 

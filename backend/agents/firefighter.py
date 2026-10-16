@@ -44,12 +44,17 @@ def save_record(record, prefix):
     return path
 
 
-def run_firefighter(alert, ctx, llm, max_steps=10, on_step=None, save=True):
+def run_firefighter(alert, ctx, llm, max_steps=10, on_step=None, save=True, tool_names=None):
+    """alert: one {service_id | service_query, symptom}, or a list of alerts that fired together.
+    tool_names: restrict the read tools (the eval baselines); default all of them."""
     t0 = time.time()
     graph = get_graph(ctx.tenant)
-    tools = {**read_tools(), "submit_report": SUBMIT_REPORT}
+    tools = {**read_tools(tool_names), "submit_report": SUBMIT_REPORT}
     totals = new_totals()
-    msg = payload_message("An alert fired. Investigate it with the tools and finish with submit_report.", {"alert": alert})
+    many = isinstance(alert, list)
+    msg = payload_message(("Several alerts fired at about the same time. Work out which belong to the same incident, "
+                           "investigate each incident" if many else "An alert fired. Investigate it")
+                          + " with the tools and finish with submit_report.", {"alerts": alert} if many else {"alert": alert})
     rec = run_agent("firefighter", (PROMPTS / "firefighter.md").read_text(), tools, msg, ctx, llm, max_steps=max_steps,
                     validate=lambda name, report, seen: check_report(report, seen, graph), on_step=on_step,
                     totals=totals)

@@ -59,6 +59,20 @@ and the optional ticket was NULL (a deploy without a ticket, first hit in an eva
 Worth reporting upstream to FalkorDB (decision for Jaya: it's a nice "we found a bug" story for the judges, but check
 the latest image first).
 
+**08A3** (planner): `backend/agents/ff_policy.py` is the Firefighter's mock planner (the old one in mock_policy.py is
+gone; the team personas are untouched). Every recent change is a lead; the graph confirms or rejects each one, with the
+reason. Multi-alert input; team escalation when nobody active owns the culprit; `look_first` when nothing changed;
+tool-aware degradation for the baselines. **Four verifier rounds** (FAIL, FAIL, FAIL, FAIL→fixed): they found false
+rejection reasons, a hub rule that never measured the hub, claims about scans that never ran, ungrounded runs with sparse
+tool sets, a caller looping through the alert treated as a neighbour, invented contact numbers in text mode. All fixed,
+each with a test; `test_16` sweeps every scenario × 7 tool subsets and must stay grounded (the last verifier also ran
+1,620 alert × deploy pairs + 90 random multi-alert runs: no false cause, no crash).
+Decisions: a neighbour (shares a dependency) counts when the narrowest shared service is reached by fewer than 4
+services, or when corroborated (learned edge on the path, the shared service is alerting, or the alert names it).
+Known behaviour (judgement call, left as is): a CALLER of the alerting service that shares a narrow dependency through
+another route counts as a neighbour (e.g. Northwind patient-portal for an appointments alert).
+Hero numbers re-checked on a twin: unchanged (S1 14 total / 8 investigator, S2 9 / 3, without memory not found).
+
 ---
 
 # Earlier: task 07 (`docs/prompts/07-ui.md`, all DONE)

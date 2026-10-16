@@ -15,8 +15,9 @@ _STOP = {"the", "and", "for", "must", "stay", "with", "from", "that", "this", "i
 class View:
     """What the policy can see: the payload in the first user message, and (tool, input, result) for every call."""
 
-    def __init__(self, messages):
+    def __init__(self, messages, tools=None):
         self.payload, self.calls, self.turns, self.history = {}, [], 0, []
+        self.tools = {t["name"] for t in tools or []}  # the tools this agent was given (baselines get fewer)
         pending = {}
         for m in messages:
             c = m["content"]
@@ -211,41 +212,6 @@ def build_report(alert_svc, culprit, blast, who, decisions, past, industry=None)
             "bus_factor_warning": warn, "conflicting_decision": conflicting, "similar_past_incidents": sims,
             "evidence": evidence, "recommended_actions": actions[:4],
             "confidence": ["low", "low", "medium", "high"][score], "industry_pattern": industry_line(industry)}
-
-
-# ───────────── firefighter ─────────────
-def firefighter(v):
-    alert = v.payload.get("alert", {})
-    svc = alert.get("service_id")
-    if not svc:
-        fs = v.last("find_service")
-        if fs is None:
-            return turn(1, ("find_service", {"query": alert.get("service_query", "")}))
-        svc = fs["matches"][0]["id"] if fs.get("matches") else None
-        if not svc:
-            return []  # nothing to investigate; the loop nudges, the run ends at step_limit
-    if not v.called("memory_recall"):
-        return turn(v.turns, ("memory_recall", {"service_id": svc}))
-    found = find_culprit(v, svc, both_at_once=False)
-    if found[0] == "call":
-        return turn(v.turns, *found[1])
-    culprit = found[1]
-    if not v.called("blast_radius"):
-        calls = [("blast_radius", {"service_id": svc})]
-        ids = [svc]
-        if culprit:
-            calls += [("who_to_call", {"service_id": culprit["service"]}),
-                      ("decisions_about", {"service_id": culprit["service"]})]
-            ids += [culprit["service"]] + ([culprit["shared"]] if culprit["shared"] else [])
-        else:
-            calls.append(("who_to_call", {"service_id": svc}))
-        return turn(v.turns, *calls, ("past_incidents", {"service_ids": ids}))
-    rc = next((r for i in recalled(culprit, v.last("past_incidents")) for r in i.get("root_causes", [])), None)
-    if rc and not v.called("industry_matches"):
-        return turn(v.turns, ("industry_matches", {"root_cause_id": rc}))
-    report = build_report(svc, culprit, v.last("blast_radius"), v.last("who_to_call"), v.last("decisions_about"),
-                          v.last("past_incidents"), v.last("industry_matches"))
-    return turn(v.turns, ("submit_report", report))
 
 
 # ───────────── the team: shared helpers ─────────────
@@ -805,9 +771,11 @@ def brain(v):
     return turn(v.turns, ("submit_answer", {"answer": answer, "citations": cites, "people": people, "stale_warnings": warnings}))
 
 
-POLICIES = {"firefighter": firefighter, "brain": brain, "triage": triage, "investigator": investigator, "communicator": communicator,
+from backend.agents import ff_policy  # noqa: E402  (imports helpers from this module)
+
+POLICIES = {"firefighter": ff_policy.firefighter, "brain": brain, "triage": triage, "investigator": investigator, "communicator": communicator,
             "postmortem": postmortem}
 
 
 def respond(agent, system, tools, messages):
-    return POLICIES[agent](View(messages))
+    return POLICIES[agent](View(messages, tools))

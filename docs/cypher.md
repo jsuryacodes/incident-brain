@@ -132,10 +132,10 @@ RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN r
 
 **Explanation:** Follows DEPENDS_ON outwards from the alerting service (0 hops included, so a change to the service itself counts) and keeps services that have a Deploy newer than the window. Failures travel up the call chain, so a fresh deploy anywhere below is the prime suspect. Each hit gets its shortest path via algo.SPpaths, plus DEPLOYED (who) and FOR_TICKET (why the change was made).
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:payments-api"}`, 1 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:payments-api"}`, 2 ms incl. Python):
 
 ```json
-{"service": "svc:payments-api", "since_minutes": 120, "hit_count": 1, "hits": [{"service": "svc:risk-rules", "hops": 2, "path": ["svc:payments-api", "svc:fraud-scoring", "svc:risk-rules"], "edge_sources": ["declared", "declared"], "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792154520, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}]}
+{"service": "svc:payments-api", "since_minutes": 120, "hit_count": 1, "hits": [{"service": "svc:risk-rules", "hops": 2, "path": ["svc:payments-api", "svc:fraud-scoring", "svc:risk-rules"], "edge_sources": ["declared", "declared"], "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792170425, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}]}
 ```
 
 ## recent_changes
@@ -165,7 +165,7 @@ ORDER BY d.ts DESC LIMIT $limit
 **Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"since_minutes": 120}`, 1 ms incl. Python):
 
 ```json
-{"since_minutes": 120, "change_count": 2, "changes": [{"service": "svc:risk-rules", "tier": 1, "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792154520, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "deployer_id": "per:leo-park", "deployer_status": "active", "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}, {"service": "svc:email-sender", "tier": 3, "deploy": {"id": "dep:email-sender-v1.14.2", "version": "1.14.2", "ts": 1792153320, "minutes_ago": 60, "summary": "Bump transactional email client to 4.2.1; no behaviour change", "by": "Kenji Watanabe"}, "deployer_id": "per:kenji-watanabe", "deployer_status": "active", "ticket": null}]}
+{"since_minutes": 120, "change_count": 2, "changes": [{"service": "svc:risk-rules", "tier": 1, "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792170425, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "deployer_id": "per:leo-park", "deployer_status": "active", "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}, {"service": "svc:email-sender", "tier": 3, "deploy": {"id": "dep:email-sender-v1.14.2", "version": "1.14.2", "ts": 1792169225, "minutes_ago": 60, "summary": "Bump transactional email client to 4.2.1; no behaviour change", "by": "Kenji Watanabe"}, "deployer_id": "per:kenji-watanabe", "deployer_status": "active", "ticket": null}]}
 ```
 
 ## shared_dependency_changes
@@ -178,7 +178,7 @@ ORDER BY d.ts DESC LIMIT $limit
 
 **Arguments:** `{"service_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."},"since_minutes":{"type":"integer","minimum":1,"description":"Look-back window in minutes."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
 
-**LLM-facing description:** Noisy-neighbour check: services that are NOT downstream of this one but share a dependency with it and were deployed recently. Shows the shared service and both paths with edge sources; learned edges can reveal neighbours that declared edges miss.
+**LLM-facing description:** Noisy-neighbour check: services that are NOT downstream of this one but share a dependency with it and were deployed recently. Shows the shared service (and how many services call it, directly or not: a hub everyone calls is weak evidence) and both paths with edge sources; learned edges can reveal neighbours that declared edges miss.
 
 **Cypher:**
 
@@ -190,7 +190,7 @@ MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RETURN DISTINCT x.id
 MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..N]->(shared:Service),
       p2=(shared)<-[:DEPENDS_ON*1..N]-(n:Service)
 MATCH (n)<-[:CHANGED]-(d:Deploy)
-WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream
+WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id]
 OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d)
 OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket)
 RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title,
@@ -199,6 +199,10 @@ RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id
        [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from]
 ORDER BY length(p1) + length(p2), d.ts DESC
 LIMIT 60
+```
+
+```cypher
+MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)
 ```
 
 **Explanation:** Pattern (s)-[:DEPENDS_ON*]->(shared)<-[:DEPENDS_ON*]-(n)<-[:CHANGED]-(deploy): another service n hammers a dependency that s also needs. Services already downstream of s are excluded (that is recent_changes_downstream's job). This is the tool that gets smarter with memory: once an agent has written a learned DEPENDS_ON edge, the same query finds neighbours through it.
@@ -278,7 +282,7 @@ RETURN t.id, t.name, collect(m.name)
 
 **Explanation:** Expertise is computed, not stored. MAINTAINS gives the official owner (flagged if they left); WORKED_ON gives commits; incidents that AFFECTED the service or were CAUSED_BY a deploy that CHANGED it give the people who actually fixed things (PERFORMED_BY). Score = commits + 25 x resolutions, so one real incident fix counts like 25 commits. bus_factor_risk is true if the maintainer left or at most one active person has touched the service.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:risk-rules"}`, 2 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:risk-rules"}`, 3 ms incl. Python):
 
 ```json
 {"service": "svc:risk-rules", "maintainers": [{"id": "per:arjun-mehta", "name": "Arjun Mehta", "status": "left", "left_days_ago": 95}], "bus_factor_risk": true, "bus_factor_reasons": ["maintainer Arjun Mehta has left"], "score_formula": "commits + 25 * resolutions", "candidates": [{"id": "per:priya-nair", "name": "Priya Nair", "role": "Senior Engineer", "commits": 23, "last_commit_days_ago": 40, "resolutions": 1, "score": 48}, {"id": "per:leo-park", "name": "Leo Park", "role": "Engineer", "commits": 3, "last_commit_days_ago": 1, "resolutions": 0, "score": 3}, {"id": "per:dana-okafor", "name": "Dana Okafor", "role": "Engineering Manager", "commits": 2, "last_commit_days_ago": 120, "resolutions": 0, "score": 2}], "owning_team_fallback": {"id": "team:risk-fraud", "name": "Risk & Fraud", "active_members": ["Leo Park", "Dana Okafor", "Mei Lin Chen", "Ravi Shankar"]}}
@@ -386,10 +390,10 @@ ORDER BY score DESC LIMIT $limit
 
 **Explanation:** Runs FalkorDB's full-text index per label. The query is stripped to plain words (no operator characters) and passed as a parameter. First pass requires all words (precise); if there is room, a second pass accepts any word (recall) ranked lower. Each index's scores are normalised to its best hit because scores are not comparable across indexes; ties go to raw sources (chats, docs, tickets) before derived summaries. No embeddings: the graph supplies context.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"query": "rules cache ttl", "limit": 3}`, 5 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"query": "rules cache ttl", "limit": 3}`, 4 ms incl. Python):
 
 ```json
-{"query": "rules cache ttl", "terms": ["rules", "cache", "ttl"], "hit_count": 12, "hits": [{"id": "chat:risk-eng-config-load", "label": "ChatThread", "title": "How does risk-rules get its rules? (config load)", "snippet": "…I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 13:25] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just…", "date": "2025-08-12", "author": "Arjun Mehta", "author_status": "left", "score": 1.0}, {"id": "tkt:RISK-412", "label": "Ticket", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL", "snippet": "…up to 5 minutes to take effect in production, because risk-rules caches the rule set for RULES_CACHE_TTL (currently 300s). Proposal: reduce RULES_CACHE_TTL from 300s to 5s so edits apply almost immed…", "date": "2026-10-13", "author": "Leo Park", "autho …
+{"query": "rules cache ttl", "terms": ["rules", "cache", "ttl"], "hit_count": 12, "hits": [{"id": "chat:risk-eng-config-load", "label": "ChatThread", "title": "How does risk-rules get its rules? (config load)", "snippet": "…I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 17:50] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just…", "date": "2025-08-12", "author": "Arjun Mehta", "author_status": "left", "score": 1.0}, {"id": "tkt:RISK-412", "label": "Ticket", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL", "snippet": "…up to 5 minutes to take effect in production, because risk-rules caches the rule set for RULES_CACHE_TTL (currently 300s). Proposal: reduce RULES_CACHE_TTL from 300s to 5s so edits apply almost immed…", "date": "2026-10-13", "author": "Leo Park", "autho …
 ```
 
 ## critical_services
@@ -493,7 +497,7 @@ LIMIT 300
 **Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"node_id": "per:arjun-mehta"}`, 2 ms incl. Python):
 
 ```json
-{"id": "per:arjun-mehta", "label": "Person", "props": {"status": "left", "origin": "seed", "name": "Arjun Mehta", "role": "Staff Engineer", "email": "arjun.mehta@kestrelpay.example", "joined_at": 1602076920, "left_at": 1783948920}, "dates": {"joined_at": "2020-10-07", "left_at": "2026-07-13"}, "neighbour_counts": {"MEMBER_OF (out)": 1, "MAINTAINS (out)": 2, "WORKED_ON (out)": 3, "DEPLOYED (out)": 1, "AUTHORED (out)": 6, "MENTIONS (in)": 2, "PERFORMED_BY (in)": 1}, "neighbours": [{"edge": "MEMBER_OF", "dir": "out", "id": "team:risk-fraud", "name": "Risk & Fraud"}, {"edge": "MAINTAINS", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "WORKED_ON", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "DEPLOYED", "dir": "out", "id": "dep:risk-rules-v2.3.0", "name": "Lower RULES_CACHE_TTL to 10s"}, {"edge": "AUTHORED", "dir": "out", "id": "cha …
+{"id": "per:arjun-mehta", "label": "Person", "props": {"status": "left", "origin": "seed", "name": "Arjun Mehta", "role": "Staff Engineer", "email": "arjun.mehta@kestrelpay.example", "joined_at": 1602092825, "left_at": 1783964825}, "dates": {"joined_at": "2020-10-07", "left_at": "2026-07-13"}, "neighbour_counts": {"MEMBER_OF (out)": 1, "MAINTAINS (out)": 2, "WORKED_ON (out)": 3, "DEPLOYED (out)": 1, "AUTHORED (out)": 6, "MENTIONS (in)": 2, "PERFORMED_BY (in)": 1}, "neighbours": [{"edge": "MEMBER_OF", "dir": "out", "id": "team:risk-fraud", "name": "Risk & Fraud"}, {"edge": "MAINTAINS", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "WORKED_ON", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "DEPLOYED", "dir": "out", "id": "dep:risk-rules-v2.3.0", "name": "Lower RULES_CACHE_TTL to 10s"}, {"edge": "AUTHORED", "dir": "out", "id": "cha …
 ```
 
 ## read_source
@@ -601,7 +605,7 @@ RETURN r.id, r.summary, collect(p.id), collect(p.name)
 
 **Explanation:** This is how agents hand off: each agent starts with an empty conversation and reads the incident's state from the graph. Sessions point at the incident (FOR_INCIDENT); their Steps (IN_SESSION) with action 'handoff' carry the notes, and Facts WRITTEN_IN those sessions are what the team learned. Nine small queries instead of one big one, because FalkorDB drops rows when a MATCH follows an aggregation.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"incident_id": "inc:2025-031"}`, 4 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"incident_id": "inc:2025-031"}`, 5 ms incl. Python):
 
 ```json
 {"id": "inc:2025-031", "key": "INC-2025-031", "title": "fraud-scoring timeouts during checkout peak", "severity": 2, "status": "resolved", "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%", "summary": "risk-rules v2.3.0 lowered RULES_CACHE_TTL to 10s. At checkout peak every risk-rules pod refetched rulesets, saturating config-service and timing out fraud-scoring. Rolled back the TTL to 300s and added cache warm-up.", "origin": "seed", "started_minutes_ago": 655200, "affected": ["svc:config-service", "svc:fraud-scoring", "svc:payments-api"], "caused_by": [{"id": "dep:risk-rules-v2.3.0", "label": "Deploy", "service": "svc:risk-rules", "summary": "Lower RULES_CACHE_TTL to 10s", "minutes_ago": 655380, "by": "Arjun Mehta", "ticket": null}], "root_causes": [{"id": "rc:cache-ttl-thundering-herd", "name": "Cache TTL too low → thundering herd on a s …

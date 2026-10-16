@@ -46,9 +46,9 @@ TOOLS = {
         explanation="A flat, one-hop read: Deploy -CHANGED-> Service, newer than the window, plus DEPLOYED (who) and FOR_TICKET (why). It uses the range index on Deploy.ts. On purpose it knows nothing about dependencies: every recent change becomes a hypothesis, and the traversal tools then confirm it (it is on the alerting service's call path) or reject it (it is not). A naive investigator stops at 'the newest deploy'; this is what the graph is for."),
     "shared_dependency_changes": dict(
         fn=gt.shared_dependency_changes, track=[F, T],
-        description="Noisy-neighbour check: services that are NOT downstream of this one but share a dependency with it and were deployed recently. Shows the shared service and both paths with edge sources; learned edges can reveal neighbours that declared edges miss.",
+        description="Noisy-neighbour check: services that are NOT downstream of this one but share a dependency with it and were deployed recently. Shows the shared service (and how many services call it, directly or not: a hub everyone calls is weak evidence) and both paths with edge sources; learned edges can reveal neighbours that declared edges miss.",
         input_schema=_obj({"service_id": _SVC, "since_minutes": _SINCE, "max_hops": _HOPS}, ["service_id"]),
-        cypher=[gt.Q_DOWNSTREAM, gt.Q_SHARED], algorithm=None,
+        cypher=[gt.Q_DOWNSTREAM, gt.Q_SHARED, gt.Q_CALLERS], algorithm=None,
         explanation="Pattern (s)-[:DEPENDS_ON*]->(shared)<-[:DEPENDS_ON*]-(n)<-[:CHANGED]-(deploy): another service n hammers a dependency that s also needs. Services already downstream of s are excluded (that is recent_changes_downstream's job). This is the tool that gets smarter with memory: once an agent has written a learned DEPENDS_ON edge, the same query finds neighbours through it."),
     "dependency_path": dict(
         fn=gt.dependency_path, track=[F, B],

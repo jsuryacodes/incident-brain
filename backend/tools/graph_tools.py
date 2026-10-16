@@ -182,7 +182,7 @@ Q_DOWNSTREAM = """MATCH (s:Service {id:$id})-[:DEPENDS_ON*1..6]->(x:Service) RET
 Q_SHARED = """MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..__N__]->(shared:Service),
       p2=(shared)<-[:DEPENDS_ON*1..__N__]-(n:Service)
 MATCH (n)<-[:CHANGED]-(d:Deploy)
-WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream
+WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id]
 OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d)
 OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket)
 RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title,
@@ -191,6 +191,9 @@ RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id
        [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from]
 ORDER BY length(p1) + length(p2), d.ts DESC
 LIMIT 60"""
+
+
+Q_CALLERS = """MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)"""
 
 
 def shared_dependency_changes(ctx, service_id, since_minutes=1440, max_hops=3):
@@ -231,8 +234,14 @@ def shared_dependency_changes(ctx, service_id, since_minutes=1440, max_hops=3):
         if b["others"]:
             hit["also_shares"] = b["others"][:3]
         hits.append(hit)
+    if hits:  # how many services reach each shared dependency (directly or not): a hub everyone calls is weak evidence
+        callers = dict(rec.q(Q_CALLERS, {"ids": sorted({x for h in hits for x in [h["shared"]] + h.get("also_shares", [])})}))
+        for h in hits:
+            h["shared_callers"] = callers.get(h["shared"], 0)
+            if h.get("also_shares"):
+                h["also_shares_callers"] = [callers.get(x, 0) for x in h["also_shares"]]
     res = {"service": service_id, "since_minutes": mins, "hit_count": len(best), "hits": hits}
-    if len(best) > 5:
+    if len(best) > 5 or len(rows) >= 60:  # the row cap can hide neighbours too
         res["truncated"] = True
     if not hits:
         res["note"] = "no recently changed service shares a downstream dependency with this one"

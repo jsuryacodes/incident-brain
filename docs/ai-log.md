@@ -107,3 +107,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08A2: tools for the eval
 - Claude Code (Opus 5.5, unattended) added `recent_changes`, self-change hits (hops 0) in `recent_changes_downstream`, `critical_services(downstream_of)`, the no-algorithms mode, and real tool output in docs/cypher.md. Found a FalkorDB 6.0.2 server crash on a NULL-heavy aggregation and worked around it.
 - Double-check: (1) `dependency_path` from a service to itself now answers found, length 0. (2) docs/cypher.md's "Verified" blocks change on every regeneration (times are relative to the seed).
+
+## 2026-10-16 — 08A3: generalised Firefighter planner
+- Claude Code (Opus 5.5, unattended) wrote `backend/agents/ff_policy.py` (mock planner: leads from the change log, judged by the graph; multi-alert; team escalation; look_first; tool-aware), optional report fields, the matching live prompt, `shared_callers` in shared_dependency_changes, 10 new tests. Four adversarial verifier rounds; every finding fixed.
+- Double-check: (1) the neighbour rule's threshold (fewer than 4 services reach the shared dependency = "narrow") in `ff_policy.py`; (2) read one report's `rejected_leads` (e.g. `python -m backend.agents.firefighter --service svc:payments-api --symptom "5xx"`): are the reasons convincing?
