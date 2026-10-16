@@ -224,7 +224,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 16 hit(s): chat:platform-kafka-retention"
+        "summary": "search_knowledge → 17 hit(s): chat:platform-kafka-retention"
        },
        {
         "tool": "submit_report",
@@ -910,7 +910,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 21 hit(s): chat:oncall-handoff-week-41"
+        "summary": "search_knowledge → 21 hit(s): chat:payouts-bank-cutoff"
        },
        {
         "tool": "submit_report",
@@ -7795,7 +7795,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 22 hit(s): chat:oncall-handoff-week-41"
+        "summary": "search_knowledge → 22 hit(s): chat:eng-all-release-freeze"
        },
        {
         "tool": "submit_report",
@@ -14651,9 +14651,1423 @@
      }
     }
    }
+  },
+  {
+   "id": "h-k-ledger3",
+   "set": "holdout",
+   "tenant": "kestrel_pay",
+   "shape": "bad deploy 3 hops downstream plus a fresher off-path deploy",
+   "why": "web-checkout -> api-gateway -> payments-api -> ledger-service. merchant-onboarding changed more recently but is not on web-checkout's dependency path.",
+   "alerts": [
+    {
+     "service_id": "svc:web-checkout",
+     "symptom": "checkout p99 4.1s and 5xx 5% for the last 15 minutes"
+    }
+   ],
+   "expect": {
+    "incidents": [
+     {
+      "alerts": [
+       "svc:web-checkout"
+      ],
+      "cause_service": "svc:ledger-service",
+      "cause_deploy": "dep:ledger-service-v4.2.0",
+      "path": [
+       "svc:web-checkout",
+       "svc:api-gateway",
+       "svc:payments-api",
+       "svc:ledger-service"
+      ],
+      "contact": "per:priya-nair"
+     }
+    ],
+    "false_leads": [
+     "dep:merchant-onboarding-v3.7.0"
+    ],
+    "look_first": null,
+    "never_page": []
+   },
+   "results": {
+    "full": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [
+      "SPpaths"
+     ],
+     "passed": true,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:ledger-service-v4.2.0 on ledger-service, deployed 38 min ago. Contact Priya Nair.",
+      "status": "ok",
+      "causes": [
+       "dep:ledger-service-v4.2.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:merchant-onboarding-v3.7.0",
+        "service_id": "svc:merchant-onboarding",
+        "reason": "merchant-onboarding is not called by web-checkout; it only shares hubs with it (config-db (13 callers), config-service (12 callers), kafka-events (12 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: merchant-onboarding 6 min ago, ledger-service 38 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): ledger-service (deployed 38 min ago by Marcus Webb)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): merchant-onboarding via shared config-service, deployed 6 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Priya Nair (score 210)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Ledger idempotency keys are honoured for 24 hours"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 0 public postmortem(s)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:ledger-service-v4.2.0 on ledger-service, deployed 38 min ago. Contact Priya Nair."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:ledger-service-v4.2.0 on ledger-service, deployed 38 min ago. Contact Priya Nair.",
+      "status": "ok",
+      "causes": [
+       "dep:ledger-service-v4.2.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:merchant-onboarding-v3.7.0",
+        "service_id": "svc:merchant-onboarding",
+        "reason": "merchant-onboarding is not called by web-checkout; it only shares hubs with it (config-db (13 callers), config-service (12 callers), kafka-events (12 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: merchant-onboarding 6 min ago, ledger-service 38 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): ledger-service (deployed 38 min ago by Marcus Webb)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): merchant-onboarding via shared config-service, deployed 6 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Priya Nair (score 210)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Ledger idempotency keys are honoured for 24 hours"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 0 public postmortem(s)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:ledger-service-v4.2.0 on ledger-service, deployed 38 min ago. Contact Priya Nair."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 0,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [
+      "dep:ledger-service-v4.2.0"
+     ],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 2,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:merchant-onboarding-v3.7.0 on merchant-onboarding, deployed 6 min ago. Contact Kenji Watanabe.",
+      "status": "ok",
+      "causes": [
+       "dep:merchant-onboarding-v3.7.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:ledger-service-v4.2.0",
+        "service_id": "svc:ledger-service",
+        "reason": "1 word(s) in common with the alert vs 1 for the change picked (a tie: the newer change was picked); no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: merchant-onboarding 6 min ago, ledger-service 38 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 16 hit(s): chat:eng-all-release-freeze"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:merchant-onboarding-v3.7.0 on merchant-onboarding, deployed 6 min ago. Contact Kenji Watanabe."
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "h-k-flagsneighbour",
+   "set": "holdout",
+   "tenant": "kestrel_pay",
+   "shape": "noisy neighbour through a shared dependency",
+   "why": "auth-service and feature-flags both call config-service; feature-flags is not downstream of auth-service.",
+   "alerts": [
+    {
+     "service_id": "svc:auth-service",
+     "symptom": "token validation p99 2.8s and login 5xx 4%; config-service latency high"
+    }
+   ],
+   "expect": {
+    "incidents": [
+     {
+      "alerts": [
+       "svc:auth-service"
+      ],
+      "cause_service": "svc:feature-flags",
+      "cause_deploy": "dep:feature-flags-v1.14.0",
+      "path": [
+       "svc:auth-service",
+       "svc:config-service",
+       "svc:feature-flags"
+      ],
+      "contact": "per:elena-petrova"
+     }
+    ],
+    "false_leads": [],
+    "look_first": null,
+    "never_page": []
+   },
+   "results": {
+    "full": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "auth-service alert most likely caused by dep:feature-flags-v1.14.0 on feature-flags, deployed 22 min ago. Contact Elena Petrova.",
+      "status": "ok",
+      "causes": [
+       "dep:feature-flags-v1.14.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: feature-flags 22 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): feature-flags via shared config-service, deployed 22 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (2 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Elena Petrova (score 77)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "auth-service alert most likely caused by dep:feature-flags-v1.14.0 on feature-flags, deployed 22 min ago. Contact Elena Petrova."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "auth-service alert most likely caused by dep:feature-flags-v1.14.0 on feature-flags, deployed 22 min ago. Contact Elena Petrova.",
+      "status": "ok",
+      "causes": [
+       "dep:feature-flags-v1.14.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: feature-flags 22 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): feature-flags via shared config-service, deployed 22 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (2 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Elena Petrova (score 77)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "auth-service alert most likely caused by dep:feature-flags-v1.14.0 on feature-flags, deployed 22 min ago. Contact Elena Petrova."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "auth-service alert most likely caused by dep:feature-flags-v1.14.0 on feature-flags, deployed 22 min ago. Contact Elena Petrova.",
+      "status": "ok",
+      "causes": [
+       "dep:feature-flags-v1.14.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: feature-flags 22 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 27 hit(s): chat:risk-eng-config-load"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "auth-service alert most likely caused by dep:feature-flags-v1.14.0 on feature-flags, deployed 22 min ago. Contact Elena Petrova."
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "h-n-nochange",
+   "set": "holdout",
+   "tenant": "northwind_health",
+   "shape": "no recent change: load spike",
+   "why": "Nothing deployed in the window; the honest answer is 'no change found' plus the top PageRank hub below patient-portal.",
+   "alerts": [
+    {
+     "service_id": "svc:patient-portal",
+     "symptom": "portal page loads p99 3.8s with sessions 2.5x normal after the flu-clinic reminder blast"
+    }
+   ],
+   "expect": {
+    "incidents": [
+     {
+      "alerts": [
+       "svc:patient-portal"
+      ],
+      "cause_service": null,
+      "cause_deploy": null,
+      "path": null,
+      "contact": "per:ines-moreau"
+     }
+    ],
+    "false_leads": [],
+    "look_first": [
+     "svc:sms-gateway"
+    ],
+    "never_page": []
+   },
+   "results": {
+    "full": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": false,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": true,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 6,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [
+      "pageRank"
+     ],
+     "passed": true,
+     "run": {
+      "summary": "No recent change explains the patient-portal alert; the cause is unknown. Look at sms-gateway first.",
+      "status": "ok",
+      "causes": [
+       null
+      ],
+      "rejected_leads": [],
+      "look_first": {
+       "service_ids": [
+        "svc:sms-gateway"
+       ],
+       "algorithm": "pagerank",
+       "reason": "No recent change explains the alert. sms-gateway is the most depended-on service on the call path (pagerank 0.1779): check its capacity first."
+      },
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 0 change(s) in 120 min"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ines Moreau (score 140)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → pagerank: sms-gateway, audit-trail, notifications, scheduler-db"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "No recent change explains the patient-portal alert; the cause is unknown. Look at sms-gateway first."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": false,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": true,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 7,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "No recent change explains the patient-portal alert; the cause is unknown. Look at sms-gateway first.",
+      "status": "ok",
+      "causes": [
+       null
+      ],
+      "rejected_leads": [],
+      "look_first": {
+       "service_ids": [
+        "svc:sms-gateway"
+       ],
+       "algorithm": "fan_in",
+       "reason": "No recent change explains the alert. sms-gateway is the most depended-on service on the call path (fan_in 4): check its capacity first."
+      },
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 0 change(s) in 120 min"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ines Moreau (score 140)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: sms-gateway, audit-trail, notifications, records-db"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "No recent change explains the patient-portal alert; the cause is unknown. Look at sms-gateway first."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": false,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": false,
+     "pages_sent": 0,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "No recent change explains the patient-portal alert; the cause is unknown.",
+      "status": "ok",
+      "causes": [
+       null
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 0 change(s) in 120 min"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 10 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "No recent change explains the patient-portal alert; the cause is unknown."
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "h-n-schedulerdb",
+   "set": "holdout",
+   "tenant": "northwind_health",
+   "shape": "two alerts, one common downstream cause, fresher partial false lead",
+   "why": "appointments and patient-portal both reach scheduler-db. identity changed more recently but only patient-portal depends on it, so it explains one alert, not both.",
+   "alerts": [
+    {
+     "service_id": "svc:appointments",
+     "symptom": "booking API p99 6s; slot search queries timing out"
+    },
+    {
+     "service_id": "svc:patient-portal",
+     "symptom": "book-an-appointment page 504s 12% for 20 minutes"
+    }
+   ],
+   "expect": {
+    "incidents": [
+     {
+      "alerts": [
+       "svc:appointments",
+       "svc:patient-portal"
+      ],
+      "cause_service": "svc:scheduler-db",
+      "cause_deploy": "dep:scheduler-db-v14.10.0",
+      "path": [
+       "svc:appointments",
+       "svc:scheduler-db"
+      ],
+      "contact": "per:tariq-hassan"
+     }
+    ],
+    "false_leads": [
+     "dep:identity-v5.5.0"
+    ],
+    "look_first": null,
+    "never_page": []
+   },
+   "results": {
+    "full": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 11,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [
+      "SPpaths"
+     ],
+     "passed": true,
+     "run": {
+      "summary": "appointments, patient-portal alerts most likely caused by dep:scheduler-db-v14.10.0 on scheduler-db, deployed 28 min ago. Contact Tariq Hassan.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v14.10.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:identity-v5.5.0",
+        "service_id": "svc:identity",
+        "reason": "identity is on patient-portal's call path (1 hop), but scheduler-db explains 2 alerts, this change 1"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: identity 9 min ago, scheduler-db 28 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): scheduler-db (deployed 28 min ago by Tariq Hassan)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 2 hit(s): identity (deployed 9 min ago by Victor Lund)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 12)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments, patient-portal alerts most likely caused by dep:scheduler-db-v14.10.0 on scheduler-db, deployed 28 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 11,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "appointments, patient-portal alerts most likely caused by dep:scheduler-db-v14.10.0 on scheduler-db, deployed 28 min ago. Contact Tariq Hassan.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v14.10.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:identity-v5.5.0",
+        "service_id": "svc:identity",
+        "reason": "identity is on patient-portal's call path (1 hop), but scheduler-db explains 2 alerts, this change 1"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: identity 9 min ago, scheduler-db 28 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): scheduler-db (deployed 28 min ago by Tariq Hassan)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 2 hit(s): identity (deployed 9 min ago by Victor Lund)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 12)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments, patient-portal alerts most likely caused by dep:scheduler-db-v14.10.0 on scheduler-db, deployed 28 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 3,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "appointments, patient-portal alerts most likely caused by dep:scheduler-db-v14.10.0 on scheduler-db, deployed 28 min ago. Contact Tariq Hassan.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v14.10.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:identity-v5.5.0",
+        "service_id": "svc:identity",
+        "reason": "no word in common with the alert vs 3 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: identity 9 min ago, scheduler-db 28 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 11 hit(s): chat:platform-sms-retries"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments, patient-portal alerts most likely caused by dep:scheduler-db-v14.10.0 on scheduler-db, deployed 28 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "h-n-notifyorphan",
+   "set": "holdout",
+   "tenant": "northwind_health",
+   "shape": "departed maintainer, no active person on the culprit",
+   "why": "notifications' maintainer Owen Bryce left and (in this twin) no active person has worked on it; the deploy was automated. Escalate to the owning team.",
+   "alerts": [
+    {
+     "service_id": "svc:lab-results",
+     "symptom": "critical-result clinician alerts delayed 15 min; result publishing 5xx 8%"
+    }
+   ],
+   "expect": {
+    "incidents": [
+     {
+      "alerts": [
+       "svc:lab-results"
+      ],
+      "cause_service": "svc:notifications",
+      "cause_deploy": "dep:notifications-v3.4.0",
+      "path": [
+       "svc:lab-results",
+       "svc:notifications"
+      ],
+      "contact": "team:clinical-platform"
+     }
+    ],
+    "false_leads": [],
+    "look_first": null,
+    "never_page": [
+     "per:owen-bryce"
+    ]
+   },
+   "results": {
+    "full": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [
+      "SPpaths"
+     ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:notifications-v3.4.0 on notifications, deployed 17 min ago. Escalate to team:clinical-platform.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v3.4.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: notifications 17 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 17 min ago by None)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: None (score None); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:notifications-v3.4.0 on notifications, deployed 17 min ago. Escalate to team:clinical-platform."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:notifications-v3.4.0 on notifications, deployed 17 min ago. Escalate to team:clinical-platform.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v3.4.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: notifications 17 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 17 min ago by None)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: None (score None); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:notifications-v3.4.0 on notifications, deployed 17 min ago. Escalate to team:clinical-platform."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 3,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:notifications-v3.4.0 on notifications, deployed 17 min ago. Escalate to team:clinical-platform.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v3.4.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: notifications 17 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 5 hit(s): chat:pe-portal-slow-results"
+       },
+       {
+        "tool": "find_service",
+        "summary": "find_service → matches: svc:notifications"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:notifications-v3.4.0 on notifications, deployed 17 min ago. Escalate to team:clinical-platform."
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "h-k-learnedsettle",
+   "set": "holdout",
+   "tenant": "kestrel_pay",
+   "shape": "cause reachable only through a learned edge",
+   "why": "The catalog says reporting-service calls only ledger-service. An earlier session learned it also calls card-processor-adapter (Fact quoting a chat). notifications-service (newer) is a decoy.",
+   "alerts": [
+    {
+     "service_id": "svc:merchant-dashboard",
+     "symptom": "statements export 504s 25%; reports tab p99 9s for 20 minutes"
+    }
+   ],
+   "expect": {
+    "incidents": [
+     {
+      "alerts": [
+       "svc:merchant-dashboard"
+      ],
+      "cause_service": "svc:card-processor-adapter",
+      "cause_deploy": "dep:card-processor-adapter-v2.9.0",
+      "path": [
+       "svc:merchant-dashboard",
+       "svc:reporting-service",
+       "svc:card-processor-adapter"
+      ],
+      "contact": "per:sofia-alvarez"
+     }
+    ],
+    "false_leads": [
+     "dep:notifications-service-v2.4.0"
+    ],
+    "look_first": null,
+    "never_page": []
+   },
+   "results": {
+    "full": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [
+      "SPpaths"
+     ],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:card-processor-adapter-v2.9.0 on card-processor-adapter, deployed 33 min ago. Contact Sofia Alvarez.",
+      "status": "ok",
+      "causes": [
+       "dep:card-processor-adapter-v2.9.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:notifications-service-v2.4.0",
+        "service_id": "svc:notifications-service",
+        "reason": "notifications-service is not called by merchant-dashboard; it only shares hubs with it (config-db (13 callers), config-service (12 callers), kafka-events (12 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → 1 learned edge(s), 0 fact(s), 0 resolved incident(s); suspect: card-processor-adapter"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: notifications-service 7 min ago, card-processor-adapter 33 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): card-processor-adapter (deployed 33 min ago by Marcus Webb)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): notifications-service via shared config-service, deployed 7 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 120)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:card-processor-adapter-v2.9.0 on card-processor-adapter, deployed 33 min ago. Contact Sofia Alvarez."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:card-processor-adapter-v2.9.0 on card-processor-adapter, deployed 33 min ago. Contact Sofia Alvarez.",
+      "status": "ok",
+      "causes": [
+       "dep:card-processor-adapter-v2.9.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:notifications-service-v2.4.0",
+        "service_id": "svc:notifications-service",
+        "reason": "notifications-service is not called by merchant-dashboard; it only shares hubs with it (config-db (13 callers), config-service (12 callers), kafka-events (12 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → 1 learned edge(s), 0 fact(s), 0 resolved incident(s); suspect: card-processor-adapter"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: notifications-service 7 min ago, card-processor-adapter 33 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): card-processor-adapter (deployed 33 min ago by Marcus Webb)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): notifications-service via shared config-service, deployed 7 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 120)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:card-processor-adapter-v2.9.0 on card-processor-adapter, deployed 33 min ago. Contact Sofia Alvarez."
+       }
+      ]
+     }
+    },
+    "no_graph": {
+     "cause_correct": 1,
+     "path_correct": 0,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 0,
+     "paged_left_person": [],
+     "wrong_actions": 1,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 2,
+     "llm_calls": 3,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": false,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:card-processor-adapter-v2.9.0 on card-processor-adapter, deployed 33 min ago. Contact Marcus Webb.",
+      "status": "ok",
+      "causes": [
+       "dep:card-processor-adapter-v2.9.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:notifications-service-v2.4.0",
+        "service_id": "svc:notifications-service",
+        "reason": "2 word(s) in common with the alert vs 5 for the change picked; no dependency data to check it"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: notifications-service 7 min ago, card-processor-adapter 33 min ago"
+       },
+       {
+        "tool": "search_knowledge",
+        "summary": "search_knowledge → 26 hit(s): chat:eval-reporting-settlement"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:card-processor-adapter-v2.9.0 on card-processor-adapter, deployed 33 min ago. Contact Marcus Webb."
+       }
+      ]
+     }
+    }
+   }
   }
  ],
- "seconds": 6.9,
+ "seconds": 7.7,
  "totals": {
   "dev": {
    "full": {
@@ -14741,6 +16155,50 @@
     "scenarios": 50,
     "paged_left_person": 0,
     "grounding_ok": 50
+   }
+  },
+  "holdout": {
+   "full": {
+    "passed": 6,
+    "cause_correct": 6,
+    "incidents_expected": 6,
+    "path_correct": 6,
+    "false_leads_rejected": 3,
+    "false_leads": 3,
+    "paged_right": 6,
+    "wrong_actions": 0,
+    "tool_calls": 51,
+    "scenarios": 6,
+    "paged_left_person": 0,
+    "grounding_ok": 6
+   },
+   "no_algo": {
+    "passed": 6,
+    "cause_correct": 6,
+    "incidents_expected": 6,
+    "path_correct": 6,
+    "false_leads_rejected": 3,
+    "false_leads": 3,
+    "paged_right": 6,
+    "wrong_actions": 0,
+    "tool_calls": 52,
+    "scenarios": 6,
+    "paged_left_person": 0,
+    "grounding_ok": 6
+   },
+   "no_graph": {
+    "passed": 0,
+    "cause_correct": 5,
+    "incidents_expected": 6,
+    "path_correct": 1,
+    "false_leads_rejected": 2,
+    "false_leads": 3,
+    "paged_right": 3,
+    "wrong_actions": 3,
+    "tool_calls": 14,
+    "scenarios": 6,
+    "paged_left_person": 0,
+    "grounding_ok": 6
    }
   }
  }

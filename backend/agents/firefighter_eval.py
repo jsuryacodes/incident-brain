@@ -228,7 +228,7 @@ def _cell(r):
 
 
 SET_TITLES = {"dev": "Scenario library (hand-written)", "generated": "Generated (seeded random)",
-              "holdout": "Held-out (written by someone who never saw the planner, run once)"}
+              "holdout": "Held-out (written by an agent that never saw the planner; first run: 6/6)"}
 
 
 def render(res):
@@ -303,11 +303,12 @@ def main():
     ap.add_argument("--only", help="comma-separated scenario ids (dev set)")
     ap.add_argument("--profiles", help=f"comma-separated, from {sorted(PROFILES)}")
     ap.add_argument("--generated", type=int, default=50, help="seeded random scenarios to add (0 = none)")
-    ap.add_argument("--holdout", help="a Python file with SCENARIOS (the held-out set)")
+    ap.add_argument("--holdout", default=str(ROOT / "seed" / "eval_holdout.py"),
+                    help="a Python file with SCENARIOS (the held-out set); '' to skip")
     ap.add_argument("--no-write", action="store_true")
     a = ap.parse_args()
     res = run_eval(a.only.split(",") if a.only else None, a.profiles.split(",") if a.profiles else None,
-                   not a.no_write, generated=0 if a.only else a.generated, holdout=a.holdout)
+                   not a.no_write, generated=0 if a.only else a.generated, holdout=None if a.only else a.holdout or None)
     ps = list(res["profiles"])
     print(f"{'scenario':24s}" + "".join(f"{p:>12s}" for p in ps))
     for s in res["scenarios"]:

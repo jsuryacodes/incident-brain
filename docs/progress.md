@@ -14,7 +14,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | Part | Status | Commits |
 |---|---|---|
 | 0 Preflight | DONE | (no code) |
-| A Scenario library + eval + baselines | in progress | |
+| A Scenario library + eval + baselines | DONE | 08A1–08A8 |
 | B Hypotheses + decision trace | todo | |
 | C Alert storm | todo | |
 | D Actions + safety check + approval | todo | |
@@ -98,6 +98,16 @@ list, results are now deterministic (the full-text query's LIMIT cut among tied 
 score DESC, node.id`; three identical runs). Brain eval still 15/15 + 3/3.
 **Honest result: dev 0/12 (it can never give a dependency path), causes right 10/13, false leads rejected 4/7, right
 person 4/13, 11 wrong actions; generated: causes right 38/50, 50 wrong actions.**
+
+**08A8** (held-out set): run ONCE against the finished Part A planner, hash checked first
+(`57264681…dbc73`, matches): **full 6/6, no-algorithms 6/6, no-graph 0/6** (no-graph can't give paths). Now committed as
+`seed/eval_holdout.py` and part of every eval run; its oracle checks run in pytest. Caveat written into the file: its
+author's brief listed the shapes to cover, including one of the planner's corroboration rules.
+
+**Part A result** (`docs/eval.md`): full and no-algorithms both pass dev 12/12, generated 50/50, held-out 6/6; no-graph
+passes nothing (no paths) but gets 10/13 dev causes and 38/50 generated causes right, takes the bait on false leads
+(4/7 rejected) and recommends 11 + 50 wrong actions. The graph (traversals) is what finds and defends the cause; on
+single alerts the algorithms add nothing measurable, which docs/eval.md states from the data.
 
 ---
 

@@ -123,3 +123,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08A7: "no graph" baseline
 - Claude Code (Opus 5.5, unattended) added `backend/agents/baseline_text.py`, team ids in `find_service`, snippet matching and team escalation for the no-graph path, deterministic full-text ordering.
 - Double-check: docs/eval.md's fairness note under the table (why "scenarios passed" is 0 for this profile by construction).
+
+## 2026-10-16 — 08A8: held-out eval set
+- Claude Code (Opus 5.5, unattended) ran the held-out scenarios once (6/6 full), then committed them as `seed/eval_holdout.py` (now a permanent eval set) with the hash and a caveat about the author's brief.
+- Double-check: the caveat in the file header.

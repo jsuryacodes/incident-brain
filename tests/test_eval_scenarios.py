@@ -7,6 +7,7 @@ ground truth does not come from the code it grades.
 import pytest
 
 from seed.eval_oracle import contact, deps, dist_from, pagerank, shortest_count
+from seed.eval_holdout import SCENARIOS as HOLDOUT
 from seed.eval_scenarios import SCENARIOS, fixture
 from seed.load import build
 
@@ -18,7 +19,7 @@ def world(sc, now=1_800_000_000):
     return {n["id"]: n for n in nodes}, edges, now
 
 
-@pytest.mark.parametrize("sc", SCENARIOS, ids=[s["id"] for s in SCENARIOS])
+@pytest.mark.parametrize("sc", SCENARIOS + HOLDOUT, ids=[s["id"] for s in SCENARIOS + HOLDOUT])
 def test_expectations_hold_in_the_fixture(sc):
     nodes, edges, now = world(sc)
     adj = deps(edges)
