@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-16 18:33 UTC",
+ "generated_at": "2026-10-16 18:48 UTC",
  "mode": "mock",
  "profiles": {
   "full": {
@@ -2713,7 +2713,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → rollback risky: the change looks hard to undo (rebuild): rolling the code back may not undo the data"
+        "summary": "rollback_safety → rollback risky: deploy summary: the change looks hard to undo (rebuild): rolling the code back may not undo the data"
        },
        {
         "tool": "stale_knowledge",
@@ -2800,7 +2800,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → rollback risky: the change looks hard to undo (rebuild): rolling the code back may not undo the data"
+        "summary": "rollback_safety → rollback risky: deploy summary: the change looks hard to undo (rebuild): rolling the code back may not undo the data"
        },
        {
         "tool": "stale_knowledge",
@@ -3682,7 +3682,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 13 hit(s): chat:eng-all-release-freeze"
+        "summary": "search_knowledge → 12 hit(s): chat:incidents-2025-031-war-room"
        },
        {
         "tool": "submit_report",
@@ -6708,7 +6708,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 6 hit(s): chat:pe-portal-slow-results"
+        "summary": "search_knowledge → 5 hit(s): doc:patient-experience-onboarding"
        },
        {
         "tool": "submit_report",
@@ -11968,7 +11968,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 18 hit(s): chat:payments-card-timeouts"
+        "summary": "search_knowledge → 18 hit(s): chat:eng-all-release-freeze"
        },
        {
         "tool": "submit_report",
@@ -12462,7 +12462,7 @@
        {
         "deploy_id": "dep:email-sender-v9.60.1",
         "service_id": "svc:email-sender",
-        "reason": "1 word(s) in common with the alert vs 3 for the change picked; no dependency data to check it"
+        "reason": "1 word(s) in common with the alert vs 1 for the change picked (a tie: the newer change was picked); no dependency data to check it"
        }
       ],
       "look_first": null,
@@ -12473,7 +12473,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 26 hit(s): chat:oncall-handoff-week-41"
+        "summary": "search_knowledge → 26 hit(s): chat:payments-core-ledger-dupes"
        },
        {
         "tool": "submit_report",
@@ -13504,7 +13504,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 19 hit(s): chat:payments-card-timeouts"
+        "summary": "search_knowledge → 19 hit(s): chat:eng-all-release-freeze"
        },
        {
         "tool": "submit_report",
@@ -16516,7 +16516,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 17 hit(s): chat:eng-all-release-freeze"
+        "summary": "search_knowledge → 19 hit(s): chat:eng-all-release-freeze"
        },
        {
         "tool": "submit_report",
@@ -17549,7 +17549,7 @@
        },
        {
         "tool": "search_knowledge",
-        "summary": "search_knowledge → 16 hit(s): chat:payments-card-timeouts"
+        "summary": "search_knowledge → 16 hit(s): chat:payouts-bank-cutoff"
        },
        {
         "tool": "submit_report",
@@ -18134,7 +18134,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → rollback risky: the change looks hard to undo (drop): rolling the code back may not undo the data"
+        "summary": "rollback_safety → rollback risky: deploy summary: the change looks hard to undo (drop): rolling the code back may not undo the data"
        },
        {
         "tool": "stale_knowledge",
@@ -18236,7 +18236,7 @@
        },
        {
         "tool": "rollback_safety",
-        "summary": "rollback_safety → rollback risky: the change looks hard to undo (drop): rolling the code back may not undo the data"
+        "summary": "rollback_safety → rollback risky: deploy summary: the change looks hard to undo (drop): rolling the code back may not undo the data"
        },
        {
         "tool": "stale_knowledge",
@@ -18817,7 +18817,7 @@
    }
   }
  ],
- "seconds": 8.8,
+ "seconds": 9.5,
  "totals": {
   "dev": {
    "full": {

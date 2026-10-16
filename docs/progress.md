@@ -9,6 +9,32 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | Commit | Part | What it changed | Safe to revert alone? |
 |---|---|---|---|
 | e1f9787 | spec | `docs/prompts/08-track1.md` | yes |
+| 41f066f | 08-0 | preflight baseline in progress.md, .scratch/ ignored | yes |
+| f7e13a9 | 08A1 | eval scenario library (12 fixtures on twin graphs), load(transform=), independent oracle test | no: A2–A8 build on it |
+| 06afb91 | 08A2 | recent_changes tool, self-change hits, critical_services(downstream_of), no-algorithms mode, verified tool output in cypher.md, FalkorDB crash workaround | no: A3 uses recent_changes |
+| 0a76b14 | 08A3 | generalised Firefighter planner (leads judged by the graph, multi-alert, team escalation, look_first, tool-aware), shared_callers | no: the eval and C/D build on the planner |
+| b61b93e | 08A4 | eval oracle module (plain Python ground truth) + seeded scenario generator (50 random scenarios) | no: A5 imports the generator |
+| efed1e1 | 08A5 | Firefighter eval runner (twins, per-profile scoring, per-incident actions), runs/eval/latest.json, docs/eval.md, GET /api/eval/latest | yes (removes the eval runner + /api/eval/latest; the Eval view then shows 'no results') |
+| 366a1fa | 08A6 | eval baseline 'graph, no algorithms' (plain-Cypher paths and fan_in count), deterministic search tie-break, honest eval wording | yes (the no-algo column disappears) |
+| ccca66b | 08A7 | eval baseline 'no graph' (full-text + catalog + flat change log), deterministic full-text order | yes (the no-graph column disappears) |
+| 85a12a7 | 08A8 | held-out eval set (run once: 6/6), now a permanent eval set; Part A done | yes (held-out set leaves the eval) |
+| e98d9b0 | 08C1 | storm tools (correlate_alerts, connected_impact, blast_tiers, failure_domains) verified against FalkorDB | no: C2/C3, D and the UI use the storm tools |
+| 111070c | 08C2 | storm correlation in the Firefighter planner (one incident per shared root, suppressed pages), storm eval scenarios | needs also 08C3, 08G1/G2 (storm UI) |
+| 83d30dd | 08C3 | alert-storm story beat (golden replay, fresh run, /api/storm/latest numbers) | yes (storm beat + /api/storm/latest go) |
+| b838983 | 08B1 | hypotheses + confidence breakdown in reports, why-this-tool on every step (mock, prompts, live parser), Step.why / Step.hypotheses_json (schema v1.3) | needs also 08B2 (replays carry why/hypotheses; harmless if kept) |
+| 2ce2001 | 08B2 | regenerate golden replays (steps now carry why; Investigator handoff carries its hypothesis board) | yes (replays fall back to the pre-08B recordings) |
+| c0205c1 | 08D1 | rollback_safety tool and the Firefighter action plan (justified actions, risky rollback -> hold) | needs also 08D2, 08G1/G2 |
+| 90f4f60 | 08D2 | approval-gated simulated execution on twins (idempotent), verification re-check, POST /api/actions/execute, storm replay with execution | needs also 08G1/G2 (Approve button) |
+| ae654d9 | 08G1 | Firefighter playground backend (scenario list, fresh runs on a kept twin, 15 recordings with approved execution) | needs also 08G2 |
+| 1911520 | 08G2 | UI: Firefighter view (why, hypotheses, actions + approve + verification), Eval view (why a graph), story hooks; Playwright 18/18 + screenshots | yes (UI only) |
+| a4f9b12 | 08E | MCP for real: tools via MCP for our agents (parity test), streamable HTTP /mcp/<tenant>/, prompts + resources, structured receipts, scripted transcript | yes (MCP extras; --tools-via mcp, HTTP mount, prompts go) but 08J3 uses it in the playground: revert 08J3 too |
+| 2904cb4 | 08E fix | MCP parity test compares the Cypher, not the clock-based since parameter | yes |
+| a016203 | 08F | scale proof: generated 2,000-service company, query times in receipts, benchmarks (docs + API + Eval panel) | yes (scale tenant, benchmarks, ms in receipts) |
+| ad939a2 | 08H | live-readiness: scripts/live-check.sh (one command, est. ~$0.15 on Haiku), firefighter_eval --live, live-mode.md | yes |
+| ad66567 | 08I | README Track 1 first (five focus areas ticked, three-profile table), demo script v2 (2:45), explain.md Track 1 + judge Q&A, blog draft | yes (docs only) |
+| 1ef84b5 | 08J1 | container includes the eval/benchmark results and the docs the MCP resources serve | yes |
+| 6716dd0 | 08J2 | review fixes: approve only the twin's own run, additive graph-derived approvals, busy lock, honest verification, graph-based safety reasons, projection cap, per-incident confidence | yes (re-opens the review findings) |
+| 8d21315 | 08J3 | MCP visible in the playground (tools selected through an MCP session, labelled mock planner), re-recorded replays, re-shot screenshots | yes (playground back to direct tools) |
 
 ## 08 status
 | Part | Status | Commits |
@@ -25,7 +51,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | I Docs | DONE | 08I |
 | J Review + final verification | DONE | 08J1–08J3 |
 
-**Total live API spend in 08: $0.00** (0 live calls, no key).
+**Total live API spend in 08: $0.00** (0 live calls, no key). **All parts DONE.** The morning list is at the end of this file.
 
 ## 08-0 — Preflight (baseline before any 08 code)
 - Docker up, `falkordb` container running (`falkordb/falkordb:latest`); `scripts/setup.sh` clean: kestrel_pay **14/14**, northwind_health **8/8** on a fresh seed.
@@ -680,3 +706,43 @@ docker compose up --build
 - *Synthetic only.* Northwind describes systems, teams and decisions; there is no patient data anywhere, and it says so in a seeded policy doc.
 
 **Open issues:** none known.
+
+---
+
+# Look at these first (08, morning list)
+
+**Commands**
+- `scripts/ui.sh` → http://localhost:8000 → **Story** → *Alert storm* (or the **Firefighter** tab): watch 6 alerts become
+  2 incidents and 2 pages; then the *Hypotheses* and *Actions* tabs. **Eval** tab: "Why a graph?" + scoreboard + benchmarks.
+- `scripts/e2e.sh` (≈2 min, 18 Playwright tests, re-shoots the screenshots; it re-seeds kestrel_pay and northwind_health).
+- `python -m backend.agents.firefighter_eval` (≈10 s; writes docs/eval.md + runs/eval/latest.json).
+- `python -m backend.tools.benchmark` (docs/benchmarks.md), `python -m backend.agents.mcp_transcript` (docs/mcp-transcript.md).
+- `python -m backend.agents.firefighter --service svc:payments-api --symptom "5xx" --tools-via mcp`.
+
+**Screenshots** (`docs/screenshots/`): `ff-storm-1920.png` (new README hero), `ff-storm-correlate-*.png`,
+`ff-storm-outcome-*.png`, `ff-storm-actions-*.png`, `ff-hypotheses-*.png`, `ff-safety-hold-*.png`,
+`eval-why-a-graph-*.png`, plus the earlier story shots (re-shot with the new nav).
+
+**Decisions for Jaya**
+1. Schema **v1.3**: two optional Step properties (`why`, `hypotheses_json`), no labels/edges (docs/schema.md changelog).
+2. Your local `.env` `TENANTS` now includes `scale_demo` (the switcher shows "Scale Demo"); remove it if you don't want
+   it in the video.
+3. README hero is now the storm screenshot; the old learned-edge hero is in the fold-out.
+4. The FalkorDB 6.0.2 crash (wide aggregation row with NULLs; repro in `.scratch/crashprobe*.py`, described under 08A2):
+   report it upstream? It's a credible "we stress-tested FalkorDB" story.
+5. Demo script v2 (Track 1 first) replaces the v1 order; v1 is kept below it in docs/demo-script.md.
+6. The usage note: I stopped using per-commit verifier agents and the 5-judge panel after your message; one
+   independent reviewer + judge pass ran at the end (scores and fixes under 08J).
+
+**Known gaps (honest)**
+- Everything is mock mode: the planner is deterministic rules; no LLM has selected a tool yet (live check:
+  `scripts/live-check.sh`, ≈$0.15 on Haiku).
+- On single alerts the algorithms add nothing measurable over traversals; they matter in storms. Benchmarks: at 2,000
+  services BFS and variable-length Cypher tie.
+- The held-out set's author was told the shapes to cover (incl. one planner rule); generated scenarios use the same
+  oracle for their expectations.
+- "Approve" is simulated (no pager/CI) and only on the run's own copy of the company.
+- A caller of the alerting service that shares a narrow dependency counts as a neighbour (judgement call).
+- The 2,000-service company is generated (shallow layers), so it stresses size more than depth.
+
+**Revert map:** the table at the top of this file.
