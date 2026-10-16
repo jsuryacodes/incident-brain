@@ -2,12 +2,12 @@
 
 > **Generated** by `python -m backend.tools.export_docs` from `backend/tools/registry.py`. Do not edit by hand.
 
-Every product answer comes from one of these 17 fixed, parameterised, **read-only** tools (`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.
+Every product answer comes from one of these 21 fixed, parameterised, **read-only** tools (`graph.ro_query`). The LLM picks a tool and fills in arguments; it never writes Cypher. Each call also returns a *receipt* (the exact query, parameters and the nodes/edges used), which the UI shows.
 
 - `$name` are query parameters. `N` in `*1..N` is a hop bound: variable-length bounds cannot be parameters, so it is clamped to an integer 1..6 before being written into the query.
 - `(a)-[:DEPENDS_ON]->(b)` means *a calls b*. `source` on that edge is `declared` (catalog) or `learned` (written by an agent).
 - Hackathon tracks: Track 1: Agents That Act on Connected Data; Track 2: Agent Memory and Coordination; Track 3: Company Brain.
-- FalkorDB algorithms used: `algo.SPpaths`, `algo.pageRank`, `algo.betweenness`, and full-text `db.idx.fulltext.queryNodes`.
+- FalkorDB algorithms used: `algo.SPpaths`, `algo.SSpaths`, `algo.BFS`, `algo.WCC`, `algo.labelPropagation`, `algo.pageRank`, `algo.betweenness`, and full-text `db.idx.fulltext.queryNodes`.
 - Every tool below was run against the live database while generating this file (FalkorDB graph module v6.0.2); its real output is pasted under it.
 
 ## Contents
@@ -31,6 +31,10 @@ Every product answer comes from one of these 17 fixed, parameterised, **read-onl
 | 15 | [`get_incident_state`](#get_incident_state) | Track 2: Agent Memory and Coordination | — |
 | 16 | [`memory_recall`](#memory_recall) | Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data | — |
 | 17 | [`industry_matches`](#industry_matches) | Track 3: Company Brain, Track 2: Agent Memory and Coordination, Track 1: Agents That Act on Connected Data | — |
+| 18 | [`correlate_alerts`](#correlate_alerts) | Track 1: Agents That Act on Connected Data | algo.BFS (reach per alert) + algo.SPpaths (paths) |
+| 19 | [`connected_impact`](#connected_impact) | Track 1: Agents That Act on Connected Data | algo.WCC (on a projection) + algo.BFS |
+| 20 | [`blast_tiers`](#blast_tiers) | Track 1: Agents That Act on Connected Data | algo.SSpaths (incoming, shortest hops per caller) |
+| 21 | [`failure_domains`](#failure_domains) | Track 1: Agents That Act on Connected Data | algo.labelPropagation (CDLP) |
 
 ## find_service
 
@@ -60,7 +64,7 @@ RETURN s.id, s.name, s.tier, t.name, t.id
 
 **Explanation:** Lower-cases the query, turns spaces into hyphens and matches it against service name/id with CONTAINS. If nothing matches, falls back to requiring every word to appear in the name or description. Ranks exact, then prefix, then substring matches. Entry point for every conversation that starts from a name.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"query": "payments api"}`, 5 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"query": "payments api"}`, 4 ms incl. Python):
 
 ```json
 {"query": "payments api", "matches": [{"id": "svc:payments-api", "name": "payments-api", "tier": 1, "team": "Payments Core", "team_id": "team:payments-core"}]}
@@ -132,10 +136,10 @@ RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN r
 
 **Explanation:** Follows DEPENDS_ON outwards from the alerting service (0 hops included, so a change to the service itself counts) and keeps services that have a Deploy newer than the window. Failures travel up the call chain, so a fresh deploy anywhere below is the prime suspect. Each hit gets its shortest path via algo.SPpaths, plus DEPLOYED (who) and FOR_TICKET (why the change was made).
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:payments-api"}`, 2 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:payments-api"}`, 1 ms incl. Python):
 
 ```json
-{"service": "svc:payments-api", "since_minutes": 120, "hit_count": 1, "hits": [{"service": "svc:risk-rules", "hops": 2, "path": ["svc:payments-api", "svc:fraud-scoring", "svc:risk-rules"], "edge_sources": ["declared", "declared"], "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792171323, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}]}
+{"service": "svc:payments-api", "since_minutes": 120, "hit_count": 1, "hits": [{"service": "svc:risk-rules", "hops": 2, "path": ["svc:payments-api", "svc:fraud-scoring", "svc:risk-rules"], "edge_sources": ["declared", "declared"], "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792171615, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}]}
 ```
 
 ## recent_changes
@@ -162,10 +166,10 @@ ORDER BY d.ts DESC LIMIT $limit
 
 **Explanation:** A flat, one-hop read: Deploy -CHANGED-> Service, newer than the window, plus DEPLOYED (who) and FOR_TICKET (why). It uses the range index on Deploy.ts. On purpose it knows nothing about dependencies: every recent change becomes a hypothesis, and the traversal tools then confirm it (it is on the alerting service's call path) or reject it (it is not). A naive investigator stops at 'the newest deploy'; this is what the graph is for.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"since_minutes": 120}`, 2 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"since_minutes": 120}`, 1 ms incl. Python):
 
 ```json
-{"since_minutes": 120, "change_count": 2, "changes": [{"service": "svc:risk-rules", "tier": 1, "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792171323, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "deployer_id": "per:leo-park", "deployer_status": "active", "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}, {"service": "svc:email-sender", "tier": 3, "deploy": {"id": "dep:email-sender-v1.14.2", "version": "1.14.2", "ts": 1792170123, "minutes_ago": 60, "summary": "Bump transactional email client to 4.2.1; no behaviour change", "by": "Kenji Watanabe"}, "deployer_id": "per:kenji-watanabe", "deployer_status": "active", "ticket": null}]}
+{"since_minutes": 120, "change_count": 2, "changes": [{"service": "svc:risk-rules", "tier": 1, "deploy": {"id": "dep:risk-rules-v2.8.0", "version": "2.8.0", "ts": 1792171615, "minutes_ago": 40, "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster", "by": "Leo Park"}, "deployer_id": "per:leo-park", "deployer_status": "active", "ticket": {"key": "RISK-412", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"}}, {"service": "svc:email-sender", "tier": 3, "deploy": {"id": "dep:email-sender-v1.14.2", "version": "1.14.2", "ts": 1792170415, "minutes_ago": 60, "summary": "Bump transactional email client to 4.2.1; no behaviour change", "by": "Kenji Watanabe"}, "deployer_id": "per:kenji-watanabe", "deployer_status": "active", "ticket": null}]}
 ```
 
 ## shared_dependency_changes
@@ -360,7 +364,7 @@ RETURN i.id, i.key, i.title, i.severity, i.started_at, i.origin, i.status,
 
 **Explanation:** Two routes into an incident: AFFECTED (it hurt the service) and CAUSED_BY a Deploy that CHANGED the service (it came from there). Ranked by how many of the given services it touches, then recency. Detail query follows HAS_ROOT_CAUSE, RESOLVED_BY, PERFORMED_BY and SOURCED_FROM; SIMILAR_TO is read in both directions so links written by agents show up. Nothing filters on origin, so agent-written incidents are recalled too.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_ids": ["svc:risk-rules"], "limit": 2}`, 4 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_ids": ["svc:risk-rules"], "limit": 2}`, 2 ms incl. Python):
 
 ```json
 {"service_ids": ["svc:risk-rules"], "incident_count": 1, "incidents": [{"id": "inc:2025-031", "key": "INC-2025-031", "title": "fraud-scoring timeouts during checkout peak", "severity": 2, "started": "2025-07-18", "origin": "seed", "status": "resolved", "overlap": 1, "via": ["caused_by_deploy"], "caused_by_change_to": ["svc:risk-rules"], "root_causes": ["rc:cache-ttl-thundering-herd"], "resolution": "Rolled back TTL to 300s and added cache warm-up", "resolved_by": ["Priya Nair", "Arjun Mehta"], "resolution_sources": ["tkt:PM-2025-031"], "similar_to": []}]}
@@ -390,10 +394,10 @@ ORDER BY score DESC, node.id LIMIT $limit
 
 **Explanation:** Runs FalkorDB's full-text index per label. The query is stripped to plain words (no operator characters) and passed as a parameter. First pass requires all words (precise); if there is room, a second pass accepts any word (recall) ranked lower. Each index's scores are normalised to its best hit because scores are not comparable across indexes; ties go to raw sources (chats, docs, tickets) before derived summaries. No embeddings: the graph supplies context.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"query": "rules cache ttl", "limit": 3}`, 8 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"query": "rules cache ttl", "limit": 3}`, 5 ms incl. Python):
 
 ```json
-{"query": "rules cache ttl", "terms": ["rules", "cache", "ttl"], "hit_count": 12, "hits": [{"id": "chat:risk-eng-config-load", "label": "ChatThread", "title": "How does risk-rules get its rules? (config load)", "snippet": "…I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 18:05] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just…", "date": "2025-08-12", "author": "Arjun Mehta", "author_status": "left", "score": 1.0}, {"id": "tkt:RISK-412", "label": "Ticket", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL", "snippet": "…up to 5 minutes to take effect in production, because risk-rules caches the rule set for RULES_CACHE_TTL (currently 300s). Proposal: reduce RULES_CACHE_TTL from 300s to 5s so edits apply almost immed…", "date": "2026-10-13", "author": "Leo Park", "autho …
+{"query": "rules cache ttl", "terms": ["rules", "cache", "ttl"], "hit_count": 12, "hits": [{"id": "chat:risk-eng-config-load", "label": "ChatThread", "title": "How does risk-rules get its rules? (config load)", "snippet": "…I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 18:09] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just…", "date": "2025-08-12", "author": "Arjun Mehta", "author_status": "left", "score": 1.0}, {"id": "tkt:RISK-412", "label": "Ticket", "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL", "snippet": "…up to 5 minutes to take effect in production, because risk-rules caches the rule set for RULES_CACHE_TTL (currently 300s). Proposal: reduce RULES_CACHE_TTL from 300s to 5s so edits apply almost immed…", "date": "2026-10-13", "author": "Leo Park", "autho …
 ```
 
 ## critical_services
@@ -434,7 +438,7 @@ MATCH (s:Service)-[:DEPENDS_ON*1..6]->(d:Service) WHERE s.id IN $ids RETURN DIST
 
 **Explanation:** PageRank over DEPENDS_ON passes credit from callers to callees, so heavily shared dependencies (config-service, its database, kafka-events) rise to the top: single points of failure. Betweenness counts shortest paths running through a node (sampled, fixed seed for repeatable results): it surfaces middle layers like payments-api and api-gateway that everything funnels through. Different questions: 'what do we all depend on' vs 'what sits in the middle'.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"algorithm": "pagerank", "limit": 4, "downstream_of": ["svc:payouts-service"]}`, 4 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"algorithm": "pagerank", "limit": 4, "downstream_of": ["svc:payouts-service"]}`, 2 ms incl. Python):
 
 ```json
 {"algorithm": "pagerank", "meaning": "shared dependencies: services many others call, directly or indirectly", "services": [{"id": "svc:config-db", "name": "config-db", "tier": 1, "team": "Platform", "score": 0.1215}, {"id": "svc:config-service", "name": "config-service", "tier": 1, "team": "Platform", "score": 0.1213}, {"id": "svc:kafka-events", "name": "kafka-events", "tier": 1, "team": "Platform", "score": 0.089}, {"id": "svc:ledger-service", "name": "ledger-service", "tier": 1, "team": "Payments Core", "score": 0.0532}], "downstream_of": ["svc:payouts-service"], "note": "ranked over the whole company, then limited to services the given ones call (directly or not)"}
@@ -500,10 +504,10 @@ LIMIT 300
 
 **Explanation:** Looks the node up by its prefixed id (the prefix selects the label, so the index on id is used) and lists one-hop neighbours with edge type and direction. Neighbours are taken round-robin across edge types so a node with many mentions still shows its maintainer, dependencies and owner.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"node_id": "per:arjun-mehta"}`, 3 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"node_id": "per:arjun-mehta"}`, 2 ms incl. Python):
 
 ```json
-{"id": "per:arjun-mehta", "label": "Person", "props": {"status": "left", "origin": "seed", "name": "Arjun Mehta", "role": "Staff Engineer", "email": "arjun.mehta@kestrelpay.example", "joined_at": 1602093723, "left_at": 1783965723}, "dates": {"joined_at": "2020-10-07", "left_at": "2026-07-13"}, "neighbour_counts": {"MEMBER_OF (out)": 1, "MAINTAINS (out)": 2, "WORKED_ON (out)": 3, "DEPLOYED (out)": 1, "AUTHORED (out)": 6, "MENTIONS (in)": 2, "PERFORMED_BY (in)": 1}, "neighbours": [{"edge": "MEMBER_OF", "dir": "out", "id": "team:risk-fraud", "name": "Risk & Fraud"}, {"edge": "MAINTAINS", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "WORKED_ON", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "DEPLOYED", "dir": "out", "id": "dep:risk-rules-v2.3.0", "name": "Lower RULES_CACHE_TTL to 10s"}, {"edge": "AUTHORED", "dir": "out", "id": "cha …
+{"id": "per:arjun-mehta", "label": "Person", "props": {"status": "left", "origin": "seed", "name": "Arjun Mehta", "role": "Staff Engineer", "email": "arjun.mehta@kestrelpay.example", "joined_at": 1602094015, "left_at": 1783966015}, "dates": {"joined_at": "2020-10-07", "left_at": "2026-07-13"}, "neighbour_counts": {"MEMBER_OF (out)": 1, "MAINTAINS (out)": 2, "WORKED_ON (out)": 3, "DEPLOYED (out)": 1, "AUTHORED (out)": 6, "MENTIONS (in)": 2, "PERFORMED_BY (in)": 1}, "neighbours": [{"edge": "MEMBER_OF", "dir": "out", "id": "team:risk-fraud", "name": "Risk & Fraud"}, {"edge": "MAINTAINS", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "WORKED_ON", "dir": "out", "id": "svc:fraud-scoring", "name": "fraud-scoring"}, {"edge": "DEPLOYED", "dir": "out", "id": "dep:risk-rules-v2.3.0", "name": "Lower RULES_CACHE_TTL to 10s"}, {"edge": "AUTHORED", "dir": "out", "id": "cha …
 ```
 
 ## read_source
@@ -611,7 +615,7 @@ RETURN r.id, r.summary, collect(p.id), collect(p.name)
 
 **Explanation:** This is how agents hand off: each agent starts with an empty conversation and reads the incident's state from the graph. Sessions point at the incident (FOR_INCIDENT); their Steps (IN_SESSION) with action 'handoff' carry the notes, and Facts WRITTEN_IN those sessions are what the team learned. Nine small queries instead of one big one, because FalkorDB drops rows when a MATCH follows an aggregation.
 
-**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"incident_id": "inc:2025-031"}`, 5 ms incl. Python):
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"incident_id": "inc:2025-031"}`, 4 ms incl. Python):
 
 ```json
 {"id": "inc:2025-031", "key": "INC-2025-031", "title": "fraud-scoring timeouts during checkout peak", "severity": 2, "status": "resolved", "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%", "summary": "risk-rules v2.3.0 lowered RULES_CACHE_TTL to 10s. At checkout peak every risk-rules pod refetched rulesets, saturating config-service and timing out fraud-scoring. Rolled back the TTL to 300s and added cache warm-up.", "origin": "seed", "started_minutes_ago": 655200, "affected": ["svc:config-service", "svc:fraud-scoring", "svc:payments-api"], "caused_by": [{"id": "dep:risk-rules-v2.3.0", "label": "Deploy", "service": "svc:risk-rules", "summary": "Lower RULES_CACHE_TTL to 10s", "minutes_ago": 655380, "by": "Arjun Mehta", "ticket": null}], "root_causes": [{"id": "rc:cache-ttl-thundering-herd", "name": "Cache TTL too low → thundering herd on a s …
@@ -718,6 +722,148 @@ RETURN pm.id, pm.company, pm.title, pm.url, pm.published_at, pm.summary, collect
 
 ```json
 {"root_causes": ["rc:retry-storm"], "match_count": 2, "matches": [{"id": "pm:gcp-2025-06-12", "company": "Google Cloud", "title": "Multiple GCP products are experiencing Service issues", "url": "https://status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW", "published": "2025-06-12", "summary": "A policy with blank fields replicated globally within seconds and hit new, unflagged Service Control code without error handling, which crashed in a loop. A kill switch disabled the path quickly, but restarting tasks without randomized backoff overloaded the Spanner backend in a large region, stretching recovery there by hours.", "shared_root_causes": ["rc:retry-storm"], "overlap_terms": []}, {"id": "pm:aws-2021-12-07", "company": "Amazon Web Services", "title": "Summary of the AWS Service Event in the Northern Virginia (US-EAST-1) Region", "url": "https://aws.amazon.com/message/12721/", "publi …
+```
+
+## correlate_alerts
+
+**Purpose:** Several alerts at once: the dependencies they share, ranked by how many of the alerting services reach each one (then alerting before silent, then fewer hops), with every alert's path to the top candidates.
+
+**Track(s):** Track 1: Agents That Act on Connected Data
+
+**FalkorDB algorithm:** algo.BFS (reach per alert) + algo.SPpaths (paths)
+
+**Arguments:** `{"service_ids":{"type":"array","items":{"type":"string"},"minItems":1,"maxItems":12,"description":"The alerting service ids, e.g. ['svc:<name>', 'svc:<other>']."},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_ids)
+
+**LLM-facing description:** Several alerts at once: the dependencies they share, ranked by how many of the alerting services reach each one (then alerting before silent, then fewer hops), with every alert's path to the top candidates. A shared root that explains most alerts means one incident, not one per alert.
+
+**Cypher:**
+
+```cypher
+UNWIND $ids AS sid
+MATCH (s:Service {id:sid})
+CALL algo.BFS(s, $depth, 'DEPENDS_ON') YIELD nodes
+UNWIND nodes AS d
+RETURN d.id, collect(DISTINCT sid)
+```
+
+```cypher
+MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)
+```
+
+```cypher
+MATCH (a:Service {id:$from}), (b:Service {id:$to})
+CALL algo.SPpaths({sourceNode: a, targetNode: b, relTypes: ['DEPENDS_ON'], relDirection: $dir, maxLen: $maxlen}) YIELD path
+RETURN [x IN nodes(path) | x.id], [r IN relationships(path) | r.source], [r IN relationships(path) | startNode(r).id], [r IN relationships(path) | r.kind]
+```
+
+**Explanation:** Runs algo.BFS from every alerting service over DEPENDS_ON (what it calls, up to N hops) in one query, then counts, for every dependency, how many alerting services reach it (each alerting service counts for itself too: it may be the shared root). The candidates covering the most alerts are ranked: more alerts covered, then a candidate that is itself alerting, then fewer total hops. algo.SPpaths gives each alert's shortest path to the leading candidates, so the UI can draw the storm converging. Only two columns per row: FalkorDB 6.0.2 crashed on wide aggregation rows.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_ids": ["svc:auth-service", "svc:payouts-service", "svc:webhook-dispatcher", "svc:card-processor-adapter"]}`, 5 ms incl. Python):
+
+```json
+{"alerts": ["svc:auth-service", "svc:payouts-service", "svc:webhook-dispatcher", "svc:card-processor-adapter"], "max_hops": 6, "roots": [{"id": "svc:config-service", "covers": ["svc:auth-service", "svc:payouts-service", "svc:webhook-dispatcher"], "coverage": 3, "alerting": false, "total_hops": 3, "callers": 12, "paths": {"svc:auth-service": ["svc:auth-service", "svc:config-service"], "svc:payouts-service": ["svc:payouts-service", "svc:config-service"], "svc:webhook-dispatcher": ["svc:webhook-dispatcher", "svc:config-service"]}}, {"id": "svc:config-db", "covers": ["svc:auth-service", "svc:payouts-service", "svc:webhook-dispatcher"], "coverage": 3, "alerting": false, "total_hops": 6, "callers": 13, "paths": {"svc:auth-service": ["svc:auth-service", "svc:config-service", "svc:config-db"], "svc:payouts-service": ["svc:payouts-service", "svc:config-service", "svc:config-db"], "svc:webhook-dis …
+```
+
+## connected_impact
+
+**Purpose:** Several alerts at once: which of them COULD share a cause.
+
+**Track(s):** Track 1: Agents That Act on Connected Data
+
+**FalkorDB algorithm:** algo.WCC (on a projection) + algo.BFS
+
+**Arguments:** `{"service_ids":{"type":"array","items":{"type":"string"},"minItems":1,"maxItems":12,"description":"The alerting service ids, e.g. ['svc:<name>', 'svc:<other>']."}}` (required: service_ids)
+
+**LLM-facing description:** Several alerts at once: which of them COULD share a cause. Projects the alerting services plus everything they call into a scratch graph and runs weakly connected components. Alerts in different components share no dependency at all, so they are separate incidents.
+
+**Cypher:**
+
+```cypher
+UNWIND $ids AS sid
+MATCH (s:Service {id:sid})
+CALL algo.BFS(s, 6, 'DEPENDS_ON') YIELD nodes
+UNWIND nodes AS d
+RETURN DISTINCT d.id
+```
+
+```cypher
+MATCH (a:Service)-[:DEPENDS_ON]->(b:Service) WHERE a.id IN $ids AND b.id IN $ids RETURN a.id, b.id
+```
+
+```cypher
+UNWIND $ids AS i CREATE (:Service {id: i})
+```
+
+```cypher
+UNWIND $pairs AS p MATCH (a:Service {id: p[0]}), (b:Service {id: p[1]}) CREATE (a)-[:DEPENDS_ON]->(b)
+```
+
+```cypher
+CALL algo.WCC({nodeLabels: ['Service'], relationshipTypes: ['DEPENDS_ON']}) YIELD node, componentId
+RETURN node.id, componentId
+```
+
+**Explanation:** algo.WCC over the whole service graph is useless here: every service reaches the same hubs, so it is one component. So the alerting services and their downstream closure (algo.BFS) are copied, with the DEPENDS_ON edges among them, into a scratch graph with the same labels, algo.WCC runs there, and the scratch graph is deleted at once (a few milliseconds). The tenant graph is only read. Two alerts in different components cannot have one cause: that is a lower bound on the number of incidents.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_ids": ["svc:auth-service", "svc:payouts-service", "svc:card-processor-adapter"]}`, 4 ms incl. Python):
+
+```json
+{"alerts": ["svc:auth-service", "svc:payouts-service", "svc:card-processor-adapter"], "projection": {"services": 11, "edges": 12}, "components": [{"alerts": ["svc:auth-service", "svc:payouts-service"], "size": 10}, {"alerts": ["svc:card-processor-adapter"], "size": 1}], "incidents_at_least": 2, "meaning": "alerts in different components share no dependency at all, so no single cause can explain them together"}
+```
+
+## blast_tiers
+
+**Purpose:** Who calls a service, tier by tier (1 hop, 2 hops, ...), split into services that are already alerting and silent ones (the next to feel it: notify them, don't page them).
+
+**Track(s):** Track 1: Agents That Act on Connected Data
+
+**FalkorDB algorithm:** algo.SSpaths (incoming, shortest hops per caller)
+
+**Arguments:** `{"service_id":{"type":"string","description":"Service id, 'svc:<name>'. Use find_service if unsure."},"alerting":{"type":"array","items":{"type":"string"},"maxItems":30},"max_hops":{"type":"integer","minimum":1,"maximum":6,"description":"Max DEPENDS_ON hops."}}` (required: service_id)
+
+**LLM-facing description:** Who calls a service, tier by tier (1 hop, 2 hops, ...), split into services that are already alerting and silent ones (the next to feel it: notify them, don't page them).
+
+**Cypher:**
+
+```cypher
+MATCH (s:Service {id:$id})
+CALL algo.SSpaths({sourceNode: s, relTypes: ['DEPENDS_ON'], relDirection: 'incoming', maxLen: $depth, pathCount: 1000}) YIELD path, pathWeight
+RETURN last(nodes(path)).id, min(pathWeight)
+```
+
+**Explanation:** algo.SSpaths from the service with relDirection 'incoming' enumerates paths to every caller; the shortest weight per caller is its tier (FalkorDB's algo.BFS only walks outgoing edges, so it can't do callers). Joined with the list of alerting services, the silent ones are the blast radius that has not fired yet.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_id": "svc:config-service", "alerting": ["svc:auth-service", "svc:payouts-service"], "max_hops": 2}`, 1 ms incl. Python):
+
+```json
+{"service": "svc:config-service", "max_hops": 2, "tiers": [{"hops": 1, "alerting": ["svc:auth-service", "svc:payouts-service"], "silent": ["svc:api-gateway", "svc:bank-connector", "svc:feature-flags", "svc:merchant-onboarding", "svc:notifications-service", "svc:payments-api", "svc:webhook-dispatcher"]}, {"hops": 2, "alerting": [], "silent": ["svc:merchant-dashboard", "svc:reconciliation-job", "svc:web-checkout"]}], "callers": 12, "silent_callers": ["svc:api-gateway", "svc:bank-connector", "svc:feature-flags", "svc:merchant-dashboard", "svc:merchant-onboarding", "svc:notifications-service", "svc:payments-api", "svc:reconciliation-job", "svc:web-checkout", "svc:webhook-dispatcher"], "meaning": "tier n = services that call this one at n hops (shortest); silent ones have not alerted yet"}
+```
+
+## failure_domains
+
+**Purpose:** Community detection over the dependency graph (label propagation): which community each given service falls in.
+
+**Track(s):** Track 1: Agents That Act on Connected Data
+
+**FalkorDB algorithm:** algo.labelPropagation (CDLP)
+
+**Arguments:** `{"service_ids":{"type":"array","items":{"type":"string"},"minItems":0,"maxItems":12,"description":"The alerting service ids, e.g. ['svc:<name>', 'svc:<other>']."}}` (required: none)
+
+**LLM-facing description:** Community detection over the dependency graph (label propagation): which community each given service falls in. Context only: in a hub-heavy graph communities are coarse.
+
+**Cypher:**
+
+```cypher
+CALL algo.labelPropagation({nodeLabels: ['Service'], relationshipTypes: ['DEPENDS_ON'], maxIterations: 20}) YIELD node, communityId
+RETURN node.id, communityId
+```
+
+**Explanation:** algo.labelPropagation over Service/DEPENDS_ON groups services that are densely linked. Useful as context (are these alerts in one part of the system?), never as proof: in this graph everything links through a few hubs, so the result is two coarse communities. The planner reports it and decides nothing on it.
+
+**Verified against the running FalkorDB** (fresh Kestrel Pay seed, `{"service_ids": ["svc:auth-service", "svc:card-processor-adapter"]}`, 4 ms incl. Python):
+
+```json
+{"algorithm": "algo.labelPropagation (CDLP) over DEPENDS_ON", "communities": 2, "sizes": [22, 5], "services": [{"id": "svc:auth-service", "community": 0, "community_size": 22}, {"id": "svc:card-processor-adapter", "community": 1, "community_size": 5}], "same_community": false, "caveat": "communities come from link density; in a hub-heavy graph they are coarse, so treat them as context, not as proof that alerts are related"}
 ```
 
 ## FalkorDB notes

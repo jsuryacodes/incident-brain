@@ -135,6 +135,9 @@ def test_12_node_details(ctx):
 
 
 GOOD = [
+    ("correlate_alerts", {"service_ids": [PO, "svc:auth-service", "svc:webhook-dispatcher"]}),
+    ("connected_impact", {"service_ids": [PO, "svc:auth-service", "svc:card-processor-adapter"]}),
+    ("blast_tiers", {"service_id": CS, "alerting": [PO]}), ("failure_domains", {"service_ids": [PO, PA]}), ("failure_domains", {}),
     ("recent_changes", {}), ("recent_changes", {"since_minutes": 43200, "limit": 30}),
     ("critical_services", {"algorithm": "pagerank", "downstream_of": [PO]}),
     ("find_service", {"query": "payments api"}), ("blast_radius", {"service_id": CS}), ("blast_radius", {"service_id": CS, "max_hops": 6}),
@@ -154,6 +157,8 @@ GOOD = [
 LIMITS = {"read_source": gt.SOURCE_CHARS + 1200, "get_incident_state": gt.STATE_CHARS, "memory_recall": 4500,
           "industry_matches": 4000}  # deliberately bigger
 BAD = [
+    ("correlate_alerts", {"service_ids": []}), ("connected_impact", {"service_ids": ["svc:nope"]}),
+    ("blast_tiers", {"service_id": "svc:nope"}), ("blast_tiers", {"service_id": CS, "alerting": "svc:x"}),
     ("critical_services", {"algorithm": "pagerank", "downstream_of": ["svc:nope"]}),
     ("find_service", {"query": ""}), ("blast_radius", {"service_id": "svc:nope"}), ("blast_radius", {"service_id": "per:priya-nair"}),
     ("recent_changes_downstream", {"service_id": "nope"}), ("shared_dependency_changes", {"service_id": "svc:nope"}),
@@ -197,7 +202,13 @@ def test_13b_bad_input_returns_error_not_exception(ctx, name, args):
 
 def test_13c_every_query_is_read_only(ctx, graph, monkeypatch):
     """Tools must go through ro_query: make plain query() blow up and run everything."""
-    monkeypatch.setattr(type(graph), "query", lambda *a, **k: (_ for _ in ()).throw(AssertionError("write path used")))
+    real = type(graph).query
+
+    def guarded(self, *a, **k):  # the only allowed write: connected_impact's own scratch projection graph
+        if "__proj_" not in self.name:
+            raise AssertionError(f"write path used on {self.name}")
+        return real(self, *a, **k)
+    monkeypatch.setattr(type(graph), "query", guarded)
     for name, args in GOOD:
         assert "error" not in call(name, args, ctx).result
 
@@ -294,3 +305,18 @@ def test_25_every_service_tool_on_every_service(ctx, graph):
                            ("stale_knowledge", {"service_id": s}), ("memory_recall", {"service_id": s}),
                            ("critical_services", {"downstream_of": [s]})):
             assert "error" not in call(name, args, ctx).result, (name, s)
+
+
+def test_26_storm_tools(ctx):
+    storm = [PO, "svc:auth-service", "svc:webhook-dispatcher", "svc:merchant-onboarding", "svc:card-processor-adapter"]
+    r = call("correlate_alerts", {"service_ids": storm}, ctx).result
+    assert r["roots"][0]["id"] == CS and r["roots"][0]["coverage"] == 4 and r["uncovered_by_top"] == ["svc:card-processor-adapter"]
+    assert r["roots"][0]["paths"][PO] == [PO, CS]
+    c = call("connected_impact", {"service_ids": storm}, ctx).result
+    assert [x["alerts"] for x in c["components"]][1] == ["svc:card-processor-adapter"] and c["incidents_at_least"] == 2
+    from backend.db import client
+    assert not [g for g in client().list_graphs() if "__proj_" in g]  # the scratch projection is gone
+    t = call("blast_tiers", {"service_id": CS, "alerting": [PO]}, ctx).result
+    assert PO in t["tiers"][0]["alerting"] and "svc:api-gateway" in t["tiers"][0]["silent"]
+    from dataclasses import replace
+    assert "switched off" in call("correlate_alerts", {"service_ids": storm}, replace(ctx, algorithms=False)).result["error"]

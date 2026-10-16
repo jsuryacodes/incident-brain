@@ -173,6 +173,13 @@ _SUM = {
         f": {r['matches'][0]['company']} — {r['matches'][0]['title']}" if r.get("matches") else ""),
     "recent_changes": lambda a, r: f"{r['change_count']} change(s) in {r['since_minutes']} min" + (
         ": " + ", ".join(f"{_name(c['service'])} {c['deploy']['minutes_ago']} min ago" for c in r["changes"][:3]) if r.get("changes") else ""),
+    "correlate_alerts": lambda a, r: ("shared root " + _name(r["roots"][0]["id"]) + f" reached by {r['roots'][0]['coverage']} of "
+                                      f"{len(r['alerts'])} alerts" if r.get("roots") else "the alerts share no dependency"),
+    "connected_impact": lambda a, r: f"{len(r['components'])} group(s) that cannot share a cause: " + " | ".join(
+        ", ".join(map(_name, c["alerts"])) for c in r["components"]),
+    "blast_tiers": lambda a, r: f"{r['callers']} caller(s) in {len(r['tiers'])} tier(s); {len(r['silent_callers'])} silent so far",
+    "failure_domains": lambda a, r: f"{r['communities']} communities" + (
+        "; the given services span " + str(len({s['community'] for s in r['services']})) if r.get("services") else ""),
     "find_service": lambda a, r: "matches: " + (", ".join(m["id"] for m in r.get("matches", [])) or "none"),
     "blast_radius": lambda a, r: f"{r['upstream_count']} upstream ({r['tier1_count']} tier-1)",
     "recent_changes_downstream": _recent,

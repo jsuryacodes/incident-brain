@@ -21,6 +21,10 @@ EXAMPLES = {
     "stale_knowledge": {"service_id": "svc:risk-rules"}, "node_details": {"node_id": "per:arjun-mehta"},
     "read_source": {"node_id": "dec:rules-cache-ttl"}, "memory_recall": {"service_id": "svc:payments-api"},
     "industry_matches": {"root_cause_id": "rc:retry-storm", "limit": 2}, "get_incident_state": {"incident_id": "inc:2025-031"},
+    "correlate_alerts": {"service_ids": ["svc:auth-service", "svc:payouts-service", "svc:webhook-dispatcher", "svc:card-processor-adapter"]},
+    "connected_impact": {"service_ids": ["svc:auth-service", "svc:payouts-service", "svc:card-processor-adapter"]},
+    "blast_tiers": {"service_id": "svc:config-service", "alerting": ["svc:auth-service", "svc:payouts-service"], "max_hops": 2},
+    "failure_domains": {"service_ids": ["svc:auth-service", "svc:card-processor-adapter"]},
 }
 DOCS_GRAPH = "kestrel_pay__eval_docs"
 
@@ -62,7 +66,8 @@ def render(verified=None, version="?"):
          "so it is clamped to an integer 1..6 before being written into the query.",
          "- `(a)-[:DEPENDS_ON]->(b)` means *a calls b*. `source` on that edge is `declared` (catalog) or `learned` (written by an agent).",
          f"- Hackathon tracks: {'; '.join(ALL_TRACKS)}.",
-         "- FalkorDB algorithms used: `algo.SPpaths`, `algo.pageRank`, `algo.betweenness`, and full-text `db.idx.fulltext.queryNodes`.",
+         "- FalkorDB algorithms used: `algo.SPpaths`, `algo.SSpaths`, `algo.BFS`, `algo.WCC`, `algo.labelPropagation`, "
+         "`algo.pageRank`, `algo.betweenness`, and full-text `db.idx.fulltext.queryNodes`.",
          f"- Every tool below was run against the live database while generating this file (FalkorDB graph module "
          f"{version}); its real output is pasted under it.",
          "",

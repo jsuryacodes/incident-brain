@@ -3,6 +3,7 @@
 `track` uses the hackathon's official track names (ALL_TRACKS below).
 """
 from backend.tools import graph_tools as gt
+from backend.tools import storm_tools as st
 from backend.tools.receipt import ToolContext, ToolOutput
 
 F = "Track 1: Agents That Act on Connected Data"  # Firefighter: traversal + algorithm tools
@@ -134,6 +135,37 @@ TOOLS = {
         cypher=[gt.Q_IND_INCIDENT, gt.Q_IND_LINKED, gt.Q_IND_MATCHES], algorithm=None,
         explanation="The industry-pattern layer: every tenant graph holds the same ~20 PublicPostmortem nodes, each HAS_ROOT_CAUSE -> RootCause. Incident -[:HAS_ROOT_CAUSE]-> RootCause <-[:HAS_ROOT_CAUSE]- PublicPostmortem is a two-hop join, so 'has anyone else had this?' is a graph query, not a web search. Ranked by number of shared root causes, then words shared with the incident's title/symptom/summary, then recency. SIMILAR_TO edges an agent already wrote are flagged as already_linked."),
 }
+
+
+_ALERTS = {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 12,
+           "description": "The alerting service ids, e.g. ['svc:<name>', 'svc:<other>']."}
+TOOLS.update({
+    "correlate_alerts": dict(
+        fn=st.correlate_alerts, track=[F],
+        description="Several alerts at once: the dependencies they share, ranked by how many of the alerting services reach each one (then alerting before silent, then fewer hops), with every alert's path to the top candidates. A shared root that explains most alerts means one incident, not one per alert.",
+        input_schema=_obj({"service_ids": _ALERTS, "max_hops": _HOPS}, ["service_ids"]),
+        cypher=[st.Q_REACH, st.Q_CALLER_COUNT, gt.Q_SP], algorithm="algo.BFS (reach per alert) + algo.SPpaths (paths)",
+        explanation="Runs algo.BFS from every alerting service over DEPENDS_ON (what it calls, up to N hops) in one query, then counts, for every dependency, how many alerting services reach it (each alerting service counts for itself too: it may be the shared root). The candidates covering the most alerts are ranked: more alerts covered, then a candidate that is itself alerting, then fewer total hops. algo.SPpaths gives each alert's shortest path to the leading candidates, so the UI can draw the storm converging. Only two columns per row: FalkorDB 6.0.2 crashed on wide aggregation rows."),
+    "connected_impact": dict(
+        fn=st.connected_impact, track=[F],
+        description="Several alerts at once: which of them COULD share a cause. Projects the alerting services plus everything they call into a scratch graph and runs weakly connected components. Alerts in different components share no dependency at all, so they are separate incidents.",
+        input_schema=_obj({"service_ids": _ALERTS}, ["service_ids"]),
+        cypher=[st.Q_CLOSURE, st.Q_EDGES_AMONG, st.Q_PROJ_NODES, st.Q_PROJ_EDGES, st.Q_WCC], algorithm="algo.WCC (on a projection) + algo.BFS",
+        explanation="algo.WCC over the whole service graph is useless here: every service reaches the same hubs, so it is one component. So the alerting services and their downstream closure (algo.BFS) are copied, with the DEPENDS_ON edges among them, into a scratch graph with the same labels, algo.WCC runs there, and the scratch graph is deleted at once (a few milliseconds). The tenant graph is only read. Two alerts in different components cannot have one cause: that is a lower bound on the number of incidents."),
+    "blast_tiers": dict(
+        fn=st.blast_tiers, track=[F],
+        description="Who calls a service, tier by tier (1 hop, 2 hops, ...), split into services that are already alerting and silent ones (the next to feel it: notify them, don't page them).",
+        input_schema=_obj({"service_id": _SVC, "alerting": {"type": "array", "items": {"type": "string"}, "maxItems": 30},
+                           "max_hops": _HOPS}, ["service_id"]),
+        cypher=[st.Q_TIERS], algorithm="algo.SSpaths (incoming, shortest hops per caller)",
+        explanation="algo.SSpaths from the service with relDirection 'incoming' enumerates paths to every caller; the shortest weight per caller is its tier (FalkorDB's algo.BFS only walks outgoing edges, so it can't do callers). Joined with the list of alerting services, the silent ones are the blast radius that has not fired yet."),
+    "failure_domains": dict(
+        fn=st.failure_domains, track=[F],
+        description="Community detection over the dependency graph (label propagation): which community each given service falls in. Context only: in a hub-heavy graph communities are coarse.",
+        input_schema=_obj({"service_ids": {**_ALERTS, "minItems": 0}}),
+        cypher=[st.Q_CDLP], algorithm="algo.labelPropagation (CDLP)",
+        explanation="algo.labelPropagation over Service/DEPENDS_ON groups services that are densely linked. Useful as context (are these alerts in one part of the system?), never as proof: in this graph everything links through a few hubs, so the result is two coarse communities. The planner reports it and decides nothing on it."),
+})
 
 
 def call(name, args=None, ctx=None, table=None):
