@@ -1,11 +1,11 @@
 {
- "run_id": "run-aed749200096",
+ "run_id": "run-05e45d01083c",
  "agent": "team",
  "tenant": "kestrel_pay",
  "mode": "mock",
  "model": "mock",
- "session_id": "ses:20261014T232619-fb6be5",
- "started_at": 1792020379,
+ "session_id": "ses:20261016T181231-3ba1e0",
+ "started_at": 1792174351,
  "status": "ok",
  "alert": {
   "service_id": "svc:payouts-service",
@@ -63,7 +63,7 @@
    },
    {
     "node_id": "dec:rules-cache-ttl",
-    "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-10), source chat:risk-eng-config-load."
+    "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-12), source chat:risk-eng-config-load."
    },
    {
     "node_id": "inc:2026-032",
@@ -181,7 +181,7 @@
       },
       {
        "node_id": "dec:rules-cache-ttl",
-       "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-10), source chat:risk-eng-config-load."
+       "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-12), source chat:risk-eng-config-load."
       },
       {
        "node_id": "inc:2026-032",
@@ -203,6 +203,77 @@
       "Restore the setting required by dec:rules-cache-ttl before re-shipping."
      ],
      "confidence": "high",
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "dep:risk-rules-v2.8.1 on risk-rules caused the payouts-service alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:risk-rules-v2.8.1",
+         "claim": "deployed 5 min ago: RISK-412 follow-up: re-enable 5s TTL for EU ruleset"
+        },
+        {
+         "node_id": "svc:config-service",
+         "claim": "on the path payouts-service -> config-service -> risk-rules"
+        },
+        {
+         "node_id": "svc:risk-rules",
+         "claim": "on the path payouts-service -> config-service -> risk-rules"
+        },
+        {
+         "node_id": "dec:rules-cache-ttl",
+         "claim": "the change contradicts this recorded decision"
+        },
+        {
+         "node_id": "inc:2026-032",
+         "claim": "a past incident with the same cause"
+        },
+        {
+         "node_id": "inc:2025-031",
+         "claim": "a past incident with the same cause"
+        }
+       ],
+       "contradicting": [],
+       "reason": "a noisy neighbour through config-service"
+      },
+      {
+       "id": "H2",
+       "claim": "dep:risk-rules-v2.8.0 on risk-rules caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:risk-rules-v2.8.0",
+         "claim": "deployed 40 min ago"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:risk-rules",
+         "claim": "risk-rules only shares config-service with payouts-service"
+        }
+       ],
+       "reason": "risk-rules only shares config-service with payouts-service"
+      },
+      {
+       "id": "H3",
+       "claim": "dep:email-sender-v1.14.2 on email-sender caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:email-sender-v1.14.2",
+         "claim": "deployed 60 min ago"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:email-sender",
+         "claim": "email-sender did not show up in the shared dependency changes scan of payouts-service: no dependency connects it"
+        }
+       ],
+       "reason": "email-sender did not show up in the shared dependency changes scan of payouts-service: no dependency connects it"
+      }
+     ],
      "learned": [],
      "memory_used": [
       "fact:learned-risk-rules-config-service",
@@ -293,7 +364,7 @@
      },
      {
       "node_id": "dec:rules-cache-ttl",
-      "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-10), source chat:risk-eng-config-load."
+      "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-12), source chat:risk-eng-config-load."
      },
      {
       "node_id": "inc:2026-032",
@@ -343,8 +414,8 @@
   "cache_read_input_tokens": 0,
   "cost_usd": 0.0,
   "llm_calls": 11,
-  "tool_calls": 18,
-  "duration_ms": 145
+  "tool_calls": 19,
+  "duration_ms": 104
  },
  "steps": [
   {
@@ -362,7 +433,8 @@
       "id": "svc:payouts-service",
       "name": "payouts-service",
       "tier": 1,
-      "team": "Payments Core"
+      "team": "Payments Core",
+      "team_id": "team:payments-core"
      }
     ]
    },
@@ -373,7 +445,7 @@
     },
     "queries": [
      {
-      "cypher": "MATCH (s:Service)<-[:OWNS]-(t:Team) WHERE toLower(s.name) CONTAINS $q OR toLower(s.id) CONTAINS $q RETURN s.id, s.name, s.tier, t.name",
+      "cypher": "MATCH (s:Service)<-[:OWNS]-(t:Team) WHERE toLower(s.name) CONTAINS $q OR toLower(s.id) CONTAINS $q RETURN s.id, s.name, s.tier, t.name, t.id",
       "params": {
        "q": "payouts-service"
       }
@@ -386,11 +458,12 @@
      "edges": []
     }
    },
+   "why": "the alert only has a name: resolve it to a service id",
    "summary": "find_service → matches: svc:payouts-service",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 0,
    "llm_call": 1,
-   "step_id": "step:20261014T232619-fb6be5-001"
+   "step_id": "step:20261016T181231-3ba1e0-001"
   },
   {
    "seq": 2,
@@ -434,11 +507,12 @@
      "edges": []
     }
    },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 0 upstream (0 tier-1)",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T232619-fb6be5-002"
+   "step_id": "step:20261016T181231-3ba1e0-002"
   },
   {
    "seq": 3,
@@ -529,7 +603,8 @@
     "tool": "critical_services",
     "args": {
      "algorithm": "pagerank",
-     "limit": 10
+     "limit": 10,
+     "downstream_of": null
     },
     "queries": [
      {
@@ -555,11 +630,12 @@
      "edges": []
     }
    },
+   "why": "nothing changed: rank the call path by structure to know where to look first",
    "summary": "critical_services → pagerank: config-service, config-db, kafka-events, ledger-service",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 0,
    "llm_call": 1,
-   "step_id": "step:20261014T232619-fb6be5-003"
+   "step_id": "step:20261016T181231-3ba1e0-003"
   },
   {
    "seq": 4,
@@ -582,7 +658,7 @@
       "key": "INC-2025-044",
       "title": "ledger-service connection pool exhausted during payout run",
       "severity": 2,
-      "started": "2025-09-14",
+      "started": "2025-09-16",
       "origin": "seed",
       "status": "resolved",
       "overlap": 1,
@@ -676,11 +752,12 @@
      ]
     }
    },
+   "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174352,
+   "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T232619-fb6be5-004"
+   "step_id": "step:20261016T181231-3ba1e0-004"
   },
   {
    "seq": 5,
@@ -714,7 +791,7 @@
        "title": "payouts-service: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
        "severity": 2,
        "symptom": "payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
-       "now": 1792020379
+       "now": 1792174352
       },
       "write": true
      },
@@ -723,8 +800,8 @@
       "params": {
        "id": "inc:2026-033",
        "svc": "svc:payouts-service",
-       "ses": "ses:20261014T232619-fb6be5",
-       "now": 1792020379
+       "ses": "ses:20261016T181231-3ba1e0",
+       "now": 1792174352
       },
       "write": true
      }
@@ -733,7 +810,7 @@
      "nodes": [
       "inc:2026-033",
       "svc:payouts-service",
-      "ses:20261014T232619-fb6be5"
+      "ses:20261016T181231-3ba1e0"
      ],
      "edges": [
       {
@@ -742,18 +819,19 @@
        "to": "svc:payouts-service"
       },
       {
-       "from": "ses:20261014T232619-fb6be5",
+       "from": "ses:20261016T181231-3ba1e0",
        "type": "FOR_INCIDENT",
        "to": "inc:2026-033"
       }
      ]
     }
    },
+   "why": "open the incident so the team shares one state",
    "summary": "open_incident → opened INC-2026-033 (inc:2026-033), severity 2, on svc:payouts-service",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 1,
    "llm_call": 2,
-   "step_id": "step:20261014T232619-fb6be5-005"
+   "step_id": "step:20261016T181231-3ba1e0-005"
   },
   {
    "seq": 6,
@@ -819,11 +897,12 @@
      "edges": []
     }
    },
+   "why": "hand off to the next agent through the graph",
    "summary": "Opened INC-2026-033 (inc:2026-033) at severity 2: payouts-service is tier 1 with 0 upstream callers (0 tier-1); not in the PageRank top 10. Blast radius: no tier-1 callers. Seen on this service before: INC-2025-044.",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 0,
    "llm_call": 3,
-   "step_id": "step:20261014T232619-fb6be5-006"
+   "step_id": "step:20261016T181231-3ba1e0-006"
   },
   {
    "seq": 7,
@@ -851,7 +930,7 @@
       "from": "svc:risk-rules",
       "to": "svc:config-service",
       "kind": "sync",
-      "learned": "2026-10-14",
+      "learned": "2026-10-16",
       "fact": {
        "id": "fact:learned-risk-rules-config-service",
        "statement": "risk-rules calls config-service at request time; the service catalog does not list this dependency.",
@@ -862,7 +941,7 @@
         }
        ]
       },
-      "session": "ses:20261014T232618-763572"
+      "session": "ses:20261016T181231-8d50a1"
      }
     ],
     "facts": [],
@@ -871,7 +950,7 @@
       "id": "inc:2026-032",
       "key": "INC-2026-032",
       "title": "payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
-      "resolved": "2026-10-14",
+      "resolved": "2026-10-16",
       "affected_in_scope": [
        "svc:config-service"
       ],
@@ -892,7 +971,7 @@
         "name": "Priya Nair"
        }
       ],
-      "session": "ses:20261014T232618-763572",
+      "session": "ses:20261016T181231-8d50a1",
       "runbook": {
        "id": "rb:fraud-scoring-latency-v2",
        "title": "Runbook: fraud-scoring latency",
@@ -1041,11 +1120,12 @@
      ]
     }
    },
+   "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → 1 learned edge(s), 0 fact(s), 1 resolved incident(s); suspect: risk-rules",
-   "ts": 1792020379,
-   "ms": 3,
+   "ts": 1792174352,
+   "ms": 2,
    "llm_call": 4,
-   "step_id": "step:20261014T232619-fb6be5-007"
+   "step_id": "step:20261016T181231-3ba1e0-007"
   },
   {
    "seq": 8,
@@ -1067,7 +1147,7 @@
       "deploy": {
        "id": "dep:risk-rules-v2.8.1",
        "version": "2.8.1",
-       "ts": 1792020079,
+       "ts": 1792174051,
        "minutes_ago": 5,
        "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
        "by": "Leo Park"
@@ -1096,6 +1176,10 @@
       ],
       "also_shares": [
        "svc:config-db"
+      ],
+      "shared_callers": 14,
+      "also_shares_callers": [
+       15
       ]
      },
      {
@@ -1104,7 +1188,7 @@
       "deploy": {
        "id": "dep:risk-rules-v2.8.0",
        "version": "2.8.0",
-       "ts": 1792017978,
+       "ts": 1792171951,
        "minutes_ago": 40,
        "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster",
        "by": "Leo Park"
@@ -1133,6 +1217,10 @@
       ],
       "also_shares": [
        "svc:config-db"
+      ],
+      "shared_callers": 14,
+      "also_shares_callers": [
+       15
       ]
      }
     ]
@@ -1152,10 +1240,10 @@
       }
      },
      {
-      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
+      "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792013179,
+       "since": 1792167151,
        "downstream": [
         "svc:ledger-service",
         "svc:bank-connector",
@@ -1165,6 +1253,15 @@
         "svc:config-db",
         "svc:ledger-db",
         "svc:audit-log"
+       ]
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..6]->(s:Service) WHERE s.id IN $ids RETURN s.id, count(DISTINCT c)",
+      "params": {
+       "ids": [
+        "svc:config-db",
+        "svc:config-service"
        ]
       }
      }
@@ -1223,11 +1320,12 @@
      ]
     }
    },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → 2 hit(s): risk-rules via shared config-service (LEARNED edge), deployed 5 min ago",
-   "ts": 1792020379,
-   "ms": 3,
+   "ts": 1792174352,
+   "ms": 2,
    "llm_call": 5,
-   "step_id": "step:20261014T232619-fb6be5-008"
+   "step_id": "step:20261016T181231-3ba1e0-008"
   },
   {
    "seq": 9,
@@ -1276,7 +1374,7 @@
         "svc:config-service",
         "svc:risk-rules"
        ],
-       "now": 1792020379
+       "now": 1792174352
       },
       "write": true
      },
@@ -1285,7 +1383,7 @@
       "params": {
        "id": "inc:2026-033",
        "t": "dep:risk-rules-v2.8.1",
-       "now": 1792020379
+       "now": 1792174352
       },
       "write": true
      },
@@ -1294,7 +1392,7 @@
       "params": {
        "id": "inc:2026-033",
        "t": "svc:risk-rules",
-       "now": 1792020379
+       "now": 1792174352
       },
       "write": true
      },
@@ -1303,7 +1401,7 @@
       "params": {
        "id": "inc:2026-033",
        "t": "rc:cache-ttl-thundering-herd",
-       "now": 1792020379
+       "now": 1792174352
       },
       "write": true
      }
@@ -1345,11 +1443,12 @@
      ]
     }
    },
+   "why": "record the cause the evidence supports",
    "summary": "update_incident → INC-2026-033: affected +2; cause dep:risk-rules-v2.8.1; cause svc:risk-rules; root cause rc:cache-ttl-thundering-herd",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 4,
    "llm_call": 6,
-   "step_id": "step:20261014T232619-fb6be5-009"
+   "step_id": "step:20261016T181231-3ba1e0-009"
   },
   {
    "seq": 10,
@@ -1384,7 +1483,7 @@
        "o": "inc:2026-032",
        "score": 0.9,
        "reason": "also caused by a change to risk-rules: payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
-       "now": 1792020379
+       "now": 1792174352
       },
       "write": true
      }
@@ -1403,11 +1502,12 @@
      ]
     }
    },
+   "why": "link the incident to the similar one it matches",
    "summary": "link_similar → inc:2026-033 SIMILAR_TO inc:2026-032 (0.9): also caused by a change to risk-rules: payments-api: 5xx rate 12% and p99 4.1s …",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 1,
    "llm_call": 6,
-   "step_id": "step:20261014T232619-fb6be5-010"
+   "step_id": "step:20261016T181231-3ba1e0-010"
   },
   {
    "seq": 11,
@@ -1424,7 +1524,7 @@
       "id": "dec:rules-cache-ttl",
       "title": "RULES_CACHE_TTL must stay ≥ 300s",
       "rationale": "Below ~30s config-service saturates at checkout peak, because risk-rules refetches rulesets from it on every cache miss. This is what caused INC-2025-031.",
-      "decided": "2025-08-10",
+      "decided": "2025-08-12",
       "decided_days_ago": 430,
       "author": "Arjun Mehta",
       "author_status": "left",
@@ -1434,7 +1534,7 @@
         "label": "ChatThread",
         "title": "How does risk-rules get its rules? (config load)",
         "channel": "#risk-eng",
-        "date": "2025-08-10",
+        "date": "2025-08-12",
         "excerpt": "Decision: RULES_CACHE_TTL stays at 300s minimum. Below ~30s config-service falls over at checkout peak — that's what bit us in INC-2025-031."
        }
       ]
@@ -1480,11 +1580,12 @@
      ]
     }
    },
+   "why": "does the change contradict a recorded decision?",
    "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s",
-   "ts": 1792020379,
-   "ms": 1,
+   "ts": 1792174352,
+   "ms": 0,
    "llm_call": 6,
-   "step_id": "step:20261014T232619-fb6be5-011"
+   "step_id": "step:20261016T181231-3ba1e0-011"
   },
   {
    "seq": 12,
@@ -1512,7 +1613,7 @@
       "key": "INC-2026-033",
       "title": "payouts-service: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
       "severity": 2,
-      "started": "2026-10-14",
+      "started": "2026-10-16",
       "origin": "agent",
       "status": "open",
       "overlap": 3,
@@ -1541,7 +1642,7 @@
       "key": "INC-2026-032",
       "title": "payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
       "severity": 2,
-      "started": "2026-10-14",
+      "started": "2026-10-16",
       "origin": "agent",
       "status": "resolved",
       "overlap": 2,
@@ -1593,7 +1694,7 @@
       "key": "INC-2025-031",
       "title": "fraud-scoring timeouts during checkout peak",
       "severity": 2,
-      "started": "2025-07-16",
+      "started": "2025-07-18",
       "origin": "seed",
       "status": "resolved",
       "overlap": 2,
@@ -1627,7 +1728,7 @@
       "key": "INC-2026-012",
       "title": "merchant-onboarding config reads timing out",
       "severity": 3,
-      "started": "2026-05-17",
+      "started": "2026-05-19",
       "origin": "seed",
       "status": "resolved",
       "overlap": 1,
@@ -1937,11 +2038,12 @@
      ]
     }
    },
+   "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 5 incident(s): INC-2026-033, INC-2026-032 (fixed by Priya Nair), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 3,
    "llm_call": 6,
-   "step_id": "step:20261014T232619-fb6be5-012"
+   "step_id": "step:20261016T181231-3ba1e0-012"
   },
   {
    "seq": 13,
@@ -2081,14 +2183,146 @@
      ]
     }
    },
+   "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Priya Nair (score 73); maintainer Arjun Mehta LEFT",
-   "ts": 1792020379,
-   "ms": 3,
+   "ts": 1792174352,
+   "ms": 2,
    "llm_call": 6,
-   "step_id": "step:20261014T232619-fb6be5-013"
+   "step_id": "step:20261016T181231-3ba1e0-013"
   },
   {
    "seq": 14,
+   "agent": "investigator",
+   "action": "tool_call",
+   "tool": "recent_changes",
+   "args": {
+    "since_minutes": 120
+   },
+   "result": {
+    "since_minutes": 120,
+    "change_count": 3,
+    "changes": [
+     {
+      "service": "svc:risk-rules",
+      "tier": 1,
+      "deploy": {
+       "id": "dep:risk-rules-v2.8.1",
+       "version": "2.8.1",
+       "ts": 1792174051,
+       "minutes_ago": 5,
+       "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
+       "by": "Leo Park"
+      },
+      "deployer_id": "per:leo-park",
+      "deployer_status": "active",
+      "ticket": {
+       "key": "RISK-412",
+       "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"
+      }
+     },
+     {
+      "service": "svc:risk-rules",
+      "tier": 1,
+      "deploy": {
+       "id": "dep:risk-rules-v2.8.0",
+       "version": "2.8.0",
+       "ts": 1792171951,
+       "minutes_ago": 40,
+       "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster",
+       "by": "Leo Park"
+      },
+      "deployer_id": "per:leo-park",
+      "deployer_status": "active",
+      "ticket": {
+       "key": "RISK-412",
+       "title": "Rule edits take up to 5 minutes to apply — reduce rules cache TTL"
+      }
+     },
+     {
+      "service": "svc:email-sender",
+      "tier": 3,
+      "deploy": {
+       "id": "dep:email-sender-v1.14.2",
+       "version": "1.14.2",
+       "ts": 1792170751,
+       "minutes_ago": 60,
+       "summary": "Bump transactional email client to 4.2.1; no behaviour change",
+       "by": "Kenji Watanabe"
+      },
+      "deployer_id": "per:kenji-watanabe",
+      "deployer_status": "active",
+      "ticket": null
+     }
+    ]
+   },
+   "receipt": {
+    "tool": "recent_changes",
+    "args": {
+     "since_minutes": 120,
+     "limit": 15
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
+      "params": {
+       "since": 1792167151,
+       "limit": 16
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:risk-rules-v2.8.1",
+      "svc:risk-rules",
+      "per:leo-park",
+      "dep:risk-rules-v2.8.0",
+      "dep:email-sender-v1.14.2",
+      "svc:email-sender",
+      "per:kenji-watanabe"
+     ],
+     "edges": [
+      {
+       "from": "dep:risk-rules-v2.8.1",
+       "type": "CHANGED",
+       "to": "svc:risk-rules"
+      },
+      {
+       "from": "per:leo-park",
+       "type": "DEPLOYED",
+       "to": "dep:risk-rules-v2.8.1"
+      },
+      {
+       "from": "dep:risk-rules-v2.8.0",
+       "type": "CHANGED",
+       "to": "svc:risk-rules"
+      },
+      {
+       "from": "per:leo-park",
+       "type": "DEPLOYED",
+       "to": "dep:risk-rules-v2.8.0"
+      },
+      {
+       "from": "dep:email-sender-v1.14.2",
+       "type": "CHANGED",
+       "to": "svc:email-sender"
+      },
+      {
+       "from": "per:kenji-watanabe",
+       "type": "DEPLOYED",
+       "to": "dep:email-sender-v1.14.2"
+      }
+     ]
+    }
+   },
+   "why": "the cause is set: check every other recent change before handing off",
+   "summary": "recent_changes → 3 change(s) in 120 min: risk-rules 5 min ago, risk-rules 40 min ago, email-sender 60 min ago",
+   "ts": 1792174352,
+   "ms": 0,
+   "llm_call": 6,
+   "step_id": "step:20261016T181231-3ba1e0-014"
+  },
+  {
+   "seq": 15,
    "agent": "investigator",
    "action": "write",
    "tool": "link_similar",
@@ -2120,7 +2354,7 @@
        "o": "inc:2025-031",
        "score": 0.8,
        "reason": "also caused by a change to risk-rules: fraud-scoring timeouts during checkout peak",
-       "now": 1792020379
+       "now": 1792174352
       },
       "write": true
      }
@@ -2139,14 +2373,15 @@
      ]
     }
    },
+   "why": "link the incident to the similar one it matches",
    "summary": "link_similar → inc:2026-033 SIMILAR_TO inc:2025-031 (0.8): also caused by a change to risk-rules: fraud-scoring timeouts during checkout p…",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174352,
+   "ms": 1,
    "llm_call": 7,
-   "step_id": "step:20261014T232619-fb6be5-014"
+   "step_id": "step:20261016T181231-3ba1e0-015"
   },
   {
-   "seq": 15,
+   "seq": 16,
    "agent": "investigator",
    "action": "handoff",
    "tool": "submit_handoff",
@@ -2193,7 +2428,7 @@
       },
       {
        "node_id": "dec:rules-cache-ttl",
-       "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-10), source chat:risk-eng-config-load."
+       "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-12), source chat:risk-eng-config-load."
       },
       {
        "node_id": "inc:2026-032",
@@ -2215,6 +2450,77 @@
       "Restore the setting required by dec:rules-cache-ttl before re-shipping."
      ],
      "confidence": "high",
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "dep:risk-rules-v2.8.1 on risk-rules caused the payouts-service alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:risk-rules-v2.8.1",
+         "claim": "deployed 5 min ago: RISK-412 follow-up: re-enable 5s TTL for EU ruleset"
+        },
+        {
+         "node_id": "svc:config-service",
+         "claim": "on the path payouts-service -> config-service -> risk-rules"
+        },
+        {
+         "node_id": "svc:risk-rules",
+         "claim": "on the path payouts-service -> config-service -> risk-rules"
+        },
+        {
+         "node_id": "dec:rules-cache-ttl",
+         "claim": "the change contradicts this recorded decision"
+        },
+        {
+         "node_id": "inc:2026-032",
+         "claim": "a past incident with the same cause"
+        },
+        {
+         "node_id": "inc:2025-031",
+         "claim": "a past incident with the same cause"
+        }
+       ],
+       "contradicting": [],
+       "reason": "a noisy neighbour through config-service"
+      },
+      {
+       "id": "H2",
+       "claim": "dep:risk-rules-v2.8.0 on risk-rules caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:risk-rules-v2.8.0",
+         "claim": "deployed 40 min ago"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:risk-rules",
+         "claim": "risk-rules only shares config-service with payouts-service"
+        }
+       ],
+       "reason": "risk-rules only shares config-service with payouts-service"
+      },
+      {
+       "id": "H3",
+       "claim": "dep:email-sender-v1.14.2 on email-sender caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:email-sender-v1.14.2",
+         "claim": "deployed 60 min ago"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:email-sender",
+         "claim": "email-sender did not show up in the shared dependency changes scan of payouts-service: no dependency connects it"
+        }
+       ],
+       "reason": "email-sender did not show up in the shared dependency changes scan of payouts-service: no dependency connects it"
+      }
+     ],
      "learned": [],
      "memory_used": [
       "fact:learned-risk-rules-config-service",
@@ -2294,7 +2600,7 @@
        },
        {
         "node_id": "dec:rules-cache-ttl",
-        "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-10), source chat:risk-eng-config-load."
+        "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-12), source chat:risk-eng-config-load."
        },
        {
         "node_id": "inc:2026-032",
@@ -2316,6 +2622,77 @@
        "Restore the setting required by dec:rules-cache-ttl before re-shipping."
       ],
       "confidence": "high",
+      "hypotheses": [
+       {
+        "id": "H1",
+        "claim": "dep:risk-rules-v2.8.1 on risk-rules caused the payouts-service alert",
+        "status": "confirmed",
+        "supporting": [
+         {
+          "node_id": "dep:risk-rules-v2.8.1",
+          "claim": "deployed 5 min ago: RISK-412 follow-up: re-enable 5s TTL for EU ruleset"
+         },
+         {
+          "node_id": "svc:config-service",
+          "claim": "on the path payouts-service -> config-service -> risk-rules"
+         },
+         {
+          "node_id": "svc:risk-rules",
+          "claim": "on the path payouts-service -> config-service -> risk-rules"
+         },
+         {
+          "node_id": "dec:rules-cache-ttl",
+          "claim": "the change contradicts this recorded decision"
+         },
+         {
+          "node_id": "inc:2026-032",
+          "claim": "a past incident with the same cause"
+         },
+         {
+          "node_id": "inc:2025-031",
+          "claim": "a past incident with the same cause"
+         }
+        ],
+        "contradicting": [],
+        "reason": "a noisy neighbour through config-service"
+       },
+       {
+        "id": "H2",
+        "claim": "dep:risk-rules-v2.8.0 on risk-rules caused it",
+        "status": "rejected",
+        "supporting": [
+         {
+          "node_id": "dep:risk-rules-v2.8.0",
+          "claim": "deployed 40 min ago"
+         }
+        ],
+        "contradicting": [
+         {
+          "node_id": "svc:risk-rules",
+          "claim": "risk-rules only shares config-service with payouts-service"
+         }
+        ],
+        "reason": "risk-rules only shares config-service with payouts-service"
+       },
+       {
+        "id": "H3",
+        "claim": "dep:email-sender-v1.14.2 on email-sender caused it",
+        "status": "rejected",
+        "supporting": [
+         {
+          "node_id": "dep:email-sender-v1.14.2",
+          "claim": "deployed 60 min ago"
+         }
+        ],
+        "contradicting": [
+         {
+          "node_id": "svc:email-sender",
+          "claim": "email-sender did not show up in the shared dependency changes scan of payouts-service: no dependency connects it"
+         }
+        ],
+        "reason": "email-sender did not show up in the shared dependency changes scan of payouts-service: no dependency connects it"
+       }
+      ],
       "learned": [],
       "memory_used": [
        "fact:learned-risk-rules-config-service",
@@ -2351,6 +2728,8 @@
      "nodes": [
       "chat:risk-eng-config-load",
       "dec:rules-cache-ttl",
+      "dep:email-sender-v1.14.2",
+      "dep:risk-rules-v2.8.0",
       "dep:risk-rules-v2.8.1",
       "fact:learned-risk-rules-config-service",
       "inc:2025-031",
@@ -2360,20 +2739,22 @@
       "per:priya-nair",
       "rb:fraud-scoring-latency-v2",
       "svc:config-service",
+      "svc:email-sender",
       "svc:payouts-service",
       "svc:risk-rules"
      ],
      "edges": []
     }
    },
+   "why": "hand off to the next agent through the graph",
    "summary": "From memory: Seen before: INC-2026-032, fixed by Priya Nair (Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered), see Runbook v2 step 2 (rb:fraud-scoring-latency-v2). Cause: dep:risk-rules-v2.8.1 on risk-rules (RISK-412 follow-up: re-enable 5s TTL for EU ruleset), path payouts-service -> config-service -> risk-rules via a LEARNED dependency. It contradicts dec:rules-cache-ttl (chat:risk-eng-config-load). Contact candidates: Priya Nair, Leo Park, Dana Okafor.",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 0,
    "llm_call": 8,
-   "step_id": "step:20261014T232619-fb6be5-015"
+   "step_id": "step:20261016T181231-3ba1e0-016"
   },
   {
-   "seq": 16,
+   "seq": 17,
    "agent": "communicator",
    "action": "tool_call",
    "tool": "who_to_call",
@@ -2510,14 +2891,15 @@
      ]
     }
    },
+   "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Priya Nair (score 73); maintainer Arjun Mehta LEFT",
-   "ts": 1792020379,
-   "ms": 3,
+   "ts": 1792174352,
+   "ms": 2,
    "llm_call": 9,
-   "step_id": "step:20261014T232619-fb6be5-016"
+   "step_id": "step:20261016T181231-3ba1e0-017"
   },
   {
-   "seq": 17,
+   "seq": 18,
    "agent": "communicator",
    "action": "tool_call",
    "tool": "stale_knowledge",
@@ -2533,7 +2915,7 @@
       "kind": "Doc",
       "title": "risk-rules README",
       "describes": "svc:risk-rules",
-      "updated": "2025-02-21",
+      "updated": "2025-02-23",
       "updated_days_ago": 600,
       "flagged": true,
       "reasons": [
@@ -2597,14 +2979,15 @@
      ]
     }
    },
+   "why": "which docs and runbooks are out of date?",
    "summary": "stale_knowledge → 1 stale: doc:risk-rules-readme",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 1,
    "llm_call": 9,
-   "step_id": "step:20261014T232619-fb6be5-017"
+   "step_id": "step:20261016T181231-3ba1e0-018"
   },
   {
-   "seq": 18,
+   "seq": 19,
    "agent": "communicator",
    "action": "tool_call",
    "tool": "industry_matches",
@@ -2693,14 +3076,15 @@
      ]
     }
    },
+   "why": "has another company had the same root cause?",
    "summary": "industry_matches → 2 public postmortem(s): Slack — Slack's Incident on 2-22-22",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174352,
+   "ms": 1,
    "llm_call": 9,
-   "step_id": "step:20261014T232619-fb6be5-018"
+   "step_id": "step:20261016T181231-3ba1e0-019"
   },
   {
-   "seq": 19,
+   "seq": 20,
    "agent": "communicator",
    "action": "page",
    "tool": "page_person",
@@ -2741,14 +3125,15 @@
      "edges": []
     }
    },
+   "why": "page the top active person",
    "summary": "page_person → paged Priya Nair for INC-2026-033 (simulated): INC-2026-033 sev 2: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes. Likely …",
-   "ts": 1792020379,
+   "ts": 1792174352,
    "ms": 1,
    "llm_call": 10,
-   "step_id": "step:20261014T232619-fb6be5-019"
+   "step_id": "step:20261016T181231-3ba1e0-020"
   },
   {
-   "seq": 20,
+   "seq": 21,
    "agent": "communicator",
    "action": "write",
    "tool": "open_ticket",
@@ -2778,7 +3163,7 @@
       "params": {
        "title": "INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
        "text": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset (dep:risk-rules-v2.8.1, deployed 5 min ago by Leo Park). payouts-service and risk-rules both call config-service (via a learned dependency): payouts-service -> config-service -> risk-rules. Conflicts with dec:rules-cache-ttl. Actions: Roll back dep:risk-rules-v2.8.1 on risk-rules. Follow rb:fraud-scoring-latency-v2 step 2: If risk-rules RULES_CACHE_TTL was changed, roll it back. What fixed INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered Page Priya Nair (per:priya-nair). Restore the setting required by dec:rules-cache-ttl before re-shipping.",
-       "now": 1792020379,
+       "now": 1792174352,
        "priority": "P2"
       },
       "write": true
@@ -2788,7 +3173,7 @@
       "params": {
        "id": "tkt:OPS-2",
        "x": "svc:risk-rules",
-       "now": 1792020379
+       "now": 1792174352
       },
       "write": true
      },
@@ -2797,7 +3182,7 @@
       "params": {
        "id": "tkt:OPS-2",
        "x": "inc:2026-033",
-       "now": 1792020379
+       "now": 1792174352
       },
       "write": true
      },
@@ -2805,8 +3190,8 @@
       "cypher": "MATCH (n:Ticket {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "tkt:OPS-2",
-       "ses": "ses:20261014T232619-fb6be5",
-       "now": 1792020379
+       "ses": "ses:20261016T181231-3ba1e0",
+       "now": 1792174352
       },
       "write": true
      }
@@ -2816,7 +3201,7 @@
       "tkt:OPS-2",
       "svc:risk-rules",
       "inc:2026-033",
-      "ses:20261014T232619-fb6be5"
+      "ses:20261016T181231-3ba1e0"
      ],
      "edges": [
       {
@@ -2832,19 +3217,20 @@
       {
        "from": "tkt:OPS-2",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T232619-fb6be5"
+       "to": "ses:20261016T181231-3ba1e0"
       }
      ]
     }
    },
+   "why": "open the follow-up ticket",
    "summary": "open_ticket → opened OPS-2 (tkt:OPS-2): INC-2026-033 follow-up: risk-rules change conflicts with dec:rules-cache-ttl",
-   "ts": 1792020379,
-   "ms": 5,
+   "ts": 1792174352,
+   "ms": 3,
    "llm_call": 10,
-   "step_id": "step:20261014T232619-fb6be5-020"
+   "step_id": "step:20261016T181231-3ba1e0-021"
   },
   {
-   "seq": 21,
+   "seq": 22,
    "agent": "communicator",
    "action": "handoff",
    "tool": "submit_report",
@@ -2897,7 +3283,7 @@
      },
      {
       "node_id": "dec:rules-cache-ttl",
-      "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-10), source chat:risk-eng-config-load."
+      "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-12), source chat:risk-eng-config-load."
      },
      {
       "node_id": "inc:2026-032",
@@ -2985,7 +3371,7 @@
       },
       {
        "node_id": "dec:rules-cache-ttl",
-       "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-10), source chat:risk-eng-config-load."
+       "claim": "Decision \"RULES_CACHE_TTL must stay ≥ 300s\" (2025-08-12), source chat:risk-eng-config-load."
       },
       {
        "node_id": "inc:2026-032",
@@ -3037,11 +3423,12 @@
      "edges": []
     }
    },
+   "why": "the evidence is in: submit the grounded report",
    "summary": "INC-2026-033: payouts-service payout batch API 5xx 9% and p99 3.2s. Likely cause dep:risk-rules-v2.8.1 on risk-rules. Seen before: INC-2026-032, fixed by Priya Nair (Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered), see Runbook v2 step 2 (rb:fraud-scoring-latency-v2).",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174352,
+   "ms": 0,
    "llm_call": 11,
-   "step_id": "step:20261014T232619-fb6be5-021"
+   "step_id": "step:20261016T181231-3ba1e0-022"
   }
  ],
  "graph": {
@@ -3067,7 +3454,7 @@
      "name": "Priya Nair",
      "role": "Senior Engineer",
      "email": "priya.nair@kestrelpay.example",
-     "joined_at": 1662420378
+     "joined_at": 1662574351
     }
    },
    {
@@ -3081,7 +3468,7 @@
      "name": "Marcus Webb",
      "role": "Staff Engineer",
      "email": "marcus.webb@kestrelpay.example",
-     "joined_at": 1593300378
+     "joined_at": 1593454351
     }
    },
    {
@@ -3095,8 +3482,8 @@
      "name": "Arjun Mehta",
      "role": "Staff Engineer",
      "email": "arjun.mehta@kestrelpay.example",
-     "joined_at": 1601940378,
-     "left_at": 1783812378
+     "joined_at": 1602094351,
+     "left_at": 1783966351
     }
    },
    {
@@ -3110,7 +3497,7 @@
      "name": "Leo Park",
      "role": "Engineer",
      "email": "leo.park@kestrelpay.example",
-     "joined_at": 1786836378
+     "joined_at": 1786990351
     }
    },
    {
@@ -3124,7 +3511,21 @@
      "name": "Dana Okafor",
      "role": "Engineering Manager",
      "email": "dana.okafor@kestrelpay.example",
-     "joined_at": 1757460378
+     "joined_at": 1757614351
+    }
+   },
+   {
+    "id": "per:kenji-watanabe",
+    "label": "Person",
+    "name": "Kenji Watanabe",
+    "origin": "seed",
+    "props": {
+     "status": "active",
+     "origin": "seed",
+     "name": "Kenji Watanabe",
+     "role": "Engineer",
+     "email": "kenji.watanabe@kestrelpay.example",
+     "joined_at": 1740334351
     }
    },
    {
@@ -3324,15 +3725,41 @@
     }
    },
    {
+    "id": "svc:email-sender",
+    "label": "Service",
+    "name": "email-sender",
+    "origin": "seed",
+    "props": {
+     "origin": "seed",
+     "name": "email-sender",
+     "description": "Thin wrapper around the transactional email provider.",
+     "tier": 3,
+     "language": "Node.js",
+     "repo_url": "https://git.kestrelpay.example/email-sender"
+    }
+   },
+   {
     "id": "dep:risk-rules-v2.8.0",
     "label": "Deploy",
     "name": "2.8.0",
     "origin": "seed",
     "props": {
-     "ts": 1792017978,
+     "ts": 1792171951,
      "origin": "seed",
      "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster",
      "version": "2.8.0"
+    }
+   },
+   {
+    "id": "dep:email-sender-v1.14.2",
+    "label": "Deploy",
+    "name": "1.14.2",
+    "origin": "seed",
+    "props": {
+     "ts": 1792170751,
+     "origin": "seed",
+     "summary": "Bump transactional email client to 4.2.1; no behaviour change",
+     "version": "1.14.2"
     }
    },
    {
@@ -3341,7 +3768,7 @@
     "name": "2.3.0",
     "origin": "seed",
     "props": {
-     "ts": 1752697578,
+     "ts": 1752851551,
      "origin": "seed",
      "summary": "Lower RULES_CACHE_TTL to 10s",
      "version": "2.3.0"
@@ -3353,10 +3780,10 @@
     "name": "How does risk-rules get its rules? (config load)",
     "origin": "seed",
     "props": {
-     "ts": 1754868378,
+     "ts": 1755022351,
      "origin": "seed",
      "title": "How does risk-rules get its rules? (config load)",
-     "text": "[2025-08-10 23:26] Priya Nair: Arjun, quick one while I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-10 23:29] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just the source of truth for the rule editor. On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint. [2025-08-10 23:30]…",
+     "text": "[2025-08-12 18:12] Priya Nair: Arjun, quick one while I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 18:15] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just the source of truth for the rule editor. On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint. [2025-08-12 18:16]…",
      "channel": "#risk-eng"
     }
    },
@@ -3369,10 +3796,10 @@
      "origin": "seed",
      "title": "risk-rules README",
      "text": "# risk-rules risk-rules is the fraud rule engine. It evaluates analyst-authored rules (velocity limits, geo mismatches, device reputation, BIN blocklists) against the feature vector that fraud-scoring sends for every payment, and returns a list of rule verdicts in under 20 ms. ## Ownership Owner and primary contact: Arjun Mehta (Risk & Fraud). Page the Risk & Fraud on-call if Arjun is unavailable…",
-     "updated_at": 1740180378,
+     "updated_at": 1740334351,
      "flagged_stale": true,
      "flagged_reason": "author_left; names_departed_person (Arjun Mehta); old_vs_changes (3 deploys since); missing_learned_dependency (svc:config-service)",
-     "flagged_at": 1792020379
+     "flagged_at": 1792174351
     }
    },
    {
@@ -3444,7 +3871,7 @@
      "origin": "seed",
      "title": "RULES_CACHE_TTL must stay ≥ 300s",
      "rationale": "Below ~30s config-service saturates at checkout peak, because risk-rules refetches rulesets from it on every cache miss. This is what caused INC-2025-031.",
-     "decided_at": 1754868378
+     "decided_at": 1755022351
     }
    },
    {
@@ -3475,7 +3902,7 @@
     "name": "INC-2025-031",
     "origin": "seed",
     "props": {
-     "started_at": 1752708378,
+     "started_at": 1752862351,
      "status": "resolved",
      "origin": "seed",
      "title": "fraud-scoring timeouts during checkout peak",
@@ -3483,7 +3910,7 @@
      "key": "INC-2025-031",
      "severity": 2,
      "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%",
-     "resolved_at": 1752715578
+     "resolved_at": 1752869551
     }
    },
    {
@@ -3492,7 +3919,7 @@
     "name": "INC-2026-012",
     "origin": "seed",
     "props": {
-     "started_at": 1779060378,
+     "started_at": 1779214351,
      "status": "resolved",
      "origin": "seed",
      "title": "merchant-onboarding config reads timing out",
@@ -3500,7 +3927,7 @@
      "key": "INC-2026-012",
      "severity": 3,
      "symptom": "merchant signups slow or failing; config-service latency elevated",
-     "resolved_at": 1779063978
+     "resolved_at": 1779217951
     }
    },
    {
@@ -3509,7 +3936,7 @@
     "name": "INC-2025-044",
     "origin": "seed",
     "props": {
-     "started_at": 1757892378,
+     "started_at": 1758046351,
      "status": "resolved",
      "origin": "seed",
      "title": "ledger-service connection pool exhausted during payout run",
@@ -3517,7 +3944,7 @@
      "key": "INC-2025-044",
      "severity": 2,
      "symptom": "payout run stalled; payment captures failing with pool timeout errors",
-     "resolved_at": 1757903178
+     "resolved_at": 1758057151
     }
    },
    {
@@ -3587,7 +4014,7 @@
     "name": "INC-2026-032",
     "origin": "agent",
     "props": {
-     "started_at": 1792020378,
+     "started_at": 1792174351,
      "status": "resolved",
      "origin": "agent",
      "title": "payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
@@ -3595,7 +4022,7 @@
      "key": "INC-2026-032",
      "severity": 2,
      "symptom": "5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
-     "resolved_at": 1792020379
+     "resolved_at": 1792174351
     }
    },
    {
@@ -3630,7 +4057,7 @@
      "title": "Runbook: fraud-scoring latency",
      "steps": "1. Check for a recent deploy to risk-rules first: INC-2026-032 was caused by dep:risk-rules-v2.8.0 (RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster). 2. If risk-rules RULES_CACHE_TTL was changed, roll it back. What fixed INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered 3. Watch config-service CPU and request rate: risk-rules calls config…",
      "version": 2,
-     "updated_at": 1792020379
+     "updated_at": 1792174351
     }
    },
    {
@@ -3639,7 +4066,7 @@
     "name": "2.8.1",
     "origin": "seed",
     "props": {
-     "ts": 1792020079,
+     "ts": 1792174051,
      "origin": "seed",
      "summary": "RISK-412 follow-up: re-enable 5s TTL for EU ruleset",
      "version": "2.8.1"
@@ -3651,7 +4078,7 @@
     "name": "INC-2026-033",
     "origin": "agent",
     "props": {
-     "started_at": 1792020379,
+     "started_at": 1792174352,
      "status": "open",
      "origin": "agent",
      "title": "payouts-service: payout batch API 5xx 9% and p99 3.2s for the last 10 minutes",
@@ -3692,7 +4119,7 @@
     "origin": "seed",
     "props": {
      "commits": 23,
-     "last_at": 1788564378
+     "last_at": 1788718351
     }
    },
    {
@@ -3723,7 +4150,7 @@
     "origin": "seed",
     "props": {
      "commits": 3,
-     "last_at": 1791933978
+     "last_at": 1792087951
     }
    },
    {
@@ -3747,8 +4174,15 @@
     "origin": "seed",
     "props": {
      "commits": 2,
-     "last_at": 1781652378
+     "last_at": 1781806351
     }
+   },
+   {
+    "source": "per:kenji-watanabe",
+    "type": "DEPLOYED",
+    "target": "dep:email-sender-v1.14.2",
+    "origin": "seed",
+    "props": {}
    },
    {
     "source": "svc:payouts-service",
@@ -3809,7 +4243,7 @@
      "origin": "agent",
      "kind": "sync",
      "source": "learned",
-     "learned_at": 1792020379,
+     "learned_at": 1792174351,
      "learned_from": "fact:learned-risk-rules-config-service"
     }
    },
@@ -3824,6 +4258,13 @@
     "source": "dep:risk-rules-v2.8.0",
     "type": "FOR_TICKET",
     "target": "tkt:RISK-412",
+    "origin": "seed",
+    "props": {}
+   },
+   {
+    "source": "dep:email-sender-v1.14.2",
+    "type": "CHANGED",
+    "target": "svc:email-sender",
     "origin": "seed",
     "props": {}
    },

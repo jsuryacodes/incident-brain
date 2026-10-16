@@ -1,11 +1,11 @@
 {
- "run_id": "run-1e58acb1c1fc",
+ "run_id": "run-59bbe5973119",
  "agent": "resolve",
  "tenant": "kestrel_pay",
  "mode": "mock",
  "model": "mock",
- "session_id": "ses:20261014T232619-ad42c6",
- "started_at": 1792020379,
+ "session_id": "ses:20261016T181231-00c64b",
+ "started_at": 1792174351,
  "status": "ok",
  "incident_id": "inc:2026-032",
  "operator": {
@@ -62,7 +62,7 @@
   "cost_usd": 0.0,
   "llm_calls": 4,
   "tool_calls": 11,
-  "duration_ms": 98
+  "duration_ms": 58
  },
  "steps": [
   {
@@ -110,11 +110,12 @@
      "edges": []
     }
    },
+   "why": "record the cause the evidence supports",
    "summary": "update_incident → INC-2026-032: status=mitigated, summary=5xx rate 12% and p99 4.1s on payments-a…",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174351,
+   "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T232619-ad42c6-001"
+   "step_id": "step:20261016T181231-00c64b-001"
   },
   {
    "seq": 2,
@@ -144,7 +145,7 @@
       "key": "INC-2026-032",
       "title": "payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
       "severity": 2,
-      "started": "2026-10-14",
+      "started": "2026-10-16",
       "origin": "agent",
       "status": "mitigated",
       "overlap": 4,
@@ -173,7 +174,7 @@
       "key": "INC-2025-031",
       "title": "fraud-scoring timeouts during checkout peak",
       "severity": 2,
-      "started": "2025-07-16",
+      "started": "2025-07-18",
       "origin": "seed",
       "status": "resolved",
       "overlap": 4,
@@ -207,7 +208,7 @@
       "key": "INC-2026-012",
       "title": "merchant-onboarding config reads timing out",
       "severity": 3,
-      "started": "2026-05-17",
+      "started": "2026-05-19",
       "origin": "seed",
       "status": "resolved",
       "overlap": 1,
@@ -232,7 +233,7 @@
       "key": "INC-2025-067",
       "title": "card-processor-adapter TLS handshake failures",
       "severity": 1,
-      "started": "2025-11-08",
+      "started": "2025-11-10",
       "origin": "seed",
       "status": "resolved",
       "overlap": 1,
@@ -511,11 +512,12 @@
      ]
     }
    },
+   "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 5 incident(s): INC-2026-032, INC-2025-031 (fixed by Priya Nair, Arjun Mehta), INC-2026-012 (fixed by Priya Nair)",
-   "ts": 1792020379,
-   "ms": 6,
+   "ts": 1792174351,
+   "ms": 2,
    "llm_call": 1,
-   "step_id": "step:20261014T232619-ad42c6-002"
+   "step_id": "step:20261016T181231-00c64b-002"
   },
   {
    "seq": 3,
@@ -548,7 +550,7 @@
       "label": "Runbook",
       "title": "Runbook: ledger-db failover",
       "snippet": "…independent monitors. 2. Pause the payout batch in payouts-service. 3. Promote the synchronous replica using the failover script. 4. Point ledger-service at the new primary and verify journal writes …",
-      "date": "2026-05-17",
+      "date": "2026-05-19",
       "author": "Marcus Webb",
       "author_status": "active",
       "score": 0.1
@@ -558,10 +560,10 @@
       "label": "Runbook",
       "title": "Runbook: fraud-scoring latency",
       "snippet": "1. Open the fraud-scoring dashboard and check p99 latency and pod CPU. 2. If CPU is above 70%, scale the deployment up by 50% and wait five minutes. 3. Check the feature store database for slow queri…",
-      "date": "2025-04-22",
+      "date": "2025-04-24",
       "author": "Arjun Mehta",
       "author_status": "left",
-      "score": 0.03
+      "score": 0.006
      }
     ]
    },
@@ -576,7 +578,7 @@
     },
     "queries": [
      {
-      "cypher": "CALL db.idx.fulltext.queryNodes($label, $q) YIELD node, score OPTIONAL MATCH (a:Person)-[:AUTHORED]->(node) RETURN node.id, score, coalesce(node.title, node.key, node.name), coalesce(node.text, node.rationale, node.summary, node.steps, node.description), coalesce(node.ts, node.updated_at, node.decided_at, node.started_at, node.created_at), a.name, a.status ORDER BY score DESC LIMIT $limit",
+      "cypher": "CALL db.idx.fulltext.queryNodes($label, $q) YIELD node, score OPTIONAL MATCH (a:Person)-[:AUTHORED]->(node) RETURN node.id, score, coalesce(node.title, node.key, node.name), coalesce(node.text, node.rationale, node.summary, node.steps, node.description), coalesce(node.ts, node.updated_at, node.decided_at, node.started_at, node.created_at), a.name, a.status ORDER BY score DESC, node.id LIMIT $limit",
       "params": {
        "label": "Runbook",
        "q": "risk rules config service fraud scoring payments api",
@@ -584,7 +586,7 @@
       }
      },
      {
-      "cypher": "CALL db.idx.fulltext.queryNodes($label, $q) YIELD node, score OPTIONAL MATCH (a:Person)-[:AUTHORED]->(node) RETURN node.id, score, coalesce(node.title, node.key, node.name), coalesce(node.text, node.rationale, node.summary, node.steps, node.description), coalesce(node.ts, node.updated_at, node.decided_at, node.started_at, node.created_at), a.name, a.status ORDER BY score DESC LIMIT $limit",
+      "cypher": "CALL db.idx.fulltext.queryNodes($label, $q) YIELD node, score OPTIONAL MATCH (a:Person)-[:AUTHORED]->(node) RETURN node.id, score, coalesce(node.title, node.key, node.name), coalesce(node.text, node.rationale, node.summary, node.steps, node.description), coalesce(node.ts, node.updated_at, node.decided_at, node.started_at, node.created_at), a.name, a.status ORDER BY score DESC, node.id LIMIT $limit",
       "params": {
        "label": "Runbook",
        "q": "risk|rules|config|service|fraud|scoring|payments|api",
@@ -600,11 +602,12 @@
      "edges": []
     }
    },
+   "why": "look up what the docs, tickets and chats say",
    "summary": "search_knowledge → 2 hit(s): rb:ledger-db-failover",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174351,
+   "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T232619-ad42c6-003"
+   "step_id": "step:20261016T181231-00c64b-003"
   },
   {
    "seq": 4,
@@ -701,11 +704,12 @@
      ]
     }
    },
+   "why": "has another company had the same root cause?",
    "summary": "industry_matches → 2 public postmortem(s): Slack — Slack's Incident on 2-22-22",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174351,
+   "ms": 1,
    "llm_call": 1,
-   "step_id": "step:20261014T232619-ad42c6-004"
+   "step_id": "step:20261016T181231-00c64b-004"
   },
   {
    "seq": 5,
@@ -721,7 +725,7 @@
     "title": "Runbook: ledger-db failover",
     "author": "Marcus Webb",
     "author_status": "active",
-    "date": "2026-05-17",
+    "date": "2026-05-19",
     "days_ago": 150,
     "text": "1. Confirm the primary is unhealthy from two independent monitors.\n2. Pause the payout batch in payouts-service.\n3. Promote the synchronous replica using the failover script.\n4. Point ledger-service at the new primary and verify journal writes succeed.\n5. Rebuild the old primary as a replica and resume payouts.",
     "truncated": false,
@@ -786,11 +790,12 @@
      ]
     }
    },
+   "why": "read the source to quote it verbatim",
    "summary": "read_source → ok",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174351,
+   "ms": 1,
    "llm_call": 2,
-   "step_id": "step:20261014T232619-ad42c6-005"
+   "step_id": "step:20261016T181231-00c64b-005"
   },
   {
    "seq": 6,
@@ -806,7 +811,7 @@
     "title": "Runbook: fraud-scoring latency",
     "author": "Arjun Mehta",
     "author_status": "left",
-    "date": "2025-04-22",
+    "date": "2025-04-24",
     "days_ago": 540,
     "text": "1. Open the fraud-scoring dashboard and check p99 latency and pod CPU.\n2. If CPU is above 70%, scale the deployment up by 50% and wait five minutes.\n3. Check the feature store database for slow queries and connection saturation.\n4. If latency is still high, restart the pods one at a time.\n5. If payments are being declined, ask payments-api on-call to enable the conservative fallback.",
     "truncated": false,
@@ -871,11 +876,12 @@
      ]
     }
    },
+   "why": "read the source to quote it verbatim",
    "summary": "read_source → ok",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174351,
+   "ms": 1,
    "llm_call": 2,
-   "step_id": "step:20261014T232619-ad42c6-006"
+   "step_id": "step:20261016T181231-00c64b-006"
   },
   {
    "seq": 7,
@@ -929,7 +935,7 @@
        "id": "res:2026-032",
        "summary": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
        "steps": "1. Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      },
@@ -938,7 +944,7 @@
       "params": {
        "iid": "inc:2026-032",
        "id": "res:2026-032",
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      },
@@ -949,7 +955,7 @@
        "pids": [
         "per:priya-nair"
        ],
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      },
@@ -959,7 +965,7 @@
        "id": "res:2026-032",
        "sid": "inc:2026-032",
        "excerpt": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      },
@@ -967,8 +973,8 @@
       "cypher": "MATCH (n:Resolution {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "res:2026-032",
-       "ses": "ses:20261014T232619-ad42c6",
-       "now": 1792020379
+       "ses": "ses:20261016T181231-00c64b",
+       "now": 1792174351
       },
       "write": true
      }
@@ -978,7 +984,7 @@
       "inc:2026-032",
       "res:2026-032",
       "per:priya-nair",
-      "ses:20261014T232619-ad42c6"
+      "ses:20261016T181231-00c64b"
      ],
      "edges": [
       {
@@ -999,16 +1005,17 @@
       {
        "from": "res:2026-032",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T232619-ad42c6"
+       "to": "ses:20261016T181231-00c64b"
       }
      ]
     }
    },
+   "why": "record how it was fixed, in the operator's words",
    "summary": "record_resolution → resolution res:2026-032 for INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-   "ts": 1792020379,
-   "ms": 7,
+   "ts": 1792174351,
+   "ms": 4,
    "llm_call": 3,
-   "step_id": "step:20261014T232619-ad42c6-007"
+   "step_id": "step:20261016T181231-00c64b-007"
   },
   {
    "seq": 8,
@@ -1043,7 +1050,7 @@
        "o": "inc:2026-012",
        "score": 0.85,
        "reason": "same root cause rc:cache-ttl-thundering-herd: merchant-onboarding config reads timing out",
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      }
@@ -1062,11 +1069,12 @@
      ]
     }
    },
+   "why": "link the incident to the similar one it matches",
    "summary": "link_similar → inc:2026-032 SIMILAR_TO inc:2026-012 (0.85): same root cause rc:cache-ttl-thundering-herd: merchant-onboarding config reads …",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174351,
+   "ms": 1,
    "llm_call": 3,
-   "step_id": "step:20261014T232619-ad42c6-008"
+   "step_id": "step:20261016T181231-00c64b-008"
   },
   {
    "seq": 9,
@@ -1101,7 +1109,7 @@
        "o": "pm:slack-2022-02-22",
        "score": 0.75,
        "reason": "industry pattern rc:cache-ttl-thundering-herd: Slack — Slack's Incident on 2-22-22",
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      }
@@ -1120,11 +1128,12 @@
      ]
     }
    },
+   "why": "link the incident to the similar one it matches",
    "summary": "link_similar → inc:2026-032 SIMILAR_TO pm:slack-2022-02-22 (0.75): industry pattern rc:cache-ttl-thundering-herd: Slack — Slack's Incident on 2-22…",
-   "ts": 1792020379,
-   "ms": 2,
+   "ts": 1792174351,
+   "ms": 1,
    "llm_call": 3,
-   "step_id": "step:20261014T232619-ad42c6-009"
+   "step_id": "step:20261016T181231-00c64b-009"
   },
   {
    "seq": 10,
@@ -1159,7 +1168,7 @@
        "o": "pm:facebook-2010-09-23",
        "score": 0.7,
        "reason": "industry pattern rc:cache-ttl-thundering-herd: Meta (Facebook) — More Details on Today's Outage",
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      }
@@ -1178,11 +1187,12 @@
      ]
     }
    },
+   "why": "link the incident to the similar one it matches",
    "summary": "link_similar → inc:2026-032 SIMILAR_TO pm:facebook-2010-09-23 (0.7): industry pattern rc:cache-ttl-thundering-herd: Meta (Facebook) — More Details o…",
-   "ts": 1792020379,
+   "ts": 1792174351,
    "ms": 1,
    "llm_call": 3,
-   "step_id": "step:20261014T232619-ad42c6-010"
+   "step_id": "step:20261016T181231-00c64b-010"
   },
   {
    "seq": 11,
@@ -1255,7 +1265,7 @@
        "title": "Runbook: fraud-scoring latency",
        "steps": "1. Check for a recent deploy to risk-rules first: INC-2026-032 was caused by dep:risk-rules-v2.8.0 (RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster).\n2. If risk-rules RULES_CACHE_TTL was changed, roll it back. What fixed INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered\n3. Watch config-service CPU and request rate: risk-rules calls config-service at request time; the service catalog does not list this dependency. (fact:learned-risk-rules-config-service)\n4. Open the fraud-scoring dashboard and check p99 latency and pod CPU.\n5. If CPU is above 70%, scale the deployment up by 50% and wait five minutes.\n6. Check the feature store database for slow queries and connection saturation.\n7. If latency is still high, restart the pods one at a time.\n8. If payments are being declined, ask payments-api on-call to enable the conservative fallback.",
        "v": 2,
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      },
@@ -1264,7 +1274,7 @@
       "params": {
        "id": "rb:fraud-scoring-latency-v2",
        "s": "svc:fraud-scoring",
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      },
@@ -1273,7 +1283,7 @@
       "params": {
        "id": "rb:fraud-scoring-latency-v2",
        "o": "rb:fraud-scoring-latency",
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      },
@@ -1283,7 +1293,7 @@
        "id": "rb:fraud-scoring-latency-v2",
        "sid": "inc:2026-032",
        "excerpt": "Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered",
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      },
@@ -1293,7 +1303,7 @@
        "id": "rb:fraud-scoring-latency-v2",
        "sid": "chat:risk-eng-config-load",
        "excerpt": "On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint.",
-       "now": 1792020379
+       "now": 1792174351
       },
       "write": true
      },
@@ -1301,8 +1311,8 @@
       "cypher": "MATCH (n:Runbook {id:$id}), (ses:Session {id:$ses}) MERGE (n)-[r:WRITTEN_IN]->(ses) ON CREATE SET r.origin = 'agent', r.created_at = $now",
       "params": {
        "id": "rb:fraud-scoring-latency-v2",
-       "ses": "ses:20261014T232619-ad42c6",
-       "now": 1792020379
+       "ses": "ses:20261016T181231-00c64b",
+       "now": 1792174351
       },
       "write": true
      }
@@ -1314,7 +1324,7 @@
       "rb:fraud-scoring-latency",
       "inc:2026-032",
       "chat:risk-eng-config-load",
-      "ses:20261014T232619-ad42c6"
+      "ses:20261016T181231-00c64b"
      ],
      "edges": [
       {
@@ -1340,16 +1350,17 @@
       {
        "from": "rb:fraud-scoring-latency-v2",
        "type": "WRITTEN_IN",
-       "to": "ses:20261014T232619-ad42c6"
+       "to": "ses:20261016T181231-00c64b"
       }
      ]
     }
    },
+   "why": "update the runbook with what fixed it",
    "summary": "write_runbook → runbook rb:fraud-scoring-latency-v2 v2 supersedes rb:fraud-scoring-latency",
-   "ts": 1792020379,
-   "ms": 7,
+   "ts": 1792174351,
+   "ms": 6,
    "llm_call": 3,
-   "step_id": "step:20261014T232619-ad42c6-011"
+   "step_id": "step:20261016T181231-00c64b-011"
   },
   {
    "seq": 12,
@@ -1402,11 +1413,12 @@
      "edges": []
     }
    },
+   "why": "hand off to the next agent through the graph",
    "summary": "INC-2026-032 resolved by per:priya-nair: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered. Wrote res:2026-032, runbook rb:fraud-scoring-latency-v2 (supersedes rb:fraud-scoring-latency); linked similar incidents inc:2026-012, pm:slack-2022-02-22, pm:facebook-2010-09-23. Matches known industry pattern: Slack — Slack's Incident on 2-22-22 (https://slack.engineering/slacks-incident-on-2-22-22/)",
-   "ts": 1792020379,
+   "ts": 1792174351,
    "ms": 0,
    "llm_call": 4,
-   "step_id": "step:20261014T232619-ad42c6-012"
+   "step_id": "step:20261016T181231-00c64b-012"
   }
  ],
  "graph": {
@@ -1422,7 +1434,7 @@
      "name": "Priya Nair",
      "role": "Senior Engineer",
      "email": "priya.nair@kestrelpay.example",
-     "joined_at": 1662420378
+     "joined_at": 1662574351
     }
    },
    {
@@ -1436,7 +1448,7 @@
      "name": "Marcus Webb",
      "role": "Staff Engineer",
      "email": "marcus.webb@kestrelpay.example",
-     "joined_at": 1593300378
+     "joined_at": 1593454351
     }
    },
    {
@@ -1450,7 +1462,7 @@
      "name": "Sofia Alvarez",
      "role": "Engineer",
      "email": "sofia.alvarez@kestrelpay.example",
-     "joined_at": 1714260378
+     "joined_at": 1714414351
     }
    },
    {
@@ -1464,8 +1476,8 @@
      "name": "Arjun Mehta",
      "role": "Staff Engineer",
      "email": "arjun.mehta@kestrelpay.example",
-     "joined_at": 1601940378,
-     "left_at": 1783812378
+     "joined_at": 1602094351,
+     "left_at": 1783966351
     }
    },
    {
@@ -1544,7 +1556,7 @@
     "name": "2.8.0",
     "origin": "seed",
     "props": {
-     "ts": 1792017978,
+     "ts": 1792171951,
      "origin": "seed",
      "summary": "RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster",
      "version": "2.8.0"
@@ -1556,7 +1568,7 @@
     "name": "2.3.0",
     "origin": "seed",
     "props": {
-     "ts": 1752697578,
+     "ts": 1752851551,
      "origin": "seed",
      "summary": "Lower RULES_CACHE_TTL to 10s",
      "version": "2.3.0"
@@ -1568,10 +1580,10 @@
     "name": "How does risk-rules get its rules? (config load)",
     "origin": "seed",
     "props": {
-     "ts": 1754868378,
+     "ts": 1755022351,
      "origin": "seed",
      "title": "How does risk-rules get its rules? (config load)",
-     "text": "[2025-08-10 23:26] Priya Nair: Arjun, quick one while I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-10 23:29] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just the source of truth for the rule editor. On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint. [2025-08-10 23:30]…",
+     "text": "[2025-08-12 18:12] Priya Nair: Arjun, quick one while I go through the INC-2025-031 action items: where does risk-rules actually read rules from at request time? [2025-08-12 18:15] Arjun Mehta: Not from its own DB on the hot path. rules-store-db is just the source of truth for the rule editor. On every cache miss risk-rules polls config-service's internal /v1/rulesets endpoint. [2025-08-12 18:16]…",
      "channel": "#risk-eng"
     }
    },
@@ -1584,7 +1596,7 @@
      "origin": "seed",
      "title": "fraud-scoring README",
      "text": "# fraud-scoring fraud-scoring produces a risk score between 0 and 1 for every authorisation request from payments-api. It combines features from the feature store, rule verdicts from risk-rules, and an ML model served in-process. ## Latency budget The caller allows 150 ms. A typical request spends about 40 ms on feature lookups, 20 ms on rules, 30 ms on the model, and the rest on serialisation. I…",
-     "updated_at": 1744932378,
+     "updated_at": 1745086351,
      "flagged_stale": false
     }
    },
@@ -1597,7 +1609,7 @@
      "origin": "seed",
      "title": "ledger-service README",
      "text": "# ledger-service The ledger records every movement of money as balanced journal entries. Nothing else in the company is allowed to write to ledger-db. ## API - POST /v1/journals: create a journal. Requires an Idempotency-Key header. - GET /v1/accounts/{id}/balance: current and pending balance. ## Idempotency Keys are stored for 24 hours. A repeated key returns the original response. ## Dependenci…",
-     "updated_at": 1779060378,
+     "updated_at": 1779214351,
      "flagged_stale": false
     }
    },
@@ -1700,7 +1712,7 @@
     "name": "INC-2025-031",
     "origin": "seed",
     "props": {
-     "started_at": 1752708378,
+     "started_at": 1752862351,
      "status": "resolved",
      "origin": "seed",
      "title": "fraud-scoring timeouts during checkout peak",
@@ -1708,7 +1720,7 @@
      "key": "INC-2025-031",
      "severity": 2,
      "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%",
-     "resolved_at": 1752715578
+     "resolved_at": 1752869551
     }
    },
    {
@@ -1717,7 +1729,7 @@
     "name": "INC-2026-012",
     "origin": "seed",
     "props": {
-     "started_at": 1779060378,
+     "started_at": 1779214351,
      "status": "resolved",
      "origin": "seed",
      "title": "merchant-onboarding config reads timing out",
@@ -1725,7 +1737,7 @@
      "key": "INC-2026-012",
      "severity": 3,
      "symptom": "merchant signups slow or failing; config-service latency elevated",
-     "resolved_at": 1779063978
+     "resolved_at": 1779217951
     }
    },
    {
@@ -1734,7 +1746,7 @@
     "name": "INC-2025-044",
     "origin": "seed",
     "props": {
-     "started_at": 1757892378,
+     "started_at": 1758046351,
      "status": "resolved",
      "origin": "seed",
      "title": "ledger-service connection pool exhausted during payout run",
@@ -1742,7 +1754,7 @@
      "key": "INC-2025-044",
      "severity": 2,
      "symptom": "payout run stalled; payment captures failing with pool timeout errors",
-     "resolved_at": 1757903178
+     "resolved_at": 1758057151
     }
    },
    {
@@ -1751,7 +1763,7 @@
     "name": "INC-2025-067",
     "origin": "seed",
     "props": {
-     "started_at": 1762644378,
+     "started_at": 1762798351,
      "status": "resolved",
      "origin": "seed",
      "title": "card-processor-adapter TLS handshake failures",
@@ -1759,7 +1771,7 @@
      "key": "INC-2025-067",
      "severity": 1,
      "symptom": "all card authorisations failing; TLS handshake errors in card-processor-adapter",
-     "resolved_at": 1762647978
+     "resolved_at": 1762801951
     }
    },
    {
@@ -1816,7 +1828,7 @@
      "title": "Runbook: fraud-scoring latency",
      "steps": "1. Open the fraud-scoring dashboard and check p99 latency and pod CPU. 2. If CPU is above 70%, scale the deployment up by 50% and wait five minutes. 3. Check the feature store database for slow queries and connection saturation. 4. If latency is still high, restart the pods one at a time. 5. If payments are being declined, ask payments-api on-call to enable the conservative fallback.",
      "version": 1,
-     "updated_at": 1745364378
+     "updated_at": 1745518351
     }
    },
    {
@@ -1829,7 +1841,7 @@
      "title": "Runbook: ledger-db failover",
      "steps": "1. Confirm the primary is unhealthy from two independent monitors. 2. Pause the payout batch in payouts-service. 3. Promote the synchronous replica using the failover script. 4. Point ledger-service at the new primary and verify journal writes succeed. 5. Rebuild the old primary as a replica and resume payouts.",
      "version": 1,
-     "updated_at": 1779060378
+     "updated_at": 1779214351
     }
    },
    {
@@ -1866,7 +1878,7 @@
     "name": "INC-2026-032",
     "origin": "agent",
     "props": {
-     "started_at": 1792020378,
+     "started_at": 1792174351,
      "status": "resolved",
      "origin": "agent",
      "title": "payments-api: 5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
@@ -1874,7 +1886,7 @@
      "key": "INC-2026-032",
      "severity": 2,
      "symptom": "5xx rate 12% and p99 4.1s on payments-api for the last 15 minutes",
-     "resolved_at": 1792020379
+     "resolved_at": 1792174351
     }
    },
    {
@@ -1898,7 +1910,7 @@
      "title": "Runbook: fraud-scoring latency",
      "steps": "1. Check for a recent deploy to risk-rules first: INC-2026-032 was caused by dep:risk-rules-v2.8.0 (RISK-412: lower RULES_CACHE_TTL 300s -> 5s so rule edits apply faster). 2. If risk-rules RULES_CACHE_TTL was changed, roll it back. What fixed INC-2026-032: Priya rolled back RULES_CACHE_TTL to 300s; config-service load recovered 3. Watch config-service CPU and request rate: risk-rules calls config…",
      "version": 2,
-     "updated_at": 1792020379
+     "updated_at": 1792174351
     }
    }
   ],
