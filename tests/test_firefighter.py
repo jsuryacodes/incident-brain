@@ -29,7 +29,7 @@ def test_1b_service_query_resolves_name(ctx):
 def _lying_policy(agent, system, tools, messages):
     out = mock_policy.respond(agent, system, tools, messages)
     for b in out:
-        if b["name"] == "submit_report":
+        if b.get("name") == "submit_report":
             b["input"] = copy.deepcopy(b["input"])
             b["input"]["contact"]["person_id"] = "per:made-up"
     return out
@@ -48,7 +48,7 @@ def test_2b_grounding_rejects_non_literal_excerpt(ctx):
     def misquote(agent, system, tools, messages):
         out = mock_policy.respond(agent, system, tools, messages)
         for b in out:
-            if b["name"] == "submit_report" and b["input"]["conflicting_decision"]:
+            if b.get("name") == "submit_report" and b["input"]["conflicting_decision"]:
                 b["input"] = copy.deepcopy(b["input"])
                 b["input"]["conflicting_decision"]["excerpt"] = "RULES_CACHE_TTL may be lowered freely."
         return out
@@ -61,7 +61,7 @@ def test_2c_nested_fields_and_excerpts_are_required(ctx):
     def strip(agent, system, tools, messages):
         out = mock_policy.respond(agent, system, tools, messages)
         for b in out:
-            if b["name"] == "submit_report" and b["input"]["conflicting_decision"]:
+            if b.get("name") == "submit_report" and b["input"]["conflicting_decision"]:
                 b["input"] = copy.deepcopy(b["input"])
                 del b["input"]["conflicting_decision"]["source_id"]  # would have skipped the excerpt check
         return out

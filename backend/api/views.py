@@ -140,7 +140,7 @@ def step_event(step, index, written, mode):
     queries = step.get("receipt", {}).get("queries", [])
     names = {n["id"]: n["name"] for n in index["nodes"].values()}
     result = step.get("result")
-    return {k: step.get(k) for k in ("seq", "agent", "action", "tool", "summary", "args", "ms", "llm_call")} | {
+    return {k: step.get(k) for k in ("seq", "agent", "action", "tool", "summary", "args", "ms", "llm_call", "why")} | {
         "mode": mode,
         "cypher": ";\n\n".join(q["cypher"] for q in queries),
         "params": [q["params"] for q in queries],

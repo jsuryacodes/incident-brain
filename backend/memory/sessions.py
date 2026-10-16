@@ -67,7 +67,10 @@ class StepLog:
         props = {"seq": step["seq"], "agent": step["agent"], "action": step["action"], "tool": step["tool"],
                  "cypher": ";\n".join(q["cypher"] for q in queries) or None,
                  "params_json": json.dumps(detail, ensure_ascii=False, default=str),
-                 "summary": clip(step["summary"], 900), "ts": step["ts"], "origin": "agent", "created_at": now}
+                 "summary": clip(step["summary"], 900), "ts": step["ts"], "origin": "agent", "created_at": now,
+                 "why": step.get("why"),  # v1.3: why the agent chose this tool
+                 "hypotheses_json": json.dumps(h, ensure_ascii=False) if (h := (step["args"] or {}).get("hypotheses")
+                                                                          or ((step["args"] or {}).get("details") or {}).get("hypotheses")) else None}
         self.graph.query(Q_STEP, {"ses": self.session_id, "id": sid, "now": now,
                                   "props": {k: v for k, v in props.items() if v is not None}})
         if self.prev:

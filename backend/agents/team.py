@@ -39,7 +39,7 @@ SUBMIT_TEAM_REPORT = {"action": "handoff", "input_schema": TEAM_REPORT_SCHEMA,
 AGENTS = {
     "triage": dict(read=["find_service", "blast_radius", "critical_services", "past_incidents", "get_incident_state"],
                    write=["open_incident", "update_incident"], submit=("submit_handoff", SUBMIT_HANDOFF)),
-    "investigator": dict(read=["memory_recall", "recent_changes_downstream", "shared_dependency_changes", "dependency_path", "decisions_about",
+    "investigator": dict(read=["memory_recall", "recent_changes", "recent_changes_downstream", "shared_dependency_changes", "dependency_path", "decisions_about",
                                "read_source", "past_incidents", "who_to_call", "node_details", "get_incident_state"],
                          write=["update_incident", "record_learned_dependency", "record_fact", "link_similar"],
                          submit=("submit_handoff", SUBMIT_HANDOFF)),

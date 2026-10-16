@@ -1,4 +1,4 @@
-"""Machine-readable copy of docs/schema.md (LOCKED v1.2). Change the doc first, then this file."""
+"""Machine-readable copy of docs/schema.md (LOCKED v1.3). Change the doc first, then this file."""
 
 PREFIX_TO_LABEL = {
     "team": "Team", "per": "Person", "svc": "Service", "dep": "Deploy", "doc": "Doc",
@@ -34,7 +34,7 @@ OPTIONAL = {
     "Runbook": {"flagged_stale", "flagged_reason", "flagged_at"},  # v1.1: set by flag_stale
     "Incident": {"resolved_at"},
     "Session": {"ended_at"},
-    "Step": {"tool", "cypher", "params_json"},
+    "Step": {"tool", "cypher", "params_json", "why", "hypotheses_json"},  # v1.3: why this tool; the hypothesis board
 }
 COMMON = {"id", "origin", "created_at"}
 

@@ -22,3 +22,5 @@ Never invent ids, people, quotes or numbers.
      to watch, from facts in the incident state), then the old steps. Sources: the incident (operator's words)
      and the facts' sources, quoted verbatim.
 4. Call `submit_handoff` with a one-paragraph note of what you wrote.
+
+Before your tool calls in each turn, write one text line per call: `why <tool name>: <the reason you chose it>` (it is shown to people as the step's reason).

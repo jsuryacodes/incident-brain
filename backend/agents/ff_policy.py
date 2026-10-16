@@ -461,7 +461,11 @@ def firefighter(v):
                                 + (" (a tie: the newer change was picked)" if causes and words.get(ch["deploy"]["id"]) == best else "")
                                 + "; no dependency data to check it")}
                     for ch in changes or [] if ch["deploy"]["id"] not in causes]
-        return turn(v.turns, ("submit_report", assemble(alerts, incidents, reps, rejected, None, notes)))
+        report = assemble(alerts, incidents, reps, rejected, None, notes)
+        report["hypotheses"] = hypotheses(incidents, reps, rejected, changes, {}, {})
+        report["confidence_breakdown"] = [{"effect": "-", "factor": "no dependency data: the cause was matched by words",
+                                           "node_id": None}]
+        return turn(v.turns, ("submit_report", report))
     if changes != []:  # nothing changed anywhere -> no scans needed
         scans = _calls_needed(v, [(t, {"service_id": s, "since_minutes": SCAN, **({"max_hops": DEPTH} if t == "recent_changes_downstream" else {})})
                                   for s in svcs for t in ("recent_changes_downstream", "shared_dependency_changes")])
@@ -523,8 +527,92 @@ def firefighter(v):
                    for r in i.get("root_causes", [])), None)
         if rc and "industry_matches" in v.tools and not v.called("industry_matches"):
             return turn(v.turns, ("industry_matches", {"root_cause_id": rc}))
-    return turn(v.turns, ("submit_report", assemble(alerts, incidents, reps, rejected_leads(changes, incidents, cands, weak, cut, v.tools),
-                                                    industry_line(v.last("industry_matches")), notes)))
+    rejected = rejected_leads(changes, incidents, cands, weak, cut, v.tools)
+    report = assemble(alerts, incidents, reps, rejected, industry_line(v.last("industry_matches")), notes)
+    report["hypotheses"] = hypotheses(incidents, reps, rejected, changes, cands, weak)
+    report["confidence_breakdown"] = confidence_breakdown(incidents[0], reps[0]) if incidents else []
+    return turn(v.turns, ("submit_report", report))
+
+
+def _ev(node_id, claim):
+    return {"node_id": node_id, "claim": claim}
+
+
+def hypotheses(incidents, reps, rejected, changes, cands, weak):
+    """The hypothesis board: every lead (and, when nothing changed, the alternatives) with evidence for and against,
+    a status and the reason. Built only from tool results."""
+    out, n = [], 0
+
+    def add(claim, status, sup, con, reason):
+        nonlocal n
+        n += 1
+        out.append({"id": f"H{n}", "claim": claim, "status": status, "supporting": sup, "contradicting": con, "reason": reason})
+    by_dep = {ch["deploy"]["id"]: ch for ch in changes or []}
+    for inc, rep in zip(incidents, reps):
+        names = ", ".join(map(svc_name, inc["alerts"]))
+        c, root = inc["cause"], inc.get("root")
+        if c:
+            d = c["deploy"]
+            sup = [_ev(d["id"], f"deployed {d['minutes_ago']} min ago: {d['summary']}")]
+            sup += [_ev(x, f"on the path {' -> '.join(map(svc_name, c['path']))}") for x in c["path"][1:]] if len(c["path"]) > 1 else \
+                [_ev(c["service"], "the alerting service itself changed")]
+            if (cd := rep.get("conflicting_decision")):
+                sup.append(_ev(cd["decision_id"], "the change contradicts this recorded decision"))
+            sup += [_ev(i["incident_id"], f"a past incident caused by a change to {svc_name(c['service'])}") for i in rep.get("similar_past_incidents") or []]
+            add(f"{d['id']} on {svc_name(c['service'])} caused the {names} alert{'s' * (len(inc['alerts']) > 1)}", "confirmed",
+                sup, [], ("explains " + str(len(inc["alerts"])) + " alerts; " if len(inc["alerts"]) > 1 else "")
+                + (("the alerting service itself changed" if not c["hops"] else f"a change on the call path ({_hops(c['hops'])})")
+                   if c["kind"] == "downstream" else
+                   f"a noisy neighbour through {svc_name(c['shared'])}, corroborated by {c.get('corroborated_by')}"))
+        elif root:
+            sup = [_ev(x, f"calls {svc_name(root['id'])} ({_hops(len(root['paths'].get(x, [x, root['id']])) - 1)})") for x in inc["alerts"]]
+            add(f"{svc_name(root['id'])} is saturated and takes the {len(inc['alerts'])} alerts down with it", "confirmed",
+                sup, [_ev(root["id"], "no recent change on it or on the alerts' paths (an inference from structure, not a deploy)")],
+                f"one shared dependency explains {len(inc['alerts'])} alerts; no single change explains more than "
+                + str(max([len([x for x in inc["alerts"] if any(k["deploy"]["id"] == d for k in cands.get(x, []))])
+                           for d in by_dep] or [0])))
+        else:
+            look = rep.get("look_first") or {}
+            add(f"a recent change caused the {names} alert", "rejected", [],
+                [_ev(inc["alerts"][0], "no change on its call path or in a corroborated shared dependency")],
+                "nothing that changed in the window is connected to it")
+            if look.get("service_ids"):
+                add(f"load on {', '.join(map(svc_name, look['service_ids']))} (the most depended-on services on the call path)",
+                    "open", [_ev(x, f"top of {look['algorithm']} on the call path") for x in look["service_ids"]], [],
+                    "where to look first; not a confirmed cause")
+    for r in rejected:
+        ch = by_dep.get(r["deploy_id"], {})
+        d = ch.get("deploy") or {}
+        status = "open" if "stays possible" in r["reason"] else "rejected"
+        add(f"{r['deploy_id']} on {svc_name(r['service_id'])} caused it", status,
+            [_ev(r["deploy_id"], f"deployed {d.get('minutes_ago')} min ago" + (f": {d.get('summary')}" if d.get("summary") else ""))],
+            [] if status == "open" else [_ev(r["service_id"], r["reason"])], r["reason"])
+    return out
+
+
+def confidence_breakdown(inc, rep):
+    """What raised or lowered the confidence of the (first) incident's conclusion."""
+    c, root, out = inc["cause"], inc.get("root"), []
+    if c:
+        out.append({"effect": "+", "factor": ("the alerting service itself changed" if not c["hops"] else
+                                              f"the change is on the alert's call path ({_hops(c['hops'])})") if c["kind"] == "downstream"
+                    else f"a neighbour through {svc_name(c['shared'])} ({c.get('corroborated_by')})", "node_id": c["deploy"]["id"]})
+        if c["kind"] != "downstream":
+            out.append({"effect": "-", "factor": "a shared dependency, not a direct one", "node_id": c["shared"]})
+        cd = rep.get("conflicting_decision")
+        out.append({"effect": "+", "factor": "it contradicts a recorded decision", "node_id": cd["decision_id"]} if cd else
+                   {"effect": "-", "factor": "no recorded decision says it is risky", "node_id": None})
+        sims = rep.get("similar_past_incidents") or []
+        out.append({"effect": "+", "factor": "a past incident had the same cause", "node_id": sims[0]["incident_id"]} if sims else
+                   {"effect": "-", "factor": "no past incident with the same cause", "node_id": None})
+        if c.get("learned_hop"):
+            out.append({"effect": "+", "factor": "the path uses a dependency an earlier session learned", "node_id": None})
+    elif root:
+        out += [{"effect": "+", "factor": f"{len(inc['alerts'])} alerts share {svc_name(root['id'])}", "node_id": root["id"]},
+                {"effect": "-", "factor": "no change on it: saturation is inferred from structure", "node_id": None}]
+    else:
+        out.append({"effect": "-", "factor": "no recent change is connected to the alert", "node_id": None})
+    return out
 
 
 INCIDENT_KEYS = ("alerts", "summary", "likely_cause", "contact", "bus_factor_warning", "blast_radius",

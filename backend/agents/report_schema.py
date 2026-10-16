@@ -53,6 +53,13 @@ FIREFIGHTER_EXTRA = {  # optional: the Firefighter's leads, its pointer when not
                                 ["alerts", "summary", "likely_cause", "contact", "bus_factor_warning", "blast_radius",
                                  "recommended_actions", "confidence", "look_first"])},
     "suppressed_pages": _SUPPRESSED,
+    "hypotheses": {"type": "array", "description": "The hypothesis board: every lead with evidence for and against, a status and the reason.",
+                   "items": _obj({"id": _S, "claim": _S, "status": {"enum": ["open", "confirmed", "rejected"]},
+                                  "supporting": {"type": "array", "items": _obj({"node_id": _S, "claim": _S})},
+                                  "contradicting": {"type": "array", "items": _obj({"node_id": _S, "claim": _S})},
+                                  "reason": _S})},
+    "confidence_breakdown": {"type": "array", "description": "What raised (+) or lowered (-) the confidence.",
+                             "items": _obj({"effect": {"enum": ["+", "-"]}, "factor": _S, "node_id": _SN})},
 }
 SUBMIT_REPORT = {
     "description": "Submit the final incident report. Call exactly once, at the end. Every id must have come back "

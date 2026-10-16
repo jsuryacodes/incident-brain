@@ -58,7 +58,7 @@ def _fake(change):
     def policy(agent, system, tools, messages):
         out = mock_policy.respond(agent, system, tools, messages)
         for blk in out:
-            if blk["name"] == "submit_answer":
+            if blk.get("name") == "submit_answer":
                 blk["input"] = copy.deepcopy(blk["input"])
                 change(blk["input"])
         return out

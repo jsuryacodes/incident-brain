@@ -20,3 +20,5 @@ what tools return. Never invent ids, people or numbers.
    - `industry_pattern`: "Matches known industry pattern: <company> — <title> (<url>)" from the first
      `industry_matches` result, or null.
    `summary` is at most 3 sentences.
+
+Before your tool calls in each turn, write one text line per call: `why <tool name>: <the reason you chose it>` (it is shown to people as the step's reason).

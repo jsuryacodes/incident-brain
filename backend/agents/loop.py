@@ -9,11 +9,13 @@ gets ONE retry; a second failure ends the run with status 'ungrounded' and NO re
 rejected_report for inspection), so nothing ungrounded is handed off, stored as an answer or served.
 """
 import json
+import re
 import time
 
 from backend.llm import USAGE_KEYS, max_run_cost
 from backend.tools.receipt import clip, ids_in
 
+WHY_LINE = re.compile(r"^why\s+([a-z_]+)\s*:\s*(.+)$", re.I)
 DIM, BOLD, YEL, RED, CYAN, RST = "\033[2m", "\033[1m", "\033[33m", "\033[31m", "\033[36m", "\033[0m"
 
 
@@ -49,6 +51,7 @@ def run_agent(agent, system, tools, initial_message, ctx, llm, *, max_steps=10, 
                 f"cumulative cost ${totals['cost_usd']:.4f} exceeded MAX_RUN_COST_USD ${max_run_cost():.2f}")
             break
         uses = [b for b in resp.content if b["type"] == "tool_use"]
+        whys = why_lines(resp.content)
         if not uses:
             submit = [n for n, t in tools.items() if t["action"] in ("handoff", "answer")]
             messages.append({"role": "user", "content": f"Finish by calling {' or '.join(submit)}."})
@@ -98,7 +101,7 @@ def run_agent(agent, system, tools, initial_message, ctx, llm, *, max_steps=10, 
                 seen |= ids_in(result)
             step = {"seq": seq_start + len(rec["steps"]) + 1, "agent": agent,
                     "action": spec["action"] if spec and not is_err else "tool_call",
-                    "tool": name, "args": args, "result": result, "receipt": receipt,
+                    "tool": name, "args": args, "result": result, "receipt": receipt, "why": whys.get(name),
                     "summary": (clip(args.get("note") or args.get("summary") or args.get("answer") or name, 900)
                                 if result.get("accepted") else summarize(name, args, result)), "ts": int(time.time()),
                     "ms": int((time.time() - t0) * 1000), "llm_call": totals["llm_calls"]}
@@ -116,6 +119,18 @@ def run_agent(agent, system, tools, initial_message, ctx, llm, *, max_steps=10, 
         rec["status"] = "step_limit"
     rec["messages"] = messages
     return rec
+
+
+def why_lines(content):
+    """`why <tool>: <reason>` lines from the assistant's text blocks -> {tool: reason} ("why this tool", per step)."""
+    out = {}
+    for b in content:
+        if b.get("type") == "text":
+            for line in b["text"].splitlines():
+                m = WHY_LINE.match(line.strip())
+                if m and m.group(1) not in out:
+                    out[m.group(1)] = clip(m.group(2), 300)
+    return out
 
 
 # ───────────── one-line step summaries (trace + Step.summary) ─────────────

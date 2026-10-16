@@ -15,7 +15,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 |---|---|---|
 | 0 Preflight | DONE | (no code) |
 | A Scenario library + eval + baselines | DONE | 08A1–08A8 |
-| B Hypotheses + decision trace | todo | |
+| B Hypotheses + decision trace | DONE (backend; UI in G) | 08B1–08B2 |
 | C Alert storm | DONE (backend; UI in G) | 08C1–08C3 |
 | D Actions + safety check + approval | todo | |
 | E MCP for real | todo | |
@@ -137,6 +137,17 @@ that explains most alerts" finds nothing and only correlation over the graph poi
   replay `runs/golden/firefighter-storm.json`, fresh run via `/api/story/storm/run` (access code), numbers
   `GET /api/storm/latest`: naive 6 incidents / 6 pages / 5 people woken vs agent 2 / 2 / 2, 5 pages suppressed, 35 tool
   calls, algorithms BFS, SPpaths, SSpaths, WCC, labelPropagation.
+
+## 08B — Hypotheses and the decision trace
+- **"Why this tool"**: every assistant turn starts with `why <tool>: <reason>` lines (the mock writes them, every prompt
+  asks a live model for them); the loop attaches each to its step (`step.why`), the UI event carries it, and team runs
+  persist it as `Step.why`. A fake-client test proves the live path parses them (no network).
+- **Hypothesis board**: the Firefighter report has `hypotheses` (every lead + the alternatives when nothing changed:
+  claim, status confirmed/rejected/open, supporting and contradicting evidence as node ids + claims, reason) and
+  `confidence_breakdown` (+/- factors). The team Investigator calls `recent_changes` in the same turn as
+  `update_incident` (so tool calls until cause stay 8 and 3) and hands off its own board, persisted as
+  `Step.hypotheses_json`. Schema **v1.3** (two optional Step properties; changelog in docs/schema.md).
+- Hero numbers re-checked: unchanged (S1 14 total / 8 investigator, S2 9 / 3, LLM calls 12 / 11 / 10, no-memory not found).
 
 ---
 

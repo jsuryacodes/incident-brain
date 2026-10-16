@@ -50,9 +50,50 @@ class View:
         return [(inp, res) for name, inp, res, err in self.calls if name == tool and not err]
 
 
+WHY = {  # the default reason for choosing each tool ("why this tool"); planners can give a more specific one
+    "find_service": "the alert only has a name: resolve it to a service id",
+    "memory_recall": "memory first: did an earlier session learn something about this service?",
+    "recent_changes": "list every recent change in the company: each one is a lead",
+    "recent_changes_downstream": "is any recent change on the alerting service's own call path?",
+    "shared_dependency_changes": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
+    "correlate_alerts": "several alerts at once: which dependency do most of them share?",
+    "connected_impact": "several alerts at once: which of them cannot share a cause at all?",
+    "blast_radius": "who is hurt if this service is down (callers, tier-1 first)",
+    "blast_tiers": "which callers of the root are already alerting and which will be next (notify, don't page)",
+    "who_to_call": "who to page: active people by commits and past incident fixes",
+    "decisions_about": "does the change contradict a recorded decision?",
+    "past_incidents": "have we seen this before, and who fixed it?",
+    "critical_services": "nothing changed: rank the call path by structure to know where to look first",
+    "failure_domains": "context: which part of the system the alerts fall in",
+    "industry_matches": "has another company had the same root cause?",
+    "search_knowledge": "look up what the docs, tickets and chats say",
+    "read_source": "read the source to quote it verbatim",
+    "node_details": "drill into a node",
+    "dependency_path": "how are these two services connected?",
+    "stale_knowledge": "which docs and runbooks are out of date?",
+    "get_incident_state": "read the shared incident state",
+    "open_incident": "open the incident so the team shares one state",
+    "update_incident": "record the cause the evidence supports",
+    "record_learned_dependency": "write the dependency the source revealed into the graph (memory)",
+    "record_fact": "write what was learned, with its source",
+    "link_similar": "link the incident to the similar one it matches",
+    "page_person": "page the top active person",
+    "open_ticket": "open the follow-up ticket",
+    "flag_stale": "flag the stale document with its reason",
+    "record_resolution": "record how it was fixed, in the operator's words",
+    "write_runbook": "update the runbook with what fixed it",
+    "submit_report": "the evidence is in: submit the grounded report",
+    "submit_handoff": "hand off to the next agent through the graph",
+    "submit_answer": "answer with citations",
+}
+
+
 def turn(n, *calls):
-    """calls: (tool name, input) -> assistant content blocks with deterministic ids."""
-    return [{"type": "tool_use", "id": f"toolu_mock_{n}_{i}", "name": t, "input": a} for i, (t, a) in enumerate(calls)]
+    """calls: (tool name, input) or (tool name, input, why) -> assistant content blocks with deterministic ids, led by
+    one text block of `why <tool>: <reason>` lines (the same format the live prompt asks the model for)."""
+    why = "\n".join(f"why {c[0]}: {c[2] if len(c) > 2 else WHY.get(c[0], 'next step')}" for c in calls)
+    return ([{"type": "text", "text": why}] if calls else []) + [
+        {"type": "tool_use", "id": f"toolu_mock_{n}_{i}", "name": c[0], "input": c[1]} for i, c in enumerate(calls)]
 
 
 def _tokens(text):
@@ -285,6 +326,47 @@ def triage(v):
 
 
 # ───────────── investigator ─────────────
+def changelog(v):
+    """After the cause is set (same turn, so time-to-cause is unchanged): the company-wide change log, to check every
+    other recent change against what the scans showed."""
+    return [("recent_changes", {"since_minutes": 120}, "the cause is set: check every other recent change before handing off")] \
+        if "recent_changes" in v.tools and not v.called("recent_changes") else []
+
+
+def team_hypotheses(v, svc, c, report):
+    """The Investigator's hypothesis board: the culprit (confirmed, with its evidence) and every other recent change,
+    judged only by the scans this agent actually ran."""
+    down = {h["service"]: h for _, r in v.all("recent_changes_downstream") for h in r.get("hits", [])}
+    shared = {h["neighbour"]: h for _, r in v.all("shared_dependency_changes") for h in r.get("hits", [])}
+    ran = [t for t in ("recent_changes_downstream", "shared_dependency_changes") if v.called(t)]
+    d = c["deploy"]
+    sup = [{"node_id": d["id"], "claim": f"deployed {d['minutes_ago']} min ago: {d['summary']}"}]
+    sup += [{"node_id": x, "claim": "on the path " + " -> ".join(map(svc_name, c["path"]))} for x in c["path"][1:]]
+    if (cd := report.get("conflicting_decision")):
+        sup.append({"node_id": cd["decision_id"], "claim": "the change contradicts this recorded decision"})
+    sup += [{"node_id": i["incident_id"], "claim": "a past incident with the same cause"} for i in report.get("similar_past_incidents") or []]
+    out = [{"id": "H1", "claim": f"{d['id']} on {svc_name(c['service'])} caused the {svc_name(svc)} alert", "status": "confirmed",
+            "supporting": sup, "contradicting": [],
+            "reason": "a change on the call path" + (" through a learned dependency" if c.get("learned_hop") else "")
+                      if not c.get("shared") else f"a noisy neighbour through {svc_name(c['shared'])}"}]
+    for ch in (v.last("recent_changes") or {}).get("changes", []):
+        x = ch["service"]
+        if ch["deploy"]["id"] == d["id"]:
+            continue
+        if x in down:
+            why = f"{svc_name(x)} is on the call path too, but {svc_name(c['service'])} is the nearer change"
+        elif x in shared:
+            why = f"{svc_name(x)} only shares {svc_name(shared[x]['shared'])} with {svc_name(svc)}"
+        else:
+            why = (f"{svc_name(x)} did not show up in the {' or the '.join(t.replace('_', ' ') for t in ran)} scan of "
+                   f"{svc_name(svc)}: no dependency connects it")
+        out.append({"id": f"H{len(out) + 1}", "claim": f"{ch['deploy']['id']} on {svc_name(x)} caused it", "status": "rejected",
+                    "supporting": [{"node_id": ch["deploy"]["id"], "claim": f"deployed {ch['deploy']['minutes_ago']} min ago"}],
+                    "contradicting": [{"node_id": x, "claim": why}], "reason": why})
+    return out
+
+
+
 def seen_before(inc, step):
     """'Seen before: INC-x, fixed by P (summary), see Runbook vN step K (rb:...)' from a recalled incident."""
     who = ", ".join(p["name"] for p in inc.get("resolved_by", [])) or "unknown"
@@ -330,7 +412,7 @@ def investigator(v):
                                 "reason": f"also caused by a change to {svc_name(c['service'])}: {i['title']}"}
     if from_memory and not v.called("update_incident"):
         # memory named the culprit and one tool confirmed it: set the cause now, then gather the rest
-        return turn(v.turns, update(mem_incs), *[link(i) for i in mem_incs], *reads)
+        return turn(v.turns, update(mem_incs), *[link(i) for i in mem_incs], *reads, *changelog(v))
     if not v.called("decisions_about"):
         return turn(v.turns, *reads)
     dec, past, who = v.last("decisions_about"), v.last("past_incidents"), v.last("who_to_call")
@@ -346,7 +428,7 @@ def investigator(v):
                      "the service catalog does not list this dependency.",
         "sources": [{"node_id": learned["source_id"], "excerpt": learned["excerpt"]}]})] if learned else []
     if not v.called("update_incident"):
-        return turn(v.turns, update(similar, learned), *learn, *[link(i) for i in similar])
+        return turn(v.turns, update(similar, learned), *learn, *[link(i) for i in similar], *changelog(v))
     linked = {a["other_id"] for a, _ in v.all("link_similar")}
     extra = (learn if not v.called("record_learned_dependency") else []) + [link(i) for i in similar if i["id"] not in linked]
     if extra:
@@ -382,6 +464,7 @@ def investigator(v):
             + (f" Contact candidates: {', '.join(x['name'] for x in cand)}." if cand else ""))
     details = {k: r[k] for k in ("likely_cause", "conflicting_decision", "similar_past_incidents", "evidence",
                                  "recommended_actions", "confidence")}
+    details["hypotheses"] = team_hypotheses(v, svc, c, r)
     details.update(learned=[{"fact_id": f["fact_id"], **f["edge"]} for f in facts], memory_used=memory,
                    runbook_step=step, contact_candidates=cand, seen_before=seen)
     return turn(v.turns, ("submit_handoff", {"note": note, "details": details}))

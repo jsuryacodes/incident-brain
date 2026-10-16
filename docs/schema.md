@@ -1,4 +1,4 @@
-# Incident Brain — Graph Schema (LOCKED v1.2 · 15 Oct 2026)
+# Incident Brain — Graph Schema (LOCKED v1.3 · 16 Oct 2026)
 
 This file is the single source of truth for the graph model. Code must follow it.
 Changing it requires a deliberate decision (bump the version + note why at the bottom).
@@ -110,7 +110,7 @@ Common properties on every node: `id`, `origin` ('seed' | 'agent'), `created_at`
 | PublicPostmortem | `pm:` | seed (step 9) | company, title, summary, url, published_at | industry pattern layer |
 | Fact | `fact:` | agent | statement, confidence (0–1) | semantic memory |
 | Session | `ses:` | agent | user, mode ('firefighter' \| 'brain' \| 'team'), status, started_at, ended_at | persistent conversation history |
-| Step | `step:` | agent | seq, agent ('triage' \| 'investigator' \| 'communicator' \| 'brain'), action ('tool_call' \| 'handoff' \| 'write' \| 'page' \| 'answer'), tool, cypher, params_json, summary, ts | handoffs + "how it got the answer" |
+| Step | `step:` | agent | seq, agent ('triage' \| 'investigator' \| 'communicator' \| 'brain'), action ('tool_call' \| 'handoff' \| 'write' \| 'page' \| 'answer'), tool, cypher, params_json, summary, ts; why, hypotheses_json (v1.3, optional) | handoffs + "how it got the answer" + why each tool was chosen |
 
 **Deliberately cut:** Repo (1:1 with Service → `repo_url` property), Alert (→ `Incident.symptom`), ChatMessage (thread is the citable unit; quote goes on the edge), Agent node (→ `Step.agent`).
 
@@ -231,6 +231,10 @@ CALL algo.pageRank('Service', 'DEPENDS_ON') YIELD node, score RETURN node.name, 
 ```
 
 ## Changelog
+- v1.3 (16 Oct 2026): optional properties only, no label/edge changes. `Step.why` (the agent's one-line reason for
+  choosing the step's tool, parsed from `why <tool>: <reason>` lines) and `Step.hypotheses_json` (the hypothesis board
+  on the Investigator's handoff step: claims with supporting/contradicting evidence, status, reason). Reason: Track 1's
+  "explainable results" asks for the decision trace, not just the receipts. Indexes are unchanged.
 - v1.2 (15 Oct 2026): two full-text indexes only (`RootCause(name, description)`, `PublicPostmortem(title, summary)`); no label, edge or property changes. Reason: Ask the Brain must turn "a thundering herd like ours" into a root-cause id before it can find industry matches, and full-text search is how the Brain resolves words to nodes. `search_knowledge` still searches the original six labels by default; these two are opt-in via `labels`.
 - v1.1 (15 Oct 2026): optional properties only, no label/edge changes. `Doc.flagged_reason`, `Doc.flagged_at`, `Runbook.flagged_stale`, `Runbook.flagged_reason`, `Runbook.flagged_at` (set by the `flag_stale` tool); `origin` + `created_at` on every agent-written edge. Reason: the mega task requires `origin:'agent'` and `created_at` on everything agents create, and stale flags need a reason the Brain can quote.
 - v1.0.2 (15 Oct 2026): added 'Data model at a glance' Mermaid diagrams (no model change).

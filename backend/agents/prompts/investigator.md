@@ -39,4 +39,9 @@ return. Never invent ids, people, quotes or numbers.
    - `details`: `{likely_cause: {service_id, deploy_id, ticket_key, path, explanation}, conflicting_decision:
      {decision_id, source_id, excerpt (verbatim), how_it_conflicts} or null, similar_past_incidents:
      [{incident_id, what_fixed_it, resolved_by}], evidence: [{node_id, claim}] (≥3), recommended_actions (≤4),
+     hypotheses: [{id, claim, status: confirmed|rejected|open, supporting: [{node_id, claim}], contradicting:
+     [{node_id, claim}], reason}] (the culprit plus every other change from `recent_changes`, called in the same turn
+     as `update_incident`, judged only by the scans you ran),
      confidence, learned, memory_used, runbook_step, contact_candidates, seen_before}`.
+
+Before your tool calls in each turn, write one text line per call: `why <tool name>: <the reason you chose it>` (it is shown to people as the step's reason).

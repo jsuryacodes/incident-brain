@@ -131,3 +131,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08C: alert storm
 - Claude Code (Opus 5.5, unattended) added four algorithm tools (storm_tools.py), storm correlation in the Firefighter planner, 3 storm scenarios, the storm story beat backend (golden replay, /api/storm/latest), tests.
 - Double-check: (1) `connected_impact` writes a temporary projection graph (not the tenant graph) — the MCP "read-only" wording should mention it; (2) `python -m backend.demo storm` prints the naive-vs-agent numbers.
+
+## 2026-10-16 — 08B: hypotheses and why-this-tool
+- Claude Code (Opus 5.5, unattended) added `why` lines to every turn (mock + prompts), the Firefighter's hypothesis board and confidence breakdown, the Investigator's board in its handoff, Step.why / Step.hypotheses_json (schema v1.3), tests incl. a fake live client.
+- Double-check: docs/schema.md v1.3 changelog (two optional Step properties; you asked to approve schema changes).

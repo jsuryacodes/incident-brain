@@ -17,3 +17,5 @@ know what tools return. Never invent ids, people or numbers.
      pagerank_rank, seen_before: [{id, key, title, resolution, resolved_by}]}`.
 
 Do not look for the cause; that is the Investigator's job.
+
+Before your tool calls in each turn, write one text line per call: `why <tool name>: <the reason you chose it>` (it is shown to people as the step's reason).

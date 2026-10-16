@@ -55,3 +55,10 @@ Use only the tools you are given; if a step below needs a tool you don't have, s
 - `confidence`: high if the cause, a contradicted decision and a matching past incident line up; medium if the cause
   is found; low if no cause was found.
 - `summary` is at most 3 sentences.
+
+Before your tool calls in each turn, write one text line per call: `why <tool name>: <the reason you chose it>` (it is shown to people as the step's reason).
+- `hypotheses`: every lead (and, if nothing changed, "a recent change caused it" and "load on <hub>") as
+  `{id: "H1", claim, status: confirmed|rejected|open, supporting: [{node_id, claim}], contradicting: [{node_id, claim}],
+  reason}`. Rejected ones carry the evidence that killed them; keep a lead "open" when the graph can't decide.
+- `confidence_breakdown`: `[{effect: "+"|"-", factor, node_id or null}]`: what raised or lowered your confidence.
+
