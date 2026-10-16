@@ -471,6 +471,17 @@ def compare_latest(tenant: str = "kestrel_pay"):
             "metric": "Investigator tool calls until cause found"}
 
 
+EVAL_LATEST = ROOT / "runs" / "eval" / "latest.json"
+
+
+@app.get("/api/eval/latest")
+def eval_latest():
+    """The latest Firefighter eval (python -m backend.agents.firefighter_eval): scenarios, profiles, scores."""
+    if not EVAL_LATEST.is_file():
+        raise HTTPException(404, "no eval results yet: run python -m backend.agents.firefighter_eval")
+    return json.loads(EVAL_LATEST.read_text())
+
+
 @app.get("/api/brain/suggestions")
 def brain_suggestions(tenant: str = "kestrel_pay"):
     return {"tenant": tenant, "questions": views.suggestions(tenant_ok(tenant))}

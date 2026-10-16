@@ -73,6 +73,15 @@ Known behaviour (judgement call, left as is): a CALLER of the alerting service t
 another route counts as a neighbour (e.g. Northwind patient-portal for an appointments alert).
 Hero numbers re-checked on a twin: unchanged (S1 14 total / 8 investigator, S2 9 / 3, without memory not found).
 
+**08A4** (oracle + generator): `seed/eval_oracle.py` (ground truth in plain Python, shared by the oracle test and the
+generator) and `seed/eval_generator.py` (50 seeded random scenarios: random alert, culprit 1-4 hops down with a unique
+shortest path and an untied contact, an unrelated decoy deploy in 40 of 50, often fresher than the culprit).
+**08A5** (runner): `python -m backend.agents.firefighter_eval` (dev + generated sets, per profile, twins deleted even on
+errors), `runs/eval/latest.json`, `docs/eval.md`, `GET /api/eval/latest`. Verifier FAIL → fixed: the scorer now fails a
+report that names a cause and also rejects it, catches any "roll back / revert / undo dep:…" and every `per:` id in
+actions, scores actions per incident, requires a non-empty reason for each rejected lead; doc overclaims removed.
+Full profile: **dev 12/12, generated 50/50**.
+
 ---
 
 # Earlier: task 07 (`docs/prompts/07-ui.md`, all DONE)
