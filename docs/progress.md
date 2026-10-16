@@ -22,7 +22,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | F Scale proof | DONE | 08F |
 | G UI | DONE (benchmark panel comes with F) | 08G1–08G2 |
 | H Live-readiness | DONE (no calls) | 08H |
-| I Docs | todo | |
+| I Docs | DONE | 08I |
 | J Review + final verification | todo | |
 
 **Total live API spend in 08: $0.00** (0 live calls, no key).

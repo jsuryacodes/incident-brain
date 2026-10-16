@@ -118,3 +118,58 @@ the newest Python 3.10+ it can find, builds `.venv` with it, installs pinned dep
 `falkordb` container are up, then seeds and verifies both companies. Re-running it is safe.
 **If asked:** "Everything runs in mock mode by default, so a judge can clone, run two scripts and see the full demo
 without an API key or any cost."
+
+
+## 08: Track 1 additions (plain words)
+
+**Every recent change is a lead (`recent_changes`).** A flat list of every deploy in the last two hours, newest first.
+It deliberately knows nothing about dependencies: a naive responder blames the newest deploy; our agent makes each one a
+hypothesis and lets the graph keep or reject it.
+
+**Keeping or rejecting a lead.** `recent_changes_downstream` follows `DEPENDS_ON` outward from the alerting service
+(0–6 hops: the service itself counts) and keeps services with a recent deploy: those are on the call path, nearest
+first. `shared_dependency_changes` finds services that are *not* on the path but call something the alerting service
+also calls (a noisy neighbour). In a real company everything calls the same few hubs, so a neighbour only counts when
+the shared service is narrow (fewer than 4 services reach it) or something corroborates it: a learned dependency on the
+path, the shared service is alerting too, or the alert names it. Everything else is rejected, with that reason.
+
+**Alert storms.** `correlate_alerts` runs `algo.BFS` from every alerting service in one query and counts, for each
+dependency, how many alerting services reach it; the top one (more alerts covered, alerting before silent, fewer hops)
+is the shared root. `connected_impact` copies the alerting services and everything they call into a scratch graph and
+runs `algo.WCC` there: alerts in different components share no dependency, so they can't have one cause. If the root
+explains at least 3 alerts and more than any single change does, they are ONE incident; one page goes to the root's
+owner and every other alert's page is suppressed with its path as the reason. `blast_tiers` (`algo.SSpaths` incoming)
+lists the root's callers tier by tier, alerting vs silent (notify the silent ones, don't page them).
+
+**Actions and the safety check.** The plan per incident: roll back (or hold), page (or escalate to the team when nobody
+active owns the service), suppress pages, notify, open a ticket, flag stale docs. `rollback_safety` reads three things
+around the deploy: later deploys to the same service (a rollback takes them along), words in the change that mean data
+was touched (migration, schema, drop, rebuild…: rolling back code won't undo it), and how many services depend on it.
+Risky → hold and page the owner. Approve (access code) executes in simulation on the run's own copy of the company and
+re-runs `recent_changes_downstream`: "cleared" only if the newest change on the culprit is now the rollback.
+
+**Why this tool, hypotheses, confidence.** Every model turn starts with `why <tool>: <reason>` lines; the loop attaches
+each reason to its step. The report's hypothesis board lists every lead with evidence for and against (node ids), a
+status and the reason; the confidence breakdown says what raised or lowered it.
+
+**MCP.** The same registry is served over MCP (stdio, and streamable HTTP at `/mcp/<company>/`). `--tools-via mcp` makes
+our own Firefighter discover and call its tools through an MCP client session; a test checks the run is identical.
+
+### Likely judge questions (Track 1)
+- **"Isn't this a rules engine with an LLM costume?"** In mock mode the planner IS deterministic rules (so the demo and
+  eval are free and repeatable), and we say so everywhere. The live planner is Claude with the same tools, prompt and
+  grounding checks; it has not been run yet (no key during the build). What we show is that the *graph tools* make
+  the decision possible: the same planner without the graph fails.
+- **"Do the algorithms matter, or is it all traversals?"** Honestly: on single alerts plain traversals tie
+  (docs/eval.md shows it from the data). The algorithms change the outcome in alert storms (correlation over many
+  alerts at once) and answer questions in one call (PageRank, communities, components). At 2,000 services both stay
+  fast (docs/benchmarks.md).
+- **"Is the eval rigged?"** Expected answers come from an independent oracle in plain Python; 6 held-out scenarios
+  were written by an agent that never saw the planner and run once (6/6); 50 scenarios are generated from seeds; the
+  baselines are the same planner with fewer tools, and their wins are reported too.
+- **"Does it really act?"** It writes incidents, pages, tickets, stale flags and a rollback deploy into the graph, but
+  only after approval, only on a copy of the company, and in simulation (no real pager or CI). Verification then
+  re-checks the graph and says plainly when a page cannot clear a saturation.
+- **"What did you find out about FalkorDB?"** Whole-graph WCC is one component in a hub-heavy graph (hence the
+  projection); a MATCH after an aggregation returns nothing; and a wide aggregation row with NULLs crashed FalkorDB
+  6.0.2 (minimal repro in docs/progress.md).

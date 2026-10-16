@@ -1,3 +1,30 @@
+# Demo video v2 (Track 1 first): 2:45 shot list
+
+Recorded in the web UI (`scripts/ui.sh`, http://localhost:8000) at 1920×1080, light theme, **replay mode** (no access
+code), so every take is identical. Mock mode for everything (say so on screen once: the badge reads "Replay"). The
+on-screen labels carry the story with the sound off: the outcome card, the step cards' "why:" lines, the Hypotheses
+and Actions tabs.
+
+Before recording: `scripts/setup.sh`, `scripts/ui.sh`, hard-refresh. Company: Kestrel Pay. Speed 1×.
+
+| # | Time | Screen | Click / do | Narrator (1–2 lines) |
+|---|---|---|---|---|
+| 1 | 0:00–0:12 | Story view, title card | nothing, then **Alert storm** | "Six alerts fire at once. A naive pager wakes six people for six incidents. Our agent asks the company's graph first." |
+| 2 | 0:12–0:38 | Firefighter view, storm playing | let it play to `correlate_alerts` / `connected_impact`; config-service gets the SHARED ROOT ring | "It lists every recent change as a lead, then uses FalkorDB's algorithms: BFS from every alert finds the one dependency five of them share; WCC on the alerting subgraph proves the sixth can't share its cause." |
+| 3 | 0:38–0:55 | end of the storm: outcome card "6 alerts → 2 incidents · 2 pages · 5 suppressed"; Actions tab | scroll the suppressed pages | "One page to config-service's owner instead of five, each suppressed page with the dependency path that justifies it. The sixth alert is its own incident, with its own change." |
+| 4 | 0:55–1:15 | Firefighter, scenario "false lead" at the end, **Hypotheses** tab | point at the struck-through hypotheses | "Explainable: every lead is a hypothesis. Two fresher deploys are rejected with the evidence that killed them: one isn't on the call path at all, the other only shares hubs that everything shares." |
+| 5 | 1:15–1:32 | step list: the "why:" lines; Receipt tab with Cypher + ms | click one step | "Every step says why the agent chose that tool, and shows the exact Cypher it ran, with timing. The agent never writes Cypher; it picks from 22 fixed graph tools." |
+| 6 | 1:32–1:50 | Northwind, scenario "neighbour and an unrelated fresher deploy" at the end, **Actions** tab: HOLD + red safety check | point at "Safety check: risky" | "Before acting it checks the graph: this change rebuilt a table, so rolling the code back won't undo it. The plan says hold and page the owner. Approval needs the access code; execution is simulated and verified." |
+| 7 | 1:50–2:08 | terminal split or `docs/mcp-transcript.md` | show `--tools-via mcp` output line and the transcript's tool list | "The same tools over MCP, stdio or HTTP. Our own agent can discover and call them through an MCP session, with identical results." |
+| 8 | 2:08–2:28 | **Eval** view, "Why a graph?" bars + scoreboard | scroll to the scoreboard | "Same agent, three tool sets. With the graph: 15 of 15 scenarios, zero wrong actions, 6 of 6 on held-out cases. Without it: word matching takes the bait and pages the wrong people." |
+| 9 | 2:28–2:45 | Story view: the learned dependency drawing in (Session 1 step 15), then the before/after panel | **Fire alert** at 2×, jump to the end | "And it remembers: a dependency it learned from a chat thread lets the next incident be solved in three steps instead of eight. Incident Brain, on FalkorDB." |
+
+Timings to measure on the first take; replays are deterministic, so they hold.
+
+---
+
+# Earlier: v1 (Story first)
+
 # Demo video: 2:45 shot list
 
 Recorded in the web UI (`scripts/ui.sh`, http://localhost:8000) at 1920×1080, light theme, **replay mode** (no access
