@@ -417,6 +417,11 @@ def firefighter(v):
         ids = list(dict.fromkeys(inc["alerts"] + ([c["service"]] + ([c["shared"]] if c["shared"] else []) if c else [])))
         detail.append(("past_incidents", {"service_ids": ids[:10]}))
     detail = _calls_needed(v, detail)
+    if not detail:  # PageRank refused (no algorithms): fall back to the plain count of services that reach each one
+        detail = _calls_needed(v, [("critical_services", {"algorithm": "fan_in", "limit": 5, "downstream_of": i["alerts"]})
+                                   for i in incidents if not i["cause"] and not i.get("root")
+                                   and v.last("critical_services", downstream_of=i["alerts"]) is None
+                                   and v.called("critical_services")])
     if detail:
         return turn(v.turns, *detail)
     reps = []

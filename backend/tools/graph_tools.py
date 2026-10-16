@@ -476,7 +476,7 @@ def search_knowledge(ctx, query="", labels=None, limit=8):
             if sum(1 for h in hits.values() if h["label"] == label) >= limit:
                 break
     # ties (every index's best hit scores 1.0): raw sources before derived summaries
-    ranked = sorted(hits.values(), key=lambda h: (-h["score"], _SOURCE_PREF.index(h["label"])))[:limit]
+    ranked = sorted(hits.values(), key=lambda h: (-h["score"], _SOURCE_PREF.index(h["label"]), h["id"]))[:limit]  # id: repeatable
     rec.hl(*[h["id"] for h in ranked])
     return rec.done({"query": query, "terms": tokens, "hit_count": len(hits), "hits": ranked,
                      **({"truncated": True} if len(hits) > limit else {})})
@@ -492,14 +492,18 @@ RETURN node.id, node.name, node.tier, t.name, score ORDER BY score DESC LIMIT $l
 
 
 Q_DOWNSTREAM_OF = """MATCH (s:Service)-[:DEPENDS_ON*1..6]->(d:Service) WHERE s.id IN $ids RETURN DISTINCT d.id"""
+# no algorithm: how many services reach each one (directly or not), plain variable-length Cypher
+Q_FAN_IN = """MATCH (c:Service)-[:DEPENDS_ON*1..6]->(node:Service)
+MATCH (t:Team)-[:OWNS]->(node)
+RETURN node.id, node.name, node.tier, t.name, count(DISTINCT c) AS score ORDER BY score DESC, node.id LIMIT $limit"""
 
 
 def critical_services(ctx, algorithm="pagerank", limit=8, downstream_of=None):
     rec = Recorder(ctx, "critical_services", {"algorithm": algorithm, "limit": limit, "downstream_of": downstream_of})
-    if algorithm not in ("pagerank", "betweenness"):
-        return rec.error("algorithm must be 'pagerank' or 'betweenness'")
-    if not rec.ctx.algorithms:
-        return rec.error("graph algorithms are switched off in this run")
+    if algorithm not in ("pagerank", "betweenness", "fan_in"):
+        return rec.error("algorithm must be 'pagerank', 'betweenness' or 'fan_in'")
+    if not rec.ctx.algorithms and algorithm != "fan_in":
+        return rec.error("graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works")
     limit = clamp(limit, 1, 50, 8)
     scope = None
     if downstream_of is not None:
@@ -511,12 +515,13 @@ def critical_services(ctx, algorithm="pagerank", limit=8, downstream_of=None):
             if err := rec.check(sid, "Service"):
                 return rec.error(err)
         scope = {r[0] for r in rec.q(Q_DOWNSTREAM_OF, {"ids": downstream_of[:10]})}
-    q = Q_PAGERANK if algorithm == "pagerank" else Q_BETWEENNESS
+    q = {"pagerank": Q_PAGERANK, "betweenness": Q_BETWEENNESS, "fan_in": Q_FAN_IN}[algorithm]
     rows = rec.q(q, {"limit": 1000 if scope is not None else limit})  # ranked over the whole company, then scoped
     rows = [r for r in rows if scope is None or r[0] in scope][:limit]
     rec.hl(*[r[0] for r in rows])
-    meaning = ("shared dependencies: services many others call, directly or indirectly" if algorithm == "pagerank"
-               else "chokepoints: services that sit on many shortest call paths")
+    meaning = {"pagerank": "shared dependencies: services many others call, directly or indirectly",
+               "betweenness": "chokepoints: services that sit on many shortest call paths",
+               "fan_in": "how many services reach each one, directly or not (a plain count, no algorithm)"}[algorithm]
     res = {"algorithm": algorithm, "meaning": meaning,
            "services": [{"id": r[0], "name": r[1], "tier": r[2], "team": r[3], "score": round(r[4], 4)} for r in rows]}
     if scope is not None:

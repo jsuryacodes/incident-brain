@@ -87,7 +87,8 @@ def score(sc, rec, twin):
     got = got_incidents(rep, sc["alerts"])
     g = get_graph(twin)
     status = dict(g.ro_query("MATCH (p:Person) RETURN p.id, p.status").result_set)
-    m = {"cause_correct": 0, "path_correct": 0, "incidents_expected": len(exp["incidents"])}
+    m = {"cause_correct": 0, "path_correct": 0, "incidents_expected": len(exp["incidents"]),
+         "cause_expected": any(e["cause_deploy"] or e.get("root") for e in exp["incidents"])}
     pages_ok = 0
     for e in exp["incidents"]:
         mine = next((x for x in got if e["alerts"][0] in (x.get("alerts") or [])), None) or {}
@@ -213,7 +214,8 @@ def _cell(r):
     if r is None:
         return "–"
     marks = "✓" if r["passed"] else "✗"
-    bits = [f"cause {r['cause_correct']}/{r['incidents_expected']}"]
+    bits = [f"cause {r['cause_correct']}/{r['incidents_expected']}" if r.get("cause_expected", True) else
+            ("no cause: right" if r["cause_correct"] else "no cause expected: wrong")]
     if r["false_leads"]:
         bits.append(f"leads {r['false_leads_rejected']}/{r['false_leads']}")
     if r["look_first_ok"] is not None:
@@ -275,7 +277,15 @@ def render(res):
           "wrong action is recommended (rollbacks and pages are checked per incident), no cause is also listed as a "
           "rejected lead, the hub pointer is right when nothing changed, and the report is grounded."
           + (" The no-graph profile can never give a dependency path, so it can't pass a scenario that has a cause; its "
-             "'causes right' column is the fair comparison." if "no_graph" in ps else ""), "", "## What each scenario tests", ""]
+             "'causes right' column is the fair comparison. 'Right person paged' is defined by the graph's who-to-call "
+             "formula, so its deployer heuristic is at a structural disadvantage there too, and a wrong page counts both "
+             "there and as a wrong action." if "no_graph" in ps else "")
+          + (" Scenarios where the graph ALGORITHMS changed the outcome (full passes, no-algorithms fails): "
+             + (", ".join(f"`{s['id']}`" for s in res["scenarios"] if s["results"]["full"]["passed"]
+                          and not s["results"]["no_algo"]["passed"]) or "none")
+             + ". Everywhere else the plain traversals find the same answer; the algorithm calls there (shortest "
+             "paths) only draw the path." if "no_algo" in ps and "full" in ps else ""),
+          "", "## What each scenario tests", ""]
     for s in res["scenarios"]:
         if s["set"] == "generated":
             continue

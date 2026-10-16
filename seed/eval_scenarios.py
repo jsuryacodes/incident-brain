@@ -127,7 +127,7 @@ SCENARIOS = [
                                      contact="per:sofia-alvarez")],
                      false_leads=["dep:risk-rules-v2.8.1"], look_first=["svc:config-service", "svc:config-db"], never_page=[])),
     # ───────────── Northwind Health ─────────────
-    dict(id="n-chokepoint", tenant="northwind_health", shape="two alerts, one chokepoint (betweenness) explains both",
+    dict(id="n-chokepoint", tenant="northwind_health", shape="two alerts: one change on the service both call explains both",
          why="appointments and lab-results both call notifications (betweenness #1). notifications changed 22 min ago. "
              "records-db changed more recently but only lab-results calls it: one change explaining both alerts beats "
              "two separate explanations.",

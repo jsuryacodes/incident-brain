@@ -115,3 +115,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08A4/08A5: oracle, generator, eval runner
 - Claude Code (Opus 5.5, unattended) moved the oracle to `seed/eval_oracle.py`, added the seeded generator, the eval runner (`backend/agents/firefighter_eval.py`), `GET /api/eval/latest`, `docs/eval.md`, scorer loophole tests.
 - Double-check: `docs/eval.md` (is the table readable?), and that `python -m backend.agents.firefighter_eval` takes ~10 s on your machine.
+
+## 2026-10-16 — 08A6: "graph, no algorithms" baseline
+- Claude Code (Opus 5.5, unattended) added `backend/agents/baseline_noalgo.py`, a plain-Cypher `fan_in` mode for critical_services, a PageRank→fan_in fallback in the planner, a deterministic tie-break in search_knowledge, eval table/wording fixes.
+- Double-check: the baseline ties the full profile on single alerts; that is the honest result and docs/eval.md says so.

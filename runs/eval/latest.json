@@ -1,10 +1,14 @@
 {
- "generated_at": "2026-10-16 17:52 UTC",
+ "generated_at": "2026-10-16 17:59 UTC",
  "mode": "mock",
  "profiles": {
   "full": {
    "title": "Full Incident Brain",
    "about": "every read tool: traversals, algorithms (PageRank, betweenness, shortest paths), full-text, memory"
+  },
+  "no_algo": {
+   "title": "Graph, no algorithms",
+   "about": "traversals and full-text only: no PageRank, betweenness, shortest-path or other algo.* procedure (removed: dependency_path; shortest paths become plain Cypher; instead of PageRank, critical_services can only count how many services reach each one)"
   }
  },
  "scenarios": [
@@ -47,6 +51,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -63,6 +68,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v1.10.0 on sanctions-screening, deployed 25 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:sanctions-screening-v1.10.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: sanctions-screening 25 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): sanctions-screening (deployed 25 min ago by Ravi Shankar)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Mei Lin Chen (score 45)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v1.10.0 on sanctions-screening, deployed 25 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v1.10.0 on sanctions-screening, deployed 25 min ago. Contact Mei Lin Chen.",
@@ -153,6 +226,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 2,
      "false_leads_rejected": 2,
@@ -169,6 +243,85 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:bank-connector-v1.20.0 on bank-connector, deployed 45 min ago. Contact Tomasz Kowalski.",
+      "status": "ok",
+      "causes": [
+       "dep:bank-connector-v1.20.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:merchant-dashboard-v7.10.0",
+        "service_id": "svc:merchant-dashboard",
+        "reason": "merchant-dashboard is not called by payouts-service; it only shares hubs with it (config-service (12 callers), kafka-events (12 callers), ledger-service (7 callers), fx-rates-service (5 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+       },
+       {
+        "deploy_id": "dep:email-sender-v1.15.0",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 3 change(s) in 120 min: merchant-dashboard 5 min ago, email-sender 9 min ago, bank-connector 45 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): bank-connector (deployed 45 min ago by Tomasz Kowalski)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): merchant-dashboard via shared config-service, deployed 5 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tomasz Kowalski (score 110)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:bank-connector-v1.20.0 on bank-connector, deployed 45 min ago. Contact Tomasz Kowalski."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 2,
+     "false_leads_rejected": 2,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "payouts-service alert most likely caused by dep:bank-connector-v1.20.0 on bank-connector, deployed 45 min ago. Contact Tomasz Kowalski.",
@@ -267,6 +420,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": false,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -330,6 +484,76 @@
        }
       ]
      }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": false,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": true,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 7,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db first.",
+      "status": "ok",
+      "causes": [
+       null
+      ],
+      "rejected_leads": [],
+      "look_first": {
+       "service_ids": [
+        "svc:config-db"
+       ],
+       "algorithm": "fan_in",
+       "reason": "No recent change explains the alert. config-db is the most depended-on service on the call path (fan_in 13): check its capacity first."
+      },
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 0 change(s) in 120 min"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 140)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: config-db, config-service, kafka-events, audit-log"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db first."
+       }
+      ]
+     }
     }
    }
   },
@@ -370,6 +594,75 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "webhook-dispatcher alert most likely caused by dep:reconciliation-job-v1.8.0 on reconciliation-job, deployed 20 min ago. Contact Tomasz Kowalski.",
+      "status": "ok",
+      "causes": [
+       "dep:reconciliation-job-v1.8.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: reconciliation-job 20 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): reconciliation-job via shared kafka-events, deployed 20 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tomasz Kowalski (score 75)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2026-031 (fixed by Ben Walker)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "webhook-dispatcher alert most likely caused by dep:reconciliation-job-v1.8.0 on reconciliation-job, deployed 20 min ago. Contact Tomasz Kowalski."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -473,6 +766,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -489,6 +783,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "reconciliation-job alert most likely caused by dep:fx-rates-service-v2.3.0 on fx-rates-service, deployed 30 min ago. Contact Sofia Alvarez.",
+      "status": "ok",
+      "causes": [
+       "dep:fx-rates-service-v2.3.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:feature-flags-v1.13.0",
+        "service_id": "svc:feature-flags",
+        "reason": "feature-flags is not called by reconciliation-job; it only shares hubs with it (config-db (13 callers), config-service (12 callers); 4+ services calling it, directly or not, counts as a hub) and nothing corroborates it (no learned edge, none of them is alerting, the alert does not name them)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → 1 learned edge(s), 0 fact(s), 0 resolved incident(s); suspect: fx-rates-service"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: feature-flags 8 min ago, fx-rates-service 30 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): fx-rates-service (deployed 30 min ago by Sofia Alvarez)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): feature-flags via shared config-service, deployed 8 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 52)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 0 incident(s)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "reconciliation-job alert most likely caused by dep:fx-rates-service-v2.3.0 on fx-rates-service, deployed 30 min ago. Contact Sofia Alvarez."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "reconciliation-job alert most likely caused by dep:fx-rates-service-v2.3.0 on fx-rates-service, deployed 30 min ago. Contact Sofia Alvarez.",
@@ -584,6 +952,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -600,6 +969,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:reporting-service-v1.4.0 on reporting-service, deployed 18 min ago. Escalate to team:merchant-exp.",
+      "status": "ok",
+      "causes": [
+       "dep:reporting-service-v1.4.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: reporting-service 18 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): reporting-service (deployed 18 min ago by None)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: None (score None); maintainer Carlos Mendes LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:reporting-service-v1.4.0 on reporting-service, deployed 18 min ago. Escalate to team:merchant-exp."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "merchant-dashboard alert most likely caused by dep:reporting-service-v1.4.0 on reporting-service, deployed 18 min ago. Escalate to team:merchant-exp.",
@@ -690,6 +1127,79 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:risk-rules-v2.8.1 on risk-rules, deployed 5 min ago. The change contradicts decision dec:rules-cache-ttl. Contact Priya Nair.",
+      "status": "ok",
+      "causes": [
+       "dep:risk-rules-v2.8.1"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → 1 learned edge(s), 0 fact(s), 0 resolved incident(s); suspect: risk-rules"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: risk-rules 5 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): risk-rules via shared config-service (LEARNED edge), deployed 5 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Priya Nair (score 48); maintainer Arjun Mehta LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 3 incident(s): INC-2025-031 (fixed by Priya Nair, Arjun Mehta), INC-2026-012 (fixed by Priya Nair), INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Slack — Slack's Incident on 2-22-22"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:risk-rules-v2.8.1 on risk-rules, deployed 5 min ago. The change contradicts decision dec:rules-cache-ttl. Contact Priya Nair."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -797,6 +1307,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": false,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -874,6 +1385,90 @@
        }
       ]
      }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": false,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": true,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db first.",
+      "status": "ok",
+      "causes": [
+       null
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:risk-rules-v2.8.1",
+        "service_id": "svc:risk-rules",
+        "reason": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": {
+       "service_ids": [
+        "svc:config-db"
+       ],
+       "algorithm": "fan_in",
+       "reason": "No recent change explains the alert. config-db is the most depended-on service on the call path (fan_in 13): check its capacity first."
+      },
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: risk-rules 5 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → no recent downstream deploys"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Sofia Alvarez (score 140)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → ERROR: graph algorithms are switched off in this run; 'fan_in' (plain Cypher) still works"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "critical_services",
+        "summary": "critical_services → fan_in: config-db, config-service, kafka-events, audit-log"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "No recent change explains the payouts-service alert; the cause is unknown. Look at config-db first."
+       }
+      ]
+     }
     }
    }
   },
@@ -881,7 +1476,7 @@
    "id": "n-chokepoint",
    "set": "dev",
    "tenant": "northwind_health",
-   "shape": "two alerts, one chokepoint (betweenness) explains both",
+   "shape": "two alerts: one change on the service both call explains both",
    "why": "appointments and lab-results both call notifications (betweenness #1). notifications changed 22 min ago. records-db changed more recently but only lab-results calls it: one change explaining both alerts beats two separate explanations.",
    "alerts": [
     {
@@ -922,6 +1517,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -938,6 +1534,96 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v3.3.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:records-db-v15.2.0",
+        "service_id": "svc:records-db",
+        "reason": "records-db is on lab-results's call path (1 hop), but notifications explains 2 alerts, this change 1"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: records-db 6 min ago, notifications 22 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 22 min ago by Sam Reyes)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 2 hit(s): records-db (deployed 6 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-NW-2025-14 (fixed by Owen Bryce), INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 12,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "appointments, lab-results alerts most likely caused by dep:notifications-v3.3.0 on notifications, deployed 22 min ago. Contact Maya Okoro.",
@@ -1065,6 +1751,7 @@
      "cause_correct": 2,
      "path_correct": 2,
      "incidents_expected": 2,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -1081,6 +1768,103 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "2 alerts, 2 separate incidents: identity -> dep:audit-trail-v2.5.0; appointments -> dep:notifications-v3.3.0.",
+      "status": "ok",
+      "causes": [
+       "dep:audit-trail-v2.5.0",
+       "dep:notifications-v3.3.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: audit-trail 12 min ago, notifications 25 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 25 min ago by Sam Reyes)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): audit-trail (deployed 12 min ago by Maya Okoro)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 35)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 0 incident(s)"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "2 alerts, 2 separate incidents: identity -> dep:audit-trail-v2.5.0; appointments -> dep:notifications-v3.3.0."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 2,
+     "path_correct": 2,
+     "incidents_expected": 2,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 2,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 15,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "2 alerts, 2 separate incidents: identity -> dep:audit-trail-v2.5.0; appointments -> dep:notifications-v3.3.0.",
@@ -1200,6 +1984,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 2,
      "false_leads_rejected": 2,
@@ -1216,6 +2001,85 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:records-db-v15.2.0 on records-db, deployed 40 min ago. The change contradicts decision dec:results-index. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v15.2.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v14.9.0",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       },
+       {
+        "deploy_id": "dep:identity-v5.4.0",
+        "service_id": "svc:identity",
+        "reason": "identity is not called by lab-results but shares audit-trail (3 callers) with it (audit-trail is a narrow dependency (3 services call it)), but records-db changed on lab-results's own call path, a more direct explanation"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 3 change(s) in 120 min: scheduler-db 4 min ago, identity 10 min ago, records-db 40 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): records-db (deployed 40 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → 1 hit(s): identity via shared audit-trail, deployed 10 min ago"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 25)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:records-db-v15.2.0 on records-db, deployed 40 min ago. The change contradicts decision dec:results-index. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 2,
+     "false_leads_rejected": 2,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "lab-results alert most likely caused by dep:records-db-v15.2.0 on records-db, deployed 40 min ago. The change contradicts decision dec:results-index. Contact Maya Okoro.",
@@ -1317,6 +2181,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -1333,6 +2198,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:sms-gateway-v1.8.0 on sms-gateway, deployed 15 min ago. Escalate to team:clinical-platform.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v1.8.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: sms-gateway 15 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): sms-gateway (deployed 15 min ago by None)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: None (score None); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:sms-gateway-v1.8.0 on sms-gateway, deployed 15 min ago. Escalate to team:clinical-platform."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "appointments alert most likely caused by dep:sms-gateway-v1.8.0 on sms-gateway, deployed 15 min ago. Escalate to team:clinical-platform.",
@@ -1425,6 +2358,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -1441,6 +2375,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.30.0 on kyc-service, deployed 23 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:kyc-service-v9.30.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.30.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 16 min ago, kyc-service 23 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): kyc-service (deployed 23 min ago by Mei Lin Chen)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Mei Lin Chen (score 66)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.30.0 on kyc-service, deployed 23 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.30.0 on kyc-service, deployed 23 min ago. Contact Mei Lin Chen.",
@@ -1536,6 +2544,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -1552,6 +2561,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:audit-trail-v9.31.0 on audit-trail, deployed 63 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:audit-trail-v9.31.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.31.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 26 min ago, audit-trail 63 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): audit-trail (deployed 63 min ago by Sam Reyes)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 35)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:audit-trail-v9.31.0 on audit-trail, deployed 63 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "lab-results alert most likely caused by dep:audit-trail-v9.31.0 on audit-trail, deployed 63 min ago. Contact Maya Okoro.",
@@ -1650,6 +2733,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -1666,6 +2750,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:sanctions-screening-v9.32.0 on sanctions-screening, deployed 50 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:sanctions-screening-v9.32.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.32.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 40 min ago, sanctions-screening 50 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): sanctions-screening (deployed 50 min ago by Elena Petrova)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Mei Lin Chen (score 45)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:sanctions-screening-v9.32.0 on sanctions-screening, deployed 50 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "merchant-dashboard alert most likely caused by dep:sanctions-screening-v9.32.0 on sanctions-screening, deployed 50 min ago. Contact Mei Lin Chen.",
@@ -1760,6 +2918,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -1776,6 +2935,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:records-db-v9.33.0 on records-db, deployed 74 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v9.33.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: records-db 74 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): records-db (deployed 74 min ago by Ines Moreau)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 25)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:records-db-v9.33.0 on records-db, deployed 74 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "patient-portal alert most likely caused by dep:records-db-v9.33.0 on records-db, deployed 74 min ago. Contact Maya Okoro.",
@@ -1868,6 +3095,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -1884,6 +3112,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.34.0 on kyc-service, deployed 58 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:kyc-service-v9.34.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.34.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: kyc-service 58 min ago, email-sender 104 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): kyc-service (deployed 58 min ago by Grace Liu)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Mei Lin Chen (score 66)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.34.0 on kyc-service, deployed 58 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.34.0 on kyc-service, deployed 58 min ago. Contact Mei Lin Chen.",
@@ -1978,6 +3280,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -1994,6 +3297,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.35.0 on scheduler-db, deployed 67 min ago. Contact Tariq Hassan.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v9.35.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: scheduler-db 67 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): scheduler-db (deployed 67 min ago by Sam Reyes)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 12)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.35.0 on scheduler-db, deployed 67 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.35.0 on scheduler-db, deployed 67 min ago. Contact Tariq Hassan.",
@@ -2085,6 +3456,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -2101,6 +3473,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "api-gateway alert most likely caused by dep:kyc-service-v9.36.0 on kyc-service, deployed 16 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:kyc-service-v9.36.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.36.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: kyc-service 16 min ago, email-sender 58 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): kyc-service (deployed 16 min ago by Priya Nair)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 2 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Mei Lin Chen (score 66)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "api-gateway alert most likely caused by dep:kyc-service-v9.36.0 on kyc-service, deployed 16 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "api-gateway alert most likely caused by dep:kyc-service-v9.36.0 on kyc-service, deployed 16 min ago. Contact Mei Lin Chen.",
@@ -2194,6 +3640,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -2210,6 +3657,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:lab-results-v9.37.0 on lab-results, deployed 54 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:lab-results-v9.37.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: lab-results 54 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): lab-results (deployed 54 min ago by Ines Moreau)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 135)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:lab-results-v9.37.0 on lab-results, deployed 54 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "patient-portal alert most likely caused by dep:lab-results-v9.37.0 on lab-results, deployed 54 min ago. Contact Maya Okoro.",
@@ -2302,6 +3817,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -2318,6 +3834,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:kyc-service-v9.38.0 on kyc-service, deployed 21 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:kyc-service-v9.38.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.38.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: kyc-service 21 min ago, email-sender 97 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): kyc-service (deployed 21 min ago by Dana Okafor)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Mei Lin Chen (score 66)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:kyc-service-v9.38.0 on kyc-service, deployed 21 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "web-checkout alert most likely caused by dep:kyc-service-v9.38.0 on kyc-service, deployed 21 min ago. Contact Mei Lin Chen.",
@@ -2413,6 +4003,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -2429,6 +4020,84 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:notifications-v9.39.0 on notifications, deployed 81 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.39.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:identity-v9.39.1",
+        "service_id": "svc:identity",
+        "reason": "identity is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: notifications 81 min ago, identity 110 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 81 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:notifications-v9.39.0 on notifications, deployed 81 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "appointments alert most likely caused by dep:notifications-v9.39.0 on notifications, deployed 81 min ago. Contact Maya Okoro.",
@@ -2529,6 +4198,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -2545,6 +4215,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:auth-service-v9.40.0 on auth-service, deployed 70 min ago. Contact Elena Petrova.",
+      "status": "ok",
+      "causes": [
+       "dep:auth-service-v9.40.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.40.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 58 min ago, auth-service 70 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): auth-service (deployed 70 min ago by Omar Haddad)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Elena Petrova (score 130)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:auth-service-v9.40.0 on auth-service, deployed 70 min ago. Contact Elena Petrova."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "web-checkout alert most likely caused by dep:auth-service-v9.40.0 on auth-service, deployed 70 min ago. Contact Elena Petrova.",
@@ -2639,6 +4383,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -2655,6 +4400,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:records-db-v9.41.0 on records-db, deployed 68 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v9.41.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: records-db 68 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): records-db (deployed 68 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 25)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:records-db-v9.41.0 on records-db, deployed 68 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "patient-portal alert most likely caused by dep:records-db-v9.41.0 on records-db, deployed 68 min ago. Contact Maya Okoro.",
@@ -2746,6 +4559,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -2762,6 +4576,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:audit-log-v9.42.0 on audit-log, deployed 41 min ago. Contact Omar Haddad.",
+      "status": "ok",
+      "causes": [
+       "dep:audit-log-v9.42.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.42.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 30 min ago, audit-log 41 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): audit-log (deployed 41 min ago by Nikhil Rao)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Omar Haddad (score 41)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:audit-log-v9.42.0 on audit-log, deployed 41 min ago. Contact Omar Haddad."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "merchant-dashboard alert most likely caused by dep:audit-log-v9.42.0 on audit-log, deployed 41 min ago. Contact Omar Haddad.",
@@ -2856,6 +4744,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -2872,6 +4761,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:records-db-v9.43.0 on records-db, deployed 38 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v9.43.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: records-db 38 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): records-db (deployed 38 min ago by Tariq Hassan)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 25)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:records-db-v9.43.0 on records-db, deployed 38 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "patient-portal alert most likely caused by dep:records-db-v9.43.0 on records-db, deployed 38 min ago. Contact Maya Okoro.",
@@ -2961,6 +4918,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -2977,6 +4935,84 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:api-gateway-v9.44.0 on api-gateway, deployed 69 min ago. Contact Nikhil Rao.",
+      "status": "ok",
+      "causes": [
+       "dep:api-gateway-v9.44.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.44.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: api-gateway 69 min ago, email-sender 109 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): api-gateway (deployed 69 min ago by Ben Walker)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Nikhil Rao (score 195)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 9 public postmortem(s): Cloudflare — Cloudflare outage on November 18, 2025"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:api-gateway-v9.44.0 on api-gateway, deployed 69 min ago. Contact Nikhil Rao."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "merchant-dashboard alert most likely caused by dep:api-gateway-v9.44.0 on api-gateway, deployed 69 min ago. Contact Nikhil Rao.",
@@ -3076,6 +5112,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -3092,6 +5129,84 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:notifications-v9.45.0 on notifications, deployed 66 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.45.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.45.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 42 min ago, notifications 66 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 66 min ago by Sam Reyes)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:notifications-v9.45.0 on notifications, deployed 66 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "lab-results alert most likely caused by dep:notifications-v9.45.0 on notifications, deployed 66 min ago. Contact Maya Okoro.",
@@ -3193,6 +5308,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -3209,6 +5325,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "reconciliation-job alert most likely caused by dep:config-db-v9.46.0 on config-db, deployed 36 min ago. Contact Jonas Eriksson.",
+      "status": "ok",
+      "causes": [
+       "dep:config-db-v9.46.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:risk-rules-v9.46.1",
+        "service_id": "svc:risk-rules",
+        "reason": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: risk-rules 34 min ago, config-db 36 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): config-db (deployed 36 min ago by Tomasz Kowalski)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Jonas Eriksson (score 22)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 0 incident(s)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "reconciliation-job alert most likely caused by dep:config-db-v9.46.0 on config-db, deployed 36 min ago. Contact Jonas Eriksson."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "reconciliation-job alert most likely caused by dep:config-db-v9.46.0 on config-db, deployed 36 min ago. Contact Jonas Eriksson.",
@@ -3303,6 +5493,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -3319,6 +5510,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.47.0 on scheduler-db, deployed 27 min ago. Contact Tariq Hassan.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v9.47.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: scheduler-db 27 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): scheduler-db (deployed 27 min ago by Ines Moreau)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 12)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.47.0 on scheduler-db, deployed 27 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.47.0 on scheduler-db, deployed 27 min ago. Contact Tariq Hassan.",
@@ -3411,6 +5670,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -3427,6 +5687,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.48.0 on ledger-db, deployed 90 min ago. Contact Marcus Webb.",
+      "status": "ok",
+      "causes": [
+       "dep:ledger-db-v9.48.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.48.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 26 min ago, ledger-db 90 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): ledger-db (deployed 90 min ago by Jonas Eriksson)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Marcus Webb (score 45)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.48.0 on ledger-db, deployed 90 min ago. Contact Marcus Webb."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.48.0 on ledger-db, deployed 90 min ago. Contact Marcus Webb.",
@@ -3522,6 +5856,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -3538,6 +5873,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:records-db-v9.49.0 on records-db, deployed 45 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v9.49.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.49.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: records-db 45 min ago, scheduler-db 75 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): records-db (deployed 45 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 25)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:records-db-v9.49.0 on records-db, deployed 45 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "lab-results alert most likely caused by dep:records-db-v9.49.0 on records-db, deployed 45 min ago. Contact Maya Okoro.",
@@ -3633,6 +6042,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -3649,6 +6059,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "api-gateway alert most likely caused by dep:config-service-v9.50.0 on config-service, deployed 89 min ago. Contact Omar Haddad.",
+      "status": "ok",
+      "causes": [
+       "dep:config-service-v9.50.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.50.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 25 min ago, config-service 89 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): config-service (deployed 89 min ago by Nikhil Rao)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 2 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Omar Haddad (score 95)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 3 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "api-gateway alert most likely caused by dep:config-service-v9.50.0 on config-service, deployed 89 min ago. Contact Omar Haddad."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "api-gateway alert most likely caused by dep:config-service-v9.50.0 on config-service, deployed 89 min ago. Contact Omar Haddad.",
@@ -3742,6 +6226,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -3758,6 +6243,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:lab-results-v9.51.0 on lab-results, deployed 47 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:lab-results-v9.51.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: lab-results 47 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): lab-results (deployed 47 min ago by Ines Moreau)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 135)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:lab-results-v9.51.0 on lab-results, deployed 47 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "patient-portal alert most likely caused by dep:lab-results-v9.51.0 on lab-results, deployed 47 min ago. Contact Maya Okoro.",
@@ -3848,6 +6401,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -3864,6 +6418,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:config-db-v9.52.0 on config-db, deployed 26 min ago. Contact Jonas Eriksson.",
+      "status": "ok",
+      "causes": [
+       "dep:config-db-v9.52.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:risk-rules-v9.52.1",
+        "service_id": "svc:risk-rules",
+        "reason": "risk-rules is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: risk-rules 24 min ago, config-db 26 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): config-db (deployed 26 min ago by Mei Lin Chen)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Jonas Eriksson (score 22)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:config-db-v9.52.0 on config-db, deployed 26 min ago. Contact Jonas Eriksson."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "payouts-service alert most likely caused by dep:config-db-v9.52.0 on config-db, deployed 26 min ago. Contact Jonas Eriksson.",
@@ -3958,6 +6586,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -3974,6 +6603,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.53.0 on scheduler-db, deployed 31 min ago. Contact Tariq Hassan.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v9.53.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: scheduler-db 31 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): scheduler-db (deployed 31 min ago by Maya Okoro)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 12)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.53.0 on scheduler-db, deployed 31 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "patient-portal alert most likely caused by dep:scheduler-db-v9.53.0 on scheduler-db, deployed 31 min ago. Contact Tariq Hassan.",
@@ -4063,6 +6760,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -4079,6 +6777,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:config-service-v9.54.0 on config-service, deployed 56 min ago. Contact Omar Haddad.",
+      "status": "ok",
+      "causes": [
+       "dep:config-service-v9.54.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:sanctions-screening-v9.54.1",
+        "service_id": "svc:sanctions-screening",
+        "reason": "sanctions-screening is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: sanctions-screening 26 min ago, config-service 56 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): config-service (deployed 56 min ago by Nikhil Rao)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Omar Haddad (score 95)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 3 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2025-044 (fixed by Marcus Webb), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:config-service-v9.54.0 on config-service, deployed 56 min ago. Contact Omar Haddad."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "payouts-service alert most likely caused by dep:config-service-v9.54.0 on config-service, deployed 56 min ago. Contact Omar Haddad.",
@@ -4174,6 +6946,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -4190,6 +6963,84 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:notifications-v9.55.0 on notifications, deployed 59 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.55.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:audit-trail-v9.55.1",
+        "service_id": "svc:audit-trail",
+        "reason": "audit-trail is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: notifications 59 min ago, audit-trail 75 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 59 min ago by Ines Moreau)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:notifications-v9.55.0 on notifications, deployed 59 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "appointments alert most likely caused by dep:notifications-v9.55.0 on notifications, deployed 59 min ago. Contact Maya Okoro.",
@@ -4289,6 +7140,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -4305,6 +7157,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "payouts-service alert most likely caused by dep:config-service-v9.56.0 on config-service, deployed 48 min ago. Contact Omar Haddad.",
+      "status": "ok",
+      "causes": [
+       "dep:config-service-v9.56.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:fraud-scoring-v9.56.1",
+        "service_id": "svc:fraud-scoring",
+        "reason": "fraud-scoring is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: fraud-scoring 29 min ago, config-service 48 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): config-service (deployed 48 min ago by Nikhil Rao)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Omar Haddad (score 95)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 3 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2025-044 (fixed by Marcus Webb), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payouts-service alert most likely caused by dep:config-service-v9.56.0 on config-service, deployed 48 min ago. Contact Omar Haddad."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "payouts-service alert most likely caused by dep:config-service-v9.56.0 on config-service, deployed 48 min ago. Contact Omar Haddad.",
@@ -4400,6 +7326,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -4416,6 +7343,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:scheduler-db-v9.57.0 on scheduler-db, deployed 77 min ago. Contact Tariq Hassan.",
+      "status": "ok",
+      "causes": [
+       "dep:scheduler-db-v9.57.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:audit-trail-v9.57.1",
+        "service_id": "svc:audit-trail",
+        "reason": "audit-trail is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: audit-trail 55 min ago, scheduler-db 77 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): scheduler-db (deployed 77 min ago by Sam Reyes)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 12)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:scheduler-db-v9.57.0 on scheduler-db, deployed 77 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "appointments alert most likely caused by dep:scheduler-db-v9.57.0 on scheduler-db, deployed 77 min ago. Contact Tariq Hassan.",
@@ -4514,6 +7515,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -4530,6 +7532,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.58.0 on ledger-db, deployed 74 min ago. Contact Marcus Webb.",
+      "status": "ok",
+      "causes": [
+       "dep:ledger-db-v9.58.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.58.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 28 min ago, ledger-db 74 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): ledger-db (deployed 74 min ago by Grace Liu)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Marcus Webb (score 45)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.58.0 on ledger-db, deployed 74 min ago. Contact Marcus Webb."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "web-checkout alert most likely caused by dep:ledger-db-v9.58.0 on ledger-db, deployed 74 min ago. Contact Marcus Webb.",
@@ -4626,6 +7702,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -4642,6 +7719,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.59.0 on sms-gateway, deployed 63 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v9.59.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.59.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: sms-gateway 63 min ago, scheduler-db 70 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): sms-gateway (deployed 63 min ago by Lena Fischer)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 5); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.59.0 on sms-gateway, deployed 63 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.59.0 on sms-gateway, deployed 63 min ago. Contact Maya Okoro.",
@@ -4737,6 +7888,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -4753,6 +7905,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "payments-api alert most likely caused by dep:kafka-events-v9.60.0 on kafka-events, deployed 72 min ago. Contact Nikhil Rao.",
+      "status": "ok",
+      "causes": [
+       "dep:kafka-events-v9.60.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.60.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: kafka-events 72 min ago, email-sender 101 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): kafka-events (deployed 72 min ago by Grace Liu)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (2 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Nikhil Rao (score 55)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): kafka-events retention is 7 days"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 4 incident(s): INC-2026-031 (fixed by Ben Walker), INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez), INC-2025-044 (fixed by Marcus Webb)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payments-api alert most likely caused by dep:kafka-events-v9.60.0 on kafka-events, deployed 72 min ago. Contact Nikhil Rao."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "payments-api alert most likely caused by dep:kafka-events-v9.60.0 on kafka-events, deployed 72 min ago. Contact Nikhil Rao.",
@@ -4848,6 +8074,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -4864,6 +8091,84 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:notifications-v9.61.0 on notifications, deployed 20 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.61.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:identity-v9.61.1",
+        "service_id": "svc:identity",
+        "reason": "identity is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: notifications 20 min ago, identity 56 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 20 min ago by Lena Fischer)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:notifications-v9.61.0 on notifications, deployed 20 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "appointments alert most likely caused by dep:notifications-v9.61.0 on notifications, deployed 20 min ago. Contact Maya Okoro.",
@@ -4966,6 +8271,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -4982,6 +8288,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v9.62.0 on sanctions-screening, deployed 58 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:sanctions-screening-v9.62.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.62.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 48 min ago, sanctions-screening 58 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): sanctions-screening (deployed 58 min ago by Fatima Zahra)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Mei Lin Chen (score 45)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v9.62.0 on sanctions-screening, deployed 58 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "web-checkout alert most likely caused by dep:sanctions-screening-v9.62.0 on sanctions-screening, deployed 58 min ago. Contact Mei Lin Chen.",
@@ -5077,6 +8457,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -5093,6 +8474,84 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:notifications-v9.63.0 on notifications, deployed 24 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.63.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.63.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 15 min ago, notifications 24 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 24 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:notifications-v9.63.0 on notifications, deployed 24 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "lab-results alert most likely caused by dep:notifications-v9.63.0 on notifications, deployed 24 min ago. Contact Maya Okoro.",
@@ -5192,6 +8651,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -5208,6 +8668,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "webhook-dispatcher alert most likely caused by dep:config-service-v9.64.0 on config-service, deployed 27 min ago. Contact Omar Haddad.",
+      "status": "ok",
+      "causes": [
+       "dep:config-service-v9.64.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.64.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: config-service 27 min ago, email-sender 27 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): config-service (deployed 27 min ago by Camila Torres)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Omar Haddad (score 95)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 3 incident(s): INC-2026-031 (fixed by Ben Walker), INC-2026-012 (fixed by Priya Nair), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "webhook-dispatcher alert most likely caused by dep:config-service-v9.64.0 on config-service, deployed 27 min ago. Contact Omar Haddad."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "webhook-dispatcher alert most likely caused by dep:config-service-v9.64.0 on config-service, deployed 27 min ago. Contact Omar Haddad.",
@@ -5304,6 +8838,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -5320,6 +8855,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.65.0 on sms-gateway, deployed 24 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v9.65.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.65.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 19 min ago, sms-gateway 24 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): sms-gateway (deployed 24 min ago by Ines Moreau)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 5); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.65.0 on sms-gateway, deployed 24 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.65.0 on sms-gateway, deployed 24 min ago. Contact Maya Okoro.",
@@ -5418,6 +9027,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -5434,6 +9044,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.66.0 on kyc-service, deployed 24 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:kyc-service-v9.66.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.66.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 3 min ago, kyc-service 24 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): kyc-service (deployed 24 min ago by Ben Walker)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Mei Lin Chen (score 66)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.66.0 on kyc-service, deployed 24 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "merchant-dashboard alert most likely caused by dep:kyc-service-v9.66.0 on kyc-service, deployed 24 min ago. Contact Mei Lin Chen.",
@@ -5527,6 +9211,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -5543,6 +9228,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:appointments-v9.67.0 on appointments, deployed 78 min ago. Contact Tariq Hassan.",
+      "status": "ok",
+      "causes": [
+       "dep:appointments-v9.67.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: appointments 78 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): appointments (deployed 78 min ago by Tariq Hassan)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Tariq Hassan (score 90)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:appointments-v9.67.0 on appointments, deployed 78 min ago. Contact Tariq Hassan."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "patient-portal alert most likely caused by dep:appointments-v9.67.0 on appointments, deployed 78 min ago. Contact Tariq Hassan.",
@@ -5632,6 +9385,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -5648,6 +9402,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "auth-service alert most likely caused by dep:config-service-v9.68.0 on config-service, deployed 30 min ago. Contact Omar Haddad.",
+      "status": "ok",
+      "causes": [
+       "dep:config-service-v9.68.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:fx-rates-service-v9.68.1",
+        "service_id": "svc:fx-rates-service",
+        "reason": "fx-rates-service is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: fx-rates-service 17 min ago, config-service 30 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): config-service (deployed 30 min ago by Elena Petrova)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (2 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Omar Haddad (score 95)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "auth-service alert most likely caused by dep:config-service-v9.68.0 on config-service, deployed 30 min ago. Contact Omar Haddad."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "auth-service alert most likely caused by dep:config-service-v9.68.0 on config-service, deployed 30 min ago. Contact Omar Haddad.",
@@ -5743,6 +9571,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -5759,6 +9588,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:audit-trail-v9.69.0 on audit-trail, deployed 44 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:audit-trail-v9.69.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.69.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: audit-trail 44 min ago, scheduler-db 65 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): audit-trail (deployed 44 min ago by Hana Sato)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 35)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:audit-trail-v9.69.0 on audit-trail, deployed 44 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "lab-results alert most likely caused by dep:audit-trail-v9.69.0 on audit-trail, deployed 44 min ago. Contact Maya Okoro.",
@@ -5856,6 +9759,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -5872,6 +9776,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:audit-log-v9.70.0 on audit-log, deployed 49 min ago. Contact Omar Haddad.",
+      "status": "ok",
+      "causes": [
+       "dep:audit-log-v9.70.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.70.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: audit-log 49 min ago, email-sender 88 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): audit-log (deployed 49 min ago by Mei Lin Chen)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Omar Haddad (score 41)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:audit-log-v9.70.0 on audit-log, deployed 49 min ago. Contact Omar Haddad."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "merchant-dashboard alert most likely caused by dep:audit-log-v9.70.0 on audit-log, deployed 49 min ago. Contact Omar Haddad.",
@@ -5968,6 +9946,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -5984,6 +9963,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.71.0 on sms-gateway, deployed 16 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v9.71.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.71.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: sms-gateway 16 min ago, scheduler-db 43 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): sms-gateway (deployed 16 min ago by Maya Okoro)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 5); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.71.0 on sms-gateway, deployed 16 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "lab-results alert most likely caused by dep:sms-gateway-v9.71.0 on sms-gateway, deployed 16 min ago. Contact Maya Okoro.",
@@ -6080,6 +10133,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -6096,6 +10150,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "fraud-scoring alert most likely caused by dep:rules-store-db-v9.72.0 on rules-store-db, deployed 57 min ago. Contact Ravi Shankar.",
+      "status": "ok",
+      "causes": [
+       "dep:rules-store-db-v9.72.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:ledger-service-v9.72.1",
+        "service_id": "svc:ledger-service",
+        "reason": "ledger-service is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: ledger-service 21 min ago, rules-store-db 57 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): rules-store-db (deployed 57 min ago by Ben Walker)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 4 upstream (3 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Ravi Shankar (score 30)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "fraud-scoring alert most likely caused by dep:rules-store-db-v9.72.0 on rules-store-db, deployed 57 min ago. Contact Ravi Shankar."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "fraud-scoring alert most likely caused by dep:rules-store-db-v9.72.0 on rules-store-db, deployed 57 min ago. Contact Ravi Shankar.",
@@ -6190,6 +10318,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 0,
      "false_leads_rejected": 0,
@@ -6206,6 +10335,74 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "patient-portal alert most likely caused by dep:records-db-v9.73.0 on records-db, deployed 45 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:records-db-v9.73.0"
+      ],
+      "rejected_leads": [],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 1 change(s) in 120 min: records-db 45 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): records-db (deployed 45 min ago by Maya Okoro)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 25)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): Every records-db migration recreates the visit_id index"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2026-03 (fixed by Maya Okoro)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "patient-portal alert most likely caused by dep:records-db-v9.73.0 on records-db, deployed 45 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 0,
+     "false_leads_rejected": 0,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "patient-portal alert most likely caused by dep:records-db-v9.73.0 on records-db, deployed 45 min ago. Contact Maya Okoro.",
@@ -6296,6 +10493,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -6312,6 +10510,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "payments-api alert most likely caused by dep:ledger-db-v9.74.0 on ledger-db, deployed 19 min ago. Contact Marcus Webb.",
+      "status": "ok",
+      "causes": [
+       "dep:ledger-db-v9.74.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.74.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: ledger-db 19 min ago, email-sender 37 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): ledger-db (deployed 19 min ago by Priya Nair)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (2 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Marcus Webb (score 45)"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 3 incident(s): INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez), INC-2025-044 (fixed by Marcus Webb), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "payments-api alert most likely caused by dep:ledger-db-v9.74.0 on ledger-db, deployed 19 min ago. Contact Marcus Webb."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "payments-api alert most likely caused by dep:ledger-db-v9.74.0 on ledger-db, deployed 19 min ago. Contact Marcus Webb.",
@@ -6407,6 +10679,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -6423,6 +10696,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "notifications alert most likely caused by dep:sms-gateway-v9.75.0 on sms-gateway, deployed 29 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v9.75.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.75.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 25 min ago, sms-gateway 29 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): sms-gateway (deployed 29 min ago by Maya Okoro)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 3 upstream (3 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 5); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "notifications alert most likely caused by dep:sms-gateway-v9.75.0 on sms-gateway, deployed 29 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "notifications alert most likely caused by dep:sms-gateway-v9.75.0 on sms-gateway, deployed 29 min ago. Contact Maya Okoro.",
@@ -6521,6 +10868,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -6537,6 +10885,84 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "web-checkout alert most likely caused by dep:risk-rules-v9.76.0 on risk-rules, deployed 61 min ago. Contact Priya Nair.",
+      "status": "ok",
+      "causes": [
+       "dep:risk-rules-v9.76.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.76.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 56 min ago, risk-rules 61 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): risk-rules (deployed 61 min ago by Mei Lin Chen)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Priya Nair (score 48); maintainer Arjun Mehta LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): RULES_CACHE_TTL must stay ≥ 300s"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Slack — Slack's Incident on 2-22-22"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "web-checkout alert most likely caused by dep:risk-rules-v9.76.0 on risk-rules, deployed 61 min ago. Contact Priya Nair."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "web-checkout alert most likely caused by dep:risk-rules-v9.76.0 on risk-rules, deployed 61 min ago. Contact Priya Nair.",
@@ -6636,6 +11062,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -6652,6 +11079,84 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "lab-results alert most likely caused by dep:notifications-v9.77.0 on notifications, deployed 74 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:notifications-v9.77.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:scheduler-db-v9.77.1",
+        "service_id": "svc:scheduler-db",
+        "reason": "scheduler-db is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: scheduler-db 49 min ago, notifications 74 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): notifications (deployed 74 min ago by Lena Fischer)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 18); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 1 decision(s): SMS retries are capped at 3 attempts with backoff"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-NW-2026-03 (fixed by Maya Okoro), INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "industry_matches",
+        "summary": "industry_matches → 2 public postmortem(s): Google Cloud — Multiple GCP products are experiencing Service issues"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "lab-results alert most likely caused by dep:notifications-v9.77.0 on notifications, deployed 74 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 9,
+     "llm_calls": 5,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "lab-results alert most likely caused by dep:notifications-v9.77.0 on notifications, deployed 74 min ago. Contact Maya Okoro.",
@@ -6753,6 +11258,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -6769,6 +11275,80 @@
      "used_algorithms": [
       "SPpaths"
      ],
+     "passed": true,
+     "run": {
+      "summary": "merchant-dashboard alert most likely caused by dep:fraud-scoring-v9.78.0 on fraud-scoring, deployed 22 min ago. Contact Mei Lin Chen.",
+      "status": "ok",
+      "causes": [
+       "dep:fraud-scoring-v9.78.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:email-sender-v9.78.1",
+        "service_id": "svc:email-sender",
+        "reason": "email-sender is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: email-sender 15 min ago, fraud-scoring 22 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): fraud-scoring (deployed 22 min ago by Grace Liu)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 0 upstream (0 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Mei Lin Chen (score 88); maintainer Arjun Mehta LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 2 incident(s): INC-2025-089 (fixed by Nikhil Rao, Elena Petrova), INC-2025-031 (fixed by Priya Nair, Arjun Mehta)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "merchant-dashboard alert most likely caused by dep:fraud-scoring-v9.78.0 on fraud-scoring, deployed 22 min ago. Contact Mei Lin Chen."
+       }
+      ]
+     }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
      "passed": true,
      "run": {
       "summary": "merchant-dashboard alert most likely caused by dep:fraud-scoring-v9.78.0 on fraud-scoring, deployed 22 min ago. Contact Mei Lin Chen.",
@@ -6865,6 +11445,7 @@
      "cause_correct": 1,
      "path_correct": 1,
      "incidents_expected": 1,
+     "cause_expected": true,
      "grouping_exact": true,
      "false_leads": 1,
      "false_leads_rejected": 1,
@@ -6935,11 +11516,85 @@
        }
       ]
      }
+    },
+    "no_algo": {
+     "cause_correct": 1,
+     "path_correct": 1,
+     "incidents_expected": 1,
+     "cause_expected": true,
+     "grouping_exact": true,
+     "false_leads": 1,
+     "false_leads_rejected": 1,
+     "cause_also_rejected": [],
+     "paged_right": 1,
+     "paged_left_person": [],
+     "wrong_actions": 0,
+     "look_first_ok": null,
+     "pages_sent": 1,
+     "pages_suppressed": 0,
+     "tool_calls": 8,
+     "llm_calls": 4,
+     "grounding_ok": true,
+     "used_algorithms": [],
+     "passed": true,
+     "run": {
+      "summary": "appointments alert most likely caused by dep:sms-gateway-v9.79.0 on sms-gateway, deployed 57 min ago. Contact Maya Okoro.",
+      "status": "ok",
+      "causes": [
+       "dep:sms-gateway-v9.79.0"
+      ],
+      "rejected_leads": [
+       {
+        "deploy_id": "dep:audit-trail-v9.79.1",
+        "service_id": "svc:audit-trail",
+        "reason": "audit-trail is not on the call path of any alerting service (within 6 hops) and shares no dependency with them (within 3 hops each side)"
+       }
+      ],
+      "look_first": null,
+      "steps": [
+       {
+        "tool": "memory_recall",
+        "summary": "memory_recall → nothing recalled (no memory yet)"
+       },
+       {
+        "tool": "recent_changes",
+        "summary": "recent_changes → 2 change(s) in 120 min: audit-trail 6 min ago, sms-gateway 57 min ago"
+       },
+       {
+        "tool": "recent_changes_downstream",
+        "summary": "recent_changes_downstream → 1 hit(s): sms-gateway (deployed 57 min ago by Maya Okoro)"
+       },
+       {
+        "tool": "shared_dependency_changes",
+        "summary": "shared_dependency_changes → no noisy neighbours"
+       },
+       {
+        "tool": "blast_radius",
+        "summary": "blast_radius → 1 upstream (1 tier-1)"
+       },
+       {
+        "tool": "who_to_call",
+        "summary": "who_to_call → top: Maya Okoro (score 5); maintainer Owen Bryce LEFT"
+       },
+       {
+        "tool": "decisions_about",
+        "summary": "decisions_about → 0 decision(s)"
+       },
+       {
+        "tool": "past_incidents",
+        "summary": "past_incidents → 1 incident(s): INC-NW-2025-14 (fixed by Owen Bryce)"
+       },
+       {
+        "tool": "submit_report",
+        "summary": "appointments alert most likely caused by dep:sms-gateway-v9.79.0 on sms-gateway, deployed 57 min ago. Contact Maya Okoro."
+       }
+      ]
+     }
     }
    }
   }
  ],
- "seconds": 6.0,
+ "seconds": 6.2,
  "totals": {
   "dev": {
    "full": {
@@ -6955,10 +11610,38 @@
     "scenarios": 12,
     "paged_left_person": 0,
     "grounding_ok": 12
+   },
+   "no_algo": {
+    "passed": 12,
+    "cause_correct": 13,
+    "incidents_expected": 13,
+    "path_correct": 13,
+    "false_leads_rejected": 7,
+    "false_leads": 7,
+    "paged_right": 13,
+    "wrong_actions": 0,
+    "tool_calls": 108,
+    "scenarios": 12,
+    "paged_left_person": 0,
+    "grounding_ok": 12
    }
   },
   "generated": {
    "full": {
+    "passed": 50,
+    "cause_correct": 50,
+    "incidents_expected": 50,
+    "path_correct": 50,
+    "false_leads_rejected": 40,
+    "false_leads": 40,
+    "paged_right": 50,
+    "wrong_actions": 0,
+    "tool_calls": 408,
+    "scenarios": 50,
+    "paged_left_person": 0,
+    "grounding_ok": 50
+   },
+   "no_algo": {
     "passed": 50,
     "cause_correct": 50,
     "incidents_expected": 50,

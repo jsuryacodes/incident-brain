@@ -87,11 +87,11 @@ TOOLS = {
         explanation="Runs FalkorDB's full-text index per label. The query is stripped to plain words (no operator characters) and passed as a parameter. First pass requires all words (precise); if there is room, a second pass accepts any word (recall) ranked lower. Each index's scores are normalised to its best hit because scores are not comparable across indexes; ties go to raw sources (chats, docs, tickets) before derived summaries. No embeddings: the graph supplies context."),
     "critical_services": dict(
         fn=gt.critical_services, track=[F, B, T],
-        description="Rank services by structural importance. 'pagerank' finds shared dependencies many services rely on; 'betweenness' finds chokepoints on many call paths. With downstream_of, only services on those services' call paths are ranked (where to look first when nothing changed). Returns name, tier, team and score.",
-        input_schema=_obj({"algorithm": {"enum": ["pagerank", "betweenness"]}, "limit": {"type": "integer", "minimum": 1, "maximum": 50},
+        description="Rank services by structural importance. 'pagerank' finds shared dependencies many services rely on; 'betweenness' finds chokepoints on many call paths; 'fan_in' simply counts how many services reach each one (no algorithm). With downstream_of, only services on those services' call paths are ranked (where to look first when nothing changed). Returns name, tier, team and score.",
+        input_schema=_obj({"algorithm": {"enum": ["pagerank", "betweenness", "fan_in"]}, "limit": {"type": "integer", "minimum": 1, "maximum": 50},
                            "downstream_of": {"type": "array", "items": {"type": "string"}, "maxItems": 10,
                                              "description": "Optional service ids: only rank services these call (directly or not), e.g. where to look first on an alert's call path."}}),
-        cypher=[gt.Q_PAGERANK, gt.Q_BETWEENNESS, gt.Q_DOWNSTREAM_OF], algorithm="algo.pageRank / algo.betweenness",
+        cypher=[gt.Q_PAGERANK, gt.Q_BETWEENNESS, gt.Q_FAN_IN, gt.Q_DOWNSTREAM_OF], algorithm="algo.pageRank / algo.betweenness",
         explanation="PageRank over DEPENDS_ON passes credit from callers to callees, so heavily shared dependencies (config-service, its database, kafka-events) rise to the top: single points of failure. Betweenness counts shortest paths running through a node (sampled, fixed seed for repeatable results): it surfaces middle layers like payments-api and api-gateway that everything funnels through. Different questions: 'what do we all depend on' vs 'what sits in the middle'."),
     "stale_knowledge": dict(
         fn=gt.stale_knowledge, track=[B, T],

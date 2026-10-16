@@ -53,3 +53,11 @@ def test_scorer_closes_loopholes(graph):
                    {"rejected_leads": [{"deploy_id": d, "reason": " "} for d in sc["expect"]["false_leads"]]}):
         m = fe.score(sc, _rec({**good, **change}), "kestrel_pay_test")
         assert not m["passed"], change
+
+
+def test_no_algorithms_baseline_is_honest(twins):
+    res = fe.run_eval(only=["k-nochange", "k-learned"], profiles=["no_algo"], write=False, generated=0)
+    r = {s["id"]: s["results"]["no_algo"] for s in res["scenarios"]}
+    assert r["k-nochange"]["used_algorithms"] == [] and r["k-learned"]["used_algorithms"] == []  # no algo.* query ran
+    assert r["k-nochange"]["passed"]  # without PageRank, counting who reaches each service points at the same hubs
+    assert r["k-learned"]["passed"]  # traversals alone find the learned-edge cause

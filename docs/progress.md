@@ -82,6 +82,14 @@ report that names a cause and also rejects it, catches any "roll back / revert /
 actions, scores actions per incident, requires a non-empty reason for each rejected lead; doc overclaims removed.
 Full profile: **dev 12/12, generated 50/50**.
 
+**08A6** (baseline "graph, no algorithms", `backend/agents/baseline_noalgo.py`): every tool except the algo.* ones;
+shortest paths become plain Cypher; `critical_services` keeps only a plain `fan_in` count (services that reach each one)
+as its stand-in for PageRank. Verifier findings applied: search results now have a deterministic tie-break (the
+no-graph numbers wobbled between runs), the n-chokepoint label no longer claims betweenness decides it, the ablation
+cell reads "no cause: right", eval.md lists (from the data) the scenarios where algorithms changed the outcome.
+**Honest result: on single alerts it ties the full profile (dev 12/12, generated 50/50).** The plain traversals are
+what finds causes; the algorithm calls there only draw paths. The algorithms have to earn their place in Part C.
+
 ---
 
 # Earlier: task 07 (`docs/prompts/07-ui.md`, all DONE)
