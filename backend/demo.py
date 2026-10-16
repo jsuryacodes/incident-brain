@@ -10,6 +10,7 @@ from pathlib import Path
 from backend.agents.loop import BOLD, CYAN, RST
 from backend.agents.firefighter import print_report
 from backend.agents.team import resolve_incident, run_team, tracer
+from backend.agents.actions import execute
 from backend.agents.firefighter import run_firefighter
 from backend.agents.brain import ask
 from backend.api import views
@@ -105,6 +106,7 @@ def run_storm(tenant, llm=None, on_step=None, keep=False):
     try:
         rec = run_firefighter(STORM["alerts"], ToolContext(tenant=twin, now=summary["now"]), llm or LLMClient(),
                               on_step=on_step, save=False)
+        rec["twin"] = twin  # where the plan can be approved and executed (kept only when keep=True)
         return snap(twin, rec)
     finally:
         if not keep:
@@ -119,8 +121,8 @@ def storm_fixture():
 def run_beat(tenant, beat_id, llm, on_event, latest):
     """A FRESH run of one beat (it writes to the graph; the API only allows it with an access code).
     latest: {beat_id: record} of this tenant's earlier fresh beats. Returns the record with its graph snapshot."""
-    if beat_id == "storm":
-        rec = run_storm(tenant, llm, on_step=lambda st: on_event("step", st))
+    if beat_id == "storm":  # the twin stays until the next storm run, so the action plan can be approved
+        rec = run_storm(tenant, llm, on_step=lambda st: on_event("step", st), keep=True)
         on_event("report", {"report": rec["report"], "incident_id": None, "time_to_cause": None})
         on_event("done", {"status": rec["status"], "session_id": None, "totals": rec["totals"]})
         return rec
@@ -295,8 +297,13 @@ def main():
     a = ap.parse_args()
     if a.cmd == "storm":
         rec = run_storm(a.graph, LLMClient(mode="live" if a.live else None, model=a.model),
-                        on_step=None if a.quiet else lambda s: print(fmt_step(s)))
+                        on_step=None if a.quiet else lambda s: print(fmt_step(s)), keep=True)
+        try:  # approve the whole plan (simulated) so the recording shows the execution and its verification
+            rec["execution"] = {k: v for k, v in execute(rec["twin"], rec, None, "jaya").items() if k != "steps"}
+        finally:
+            get_graph(rec["twin"]).delete()
         print(json.dumps(views.storm_numbers(rec), indent=1, ensure_ascii=False)[:3000])
+        print("execution:", json.dumps(rec["execution"]["verification"], ensure_ascii=False)[:600])
         if a.save_golden:
             save_golden({"storm": rec})
             print(f"golden run written to {GOLDEN / 'firefighter-storm.json'}")

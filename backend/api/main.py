@@ -385,6 +385,7 @@ def replay_json(name: str):
     return {"run_id": Path(name).stem, "mode": "replay", "alert": rec.get("alert"), "incident_id": rec.get("incident_id"),
             "incident_key": rec.get("incident_key"), "status": rec.get("status"), "report": rec.get("report"),
             "time_to_cause": rec.get("time_to_cause"), "totals": rec.get("totals"),
+            "execution": rec.get("execution"),
             "events": [{"event": t, "data": d} for t, d in views.replay_events(rec)]}
 
 
@@ -480,6 +481,29 @@ def eval_latest():
     if not EVAL_LATEST.is_file():
         raise HTTPException(404, "no eval results yet: run python -m backend.agents.firefighter_eval")
     return json.loads(EVAL_LATEST.read_text())
+
+
+class Execute(BaseModel):
+    run_id: str = Field(max_length=80)
+    action_ids: list[str] | None = Field(default=None, max_length=50)
+    user: str = Field(default="web", max_length=64)
+
+
+@app.post("/api/actions/execute", dependencies=[Depends(require_code)])
+def actions_execute(body: Execute):
+    """Approve (part of) a fresh Firefighter run's action plan: simulated execution on the run's own twin graph, then
+    the verification re-check. Needs the access code. Recorded runs can't be executed: run it fresh first."""
+    job = RUNS.get(body.run_id)
+    if not job or not job["record"].get("twin"):
+        raise HTTPException(404, "unknown run or not executable: approve a fresh Firefighter run (recordings are replays)")
+    from backend.agents.actions import execute
+    try:
+        out = execute(job["record"]["twin"], job["record"], body.action_ids, body.user)
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    out.pop("steps", None)
+    job["record"]["execution"] = out
+    return out
 
 
 @app.get("/api/storm/latest")

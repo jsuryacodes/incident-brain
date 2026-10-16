@@ -74,7 +74,7 @@ def test_access_check(client):
 def test_replay_json_events_and_run_graph(client):
     r = client.get("/api/replay/team-session1").json()
     steps = [e["data"] for e in r["events"] if e["event"] == "step"]
-    assert r["mode"] == "replay" and len(steps) == 24 and [s["seq"] for s in steps] == list(range(1, 25))
+    assert r["mode"] == "replay" and len(steps) == 25 and [s["seq"] for s in steps] == list(range(1, 26))
     s = steps[0]
     assert {"seq", "agent", "action", "tool", "summary", "cypher", "params", "result_preview", "highlight", "cited",
             "writes", "elements", "mode"} <= set(s) and s["mode"] == "replay" and "MATCH" in s["cypher"]

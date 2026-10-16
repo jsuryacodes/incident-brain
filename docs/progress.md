@@ -17,7 +17,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | A Scenario library + eval + baselines | DONE | 08A1–08A8 |
 | B Hypotheses + decision trace | DONE (backend; UI in G) | 08B1–08B2 |
 | C Alert storm | DONE (backend; UI in G) | 08C1–08C3 |
-| D Actions + safety check + approval | todo | |
+| D Actions + safety check + approval | DONE (backend; UI in G) | 08D1–08D2 |
 | E MCP for real | todo | |
 | F Scale proof | todo | |
 | G UI | todo | |
@@ -148,6 +148,21 @@ that explains most alerts" finds nothing and only correlation over the graph poi
   `update_incident` (so tool calls until cause stay 8 and 3) and hands off its own board, persisted as
   `Step.hypotheses_json`. Schema **v1.3** (two optional Step properties; changelog in docs/schema.md).
 - Hero numbers re-checked: unchanged (S1 14 total / 8 investigator, S2 9 / 3, LLM calls 12 / 11 / 10, no-memory not found).
+
+## 08D — Decide and act
+- `rollback_safety(deploy_id)` (read tool): later deploys to the same service (a rollback takes them along), words that
+  mean the change touched data (migration, schema, drop, rebuild, delete, backfill, truncate, reindex), and how many
+  services depend on the changed one. Verdict safe/risky; risky turns "Roll back" into "Hold the rollback … page the
+  owner first" (e.g. n-falselead's "Rebuild the visit table" on records-db).
+- The Firefighter report has an `action_plan`: rollback/hold, page or escalate, suppress_page (storms), notify (silent
+  callers), open_ticket, flag_stale; each with its justification (why, node ids, path) and the safety result.
+- `backend/agents/actions.py`: approval executes on the run's own twin graph only (refuses hero graphs), simulated,
+  existing labels, origin 'agent' (Incident, pages, ticket, stale flags, a rollback Deploy that CHANGED the service, one
+  Step per action as 'communicator' in a Session 'firefighter' whose id is derived from the run: approving twice does
+  nothing). Then `verify()` re-runs `recent_changes_downstream`: cleared only if the newest change on the culprit is
+  now the rollback; for a storm root it says plainly that a page can't clear a saturation signal.
+- `POST /api/actions/execute` (access code; fresh runs only; recordings are replays). The storm recording now includes
+  an approved execution + verification for visitors.
 
 ---
 

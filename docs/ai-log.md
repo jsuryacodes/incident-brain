@@ -135,3 +135,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-16 — 08B: hypotheses and why-this-tool
 - Claude Code (Opus 5.5, unattended) added `why` lines to every turn (mock + prompts), the Firefighter's hypothesis board and confidence breakdown, the Investigator's board in its handoff, Step.why / Step.hypotheses_json (schema v1.3), tests incl. a fake live client.
 - Double-check: docs/schema.md v1.3 changelog (two optional Step properties; you asked to approve schema changes).
+
+## 2026-10-16 — 08D: action plan, safety check, approval
+- Claude Code (Opus 5.5, unattended) added `rollback_safety`, the Firefighter `action_plan`, `backend/agents/actions.py` (simulated, idempotent execution on twins + verification), `POST /api/actions/execute`, tests; re-recorded the storm replay with an approved execution.
+- Double-check: the "hard to undo" word list in `graph_tools.rollback_safety` (IRREVERSIBLE).

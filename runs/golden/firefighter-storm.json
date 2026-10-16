@@ -1,5 +1,5 @@
 {
- "run_id": "run-50086975bdd2",
+ "run_id": "run-ac9d4bf51563",
  "agent": "firefighter",
  "tenant": "kestrel_pay__eval_story_storm",
  "alert": [
@@ -30,7 +30,7 @@
  ],
  "mode": "mock",
  "model": "mock",
- "started_at": 1792173354,
+ "started_at": 1792174508,
  "status": "ok",
  "report": {
   "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
@@ -290,6 +290,296 @@
     "team_id": null,
     "reason": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead"
    }
+  ],
+  "action_plan": [
+   {
+    "id": "A1",
+    "incident": 0,
+    "kind": "page",
+    "target": "per:omar-haddad",
+    "title": "Page Omar Haddad",
+    "justification": {
+     "why": "95 commits on config-service (score 95)",
+     "node_ids": [
+      "per:omar-haddad",
+      "svc:config-service"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A2",
+    "incident": 0,
+    "kind": "suppress_page",
+    "target": "per:elena-petrova",
+    "title": "Don't page Elena Petrova for auth-service",
+    "justification": {
+     "why": "auth-service is part of this incident: auth-service -> config-service; one page goes to Omar Haddad instead",
+     "node_ids": [
+      "per:elena-petrova",
+      "svc:auth-service"
+     ],
+     "path": [
+      "svc:auth-service",
+      "svc:config-service"
+     ]
+    },
+    "safety": null
+   },
+   {
+    "id": "A3",
+    "incident": 0,
+    "kind": "suppress_page",
+    "target": "per:sofia-alvarez",
+    "title": "Don't page Sofia Alvarez for payouts-service",
+    "justification": {
+     "why": "payouts-service is part of this incident: payouts-service -> config-service; one page goes to Omar Haddad instead",
+     "node_ids": [
+      "per:sofia-alvarez",
+      "svc:payouts-service"
+     ],
+     "path": [
+      "svc:payouts-service",
+      "svc:config-service"
+     ]
+    },
+    "safety": null
+   },
+   {
+    "id": "A4",
+    "incident": 0,
+    "kind": "suppress_page",
+    "target": "per:kenji-watanabe",
+    "title": "Don't page Kenji Watanabe for merchant-onboarding",
+    "justification": {
+     "why": "merchant-onboarding is part of this incident: merchant-onboarding -> config-service; one page goes to Omar Haddad instead",
+     "node_ids": [
+      "per:kenji-watanabe",
+      "svc:merchant-onboarding"
+     ],
+     "path": [
+      "svc:merchant-onboarding",
+      "svc:config-service"
+     ]
+    },
+    "safety": null
+   },
+   {
+    "id": "A5",
+    "incident": 0,
+    "kind": "suppress_page",
+    "target": "per:ben-walker",
+    "title": "Don't page Ben Walker for webhook-dispatcher",
+    "justification": {
+     "why": "webhook-dispatcher is part of this incident: webhook-dispatcher -> config-service; one page goes to Omar Haddad instead",
+     "node_ids": [
+      "per:ben-walker",
+      "svc:webhook-dispatcher"
+     ],
+     "path": [
+      "svc:webhook-dispatcher",
+      "svc:config-service"
+     ]
+    },
+    "safety": null
+   },
+   {
+    "id": "A6",
+    "incident": 0,
+    "kind": "suppress_page",
+    "target": "per:fatima-zahra",
+    "title": "Don't page Fatima Zahra for notifications-service",
+    "justification": {
+     "why": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead",
+     "node_ids": [
+      "per:fatima-zahra",
+      "svc:notifications-service"
+     ],
+     "path": [
+      "svc:notifications-service",
+      "svc:config-service"
+     ]
+    },
+    "safety": null
+   },
+   {
+    "id": "A7",
+    "incident": 0,
+    "kind": "notify",
+    "target": "svc:api-gateway,svc:bank-connector,svc:feature-flags,svc:payments-api,svc:merchant-dashboard,svc:reconciliation-job,svc:web-checkout",
+    "title": "Tell the owners of api-gateway, bank-connector, feature-flags, payments-api … (not alerting yet)",
+    "justification": {
+     "why": "they call config-service and will feel it next (blast_tiers)",
+     "node_ids": [
+      "svc:api-gateway",
+      "svc:bank-connector",
+      "svc:feature-flags",
+      "svc:payments-api",
+      "svc:merchant-dashboard",
+      "svc:reconciliation-job",
+      "svc:web-checkout"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A8",
+    "incident": 0,
+    "kind": "open_ticket",
+    "target": "svc:config-service",
+    "title": "Open a follow-up ticket for config-service",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:config-service"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A9",
+    "incident": 1,
+    "kind": "rollback",
+    "target": "dep:card-processor-adapter-v2.9.0",
+    "title": "Roll back dep:card-processor-adapter-v2.9.0 on card-processor-adapter",
+    "justification": {
+     "why": "Rotate the acquirer client certificate bundle (dep:card-processor-adapter-v2.9.0, deployed 25 min ago by Sofia Alvarez). card-processor-adapter itself was changed.",
+     "node_ids": [
+      "dep:card-processor-adapter-v2.9.0",
+      "svc:card-processor-adapter",
+      "svc:card-processor-adapter"
+     ],
+     "path": [
+      "svc:card-processor-adapter"
+     ]
+    },
+    "safety": {
+     "verdict": "safe",
+     "reasons": [
+      "nothing shipped to card-processor-adapter after it and nothing in the change looks irreversible"
+     ],
+     "dependents": 4,
+     "later_deploys": [],
+     "blast": "4 service(s) call card-processor-adapter (directly or not), 3 of them tier-1: they briefly see the old version"
+    }
+   },
+   {
+    "id": "A10",
+    "incident": 1,
+    "kind": "page",
+    "target": "per:sofia-alvarez",
+    "title": "Page Sofia Alvarez",
+    "justification": {
+     "why": "95 commits, 1 past incident fix(es) on card-processor-adapter (score 120)",
+     "node_ids": [
+      "per:sofia-alvarez",
+      "svc:card-processor-adapter"
+     ],
+     "path": []
+    },
+    "safety": null
+   },
+   {
+    "id": "A11",
+    "incident": 1,
+    "kind": "open_ticket",
+    "target": "svc:card-processor-adapter",
+    "title": "Open a follow-up ticket for card-processor-adapter",
+    "justification": {
+     "why": "track the fix and the lessons on the service that needs them",
+     "node_ids": [
+      "svc:card-processor-adapter"
+     ],
+     "path": []
+    },
+    "safety": null
+   }
+  ],
+  "hypotheses": [
+   {
+    "id": "H1",
+    "claim": "config-service is saturated and takes the 5 alerts down with it",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "svc:auth-service",
+      "claim": "calls config-service (1 hop)"
+     },
+     {
+      "node_id": "svc:payouts-service",
+      "claim": "calls config-service (1 hop)"
+     },
+     {
+      "node_id": "svc:merchant-onboarding",
+      "claim": "calls config-service (1 hop)"
+     },
+     {
+      "node_id": "svc:webhook-dispatcher",
+      "claim": "calls config-service (1 hop)"
+     },
+     {
+      "node_id": "svc:notifications-service",
+      "claim": "calls config-service (1 hop)"
+     }
+    ],
+    "contradicting": [
+     {
+      "node_id": "svc:config-service",
+      "claim": "no recent change on it or on the alerts' paths (an inference from structure, not a deploy)"
+     }
+    ],
+    "reason": "one shared dependency explains 5 alerts; no single change explains more than 2"
+   },
+   {
+    "id": "H2",
+    "claim": "dep:card-processor-adapter-v2.9.0 on card-processor-adapter caused the card-processor-adapter alert",
+    "status": "confirmed",
+    "supporting": [
+     {
+      "node_id": "dep:card-processor-adapter-v2.9.0",
+      "claim": "deployed 25 min ago: Rotate the acquirer client certificate bundle"
+     },
+     {
+      "node_id": "svc:card-processor-adapter",
+      "claim": "the alerting service itself changed"
+     }
+    ],
+    "contradicting": [],
+    "reason": "the alerting service itself changed"
+   },
+   {
+    "id": "H3",
+    "claim": "dep:email-sender-v1.15.0 on email-sender caused it",
+    "status": "rejected",
+    "supporting": [
+     {
+      "node_id": "dep:email-sender-v1.15.0",
+      "claim": "deployed 12 min ago: Switch to the new transactional template engine"
+     }
+    ],
+    "contradicting": [
+     {
+      "node_id": "svc:email-sender",
+      "claim": "email-sender is on merchant-onboarding's call path (2 hops), but no change explains this storm: 5 alerts all call config-service (correlate_alerts), this change explains 2 of them"
+     }
+    ],
+    "reason": "email-sender is on merchant-onboarding's call path (2 hops), but no change explains this storm: 5 alerts all call config-service (correlate_alerts), this change explains 2 of them"
+   }
+  ],
+  "confidence_breakdown": [
+   {
+    "effect": "+",
+    "factor": "5 alerts share config-service",
+    "node_id": "svc:config-service"
+   },
+   {
+    "effect": "-",
+    "factor": "no change on it: saturation is inferred from structure",
+    "node_id": null
+   }
   ]
  },
  "grounding": {
@@ -304,8 +594,8 @@
   "cache_read_input_tokens": 0,
   "cost_usd": 0.0,
   "llm_calls": 5,
-  "tool_calls": 35,
-  "duration_ms": 80
+  "tool_calls": 37,
+  "duration_ms": 79
  },
  "steps": [
   {
@@ -381,8 +671,9 @@
      "edges": []
     }
    },
+   "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 2,
    "llm_call": 1
   },
@@ -483,9 +774,10 @@
      "edges": []
     }
    },
+   "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792173354,
-   "ms": 1,
+   "ts": 1792174508,
+   "ms": 2,
    "llm_call": 1
   },
   {
@@ -581,8 +873,9 @@
      "edges": []
     }
    },
+   "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 1
   },
@@ -663,8 +956,9 @@
      "edges": []
     }
    },
+   "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 1
   },
@@ -749,8 +1043,9 @@
      "edges": []
     }
    },
+   "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 1
   },
@@ -819,8 +1114,9 @@
      "edges": []
     }
    },
+   "why": "memory first: did an earlier session learn something about this service?",
    "summary": "memory_recall → nothing recalled (no memory yet)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 1
   },
@@ -843,7 +1139,7 @@
       "deploy": {
        "id": "dep:email-sender-v1.15.0",
        "version": "1.15.0",
-       "ts": 1792172634,
+       "ts": 1792173787,
        "minutes_ago": 12,
        "summary": "Switch to the new transactional template engine",
        "by": "Kenji Watanabe"
@@ -858,7 +1154,7 @@
       "deploy": {
        "id": "dep:card-processor-adapter-v2.9.0",
        "version": "2.9.0",
-       "ts": 1792171854,
+       "ts": 1792173007,
        "minutes_ago": 25,
        "summary": "Rotate the acquirer client certificate bundle",
        "by": "Sofia Alvarez"
@@ -879,7 +1175,7 @@
      {
       "cypher": "MATCH (d:Deploy)-[:CHANGED]->(s:Service) WHERE d.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN s.id, s.tier, d.id, d.version, d.ts, d.summary, who.id, who.name, who.status, t.key, t.title ORDER BY d.ts DESC LIMIT $limit",
       "params": {
-       "since": 1792166154,
+       "since": 1792167307,
        "limit": 31
       }
      }
@@ -917,8 +1213,9 @@
      ]
     }
    },
+   "why": "list every recent change in the company: each one is a lead",
    "summary": "recent_changes → 2 change(s) in 120 min: email-sender 12 min ago, card-processor-adapter 25 min ago",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 0,
    "llm_call": 1
   },
@@ -951,7 +1248,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:auth-service",
-       "since": 1792166154
+       "since": 1792167307
       }
      }
     ],
@@ -960,8 +1257,9 @@
      "edges": []
     }
    },
+   "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → no recent downstream deploys",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 0,
    "llm_call": 2
   },
@@ -999,7 +1297,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:auth-service",
-       "since": 1792166154,
+       "since": 1792167307,
        "downstream": [
         "svc:config-service",
         "svc:config-db"
@@ -1012,8 +1310,9 @@
      "edges": []
     }
    },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 2
   },
@@ -1046,7 +1345,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792166154
+       "since": 1792167307
       }
      }
     ],
@@ -1055,8 +1354,9 @@
      "edges": []
     }
    },
+   "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → no recent downstream deploys",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 0,
    "llm_call": 2
   },
@@ -1094,7 +1394,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:payouts-service",
-       "since": 1792166154,
+       "since": 1792167307,
        "downstream": [
         "svc:ledger-service",
         "svc:bank-connector",
@@ -1113,8 +1413,9 @@
      "edges": []
     }
    },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 2
   },
@@ -1148,7 +1449,7 @@
       "deploy": {
        "id": "dep:email-sender-v1.15.0",
        "version": "1.15.0",
-       "ts": 1792172634,
+       "ts": 1792173787,
        "minutes_ago": 12,
        "summary": "Switch to the new transactional template engine",
        "by": "Kenji Watanabe"
@@ -1169,7 +1470,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:merchant-onboarding",
-       "since": 1792166154
+       "since": 1792167307
       }
      },
      {
@@ -1214,8 +1515,9 @@
      ]
     }
    },
+   "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 2
   },
@@ -1253,7 +1555,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:merchant-onboarding",
-       "since": 1792166154,
+       "since": 1792167307,
        "downstream": [
         "svc:kyc-service",
         "svc:config-service",
@@ -1271,8 +1573,9 @@
      "edges": []
     }
    },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 2
   },
@@ -1305,7 +1608,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:webhook-dispatcher",
-       "since": 1792166154
+       "since": 1792167307
       }
      }
     ],
@@ -1314,8 +1617,9 @@
      "edges": []
     }
    },
+   "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → no recent downstream deploys",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 0,
    "llm_call": 2
   },
@@ -1353,7 +1657,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:webhook-dispatcher",
-       "since": 1792166154,
+       "since": 1792167307,
        "downstream": [
         "svc:config-service",
         "svc:kafka-events",
@@ -1367,8 +1671,9 @@
      "edges": []
     }
    },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 2
   },
@@ -1400,7 +1705,7 @@
       "deploy": {
        "id": "dep:email-sender-v1.15.0",
        "version": "1.15.0",
-       "ts": 1792172634,
+       "ts": 1792173787,
        "minutes_ago": 12,
        "summary": "Switch to the new transactional template engine",
        "by": "Kenji Watanabe"
@@ -1421,7 +1726,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:notifications-service",
-       "since": 1792166154
+       "since": 1792167307
       }
      },
      {
@@ -1460,8 +1765,9 @@
      ]
     }
    },
+   "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): email-sender (deployed 12 min ago by Kenji Watanabe)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 2
   },
@@ -1499,7 +1805,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:notifications-service",
-       "since": 1792166154,
+       "since": 1792167307,
        "downstream": [
         "svc:config-service",
         "svc:kafka-events",
@@ -1514,8 +1820,9 @@
      "edges": []
     }
    },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 2
   },
@@ -1544,7 +1851,7 @@
       "deploy": {
        "id": "dep:card-processor-adapter-v2.9.0",
        "version": "2.9.0",
-       "ts": 1792171854,
+       "ts": 1792173007,
        "minutes_ago": 25,
        "summary": "Rotate the acquirer client certificate bundle",
        "by": "Sofia Alvarez"
@@ -1565,7 +1872,7 @@
       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
       "params": {
        "id": "svc:card-processor-adapter",
-       "since": 1792166154
+       "since": 1792167307
       }
      }
     ],
@@ -1589,8 +1896,9 @@
      ]
     }
    },
+   "why": "is any recent change on the alerting service's own call path?",
    "summary": "recent_changes_downstream → 1 hit(s): card-processor-adapter (deployed 25 min ago by Sofia Alvarez)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 0,
    "llm_call": 2
   },
@@ -1628,7 +1936,7 @@
       "cypher": "MATCH p1=(s:Service {id:$id})-[:DEPENDS_ON*1..3]->(shared:Service), p2=(shared)<-[:DEPENDS_ON*1..3]-(n:Service) MATCH (n)<-[:CHANGED]-(d:Deploy) WHERE d.ts > $since AND n.id <> $id AND NOT n.id IN $downstream AND NOT $id IN [x IN nodes(p2) | x.id] OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(d) OPTIONAL MATCH (d)-[:FOR_TICKET]->(t:Ticket) RETURN n.id, shared.id, d.id, d.version, d.ts, d.summary, who.id, who.name, t.id, t.key, t.title, [x IN nodes(p1) | x.id], [r IN relationships(p1) | r.source], [x IN nodes(p2) | x.id], [r IN relationships(p2) | r.source], [r IN relationships(p1) + relationships(p2) WHERE r.learned_from IS NOT NULL | r.learned_from] ORDER BY length(p1) + length(p2), d.ts DESC LIMIT 60",
       "params": {
        "id": "svc:card-processor-adapter",
-       "since": 1792166154,
+       "since": 1792167307,
        "downstream": []
       }
      }
@@ -1638,8 +1946,9 @@
      "edges": []
     }
    },
+   "why": "does a recently changed service share a dependency with the alerting one (noisy neighbour)?",
    "summary": "shared_dependency_changes → no noisy neighbours",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 2
   },
@@ -2016,8 +2325,9 @@
      ]
     }
    },
+   "why": "several alerts at once: which dependency do most of them share?",
    "summary": "correlate_alerts → shared root config-service reached by 5 of 6 alerts",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 8,
    "llm_call": 3
   },
@@ -2154,9 +2464,10 @@
      "edges": []
     }
    },
+   "why": "several alerts at once: which of them cannot share a cause at all?",
    "summary": "connected_impact → 2 group(s) that cannot share a cause: auth-service, merchant-onboarding, notifications-service, payouts-service, webhook-dispatcher | card-processor-adapter",
-   "ts": 1792173354,
-   "ms": 6,
+   "ts": 1792174508,
+   "ms": 5,
    "llm_call": 3
   },
   {
@@ -2239,9 +2550,10 @@
      ]
     }
    },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 3 upstream (2 tier-1)",
-   "ts": 1792173354,
-   "ms": 2,
+   "ts": 1792174508,
+   "ms": 1,
    "llm_call": 4
   },
   {
@@ -2390,9 +2702,10 @@
      ]
     }
    },
+   "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Omar Haddad (score 95)",
-   "ts": 1792173354,
-   "ms": 3,
+   "ts": 1792174508,
+   "ms": 2,
    "llm_call": 4
   },
   {
@@ -2479,24 +2792,25 @@
     "highlight": {
      "nodes": [
       "svc:config-service",
+      "svc:bank-connector",
+      "svc:webhook-dispatcher",
+      "svc:merchant-onboarding",
       "svc:feature-flags",
-      "svc:notifications-service",
-      "svc:payments-api",
-      "svc:api-gateway",
       "svc:payouts-service",
       "svc:auth-service",
-      "svc:merchant-onboarding",
-      "svc:webhook-dispatcher",
-      "svc:bank-connector",
-      "svc:reconciliation-job",
+      "svc:api-gateway",
+      "svc:notifications-service",
+      "svc:payments-api",
+      "svc:web-checkout",
       "svc:merchant-dashboard",
-      "svc:web-checkout"
+      "svc:reconciliation-job"
      ],
      "edges": []
     }
    },
+   "why": "which callers of the root are already alerting and which will be next (notify, don't page)",
    "summary": "blast_tiers → 12 caller(s) in 2 tier(s); 7 silent so far",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 0,
    "llm_call": 4
   },
@@ -2621,9 +2935,10 @@
      ]
     }
    },
+   "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Elena Petrova (score 130)",
-   "ts": 1792173354,
-   "ms": 3,
+   "ts": 1792174508,
+   "ms": 2,
    "llm_call": 4
   },
   {
@@ -2772,9 +3087,10 @@
      ]
     }
    },
+   "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Sofia Alvarez (score 140)",
-   "ts": 1792173354,
-   "ms": 1,
+   "ts": 1792174508,
+   "ms": 2,
    "llm_call": 4
   },
   {
@@ -2912,8 +3228,9 @@
      ]
     }
    },
+   "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Kenji Watanabe (score 120)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 2,
    "llm_call": 4
   },
@@ -3037,8 +3354,9 @@
      ]
     }
    },
+   "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Ben Walker (score 95)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 2,
    "llm_call": 4
   },
@@ -3162,8 +3480,9 @@
      ]
     }
    },
+   "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Fatima Zahra (score 60)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 2,
    "llm_call": 4
   },
@@ -3502,8 +3821,9 @@
      ]
     }
    },
+   "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 4 incident(s): INC-2026-012 (fixed by Priya Nair), INC-2026-031 (fixed by Ben Walker), INC-2025-044 (fixed by Marcus Webb)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 3,
    "llm_call": 4
   },
@@ -3599,8 +3919,9 @@
      ]
     }
    },
+   "why": "who is hurt if this service is down (callers, tier-1 first)",
    "summary": "blast_radius → 4 upstream (3 tier-1)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 4
   },
@@ -3725,9 +4046,10 @@
      ]
     }
    },
+   "why": "who to page: active people by commits and past incident fixes",
    "summary": "who_to_call → top: Sofia Alvarez (score 120)",
-   "ts": 1792173354,
-   "ms": 2,
+   "ts": 1792174508,
+   "ms": 1,
    "llm_call": 4
   },
   {
@@ -3801,13 +4123,120 @@
      ]
     }
    },
+   "why": "does the change contradict a recorded decision?",
    "summary": "decisions_about → 1 decision(s): Card processor gets a 2.5s total budget per authorisation",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 0,
    "llm_call": 4
   },
   {
    "seq": 34,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "rollback_safety",
+   "args": {
+    "deploy_id": "dep:card-processor-adapter-v2.9.0"
+   },
+   "result": {
+    "deploy": "dep:card-processor-adapter-v2.9.0",
+    "service": "svc:card-processor-adapter",
+    "service_tier": 1,
+    "version": "2.9.0",
+    "later_deploys": [],
+    "dependents": 4,
+    "tier1_dependents": 3,
+    "hard_to_undo_terms": [],
+    "verdict": "safe",
+    "reasons": [
+     "nothing shipped to card-processor-adapter after it and nothing in the change looks irreversible"
+    ],
+    "blast_of_rollback": "4 service(s) call card-processor-adapter (directly or not), 3 of them tier-1: they briefly see the old version"
+   },
+   "receipt": {
+    "tool": "rollback_safety",
+    "args": {
+     "deploy_id": "dep:card-processor-adapter-v2.9.0"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (d:Deploy {id:$id})-[:CHANGED]->(s:Service) RETURN s.id, s.tier, d.ts, d.version, d.summary",
+      "params": {
+       "id": "dep:card-processor-adapter-v2.9.0"
+      }
+     },
+     {
+      "cypher": "MATCH (x:Deploy)-[:CHANGED]->(s:Service {id:$sid}) WHERE x.ts > $ts RETURN x.id, x.ts, x.summary ORDER BY x.ts",
+      "params": {
+       "sid": "svc:card-processor-adapter",
+       "ts": 1792173007
+      }
+     },
+     {
+      "cypher": "MATCH (c:Service)-[:DEPENDS_ON*1..4]->(s:Service {id:$sid}) RETURN c.tier, count(DISTINCT c)",
+      "params": {
+       "sid": "svc:card-processor-adapter"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [
+      "dep:card-processor-adapter-v2.9.0",
+      "svc:card-processor-adapter"
+     ],
+     "edges": [
+      {
+       "from": "dep:card-processor-adapter-v2.9.0",
+       "type": "CHANGED",
+       "to": "svc:card-processor-adapter"
+      }
+     ]
+    }
+   },
+   "why": "next step",
+   "summary": "rollback_safety → ok",
+   "ts": 1792174508,
+   "ms": 1,
+   "llm_call": 4
+  },
+  {
+   "seq": 35,
+   "agent": "firefighter",
+   "action": "tool_call",
+   "tool": "stale_knowledge",
+   "args": {
+    "service_id": "svc:card-processor-adapter"
+   },
+   "result": {
+    "service": "svc:card-processor-adapter",
+    "stale_count": 0,
+    "items": []
+   },
+   "receipt": {
+    "tool": "stale_knowledge",
+    "args": {
+     "service_id": "svc:card-processor-adapter"
+    },
+    "queries": [
+     {
+      "cypher": "MATCH (x)-[:DESCRIBES]->(s:Service) WHERE (x:Doc OR x:Runbook) AND ($sid IS NULL OR s.id = $sid) OPTIONAL MATCH (a:Person)-[:AUTHORED]->(x) OPTIONAL MATCH (x)-[:MENTIONS]->(gone:Person {status: 'left'}) OPTIONAL MATCH (dp:Deploy)-[:CHANGED]->(s) WHERE dp.ts > x.updated_at OPTIONAL MATCH (s)-[l:DEPENDS_ON {source: 'learned'}]->(t:Service) WHERE l.learned_at > x.updated_at RETURN x.id, labels(x)[0], x.title, x.updated_at, s.id, a.id, a.name, a.status, coalesce(x.flagged_stale, false), collect(DISTINCT gone.name), collect(DISTINCT gone.id), count(DISTINCT dp), collect(DISTINCT t.id) ORDER BY x.updated_at",
+      "params": {
+       "sid": "svc:card-processor-adapter"
+      }
+     }
+    ],
+    "highlight": {
+     "nodes": [],
+     "edges": []
+    }
+   },
+   "why": "which docs and runbooks are out of date?",
+   "summary": "stale_knowledge → 0 stale: ",
+   "ts": 1792174508,
+   "ms": 0,
+   "llm_call": 4
+  },
+  {
+   "seq": 36,
    "agent": "firefighter",
    "action": "tool_call",
    "tool": "past_incidents",
@@ -3928,13 +4357,14 @@
      ]
     }
    },
+   "why": "have we seen this before, and who fixed it?",
    "summary": "past_incidents → 1 incident(s): INC-2025-067 (fixed by Marcus Webb, Sofia Alvarez)",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 1,
    "llm_call": 4
   },
   {
-   "seq": 35,
+   "seq": 37,
    "agent": "firefighter",
    "action": "tool_call",
    "tool": "failure_domains",
@@ -4020,13 +4450,14 @@
      "edges": []
     }
    },
+   "why": "context: which part of the system the alerts fall in",
    "summary": "failure_domains → 2 communities; the given services span 2",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 5,
    "llm_call": 4
   },
   {
-   "seq": 36,
+   "seq": 38,
    "agent": "firefighter",
    "action": "answer",
    "tool": "submit_report",
@@ -4287,6 +4718,296 @@
       "name": "Fatima Zahra",
       "team_id": null,
       "reason": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead"
+     }
+    ],
+    "action_plan": [
+     {
+      "id": "A1",
+      "incident": 0,
+      "kind": "page",
+      "target": "per:omar-haddad",
+      "title": "Page Omar Haddad",
+      "justification": {
+       "why": "95 commits on config-service (score 95)",
+       "node_ids": [
+        "per:omar-haddad",
+        "svc:config-service"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A2",
+      "incident": 0,
+      "kind": "suppress_page",
+      "target": "per:elena-petrova",
+      "title": "Don't page Elena Petrova for auth-service",
+      "justification": {
+       "why": "auth-service is part of this incident: auth-service -> config-service; one page goes to Omar Haddad instead",
+       "node_ids": [
+        "per:elena-petrova",
+        "svc:auth-service"
+       ],
+       "path": [
+        "svc:auth-service",
+        "svc:config-service"
+       ]
+      },
+      "safety": null
+     },
+     {
+      "id": "A3",
+      "incident": 0,
+      "kind": "suppress_page",
+      "target": "per:sofia-alvarez",
+      "title": "Don't page Sofia Alvarez for payouts-service",
+      "justification": {
+       "why": "payouts-service is part of this incident: payouts-service -> config-service; one page goes to Omar Haddad instead",
+       "node_ids": [
+        "per:sofia-alvarez",
+        "svc:payouts-service"
+       ],
+       "path": [
+        "svc:payouts-service",
+        "svc:config-service"
+       ]
+      },
+      "safety": null
+     },
+     {
+      "id": "A4",
+      "incident": 0,
+      "kind": "suppress_page",
+      "target": "per:kenji-watanabe",
+      "title": "Don't page Kenji Watanabe for merchant-onboarding",
+      "justification": {
+       "why": "merchant-onboarding is part of this incident: merchant-onboarding -> config-service; one page goes to Omar Haddad instead",
+       "node_ids": [
+        "per:kenji-watanabe",
+        "svc:merchant-onboarding"
+       ],
+       "path": [
+        "svc:merchant-onboarding",
+        "svc:config-service"
+       ]
+      },
+      "safety": null
+     },
+     {
+      "id": "A5",
+      "incident": 0,
+      "kind": "suppress_page",
+      "target": "per:ben-walker",
+      "title": "Don't page Ben Walker for webhook-dispatcher",
+      "justification": {
+       "why": "webhook-dispatcher is part of this incident: webhook-dispatcher -> config-service; one page goes to Omar Haddad instead",
+       "node_ids": [
+        "per:ben-walker",
+        "svc:webhook-dispatcher"
+       ],
+       "path": [
+        "svc:webhook-dispatcher",
+        "svc:config-service"
+       ]
+      },
+      "safety": null
+     },
+     {
+      "id": "A6",
+      "incident": 0,
+      "kind": "suppress_page",
+      "target": "per:fatima-zahra",
+      "title": "Don't page Fatima Zahra for notifications-service",
+      "justification": {
+       "why": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead",
+       "node_ids": [
+        "per:fatima-zahra",
+        "svc:notifications-service"
+       ],
+       "path": [
+        "svc:notifications-service",
+        "svc:config-service"
+       ]
+      },
+      "safety": null
+     },
+     {
+      "id": "A7",
+      "incident": 0,
+      "kind": "notify",
+      "target": "svc:api-gateway,svc:bank-connector,svc:feature-flags,svc:payments-api,svc:merchant-dashboard,svc:reconciliation-job,svc:web-checkout",
+      "title": "Tell the owners of api-gateway, bank-connector, feature-flags, payments-api … (not alerting yet)",
+      "justification": {
+       "why": "they call config-service and will feel it next (blast_tiers)",
+       "node_ids": [
+        "svc:api-gateway",
+        "svc:bank-connector",
+        "svc:feature-flags",
+        "svc:payments-api",
+        "svc:merchant-dashboard",
+        "svc:reconciliation-job",
+        "svc:web-checkout"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A8",
+      "incident": 0,
+      "kind": "open_ticket",
+      "target": "svc:config-service",
+      "title": "Open a follow-up ticket for config-service",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:config-service"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A9",
+      "incident": 1,
+      "kind": "rollback",
+      "target": "dep:card-processor-adapter-v2.9.0",
+      "title": "Roll back dep:card-processor-adapter-v2.9.0 on card-processor-adapter",
+      "justification": {
+       "why": "Rotate the acquirer client certificate bundle (dep:card-processor-adapter-v2.9.0, deployed 25 min ago by Sofia Alvarez). card-processor-adapter itself was changed.",
+       "node_ids": [
+        "dep:card-processor-adapter-v2.9.0",
+        "svc:card-processor-adapter",
+        "svc:card-processor-adapter"
+       ],
+       "path": [
+        "svc:card-processor-adapter"
+       ]
+      },
+      "safety": {
+       "verdict": "safe",
+       "reasons": [
+        "nothing shipped to card-processor-adapter after it and nothing in the change looks irreversible"
+       ],
+       "dependents": 4,
+       "later_deploys": [],
+       "blast": "4 service(s) call card-processor-adapter (directly or not), 3 of them tier-1: they briefly see the old version"
+      }
+     },
+     {
+      "id": "A10",
+      "incident": 1,
+      "kind": "page",
+      "target": "per:sofia-alvarez",
+      "title": "Page Sofia Alvarez",
+      "justification": {
+       "why": "95 commits, 1 past incident fix(es) on card-processor-adapter (score 120)",
+       "node_ids": [
+        "per:sofia-alvarez",
+        "svc:card-processor-adapter"
+       ],
+       "path": []
+      },
+      "safety": null
+     },
+     {
+      "id": "A11",
+      "incident": 1,
+      "kind": "open_ticket",
+      "target": "svc:card-processor-adapter",
+      "title": "Open a follow-up ticket for card-processor-adapter",
+      "justification": {
+       "why": "track the fix and the lessons on the service that needs them",
+       "node_ids": [
+        "svc:card-processor-adapter"
+       ],
+       "path": []
+      },
+      "safety": null
+     }
+    ],
+    "hypotheses": [
+     {
+      "id": "H1",
+      "claim": "config-service is saturated and takes the 5 alerts down with it",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "svc:auth-service",
+        "claim": "calls config-service (1 hop)"
+       },
+       {
+        "node_id": "svc:payouts-service",
+        "claim": "calls config-service (1 hop)"
+       },
+       {
+        "node_id": "svc:merchant-onboarding",
+        "claim": "calls config-service (1 hop)"
+       },
+       {
+        "node_id": "svc:webhook-dispatcher",
+        "claim": "calls config-service (1 hop)"
+       },
+       {
+        "node_id": "svc:notifications-service",
+        "claim": "calls config-service (1 hop)"
+       }
+      ],
+      "contradicting": [
+       {
+        "node_id": "svc:config-service",
+        "claim": "no recent change on it or on the alerts' paths (an inference from structure, not a deploy)"
+       }
+      ],
+      "reason": "one shared dependency explains 5 alerts; no single change explains more than 2"
+     },
+     {
+      "id": "H2",
+      "claim": "dep:card-processor-adapter-v2.9.0 on card-processor-adapter caused the card-processor-adapter alert",
+      "status": "confirmed",
+      "supporting": [
+       {
+        "node_id": "dep:card-processor-adapter-v2.9.0",
+        "claim": "deployed 25 min ago: Rotate the acquirer client certificate bundle"
+       },
+       {
+        "node_id": "svc:card-processor-adapter",
+        "claim": "the alerting service itself changed"
+       }
+      ],
+      "contradicting": [],
+      "reason": "the alerting service itself changed"
+     },
+     {
+      "id": "H3",
+      "claim": "dep:email-sender-v1.15.0 on email-sender caused it",
+      "status": "rejected",
+      "supporting": [
+       {
+        "node_id": "dep:email-sender-v1.15.0",
+        "claim": "deployed 12 min ago: Switch to the new transactional template engine"
+       }
+      ],
+      "contradicting": [
+       {
+        "node_id": "svc:email-sender",
+        "claim": "email-sender is on merchant-onboarding's call path (2 hops), but no change explains this storm: 5 alerts all call config-service (correlate_alerts), this change explains 2 of them"
+       }
+      ],
+      "reason": "email-sender is on merchant-onboarding's call path (2 hops), but no change explains this storm: 5 alerts all call config-service (correlate_alerts), this change explains 2 of them"
+     }
+    ],
+    "confidence_breakdown": [
+     {
+      "effect": "+",
+      "factor": "5 alerts share config-service",
+      "node_id": "svc:config-service"
+     },
+     {
+      "effect": "-",
+      "factor": "no change on it: saturation is inferred from structure",
+      "node_id": null
      }
     ]
    },
@@ -4554,6 +5275,296 @@
        "team_id": null,
        "reason": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead"
       }
+     ],
+     "action_plan": [
+      {
+       "id": "A1",
+       "incident": 0,
+       "kind": "page",
+       "target": "per:omar-haddad",
+       "title": "Page Omar Haddad",
+       "justification": {
+        "why": "95 commits on config-service (score 95)",
+        "node_ids": [
+         "per:omar-haddad",
+         "svc:config-service"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A2",
+       "incident": 0,
+       "kind": "suppress_page",
+       "target": "per:elena-petrova",
+       "title": "Don't page Elena Petrova for auth-service",
+       "justification": {
+        "why": "auth-service is part of this incident: auth-service -> config-service; one page goes to Omar Haddad instead",
+        "node_ids": [
+         "per:elena-petrova",
+         "svc:auth-service"
+        ],
+        "path": [
+         "svc:auth-service",
+         "svc:config-service"
+        ]
+       },
+       "safety": null
+      },
+      {
+       "id": "A3",
+       "incident": 0,
+       "kind": "suppress_page",
+       "target": "per:sofia-alvarez",
+       "title": "Don't page Sofia Alvarez for payouts-service",
+       "justification": {
+        "why": "payouts-service is part of this incident: payouts-service -> config-service; one page goes to Omar Haddad instead",
+        "node_ids": [
+         "per:sofia-alvarez",
+         "svc:payouts-service"
+        ],
+        "path": [
+         "svc:payouts-service",
+         "svc:config-service"
+        ]
+       },
+       "safety": null
+      },
+      {
+       "id": "A4",
+       "incident": 0,
+       "kind": "suppress_page",
+       "target": "per:kenji-watanabe",
+       "title": "Don't page Kenji Watanabe for merchant-onboarding",
+       "justification": {
+        "why": "merchant-onboarding is part of this incident: merchant-onboarding -> config-service; one page goes to Omar Haddad instead",
+        "node_ids": [
+         "per:kenji-watanabe",
+         "svc:merchant-onboarding"
+        ],
+        "path": [
+         "svc:merchant-onboarding",
+         "svc:config-service"
+        ]
+       },
+       "safety": null
+      },
+      {
+       "id": "A5",
+       "incident": 0,
+       "kind": "suppress_page",
+       "target": "per:ben-walker",
+       "title": "Don't page Ben Walker for webhook-dispatcher",
+       "justification": {
+        "why": "webhook-dispatcher is part of this incident: webhook-dispatcher -> config-service; one page goes to Omar Haddad instead",
+        "node_ids": [
+         "per:ben-walker",
+         "svc:webhook-dispatcher"
+        ],
+        "path": [
+         "svc:webhook-dispatcher",
+         "svc:config-service"
+        ]
+       },
+       "safety": null
+      },
+      {
+       "id": "A6",
+       "incident": 0,
+       "kind": "suppress_page",
+       "target": "per:fatima-zahra",
+       "title": "Don't page Fatima Zahra for notifications-service",
+       "justification": {
+        "why": "notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead",
+        "node_ids": [
+         "per:fatima-zahra",
+         "svc:notifications-service"
+        ],
+        "path": [
+         "svc:notifications-service",
+         "svc:config-service"
+        ]
+       },
+       "safety": null
+      },
+      {
+       "id": "A7",
+       "incident": 0,
+       "kind": "notify",
+       "target": "svc:api-gateway,svc:bank-connector,svc:feature-flags,svc:payments-api,svc:merchant-dashboard,svc:reconciliation-job,svc:web-checkout",
+       "title": "Tell the owners of api-gateway, bank-connector, feature-flags, payments-api … (not alerting yet)",
+       "justification": {
+        "why": "they call config-service and will feel it next (blast_tiers)",
+        "node_ids": [
+         "svc:api-gateway",
+         "svc:bank-connector",
+         "svc:feature-flags",
+         "svc:payments-api",
+         "svc:merchant-dashboard",
+         "svc:reconciliation-job",
+         "svc:web-checkout"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A8",
+       "incident": 0,
+       "kind": "open_ticket",
+       "target": "svc:config-service",
+       "title": "Open a follow-up ticket for config-service",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:config-service"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A9",
+       "incident": 1,
+       "kind": "rollback",
+       "target": "dep:card-processor-adapter-v2.9.0",
+       "title": "Roll back dep:card-processor-adapter-v2.9.0 on card-processor-adapter",
+       "justification": {
+        "why": "Rotate the acquirer client certificate bundle (dep:card-processor-adapter-v2.9.0, deployed 25 min ago by Sofia Alvarez). card-processor-adapter itself was changed.",
+        "node_ids": [
+         "dep:card-processor-adapter-v2.9.0",
+         "svc:card-processor-adapter",
+         "svc:card-processor-adapter"
+        ],
+        "path": [
+         "svc:card-processor-adapter"
+        ]
+       },
+       "safety": {
+        "verdict": "safe",
+        "reasons": [
+         "nothing shipped to card-processor-adapter after it and nothing in the change looks irreversible"
+        ],
+        "dependents": 4,
+        "later_deploys": [],
+        "blast": "4 service(s) call card-processor-adapter (directly or not), 3 of them tier-1: they briefly see the old version"
+       }
+      },
+      {
+       "id": "A10",
+       "incident": 1,
+       "kind": "page",
+       "target": "per:sofia-alvarez",
+       "title": "Page Sofia Alvarez",
+       "justification": {
+        "why": "95 commits, 1 past incident fix(es) on card-processor-adapter (score 120)",
+        "node_ids": [
+         "per:sofia-alvarez",
+         "svc:card-processor-adapter"
+        ],
+        "path": []
+       },
+       "safety": null
+      },
+      {
+       "id": "A11",
+       "incident": 1,
+       "kind": "open_ticket",
+       "target": "svc:card-processor-adapter",
+       "title": "Open a follow-up ticket for card-processor-adapter",
+       "justification": {
+        "why": "track the fix and the lessons on the service that needs them",
+        "node_ids": [
+         "svc:card-processor-adapter"
+        ],
+        "path": []
+       },
+       "safety": null
+      }
+     ],
+     "hypotheses": [
+      {
+       "id": "H1",
+       "claim": "config-service is saturated and takes the 5 alerts down with it",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "svc:auth-service",
+         "claim": "calls config-service (1 hop)"
+        },
+        {
+         "node_id": "svc:payouts-service",
+         "claim": "calls config-service (1 hop)"
+        },
+        {
+         "node_id": "svc:merchant-onboarding",
+         "claim": "calls config-service (1 hop)"
+        },
+        {
+         "node_id": "svc:webhook-dispatcher",
+         "claim": "calls config-service (1 hop)"
+        },
+        {
+         "node_id": "svc:notifications-service",
+         "claim": "calls config-service (1 hop)"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:config-service",
+         "claim": "no recent change on it or on the alerts' paths (an inference from structure, not a deploy)"
+        }
+       ],
+       "reason": "one shared dependency explains 5 alerts; no single change explains more than 2"
+      },
+      {
+       "id": "H2",
+       "claim": "dep:card-processor-adapter-v2.9.0 on card-processor-adapter caused the card-processor-adapter alert",
+       "status": "confirmed",
+       "supporting": [
+        {
+         "node_id": "dep:card-processor-adapter-v2.9.0",
+         "claim": "deployed 25 min ago: Rotate the acquirer client certificate bundle"
+        },
+        {
+         "node_id": "svc:card-processor-adapter",
+         "claim": "the alerting service itself changed"
+        }
+       ],
+       "contradicting": [],
+       "reason": "the alerting service itself changed"
+      },
+      {
+       "id": "H3",
+       "claim": "dep:email-sender-v1.15.0 on email-sender caused it",
+       "status": "rejected",
+       "supporting": [
+        {
+         "node_id": "dep:email-sender-v1.15.0",
+         "claim": "deployed 12 min ago: Switch to the new transactional template engine"
+        }
+       ],
+       "contradicting": [
+        {
+         "node_id": "svc:email-sender",
+         "claim": "email-sender is on merchant-onboarding's call path (2 hops), but no change explains this storm: 5 alerts all call config-service (correlate_alerts), this change explains 2 of them"
+        }
+       ],
+       "reason": "email-sender is on merchant-onboarding's call path (2 hops), but no change explains this storm: 5 alerts all call config-service (correlate_alerts), this change explains 2 of them"
+      }
+     ],
+     "confidence_breakdown": [
+      {
+       "effect": "+",
+       "factor": "5 alerts share config-service",
+       "node_id": "svc:config-service"
+      },
+      {
+       "effect": "-",
+       "factor": "no change on it: saturation is inferred from structure",
+       "node_id": null
+      }
      ]
     },
     "queries": [],
@@ -4587,12 +5598,14 @@
      "edges": []
     }
    },
+   "why": "the evidence is in: submit the grounded report",
    "summary": "6 alerts, 2 separate incidents: auth-service, payouts-service, merchant-onboarding, webhook-dispatcher, notifications-service -> shared root config-service, no change; card-processor-adapter -> dep:card-processor-adapter-v2.9.0.",
-   "ts": 1792173354,
+   "ts": 1792174508,
    "ms": 0,
    "llm_call": 5
   }
  ],
+ "twin": "kestrel_pay__eval_story_storm",
  "graph": {
   "nodes": [
    {
@@ -4636,7 +5649,7 @@
      "name": "Priya Nair",
      "role": "Senior Engineer",
      "email": "priya.nair@kestrelpay.example",
-     "joined_at": 1662573354
+     "joined_at": 1662574507
     }
    },
    {
@@ -4650,7 +5663,7 @@
      "name": "Marcus Webb",
      "role": "Staff Engineer",
      "email": "marcus.webb@kestrelpay.example",
-     "joined_at": 1593453354
+     "joined_at": 1593454507
     }
    },
    {
@@ -4664,7 +5677,7 @@
      "name": "Sofia Alvarez",
      "role": "Engineer",
      "email": "sofia.alvarez@kestrelpay.example",
-     "joined_at": 1714413354
+     "joined_at": 1714414507
     }
    },
    {
@@ -4678,7 +5691,7 @@
      "name": "Tomasz Kowalski",
      "role": "Engineer",
      "email": "tomasz.kowalski@kestrelpay.example",
-     "joined_at": 1731693354
+     "joined_at": 1731694507
     }
    },
    {
@@ -4692,8 +5705,8 @@
      "name": "Arjun Mehta",
      "role": "Staff Engineer",
      "email": "arjun.mehta@kestrelpay.example",
-     "joined_at": 1602093354,
-     "left_at": 1783965354
+     "joined_at": 1602094507,
+     "left_at": 1783966507
     }
    },
    {
@@ -4707,7 +5720,7 @@
      "name": "Nikhil Rao",
      "role": "Staff Engineer",
      "email": "nikhil.rao@kestrelpay.example",
-     "joined_at": 1610733354
+     "joined_at": 1610734507
     }
    },
    {
@@ -4721,7 +5734,7 @@
      "name": "Elena Petrova",
      "role": "Senior Engineer",
      "email": "elena.petrova@kestrelpay.example",
-     "joined_at": 1679853354
+     "joined_at": 1679854507
     }
    },
    {
@@ -4735,7 +5748,7 @@
      "name": "Omar Haddad",
      "role": "Engineer",
      "email": "omar.haddad@kestrelpay.example",
-     "joined_at": 1723053354
+     "joined_at": 1723054507
     }
    },
    {
@@ -4749,7 +5762,7 @@
      "name": "Jonas Eriksson",
      "role": "Site Reliability Engineer",
      "email": "jonas.eriksson@kestrelpay.example",
-     "joined_at": 1736877354
+     "joined_at": 1736878507
     }
    },
    {
@@ -4763,7 +5776,7 @@
      "name": "Ben Walker",
      "role": "Senior Engineer",
      "email": "ben.walker@kestrelpay.example",
-     "joined_at": 1645293354
+     "joined_at": 1645294507
     }
    },
    {
@@ -4777,7 +5790,7 @@
      "name": "Fatima Zahra",
      "role": "Engineer",
      "email": "fatima.zahra@kestrelpay.example",
-     "joined_at": 1710093354
+     "joined_at": 1710094507
     }
    },
    {
@@ -4791,7 +5804,7 @@
      "name": "Kenji Watanabe",
      "role": "Engineer",
      "email": "kenji.watanabe@kestrelpay.example",
-     "joined_at": 1740333354
+     "joined_at": 1740334507
     }
    },
    {
@@ -5038,7 +6051,7 @@
     "name": "2.11.0",
     "origin": "seed",
     "props": {
-     "ts": 1779209754,
+     "ts": 1779210907,
      "origin": "seed",
      "summary": "Disable local config cache; read config on every request",
      "version": "2.11.0"
@@ -5050,7 +6063,7 @@
     "name": "2.9.0",
     "origin": "seed",
     "props": {
-     "ts": 1792171854,
+     "ts": 1792173007,
      "origin": "seed",
      "summary": "Rotate the acquirer client certificate bundle",
      "version": "2.9.0"
@@ -5062,7 +6075,7 @@
     "name": "1.15.0",
     "origin": "seed",
     "props": {
-     "ts": 1792172634,
+     "ts": 1792173787,
      "origin": "seed",
      "summary": "Switch to the new transactional template engine",
      "version": "1.15.0"
@@ -5074,10 +6087,10 @@
     "name": "Card processor timeout budget",
     "origin": "seed",
     "props": {
-     "ts": 1759341354,
+     "ts": 1759342507,
      "origin": "seed",
      "title": "Card processor timeout budget",
-     "text": "[2025-10-01 17:55] Marcus Webb: We keep arguing about timeouts for the acquirer. Proposal: one number for the whole authorisation, not per-call. [2025-10-01 17:59] Sofia Alvarez: Today we do 3s then retry 3s, so customers can wait 6s plus 3DS. Too long. [2025-10-01 18:01] Priya Nair: Retries inside a 3DS challenge also risk double authorisations, ledger saw some of those. [2025-10-01 18:04] Marcu…",
+     "text": "[2025-10-01 18:15] Marcus Webb: We keep arguing about timeouts for the acquirer. Proposal: one number for the whole authorisation, not per-call. [2025-10-01 18:19] Sofia Alvarez: Today we do 3s then retry 3s, so customers can wait 6s plus 3DS. Too long. [2025-10-01 18:21] Priya Nair: Retries inside a 3DS challenge also risk double authorisations, ledger saw some of those. [2025-10-01 18:24] Marcu…",
      "channel": "#payments-core"
     }
    },
@@ -5165,7 +6178,7 @@
      "origin": "seed",
      "title": "Card processor gets a 2.5s total budget per authorisation",
      "rationale": "A single end-to-end budget keeps customers from waiting 6s and avoids double authorisations during 3DS.",
-     "decided_at": 1759341354
+     "decided_at": 1759342507
     }
    },
    {
@@ -5218,7 +6231,7 @@
     "name": "INC-2025-031",
     "origin": "seed",
     "props": {
-     "started_at": 1752861354,
+     "started_at": 1752862507,
      "status": "resolved",
      "origin": "seed",
      "title": "fraud-scoring timeouts during checkout peak",
@@ -5226,7 +6239,7 @@
      "key": "INC-2025-031",
      "severity": 2,
      "symptom": "payments-api 5xx; fraud-scoring calls timing out at 800ms; config-service CPU at 98%",
-     "resolved_at": 1752868554
+     "resolved_at": 1752869707
     }
    },
    {
@@ -5235,7 +6248,7 @@
     "name": "INC-2026-012",
     "origin": "seed",
     "props": {
-     "started_at": 1779213354,
+     "started_at": 1779214507,
      "status": "resolved",
      "origin": "seed",
      "title": "merchant-onboarding config reads timing out",
@@ -5243,7 +6256,7 @@
      "key": "INC-2026-012",
      "severity": 3,
      "symptom": "merchant signups slow or failing; config-service latency elevated",
-     "resolved_at": 1779216954
+     "resolved_at": 1779218107
     }
    },
    {
@@ -5252,7 +6265,7 @@
     "name": "INC-2025-044",
     "origin": "seed",
     "props": {
-     "started_at": 1758045354,
+     "started_at": 1758046507,
      "status": "resolved",
      "origin": "seed",
      "title": "ledger-service connection pool exhausted during payout run",
@@ -5260,7 +6273,7 @@
      "key": "INC-2025-044",
      "severity": 2,
      "symptom": "payout run stalled; payment captures failing with pool timeout errors",
-     "resolved_at": 1758056154
+     "resolved_at": 1758057307
     }
    },
    {
@@ -5269,7 +6282,7 @@
     "name": "INC-2025-067",
     "origin": "seed",
     "props": {
-     "started_at": 1762797354,
+     "started_at": 1762798507,
      "status": "resolved",
      "origin": "seed",
      "title": "card-processor-adapter TLS handshake failures",
@@ -5277,7 +6290,7 @@
      "key": "INC-2025-067",
      "severity": 1,
      "symptom": "all card authorisations failing; TLS handshake errors in card-processor-adapter",
-     "resolved_at": 1762800954
+     "resolved_at": 1762802107
     }
    },
    {
@@ -5286,7 +6299,7 @@
     "name": "INC-2026-031",
     "origin": "seed",
     "props": {
-     "started_at": 1785261354,
+     "started_at": 1785262507,
      "status": "resolved",
      "origin": "seed",
      "title": "webhook-dispatcher retry storm after merchant outage",
@@ -5294,7 +6307,7 @@
      "key": "INC-2026-031",
      "severity": 3,
      "symptom": "merchant endpoint repeatedly overloaded; kafka-events consumer lag growing",
-     "resolved_at": 1785268554
+     "resolved_at": 1785269707
     }
    },
    {
@@ -5410,7 +6423,7 @@
     "origin": "seed",
     "props": {
      "commits": 12,
-     "last_at": 1787421354
+     "last_at": 1787422507
     }
    },
    {
@@ -5420,7 +6433,7 @@
     "origin": "seed",
     "props": {
      "commits": 6,
-     "last_at": 1779386154
+     "last_at": 1779387307
     }
    },
    {
@@ -5430,7 +6443,7 @@
     "origin": "seed",
     "props": {
      "commits": 40,
-     "last_at": 1790358954
+     "last_at": 1790360107
     }
    },
    {
@@ -5454,7 +6467,7 @@
     "origin": "seed",
     "props": {
      "commits": 95,
-     "last_at": 1791827754
+     "last_at": 1791828907
     }
    },
    {
@@ -5471,7 +6484,7 @@
     "origin": "seed",
     "props": {
      "commits": 140,
-     "last_at": 1791741354
+     "last_at": 1791742507
     }
    },
    {
@@ -5488,7 +6501,7 @@
     "origin": "seed",
     "props": {
      "commits": 37,
-     "last_at": 1790531754
+     "last_at": 1790532907
     }
    },
    {
@@ -5498,7 +6511,7 @@
     "origin": "seed",
     "props": {
      "commits": 35,
-     "last_at": 1786989354
+     "last_at": 1786990507
     }
    },
    {
@@ -5508,7 +6521,7 @@
     "origin": "seed",
     "props": {
      "commits": 70,
-     "last_at": 1785261354
+     "last_at": 1785262507
     }
    },
    {
@@ -5525,7 +6538,7 @@
     "origin": "seed",
     "props": {
      "commits": 130,
-     "last_at": 1791568554
+     "last_at": 1791569707
     }
    },
    {
@@ -5542,7 +6555,7 @@
     "origin": "seed",
     "props": {
      "commits": 95,
-     "last_at": 1790704554
+     "last_at": 1790705707
     }
    },
    {
@@ -5552,7 +6565,7 @@
     "origin": "seed",
     "props": {
      "commits": 15,
-     "last_at": 1788285354
+     "last_at": 1788286507
     }
    },
    {
@@ -5569,7 +6582,7 @@
     "origin": "seed",
     "props": {
      "commits": 70,
-     "last_at": 1790963754
+     "last_at": 1790964907
     }
    },
    {
@@ -5579,7 +6592,7 @@
     "origin": "seed",
     "props": {
      "commits": 34,
-     "last_at": 1787853354
+     "last_at": 1787854507
     }
    },
    {
@@ -5596,7 +6609,7 @@
     "origin": "seed",
     "props": {
      "commits": 60,
-     "last_at": 1791395754
+     "last_at": 1791396907
     }
    },
    {
@@ -5613,7 +6626,7 @@
     "origin": "seed",
     "props": {
      "commits": 120,
-     "last_at": 1791136554
+     "last_at": 1791137707
     }
    },
    {
@@ -5623,7 +6636,7 @@
     "origin": "seed",
     "props": {
      "commits": 28,
-     "last_at": 1788717354
+     "last_at": 1788718507
     }
    },
    {
@@ -5633,7 +6646,7 @@
     "origin": "seed",
     "props": {
      "commits": 25,
-     "last_at": 1785261354
+     "last_at": 1785262507
     }
    },
    {
@@ -6071,5 +7084,118 @@
    "svc:notifications-service",
    "svc:card-processor-adapter"
   ]
+ },
+ "execution": {
+  "session_id": "ses:exec-run-ac9d4bf51563",
+  "already_executed": false,
+  "results": [
+   {
+    "action": "A1",
+    "kind": "page",
+    "title": "Page Omar Haddad",
+    "ok": true,
+    "summary": "paged Omar Haddad for INC-2026-032 (simulated): 95 commits on config-service (score 95)"
+   },
+   {
+    "action": "A2",
+    "kind": "suppress_page",
+    "title": "Don't page Elena Petrova for auth-service",
+    "ok": true,
+    "summary": "Don't page Elena Petrova for auth-service: auth-service is part of this incident: auth-service -> config-service; one page goes to Omar Haddad instead"
+   },
+   {
+    "action": "A3",
+    "kind": "suppress_page",
+    "title": "Don't page Sofia Alvarez for payouts-service",
+    "ok": true,
+    "summary": "Don't page Sofia Alvarez for payouts-service: payouts-service is part of this incident: payouts-service -> config-service; one page goes to Omar Haddad instead"
+   },
+   {
+    "action": "A4",
+    "kind": "suppress_page",
+    "title": "Don't page Kenji Watanabe for merchant-onboarding",
+    "ok": true,
+    "summary": "Don't page Kenji Watanabe for merchant-onboarding: merchant-onboarding is part of this incident: merchant-onboarding -> config-service; one page goes to Omar Haddad instead"
+   },
+   {
+    "action": "A5",
+    "kind": "suppress_page",
+    "title": "Don't page Ben Walker for webhook-dispatcher",
+    "ok": true,
+    "summary": "Don't page Ben Walker for webhook-dispatcher: webhook-dispatcher is part of this incident: webhook-dispatcher -> config-service; one page goes to Omar Haddad instead"
+   },
+   {
+    "action": "A6",
+    "kind": "suppress_page",
+    "title": "Don't page Fatima Zahra for notifications-service",
+    "ok": true,
+    "summary": "Don't page Fatima Zahra for notifications-service: notifications-service is part of this incident: notifications-service -> config-service; one page goes to Omar Haddad instead"
+   },
+   {
+    "action": "A7",
+    "kind": "notify",
+    "title": "Tell the owners of api-gateway, bank-connector, feature-flags, payments-api … (not alerting yet)",
+    "ok": true,
+    "summary": "Tell the owners of api-gateway, bank-connector, feature-flags, payments-api … (not alerting yet): they call config-service and will feel it next (blast_tiers)"
+   },
+   {
+    "action": "A8",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for config-service",
+    "ok": true,
+    "summary": "opened OPS-1 (tkt:OPS-1): Follow-up: config-service"
+   },
+   {
+    "action": "A9",
+    "kind": "rollback",
+    "title": "Roll back dep:card-processor-adapter-v2.9.0 on card-processor-adapter",
+    "ok": true,
+    "summary": "rolled back dep:card-processor-adapter-v2.9.0 (simulated): wrote dep:card-processor-adapter-v2.9.0-rollback"
+   },
+   {
+    "action": "A10",
+    "kind": "page",
+    "title": "Page Sofia Alvarez",
+    "ok": true,
+    "summary": "paged Sofia Alvarez for INC-2026-033 (simulated): 95 commits, 1 past incident fix(es) on card-processor-adapter (score 120)"
+   },
+   {
+    "action": "A11",
+    "kind": "open_ticket",
+    "title": "Open a follow-up ticket for card-processor-adapter",
+    "ok": true,
+    "summary": "opened OPS-2 (tkt:OPS-2): Follow-up: card-processor-adapter"
+   }
+  ],
+  "incidents": [
+   "inc:2026-032",
+   "inc:2026-033"
+  ],
+  "verification": {
+   "checks": [
+    {
+     "incident": 0,
+     "cleared": false,
+     "summary": "no change to roll back (a shared root under load): paging its owner is the action; the signal stays until they relieve the load"
+    },
+    {
+     "incident": 1,
+     "cleared": true,
+     "tool": "recent_changes_downstream",
+     "queries": [
+      {
+       "cypher": "MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..6]->(d:Service) MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep) OPTIONAL MATCH (dep)-[:FOR_TICKET]->(t:Ticket) RETURN d.id, dep.id, min(length(p)) AS hops, [dep.version, dep.ts, dep.summary, who.id, who.name, t.id, t.key, t.title] ORDER BY hops, dep.ts DESC",
+       "params": {
+        "id": "svc:card-processor-adapter",
+        "since": 1792167308
+       }
+      }
+     ],
+     "summary": "the newest change on svc:card-processor-adapter is now the rollback (dep:card-processor-adapter-v2.9.0-rollback): the bad change is reverted (simulated), so the signal should clear"
+    }
+   ],
+   "all_cleared": false,
+   "simulated": true
+  }
  }
 }
