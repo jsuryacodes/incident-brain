@@ -310,9 +310,15 @@ def main():
     ap.add_argument("--holdout", default=str(ROOT / "seed" / "eval_holdout.py"),
                     help="a Python file with SCENARIOS (the held-out set); '' to skip")
     ap.add_argument("--no-write", action="store_true")
+    ap.add_argument("--live", action="store_true", help="the real model instead of the mock planner (costs money; see docs/live-mode.md)")
+    ap.add_argument("--model")
     a = ap.parse_args()
+    llm = LLMClient(mode="live", model=a.model) if a.live else None
     res = run_eval(a.only.split(",") if a.only else None, a.profiles.split(",") if a.profiles else None,
-                   not a.no_write, generated=0 if a.only else a.generated, holdout=None if a.only else a.holdout or None)
+                   not a.no_write and not a.live, llm=llm, generated=0 if a.only else a.generated,
+                   holdout=None if a.only else a.holdout or None)
+    if a.live:
+        print(f"live run, not written to docs: {sum(sum(r['llm_calls'] for r in s['results'].values()) for s in res['scenarios'])} LLM calls")
     ps = list(res["profiles"])
     print(f"{'scenario':24s}" + "".join(f"{p:>12s}" for p in ps))
     for s in res["scenarios"]:

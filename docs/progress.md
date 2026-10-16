@@ -21,7 +21,7 @@ Tag `pre-08` = the state before any 08 code (`git checkout pre-08` to see it; `g
 | E MCP for real | DONE | 08E |
 | F Scale proof | DONE | 08F |
 | G UI | DONE (benchmark panel comes with F) | 08G1–08G2 |
-| H Live-readiness | todo | |
+| H Live-readiness | DONE (no calls) | 08H |
 | I Docs | todo | |
 | J Review + final verification | todo | |
 

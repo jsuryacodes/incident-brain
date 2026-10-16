@@ -36,3 +36,26 @@ python -m backend.agents.check_run runs/<that file>.json
 python -m backend.demo story --live            # ≈ 30 Haiku calls
 python -m backend.agents.brain_eval --live     # ≈ 55 Haiku calls; the restart case runs in-process when live
 ```
+
+
+## 08: one-command live validation (not run yet)
+**Nothing in 08 called the API.** Everything new (the Firefighter's leads/hypotheses/action plan, alert storms,
+`why` lines, MCP mode) runs in mock mode, and the live paths are tested only with fake clients
+(`tests/test_hypotheses.py::test_live_path_parses_why_lines`, `tests/test_firefighter.py::test_5_*`).
+
+When a key is in `.env`: `scripts/live-check.sh` (Haiku by default):
+1. the Firefighter on the hero alert, then `check_run` on its record;
+2. the same with `--tools-via mcp` (tool list + calls over MCP);
+3. the alert storm (`python -m backend.demo storm --live`);
+4. the scenario library + held-out set, full profile (`firefighter_eval --live`, results printed, docs not overwritten).
+
+**Estimated cost (Haiku 5.5 at $0.10 / $0.50 per M tokens in/out, prompt caching on):** a single-alert run is ~5 LLM
+calls × ~8k input tokens (22 tool schemas + the conversation) + ~600 output tokens each ≈ **$0.006**; a storm ~6 calls
+× ~12k ≈ **$0.01**; the 21 eval scenarios ≈ **$0.13**. **Total ≈ $0.15 (~₹13).** Sonnet would be ~20× that.
+The per-run guard (`MAX_RUN_COST_USD`, $0.05) stops any run that goes over.
+
+What the live prompts now ask for (so a model produces what the UI shows): `why <tool>: <reason>` lines before tool
+calls (every prompt), and in the Firefighter's report `rejected_leads`, `look_first`, `incidents` (+ `root`,
+`suppressed_pages`, `notify`), `hypotheses`, `confidence_breakdown`; the Investigator's handoff carries `hypotheses`.
+Expect one round of prompt tuning: the mock planner's rules are spelled out in `prompts/firefighter.md`, but a model
+will word things differently, and the eval's scorer is strict about ids and rollback/page phrasing.
