@@ -746,3 +746,6 @@ docker compose up --build
 - The 2,000-service company is generated (shallow layers), so it stresses size more than depth.
 
 **Revert map:** the table at the top of this file.
+
+## Landing page
+- 2026-10-18: `docs/site/index.html` written (single static file, mock-mode wording, VIDEO_URL/REPO_URL placeholders still to replace) and pushed.

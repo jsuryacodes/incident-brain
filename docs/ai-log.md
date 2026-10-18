@@ -155,3 +155,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-17 — 08J: review fixes + final verification
 - Claude Code (Opus 5.5, unattended) ran the fresh-clone verification, one independent review, and fixed its findings (execution only for the twin's own run, additive graph-derived approvals, busy lock, honest verification, graph-based safety reasons, projection cap, per-incident confidence, MCP visible in the playground, re-shot screenshots).
 - Double-check: the playground now runs its tools through MCP (`backend/agents/playground.py`); the parity test guarantees the same results.
+
+## 2026-10-18 — Landing page: page written
+- Claude Code (Sonnet 5.5) wrote `docs/site/index.html`, a static one-file landing page.
+- Double-check: the page says the planner is scripted/mock and LLM mode was never run live; replace VIDEO_URL and REPO_URL before submitting.
