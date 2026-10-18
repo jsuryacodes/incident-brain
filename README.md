@@ -193,9 +193,10 @@ tests/       189 pytest tests
 
 ## AI assistance
 
-This project was built with Claude Code as a pair programmer. Every step, what was built and what to double check, is
-logged in [`docs/ai-log.md`](docs/ai-log.md). The design decisions, the graph model and the review of what the agent
-produced are the author's.
+Built solo, with Claude as a pair programmer: claude.ai for planning and design discussion, and Claude Code for the
+implementation. I designed the graph schema, the incident scenarios, the tool set and the architecture, and I reviewed
+every query it produced. A full step by step log of what was built with AI help, and what I was asked to double check,
+is in [`docs/ai-log.md`](docs/ai-log.md).
 
 ## Licence
 
