@@ -209,7 +209,11 @@ export default function LandingView() {
       <header className="sticky top-0 z-20 border-b border-border/70 bg-bg/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:px-6">
           <span className="flex items-center gap-2 font-semibold tracking-tight"><Glyph /> Incident Brain</span>
-          <span className="ml-auto hidden text-xs text-muted sm:inline">FalkorDB · Track 1</span>
+          <nav aria-label="Sections" className="ml-auto hidden items-center gap-4 text-sm text-muted md:flex">
+            <a href="#how" className="hover:text-text">How it works</a>
+            <a href="#demo" className="hover:text-text">The demo company</a>
+            <a href="#why" className="hover:text-text">Why a graph</a>
+          </nav>
           <ThemeSwitch />
           <a href={REPO} target="_blank" rel="noreferrer" aria-label="Repository"
             className="rounded-md border border-border p-1.5 text-muted hover:text-text"><Code2 size={15} /></a>
@@ -272,6 +276,9 @@ export default function LandingView() {
 
       {/* 4 · how it works */}
       <HowItWorks />
+
+      {/* 4b · the demo company */}
+      <DemoCompany />
 
       {/* 5 · alert storm */}
       <Storm />
@@ -659,7 +666,7 @@ function WhyGraph() {
   const [ref, shown] = useReveal<HTMLDivElement>();
   const tone = { ok: "var(--ok)", mid: "var(--accent)", bad: "var(--alert)" } as const;
   return (
-    <section className="border-y border-border bg-surface/60">
+    <section id="why" className="border-y border-border bg-surface/60">
       <div ref={ref} className={`ib-rev ${shown ? "in" : ""} mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20 lg:py-24`}>
         <p className="mb-3 text-xs font-semibold tracking-[0.14em] text-muted uppercase">Why a graph?</p>
         <h2 className="max-w-3xl text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">We took the map away and measured.</h2>
@@ -717,7 +724,7 @@ ORDER BY hops ASC, d.at DESC`;
 function Receipts() {
   return (
     <Section eyebrow="Nothing is hidden" title="Every answer comes with its receipt."
-      lead="Each step keeps the tool it picked, why it picked it, the query it ran, the route it walked and the sentence it quoted. A judge can check any claim on the page.">
+      lead="Each step keeps the tool it picked, why it picked it, the query it ran, the route it walked and the sentence it quoted. Anyone can check any claim on this page.">
       <div className="grid gap-5 lg:grid-cols-[1.15fr_1fr]">
         <Card>
           <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -771,7 +778,7 @@ const HOOD = [
 
 function UnderTheHood() {
   return (
-    <Section tint eyebrow="Under the hood" title="For the judges.">
+    <Section tint eyebrow="Under the hood" title="The technical details.">
       <div className="grid gap-5 lg:grid-cols-[1fr_minmax(0,22rem)]">
         <dl className="grid gap-5 sm:grid-cols-2">
           {HOOD.map(([t, d]) => (
@@ -803,5 +810,278 @@ function UnderTheHood() {
         </Card>
       </div>
     </Section>
+  );
+}
+
+/* ──────────────────── meet the demo company ──────────────────── */
+
+// Every figure below is counted from the seeded Kestrel Pay graph, and the story is the one planted in
+// docs/schema.md §7. The data is made up; the company does not exist.
+const KESTREL = [
+  ["27", "services"], ["43", "links between them"], ["20", "people"], ["4", "teams"],
+  ["38", "recent changes"], ["12", "documents"], ["10", "team chats"], ["19", "tickets"],
+  ["5", "written decisions"], ["8", "past incidents"], ["4", "runbooks"],
+] as const;
+
+// The real dependency shape around the incident, simplified: checkout at the top, the rules service at the
+// bottom, and the config service that nobody wrote down.
+const DEMO_NODES: Record<string, { x: number; y: number; label: string }> = {
+  checkout: { x: 60, y: 30, label: "checkout" },
+  gateway: { x: 60, y: 86, label: "api gateway" },
+  payments: { x: 60, y: 142, label: "payments" },
+  fraud: { x: 60, y: 198, label: "fraud scoring" },
+  rules: { x: 60, y: 254, label: "rules" },
+  config: { x: 232, y: 254, label: "config" },
+  rulesdb: { x: 232, y: 198, label: "rules store" },
+  payouts: { x: 232, y: 142, label: "payouts" },
+};
+const DEMO_EDGES: [string, string][] = [
+  ["checkout", "gateway"], ["gateway", "payments"], ["payments", "fraud"], ["fraud", "rules"],
+  ["rules", "rulesdb"], ["payouts", "config"],
+];
+
+function DemoMap({ stage }: { stage: number }) {
+  // 0 the map · 1 the change lands · 2 the hidden road appears · 3 the alarm goes off upstream
+  const lit = stage >= 1;
+  const hidden = stage >= 2;
+  const alarm = stage >= 3;
+  const onChain = (a: string, b: string) =>
+    lit && [["payments", "fraud"], ["fraud", "rules"]].some(([x, y]) => x === a && y === b);
+  return (
+    <svg viewBox="0 0 300 290" className="h-auto w-full" role="img"
+      aria-label="A small map of the demo company. A change lands on the rules service, an undeclared link to the config service appears, and the payments service starts alarming two hops above.">
+      {DEMO_EDGES.map(([a, b]) => (
+        <line key={`${a}${b}`} x1={DEMO_NODES[a].x} y1={DEMO_NODES[a].y} x2={DEMO_NODES[b].x} y2={DEMO_NODES[b].y}
+          className="ib-edge" stroke={onChain(a, b) ? "var(--accent)" : "var(--edge)"} strokeWidth={onChain(a, b) ? 2.6 : 1.3} />
+      ))}
+      {hidden && (
+        <line x1={DEMO_NODES.rules.x} y1={DEMO_NODES.rules.y} x2={DEMO_NODES.config.x} y2={DEMO_NODES.config.y}
+          stroke="var(--mem-stroke)" strokeWidth="2.4" strokeDasharray="7 5" className="ib-draw" />
+      )}
+      {Object.entries(DEMO_NODES).map(([k, n]) => {
+        const isChange = k === "rules" && lit;
+        const isAlarm = k === "payments" && alarm;
+        const isHot = k === "config" && hidden;
+        return (
+          <g key={k}>
+            {isAlarm && <circle cx={n.x} cy={n.y} r="10" className="ib-ripple" fill="none" stroke="var(--alert)" strokeWidth="2" />}
+            <circle cx={n.x} cy={n.y} r={isAlarm || isChange ? 10 : 7.5} className="ib-node"
+              fill={isAlarm ? "var(--alert)" : isChange ? "var(--accent)" : isHot ? "var(--mem-fill)" : "var(--node)"}
+              stroke={isAlarm ? "var(--alert)" : isChange ? "var(--accent)" : isHot ? "var(--mem-stroke)" : "var(--node-stroke)"} strokeWidth="1.6" />
+            <text x={n.x > 150 ? n.x - 13 : n.x + 13} y={n.y + 3.5} textAnchor={n.x > 150 ? "end" : "start"}
+              className="ib-tag" fill="var(--muted)">{n.label}</text>
+          </g>
+        );
+      })}
+      {lit && <text x={DEMO_NODES.rules.x - 10} y={DEMO_NODES.rules.y + 26} className="ib-tag ib-pop" fill="var(--accent)">cache 300s to 5s</text>}
+      {hidden && <text x="146" y="238" textAnchor="middle" className="ib-tag ib-pop" fill="var(--mem-stroke)">nobody wrote this down</text>}
+      {alarm && <text x={DEMO_NODES.payments.x - 14} y={DEMO_NODES.payments.y - 14} className="ib-tag ib-pop" fill="var(--alert)">payments failing</text>}
+    </svg>
+  );
+}
+
+const FINDINGS = [
+  { t: "It walks from the alarm down the chain",
+    lines: ["The payments service is failing. Two hops below it sits a change from 40 minutes ago.",
+      "A junior engineer cut a cache time from 300 seconds to 5, so rule edits would show up faster. Ticket RISK-412."] },
+  { t: "It throws out the leads that cannot be the cause",
+    lines: ["Another service was changed more recently, which looks worse at first glance.",
+      "The payments service cannot reach it, so it is crossed out, with that reason written down.",
+      "Each thrown out lead keeps the query that killed it."] },
+  { t: "It finds the road nobody wrote down",
+    lines: ["The catalogue says the rules service only talks to its own database.",
+      "An old chat says otherwise: on every cache miss it also calls the config service.",
+      "With a 5 second cache, almost every payment turns into another call to that one service."] },
+  { t: "It digs up the decision everyone forgot",
+    lines: ["A written decision says the cache must stay at 300 seconds or more.",
+      "It came out of a chat in the risk engineering channel more than a year ago.",
+      "The ticket from three days ago quietly contradicts it. Nobody noticed."] },
+  { t: "It works out who to wake",
+    lines: ["The listed owner of the rules service left the company 95 days ago, so paging them would waste the night.",
+      "It ranks the people who are still here by what they have actually touched: commits on this service, and who fixed the same thing last time.",
+      "One page goes out, with the reason attached."] },
+  { t: "It stops before doing anything risky",
+    lines: ["Undoing a change is not always safe, so it checks the graph first.",
+      "When the check says risky, the plan says hold and wait for a person to approve.",
+      "Nothing is executed without that approval."] },
+] as const;
+
+const DEMO_QUERIES = [
+  { q: `MATCH p=(s:Service {id:$id})-[:DEPENDS_ON*0..N]->(d:Service)
+MATCH (d)<-[:CHANGED]-(dep:Deploy) WHERE dep.ts > $since
+OPTIONAL MATCH (who:Person)-[:DEPLOYED]->(dep)
+RETURN d.id, dep.id, min(length(p)) AS hops
+ORDER BY hops, dep.ts DESC`,
+    say: "From the alarming service, follow who calls who downwards and keep anything that was changed recently. Nearest first." },
+  { q: `MATCH (p:Person {status:'active'})-[w:WORKED_ON]->(s:Service {id:$id})
+RETURN p.id, p.name, p.role, w.commits, w.last_at`,
+    say: "Who to wake. It only counts people who are still at the company, and it shows the numbers behind the choice." },
+  { q: `UNWIND $ids AS sid
+MATCH (s:Service {id:sid})
+CALL algo.BFS(s, $depth, 'DEPENDS_ON') YIELD nodes
+UNWIND nodes AS d
+RETURN d.id, collect(DISTINCT sid)`,
+    say: "Six alarms at once. Spread out from each one and see which service they all end up leaning on." },
+];
+
+function DemoCompany() {
+  const [ref, shown] = useReveal<HTMLDivElement>();
+  const map = usePlayer(4, 2600, { loop: true });
+  const find = usePlayer(FINDINGS.length, 5000, { autostart: false });
+  const { setPlaying } = find;
+  const started = useRef(false);
+  useEffect(() => {
+    if (shown && !started.current && !reducedMotion()) (started.current = true), setPlaying(true);
+  }, [shown, setPlaying]);
+  const MAP_LINES = [
+    "A payments company that does not exist, with a map of everything it runs.",
+    "A new engineer cuts a cache time from 300 seconds down to 5, so rule edits apply faster.",
+    "What the catalogue never said: that service also calls the config service on every cache miss. Now it calls it constantly.",
+    "Two hops up, payments start failing. The alarm goes off here, far from the change.",
+  ];
+  return (
+    <section id="demo" className="border-y border-border bg-surface/60">
+      <div ref={ref} className={`ib-rev ${shown ? "in" : ""} mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20 lg:py-24`}>
+        <p className="mb-3 text-xs font-semibold tracking-[0.14em] text-muted uppercase">The demo company</p>
+        <h2 className="max-w-3xl text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">Meet Kestrel Pay.</h2>
+        <p className="mt-4 max-w-3xl text-base text-muted sm:text-lg">
+          To show any of this we had to invent a company. Kestrel Pay is a payments business that does not exist. Every
+          service, person, chat and ticket in it is made up, but it is built to break the way real companies break.
+        </p>
+
+        {/* a) the company in numbers */}
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+          {KESTREL.map(([n, what], i) => (
+            <div key={what} className={`ib-tick ${shown ? "in" : ""} rounded-lg border border-border bg-surface p-3`} style={{ transitionDelay: `${i * 70}ms` }}>
+              <div className="font-mono text-xl font-semibold">{n}</div>
+              <div className="text-xs text-muted">{what}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* b) what goes wrong, on the map */}
+        <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_minmax(0,24rem)]">
+          <Card>
+            <h3 className="font-semibold">What goes wrong</h3>
+            <p className="mt-2 text-sm text-muted">{MAP_LINES[map.i]}</p>
+            <ul className="mt-4 space-y-2 text-sm text-muted">
+              <li>· The change looks harmless. It is one number in a config file, shipped for a ticket about rule edits being slow.</li>
+              <li>· The service that breaks is two hops above it. Nothing on the failing service itself changed.</li>
+              <li>· The engineer who built the rules service left 95 days ago. The document about it still names them.</li>
+              <li>· The reason the cache has to stay at 300 seconds is sitting in a team chat from more than a year ago.</li>
+            </ul>
+            <div className="mt-4"><Controls p={map} compact /></div>
+          </Card>
+          <Card><DemoMap stage={map.i} /></Card>
+        </div>
+
+        {/* c) the storm */}
+        <div className="mt-6 grid gap-6 md:grid-cols-[1fr_1fr]">
+          <Card>
+            <h3 className="font-semibold">Then the storm</h3>
+            <p className="mt-2 text-sm text-muted">
+              Six alarms go off within a minute of each other. Five of them are different services that all lean on the
+              same overloaded config service. The sixth has nothing to do with it and has a change of its own.
+            </p>
+            <p className="mt-3 text-sm text-muted">
+              The agent turns {STORM.alerts} alarms into {STORM.incidents} real problems and {STORM.pages} pages. The
+              other {STORM.suppressed} stay quiet, and each one keeps the route that shows it was only feeling the same
+              problem from further up.
+            </p>
+          </Card>
+          <Card>
+            <h3 className="font-semibold">Why this is hard without a map</h3>
+            <p className="mt-2 text-sm text-muted">
+              Searching the text gets you the wrong answer here. The most recent change is not the cause, the document
+              names someone who left, and the one link that explains everything was never written down in the first place.
+            </p>
+            <p className="mt-3 text-sm text-muted">
+              You can only get there by walking the connections, which is exactly what the graph is for.
+            </p>
+          </Card>
+        </div>
+
+        {/* d) what the agent finds */}
+        <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,21rem)_1fr]"
+          tabIndex={0} data-testid="findings" aria-label="What the agent finds, step by step"
+          onKeyDown={(e) => {
+            if (e.key === " ") (e.preventDefault(), find.setPlaying(!find.playing));
+            else if (e.key === "ArrowLeft") (e.preventDefault(), find.go(find.i - 1));
+            else if (e.key === "ArrowRight") (e.preventDefault(), find.go(find.i + 1));
+          }}>
+          <div>
+            <h3 className="font-semibold">What the agent finds</h3>
+            <ol className="mt-4 space-y-1">
+              {FINDINGS.map((f, n) => (
+                <li key={f.t}>
+                  <button onClick={() => find.go(n)} aria-current={find.i === n ? "step" : undefined} data-testid={`finding-${n + 1}`}
+                    className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
+                      find.i === n ? "border-accent bg-accent-soft font-medium" : "border-transparent text-muted hover:bg-surface-2"}`}>
+                    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs ${
+                      find.i === n ? "border-accent text-accent" : "border-border"}`}>{n + 1}</span>
+                    <span className="truncate">{f.t}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+            <div className="mt-4"><Controls p={find} restart={() => (find.setI(0), find.setPlaying(true))} /></div>
+          </div>
+          <Card>
+            <p className="font-mono text-xs text-muted">finding {find.i + 1} of {FINDINGS.length}</p>
+            <h4 className="mt-2 text-lg font-semibold tracking-tight sm:text-xl" data-testid="finding-title">{FINDINGS[find.i].t}</h4>
+            <div key={find.i} className="mt-4 space-y-2 text-sm text-muted">
+              {FINDINGS[find.i].lines.map((l, k) => <p key={l} className="ib-pop" style={{ animationDelay: `${k * 0.25}s` }}>{l}</p>)}
+            </div>
+            {find.i === 3 && (
+              <blockquote key="q" className="ib-pop mt-4 border-l-2 pl-3 text-sm italic" style={{ borderColor: "var(--mem-stroke)", animationDelay: "0.5s" }}>
+                “Cold cache or tiny TTL, same thing: every payment turns into a rulesets fetch.”
+                <span className="mt-1 block text-xs not-italic text-muted">from the chat the agent dug up, quoted word for word</span>
+              </blockquote>
+            )}
+            <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-surface-2">
+              <div className="h-full rounded-full bg-accent transition-[width] duration-500" style={{ width: `${((find.i + 1) / FINDINGS.length) * 100}%` }} />
+            </div>
+          </Card>
+        </div>
+
+        {/* e) what FalkorDB does for us */}
+        <div className="mt-12">
+          <h3 className="text-xl font-semibold tracking-tight">What FalkorDB is doing underneath</h3>
+          <p className="mt-2 max-w-3xl text-sm text-muted">
+            All of it lives in one graph: services, people, changes, documents, chats, decisions and old incidents. That
+            is what lets the agent get from an alarm to a change to a person to a year old chat in a few hops. Three of
+            the queries it actually runs:
+          </p>
+          <div className="mt-6 grid gap-5 lg:grid-cols-3">
+            {DEMO_QUERIES.map((d) => (
+              <Card key={d.say}>
+                <CypherBlock cypher={d.q} />
+                <p className="mt-3 text-sm text-muted">{d.say}</p>
+              </Card>
+            ))}
+          </div>
+          <p className="mt-5 max-w-3xl text-sm text-muted">
+            The built in algorithms do the heavy lifting: shortest path between two services, breadth first search to see
+            how far a problem reaches, connected components to prove two alarms cannot share a cause, PageRank and
+            betweenness to tell which services everything leans on, label propagation to find clusters, and full text
+            search over documents and chats.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm text-muted">
+            Each company gets its own graph. Northwind Health, the second company in the demo, is stored separately, so
+            no query can see across.
+          </p>
+        </div>
+
+        {/* f) the second company */}
+        <Card className="mt-8">
+          <h3 className="font-semibold">A second company, no code changes</h3>
+          <p className="mt-2 text-sm text-muted">
+            Northwind Health is a made up health company with 9 services, 8 people and 2 teams, and a different incident
+            of its own. The same agent solves it without a line of code being changed for it. Nothing about Kestrel Pay
+            is baked into the agent; everything it knows, it reads from the graph in front of it.
+          </p>
+        </Card>
+      </div>
+    </section>
   );
 }
