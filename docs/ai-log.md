@@ -172,3 +172,10 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 - Double-check: (1) every number on the page against `docs/eval.md` and 08C's storm numbers; (2) the honesty line
   (rule planner / mock, LLM planner built but not run live) reads the way you want it in the hero and the footer;
   (3) `docs/site/index.html` is now superseded — the Vercel project should serve the new page (09b).
+
+## 2026-10-18 — 09b: Vercel static landing deploy
+- Claude Code (Opus 5) added `frontend/vercel.json` and deployed the Vite build to the existing Vercel project
+  (same URL: https://incident-brain-landing.vercel.app). Static landing page only — no API, no database, no secrets.
+  Deleted the superseded `docs/site/index.html`.
+- Double-check: (1) the hosted "Open the console" shows the two local commands — set `VITE_CONSOLE_URL` if you ever
+  host the console; (2) set `VITE_DEMO_URL` once the demo video is up and redeploy to get a "Watch the demo" button.

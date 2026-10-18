@@ -228,3 +228,6 @@ runs/*
 # the frontend has its own src/lib (the Python lib/ rule above must not hide it)
 !frontend/src/lib/
 .scratch/
+
+# Vercel CLI link (local only)
+.vercel/

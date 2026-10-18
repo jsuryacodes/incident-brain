@@ -772,3 +772,17 @@ docker compose up --build
   `docs/screenshots/landing-{light,dark}-{1920,1440}.png`, `landing-mobile-390.png`, `landing-full-{light,dark,mobile}.png`.
 - **Revert:** `git revert` the "09a: landing page revamp" commit. The console is unaffected either way — the landing
   page is an extra route plus one early return in `App.tsx`.
+
+## 09b — Vercel: the landing page as a static site
+- 2026-10-18: `frontend/vercel.json` (framework vite, `buildCommand: VITE_STATIC=1 npm run build`,
+  `outputDirectory: dist`, SPA rewrite to `/index.html`). Deployed from `frontend/` with `vercel --prod --yes` into
+  the existing project **incident-brain-landing** — same URL as before: <https://incident-brain-landing.vercel.app>.
+- `VITE_STATIC=1` only exists in that build: on the host, `/` is the landing page, the app never calls `/api`, and
+  "Open the console" scrolls to "Run it yourself" (repo link + `scripts/setup.sh`, `scripts/ui.sh`). Set
+  `VITE_CONSOLE_URL` (a hosted console) or `VITE_DEMO_URL` (the demo video) to light those buttons up instead.
+  No secrets and no ACCESS_CODE on Vercel; the API and FalkorDB are not deployed there and are not meant to be.
+- The superseded one-file landing `docs/site/index.html` is deleted (it still had VIDEO_URL/REPO_URL placeholders).
+- Checked with Playwright against the live URL: both themes, no console errors, no failed or 4xx requests,
+  "Open the console" lands on the instructions. Screenshot `docs/screenshots/landing-vercel.png`. The local suite is
+  unchanged: `scripts/e2e.sh` 21 passed (the 3 landing tests included).
+- **Revert:** delete `frontend/vercel.json` and redeploy, or `vercel rollback` in the project.
