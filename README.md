@@ -102,7 +102,7 @@ never seen the planner (full 6/6, no graph 0/6). Full table and per scenario det
 In the alert storm, 6 alarms become 2 incidents and 2 pages instead of 6 pages and 5 people woken, and each suppressed
 page keeps the dependency path that justifies it.
 
-## Use the tools from Claude Code
+## Use it from Claude Code (MCP)
 
 The tool registry is an MCP server, so Claude Code can query the company graph directly:
 
@@ -113,8 +113,14 @@ claude mcp add incident-brain -e PYTHONPATH=/ABS/PATH/incident-brain -- \
 claude mcp list            # incident-brain should show as connected
 ```
 
-A second company is just a second server (`--tenant northwind_health`). Claude Desktop config and example prompts are
-in [`docs/mcp.md`](docs/mcp.md).
+Then ask it, in Claude Code:
+
+> payments-api is throwing 5xx errors. Use the incident-brain tools to find the likely cause, the dependency path, and
+> who to call.
+
+Claude picks the tools itself and answers with the dependency path and the person to page. A second company is just a
+second server (`--tenant northwind_health`). Claude Desktop config and more example prompts are in
+[`docs/mcp.md`](docs/mcp.md).
 
 ## An honest note on the agent's reasoning
 
