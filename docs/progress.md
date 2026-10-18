@@ -749,3 +749,4 @@ docker compose up --build
 
 ## Landing page
 - 2026-10-18: `docs/site/index.html` written (single static file, mock-mode wording, VIDEO_URL/REPO_URL placeholders still to replace) and pushed.
+- 2026-10-18: landing page deployed with the Vercel CLI: https://incident-brain-landing.vercel.app (production).

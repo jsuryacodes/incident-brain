@@ -159,3 +159,7 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-18 — Landing page: page written
 - Claude Code (Sonnet 5.5) wrote `docs/site/index.html`, a static one-file landing page.
 - Double-check: the page says the planner is scripted/mock and LLM mode was never run live; replace VIDEO_URL and REPO_URL before submitting.
+
+## 2026-10-18 — Landing page: deployed
+- Claude Code (Sonnet 5.5) deployed `docs/site/index.html` to Vercel production (project incident-brain-landing, alias https://incident-brain-landing.vercel.app). The deploy ran twice by accident; same content.
+- Double-check: the live page still has the VIDEO_URL / REPO_URL placeholders; redeploy after replacing them.
