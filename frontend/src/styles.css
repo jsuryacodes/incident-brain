@@ -147,9 +147,16 @@ button:disabled { cursor: not-allowed; }
 @keyframes ib-drop { from { opacity: 0; transform: translateY(-6px) scale(0.9); } to { opacity: 1; transform: none; } }
 .ib-storm-dot { animation: ib-drop 0.5s ease-out backwards; }
 
+/* Landing: the step illustrations. Each one restarts when its step is shown (the card is keyed on the step). */
+@keyframes ib-pop-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.ib-pop { animation: ib-pop-in 0.5s ease-out backwards; }
+@keyframes ib-draw-in { from { stroke-dashoffset: 260; opacity: 0.3; } to { stroke-dashoffset: 0; opacity: 1; } }
+.ib-draw { stroke-dasharray: 260; animation: ib-draw-in 0.9s ease-out backwards; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   /* Reveal-on-scroll must not leave content invisible when motion is off. */
   .ib-rev, .ib-tick { opacity: 1 !important; transform: none !important; }
   .ib-ripple { display: none; }
+  .ib-pop, .ib-draw { opacity: 1 !important; stroke-dashoffset: 0 !important; }
 }
