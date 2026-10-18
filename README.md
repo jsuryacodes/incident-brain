@@ -1,5 +1,9 @@
 # Incident Brain
 
+**In one sentence:** Incident Brain is an AI agent that walks a FalkorDB graph of your company to find why production
+broke, pages the right person, holds risky actions for human approval, and shows the exact Cypher behind every step.
+Its 22 graph tools are served by our own MCP server, so Claude Code or any MCP client can use them.
+
 **An agent team that finds out why production broke, acts on it safely, and shows every step it took.**
 
 ▶ **Demo video: https://youtu.be/VdFsfqIWbUE**
