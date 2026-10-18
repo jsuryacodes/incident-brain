@@ -219,23 +219,38 @@ Three agents share one incident node in the graph: **Triage** sorts the alarms, 
 **Communicator** writes it up. The hand-off is graph state, not a transcript, so every step is inspectable afterwards.
 The FastAPI app serves both the API and the built frontend on one port.
 
-## Run it locally (about 5 minutes)
+## Install and run Incident Brain
 
-**Prerequisites:** macOS or Linux · **Docker Desktop, running** · **Python ≥ 3.10** (macOS's built-in 3.9 is too old;
-`brew install python@3.12`) · **Node ≥ 18**, needed only for the web UI, not for the CLI or the eval.
-No API key: everything below runs in mock mode, free.
+### 1. Prerequisites
+
+Docker Desktop, installed and running · Python 3.10 or newer (macOS ships 3.9, which is too old:
+`brew install python@3.12`) · Node 18 or newer, needed only for the web UI · Git.
+No API key is needed: everything below runs in mock mode, free.
+
+### 2. Get the code
 
 ```bash
 git clone https://github.com/jsuryacodes/incident-brain && cd incident-brain
-scripts/setup.sh     # ~3-4 min: .venv + deps, the 'falkordb' container, seeds and verifies
-                     # kestrel_pay + northwind_health (~20 s each) and generates scale_demo,
-                     # 2,000 services for the benchmarks (~2 min, it is not stuck)
-scripts/ui.sh        # builds the frontend the first time (~30 s), then serves UI + API
 ```
 
-Open **http://localhost:8000** and start on the **Firefighter** view: pick the *Alert storm* scenario and press play.
-Everything is same origin on port 8000. There is no separate dev server to start; don't use `npm run dev` on :5173,
-it has no API behind it.
+### 3. Set up
+
+```bash
+scripts/setup.sh
+```
+
+This creates `.venv` and installs the dependencies, starts FalkorDB in a Docker container called `falkordb`, then
+seeds and verifies both demo companies and generates the 2,000 service company used by the benchmarks. It takes a few
+minutes. It is not stuck.
+
+### 4. Start the console
+
+```bash
+scripts/ui.sh
+```
+
+Open **http://localhost:8000**, not :5173. The API and the UI are served from the same port, so there is no separate
+dev server to start. Begin at **Firefighter**, pick the **Alert storm** scenario and press play.
 
 Everything in Docker instead: `docker compose up --build`, same URL.
 
@@ -250,17 +265,56 @@ scripts/demo.sh --quiet                        # the memory story
 pytest -q                                      # 189 tests
 ```
 
-**If something goes wrong**
+### 5. Use it from Claude Code over MCP
+
+Replace `<repo-path>` with the absolute path to your clone:
+
+```bash
+cd <repo-path>
+claude mcp add incident-brain -e PYTHONPATH=<repo-path> -- \
+  <repo-path>/.venv/bin/python -m backend.mcp_server --tenant kestrel_pay
+claude mcp list            # incident-brain should show as Connected
+```
+
+Then ask it:
+
+> payments-api is throwing 5xx errors. Use the incident-brain tools to find the likely cause, the dependency path, and
+> who to call.
+
+Claude picks the tools itself and comes back with the dependency path and the person to page. Add `--scope project` to
+write the server into `.mcp.json` for everyone on the repo. A second company is just a second server:
+`claude mcp add northwind -e PYTHONPATH=<repo-path> -- <repo-path>/.venv/bin/python -m backend.mcp_server --tenant northwind_health`.
+
+### 6. Any other MCP client
+
+Claude Desktop: Settings, Developer, Edit Config, then restart it.
+
+```json
+{
+  "mcpServers": {
+    "incident-brain": {
+      "command": "<repo-path>/.venv/bin/python",
+      "args": ["-m", "backend.mcp_server", "--tenant", "kestrel_pay"],
+      "env": { "PYTHONPATH": "<repo-path>" }
+    }
+  }
+}
+```
+
+The same tools are also served over HTTP by the running API at `http://localhost:8000/mcp/kestrel_pay/`, one endpoint
+per company. More clients and example prompts: [`docs/mcp.md`](docs/mcp.md).
+
+### 7. If something goes wrong
 
 | Symptom | Fix |
 |---|---|
-| `ERROR: Docker is installed but not running` | Start Docker Desktop, wait for the whale, re-run `scripts/setup.sh`. |
+| `ERROR: Docker is installed but not running` | Start Docker Desktop, wait for it to finish starting, re-run `scripts/setup.sh`. |
 | `FalkorDB did not answer on localhost:6379` | Something else owns 6379, usually a local Redis: `lsof -i :6379`, stop it, then `docker rm -f falkordb` and re-run setup. |
 | Port 8000 already in use | `PORT=8080 scripts/ui.sh`, then open http://localhost:8080. |
-| `python: command not found` or a 3.9 error | Use the venv: `source .venv/bin/activate` (or `python3`). `scripts/setup.sh` finds a ≥ 3.10 interpreter by itself. |
+| `python: command not found`, or a Python 3.9 error | Use the venv: `source .venv/bin/activate`, or `python3`. `scripts/setup.sh` finds a 3.10 or newer interpreter by itself. |
 | `need Node >= 18` from `scripts/ui.sh` | `brew install node`, or skip the UI and use the CLI commands above. |
-| The Explorer or the Brain looks empty | `scripts/ui.sh` plays the story once on a cold graph; if you seeded by hand, run `scripts/demo.sh --quiet` first. |
-| `scripts/e2e.sh` is slow the first time | It downloads a headless Chromium (~150 MB) once. |
+| The Explorer or Ask the Brain looks empty | `scripts/ui.sh` plays the story once on a cold graph. If you seeded by hand, run `scripts/demo.sh --quiet` first. |
+| MCP server shows as failed in `claude mcp list` | Check `<repo-path>` is absolute in both places, and that `scripts/setup.sh` finished so `.venv/bin/python` exists. |
 
 ## The console
 
