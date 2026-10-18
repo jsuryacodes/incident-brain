@@ -367,3 +367,5 @@ is in [`docs/ai-log.md`](docs/ai-log.md).
 ## Licence
 
 MIT.
+
+Built for the FalkorDB hackathon, Track 1: Agents That Act on Connected Data. Demo: https://youtu.be/VdFsfqIWbUE
