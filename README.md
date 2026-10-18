@@ -11,6 +11,35 @@ Built for the FalkorDB hackathon, **Track 1: Agents That Act on Connected Data**
 
 ---
 
+## How Incident Brain meets Track 1
+
+**Multi-hop reasoning.** Track 1 asks for reasoning across connected data. The agent walks `DEPENDS_ON` edges in
+FalkorDB from the alerting service to the change that caused it, using `algo.SPpaths`, and rejects fresher deploys that
+have no path to the alert. See: Firefighter, the "false lead" scenario, Hypotheses tab.
+
+**Graph queries and algorithms as tools.** Track 1 asks for the graph itself to be the agent's tool set. There are 22
+fixed, parameterised Cypher tools on FalkorDB: BFS, shortest paths, WCC, PageRank, betweenness, label propagation and
+full text search. The agent never writes its own queries. See: Firefighter, Alert storm, Receipt tab.
+
+**Tool selection via MCP.** Track 1 asks for tools chosen through MCP. We built our own Incident Brain MCP server
+(`backend/mcp_server.py`, stdio and HTTP at `/mcp/<tenant>/`). Our agent discovers and calls its tools through an MCP
+session, and any MCP client can do the same: Claude Code connected to it and picked the tools itself, which is shown in
+the video.
+
+**Actions based on the graph.** Track 1 asks the agent to act, not just answer. Six alerts become two incidents and two
+pages, with five suppressed and each suppression carrying the path that justifies it. It pages the person the graph
+shows actually knows the code. A rollback safety check holds risky actions until a human approves, and execution runs on
+a copy of the graph. See: Actions tab.
+
+**Explainable results.** Track 1 asks for results you can check. Every step shows why that tool was chosen, the exact
+Cypher, the parameters and the timing. Every lead is confirmed or rejected with evidence, and a report that cites
+anything the graph did not return is refused.
+
+**FalkorDB is the only data store. Remove it and the agent has nothing to reason over: the eval shows the right person
+paged 19/19 with the graph vs 7/19 without, and 0 vs 15 wrong actions.**
+
+---
+
 ## The problem, in plain words
 
 A big company runs hundreds of small programs that call each other. When one of them breaks:
