@@ -163,3 +163,12 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
 ## 2026-10-18 — Landing page: deployed
 - Claude Code (Sonnet 5.5) deployed `docs/site/index.html` to Vercel production (project incident-brain-landing, alias https://incident-brain-landing.vercel.app). The deploy ran twice by accident; same content.
 - Double-check: the live page still has the VIDEO_URL / REPO_URL placeholders; redeploy after replacing them.
+
+## 2026-10-18 — 09a: landing page revamp
+- Claude Code (Opus 5) replaced the static `docs/site/index.html` landing with a real page inside the app at
+  `/welcome` (`frontend/src/views/LandingView.tsx`): animated hero graph, the problem, Track 1 checklist, the
+  city-map stepper, the alert storm, the eval bars, a receipt, under the hood, Tracks 2–3, CTA. Theme tokens, both
+  themes, reduced motion, no new dependencies. `/` is still the console.
+- Double-check: (1) every number on the page against `docs/eval.md` and 08C's storm numbers; (2) the honesty line
+  (rule planner / mock, LLM planner built but not run live) reads the way you want it in the hero and the footer;
+  (3) `docs/site/index.html` is now superseded — the Vercel project should serve the new page (09b).

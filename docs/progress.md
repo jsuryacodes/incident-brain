@@ -750,3 +750,25 @@ docker compose up --build
 ## Landing page
 - 2026-10-18: `docs/site/index.html` written (single static file, mock-mode wording, VIDEO_URL/REPO_URL placeholders still to replace) and pushed.
 - 2026-10-18: landing page deployed with the Vercel CLI: https://incident-brain-landing.vercel.app (production).
+
+## 09a — Landing page revamp (in the app)
+- 2026-10-18: the landing page moved into the React app: `frontend/src/views/LandingView.tsx`, one file, reached at
+  **`/welcome`**. The console keeps **`/`** and every other route exactly as before; `scripts/ui.sh` is untouched.
+- Ten sections: hero (animated SVG dependency graph: alert → ripple → blue path hop by hop → dashed amber learned
+  edge, looping), the problem in plain English, Track 1 asks ✓ how we do it, the city-map analogy + a 5-step
+  auto-advancing stepper, the alert storm, the three eval profiles as bars, a receipt (Cypher + path + source), under
+  the hood (FalkorDB, 22 read + 10 write tools, the algorithm list, MCP, team, memory, architecture SVG), Tracks 2
+  and 3, CTA + "run it yourself" + the honesty line. Every number is quoted from `docs/eval.md` (15 hand-written
+  scenarios: full 15/15, no-algorithms 12/15, no-graph 0/15) or from `/api/storm/latest` as recorded in 08C
+  (naive 6/6/5 vs agent 2/2/2, 5 pages suppressed, 35 tool calls). No seed service, person or ticket name appears.
+- No new dependencies: CSS transitions + IntersectionObserver + inline SVG, app theme tokens, reduced motion shows
+  everything with no movement (`.ib-rev` / `.ib-tick` overrides in `styles.css`).
+- Build-time switches, both unset when FastAPI serves the app: `VITE_STATIC=1` makes `/` the landing page (for a
+  static host with no API), `VITE_CONSOLE_URL` points "Open the console" at a hosted console, `VITE_DEMO_URL` adds
+  the demo-video button. Unset + static → the button scrolls to "Run it yourself" (the two local commands).
+- Checks: `npm run build`, `npm test` (18, incl. the new `store.test.ts` route test), the full Playwright suite
+  **21 → 24 tests, all green** (new `e2e/00-landing.spec.ts`: both themes, no console errors, no horizontal scroll at
+  1920/1440/390, "Open the console" reaches the console), `pytest -q` 189 passed. Screenshots:
+  `docs/screenshots/landing-{light,dark}-{1920,1440}.png`, `landing-mobile-390.png`, `landing-full-{light,dark,mobile}.png`.
+- **Revert:** `git revert` the "09a: landing page revamp" commit. The console is unaffected either way — the landing
+  page is an extra route plus one early return in `App.tsx`.

@@ -2,11 +2,15 @@ import { create } from "zustand";
 import { api, getCode, setCode } from "./api";
 import type { Meta } from "./types";
 
-export type View = "story" | "firefighter" | "eval" | "brain" | "explorer";
-const PATHS: Record<View, string> = { story: "/", firefighter: "/firefighter", eval: "/eval", brain: "/brain", explorer: "/explorer" };
+export type View = "landing" | "story" | "firefighter" | "eval" | "brain" | "explorer";
+const PATHS: Record<View, string> = { landing: "/welcome", story: "/", firefighter: "/firefighter", eval: "/eval", brain: "/brain", explorer: "/explorer" };
+// Served by FastAPI, "/" is the console (unchanged). In the static build (VITE_STATIC=1, Vercel) there is no API,
+// so "/" is the landing page instead.
+const STATIC_BUILD = import.meta.env.VITE_STATIC === "1";
 export const viewFromPath = (p: string): View =>
-  p.startsWith("/brain") ? "brain" : p.startsWith("/explorer") ? "explorer" : p.startsWith("/firefighter") ? "firefighter"
-    : p.startsWith("/eval") ? "eval" : "story";
+  p.startsWith("/welcome") ? "landing"
+    : p.startsWith("/brain") ? "brain" : p.startsWith("/explorer") ? "explorer" : p.startsWith("/firefighter") ? "firefighter"
+      : p.startsWith("/eval") ? "eval" : STATIC_BUILD ? "landing" : "story";
 
 export type Toast = { id: number; text: string; kind: "error" | "info"; retry?: () => void };
 

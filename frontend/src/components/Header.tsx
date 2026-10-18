@@ -133,6 +133,7 @@ function AboutDialog({ onClose }: { onClose: () => void }) {
           <li><b>Track 3: Company Brain.</b> Ask the Brain: answers with verbatim sources; the Explorer shows the whole company graph.</li>
         </ul>
         <p className="flex flex-wrap gap-3">
+          <a className="text-accent underline" href="/welcome" onClick={(e) => (e.preventDefault(), onClose(), useApp.getState().setView("landing"))}>Landing page</a>
           <a className="text-accent underline" href={REPO} target="_blank" rel="noreferrer">Repository</a>
           <a className="text-accent underline" href={`${REPO}#readme`} target="_blank" rel="noreferrer">README</a>
           <a className="text-accent underline" href={`${REPO}/blob/main/docs/explain.md`} target="_blank" rel="noreferrer">How it works</a>

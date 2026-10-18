@@ -9,14 +9,25 @@ const BrainView = lazy(() => import("./views/BrainView"));
 const ExplorerView = lazy(() => import("./views/ExplorerView"));
 const FirefighterView = lazy(() => import("./views/FirefighterView"));
 const EvalView = lazy(() => import("./views/EvalView"));
-const TITLES = { story: "Story", firefighter: "Firefighter", eval: "Eval", brain: "Ask the Brain", explorer: "Explorer" };
+const LandingView = lazy(() => import("./views/LandingView"));
+const TITLES = { landing: "Incident Brain", story: "Story", firefighter: "Firefighter", eval: "Eval", brain: "Ask the Brain", explorer: "Explorer" };
 
 export function App() {
   const { view, meta, tenant, loadMeta } = useApp();
-  useEffect(() => void loadMeta(), [loadMeta]);
+  const landing = view === "landing";
   useEffect(() => {
-    document.title = `${TITLES[view]} · Incident Brain`;
+    if (!landing) void loadMeta(); // the landing page needs no API
+  }, [landing, loadMeta]);
+  useEffect(() => {
+    document.title = view === "landing" ? "Incident Brain — find out why, and show the work" : `${TITLES[view]} · Incident Brain`;
   }, [view]);
+  if (landing)
+    return (
+      <Suspense fallback={<div className="p-6"><Skeleton className="h-64" /></div>}>
+        <LandingView />
+        <style>{"html, body, #root { height: auto; min-height: 100%; }"}</style>
+      </Suspense>
+    );
   return (
     <div className="flex h-full flex-col">
       <Header />
