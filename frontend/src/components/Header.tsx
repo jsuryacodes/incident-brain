@@ -1,8 +1,8 @@
-import { Info, KeyRound, Laptop, LockOpen, Moon, Sun } from "lucide-react";
+import { Info, KeyRound, LockOpen } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useApp, type View } from "../lib/store";
-import { useTheme } from "../lib/theme";
 import { Dialog } from "./ui";
+import { ThemeSwitch } from "./ThemeSwitch";
 
 const REPO = "https://github.com/jsuryacodes/incident-brain";
 const TABS: { id: View; label: string }[] = [
@@ -27,10 +27,8 @@ export function Glyph({ size = 22 }: { size?: number }) {
 
 export function Header() {
   const { view, setView, tenant, setTenant, meta, unlocked } = useApp();
-  const { pref, cycle } = useTheme();
   const [dialog, setDialog] = useState<"code" | "about" | null>(null);
   const close = useCallback(() => setDialog(null), []);
-  const ThemeIcon = pref === "system" ? Laptop : pref === "light" ? Sun : Moon;
   const mode = unlocked ? (meta?.llm_modes.includes("live") ? "Mock · live available" : "Mock") : "Replay";
   return (
     <header className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border bg-surface px-4 py-2">
@@ -61,10 +59,7 @@ export function Header() {
           className="flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-sm text-muted hover:text-text">
           {unlocked ? <LockOpen size={15} /> : <KeyRound size={15} />} <span className="hidden md:inline">{unlocked ? "Unlocked" : "Access code"}</span>
         </button>
-        <button onClick={cycle} aria-label={`Theme: ${pref}. Click to change.`} title={`Theme: ${pref}`} data-testid="theme-toggle"
-          className="flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-sm text-muted hover:text-text">
-          <ThemeIcon size={15} /> <span className="hidden md:inline capitalize">{pref}</span>
-        </button>
+        <ThemeSwitch />
         <button onClick={() => setDialog("about")} aria-label="About Incident Brain" className="rounded-md border border-border p-1.5 text-muted hover:text-text">
           <Info size={15} />
         </button>
