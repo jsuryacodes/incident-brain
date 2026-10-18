@@ -187,3 +187,17 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
   console" fixed: locally it opens the Firefighter view, on the static build it opens the "Run the console" box.
 - Double-check: (1) the step wording and the five pictures say what you want to a non technical visitor;
   (2) the theme switch in the console header at narrow widths (labels appear from the lg breakpoint).
+
+## 2026-10-18 evening — landing page, deploy, review, MCP, README
+- Claude Code (Opus 5) in one session: rebuilt the landing page inside the app (animated hero graph, the five step
+  walk through with its own controls and pictures, the alarm storm, the eval bars, receipts, a "Meet Kestrel Pay"
+  section built only from the seeded graph's real counts and the planted story), rewrote all of its copy in plain
+  language with no dashes, added a System / Light / Dark switch shared with the console header, and fixed the
+  "Open the console" buttons for both the local app and the hosted static build.
+- Deployed the static landing page to Vercel (https://incident-brain-landing.vercel.app), with the console left to
+  run locally since it needs FastAPI and FalkorDB.
+- Track 1 review pass, the MCP server checked against Claude Code (`claude mcp add incident-brain ...`), and the
+  README rewritten top to bottom: Track 1 at a glance, the graph data model, the 22 Cypher tools with their
+  algorithms, the eval numbers, the MCP quickstart, how to run it locally, and this disclosure.
+- Double-check: the demo video link (https://youtu.be/VdFsfqIWbUE) on the landing page and in the README, and the
+  counts in the "Meet Kestrel Pay" section if you ever reseed with different data.
