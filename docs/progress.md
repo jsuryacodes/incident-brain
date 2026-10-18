@@ -786,3 +786,26 @@ docker compose up --build
   "Open the console" lands on the instructions. Screenshot `docs/screenshots/landing-vercel.png`. The local suite is
   unchanged: `scripts/e2e.sh` 21 passed (the 3 landing tests included).
 - **Revert:** delete `frontend/vercel.json` and redeploy, or `vercel rollback` in the project.
+
+## 09c / 09d — Landing page fixes
+- 2026-10-18: **Theme switch.** The cycling theme button is replaced everywhere by `frontend/src/components/ThemeSwitch.tsx`:
+  three buttons, System / Light / Dark, the current one marked with `aria-pressed`. Used by the console header and the
+  landing page. Persistence is the existing theme store (localStorage inside try/catch). `e2e/01-theme.spec.ts` rewritten
+  for it; the console screenshots are re-shot because the header changed.
+- 2026-10-18: **Landing page.** Every line of copy rewritten in plain words: no em or en dashes anywhere (a Playwright
+  test now scans the rendered text for them), no hyphenated compounds, short sentences. The honesty line says plainly
+  that a set of fixed rules makes the decisions, not a language model.
+- **Hero animation**: a caption under the graph that changes with each stage, plus play / pause / back / next and
+  0.5x / 1x / 2x. It loops.
+- **"How it works" stepper**: exactly one step is current at a time, 1 to 5, and it stops at 5 instead of looping. It
+  starts when the section scrolls into view. Controls: play / pause / back / next / restart / speed; clicking a step
+  jumps to it and pauses; space and the arrow keys work when the stepper has focus. Each step now has its own small
+  animated picture (alarm, the route lighting up hop by hop, suspects crossed out with reasons, the page / ticket /
+  held rollback, the new dashed amber road).
+- **"Open the console"** (header, hero and the bottom button, all three): served by FastAPI it now opens the
+  **Firefighter** view directly. On the static build it opens a "Run the console" box with the repo link, the two
+  commands and a "Video coming soon" placeholder until `VITE_DEMO_URL` is set. The instructions are also always on the
+  page, so the box is never the only place they exist.
+- Reduced motion: no autoplay anywhere, every picture shows its finished frame.
+- Checks: build clean, `npm test` 18, Playwright 24 tests (6 landing: both themes, the dash scan, hero controls,
+  stepper controls, 1920/1440/390 with no sideways scroll), `pytest -q` 189.

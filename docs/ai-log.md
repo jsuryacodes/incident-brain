@@ -179,3 +179,11 @@ Running log of where AI tools helped. Tools: Claude (claude.ai, Opus 5.5) for pl
   Deleted the superseded `docs/site/index.html`.
 - Double-check: (1) the hosted "Open the console" shows the two local commands — set `VITE_CONSOLE_URL` if you ever
   host the console; (2) set `VITE_DEMO_URL` once the demo video is up and redeploy to get a "Watch the demo" button.
+
+## 2026-10-18 — 09c/09d: landing page fixes
+- Claude Code (Opus 5): plain-language rewrite of the whole landing page (no em or en dashes, a test enforces it),
+  play/pause/back/next/speed on both the hero animation and the five step walk through, one step highlighted at a
+  time with its own small animation, a System/Light/Dark switch shared with the console header, and "Open the
+  console" fixed: locally it opens the Firefighter view, on the static build it opens the "Run the console" box.
+- Double-check: (1) the step wording and the five pictures say what you want to a non technical visitor;
+  (2) the theme switch in the console header at narrow widths (labels appear from the lg breakpoint).
