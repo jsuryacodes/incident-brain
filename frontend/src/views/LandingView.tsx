@@ -16,7 +16,7 @@ const REPO = "https://github.com/jsuryacodes/incident-brain";
 // Vercel static build: VITE_STATIC=1, so there is no API and the buttons open the "Run the console" box instead.
 const CONSOLE_URL = import.meta.env.VITE_CONSOLE_URL as string | undefined;
 const STATIC = import.meta.env.VITE_STATIC === "1";
-const DEMO_VIDEO = import.meta.env.VITE_DEMO_URL as string | undefined;
+const DEMO_VIDEO = (import.meta.env.VITE_DEMO_URL as string | undefined) || "https://youtu.be/VdFsfqIWbUE";
 
 /** docs/eval.md, "Scores": the 15 hand written scenarios. */
 const PROFILES = [
