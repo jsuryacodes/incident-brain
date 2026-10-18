@@ -85,6 +85,79 @@ writes down what it learned so the next time is faster.
 - **Memory is graph state.** A learned dependency, a fact, a resolution or a new runbook is written back as nodes and
   edges tagged `origin:'agent'`, which the Explorer view shows in amber.
 
+## Graph data model
+
+**Node labels**
+
+| Label | What it is |
+|---|---|
+| Service | One running program in the company. |
+| Team | A team that owns services. |
+| Person | Someone who works, or used to work, at the company. |
+| Deploy | One change shipped to a service. |
+| Doc | A written document about a service. |
+| Ticket | A bug, task or follow up. |
+| ChatThread | A team chat conversation, where buried reasons live. |
+| Decision | A decision that was written down, with its rationale. |
+| Incident | A past or current outage. |
+| Resolution | How an incident was fixed, and by whom. |
+| Runbook | A procedure for handling something, with versions. |
+| RootCause | A recurring failure pattern shared by incidents. |
+| PublicPostmortem | A real published outage report, for industry matching. |
+| Fact | Something an agent learned and wrote back. |
+| Session | One agent conversation, kept across runs. |
+| Step | One step an agent took, with its tool, Cypher and reason. |
+
+**Relationship types**
+
+| Edge | Meaning |
+|---|---|
+| DEPENDS_ON | `(a)-[:DEPENDS_ON]->(b)` means a calls b. Carries whether it was declared or learned by an agent. |
+| OWNS / MEMBER_OF | A team owns a service; a person belongs to a team. |
+| MAINTAINS / WORKED_ON | The listed owner of a service, and who has actually committed to it. |
+| DEPLOYED / CHANGED / FOR_TICKET | Who shipped a change, what it changed, and the ticket behind it. |
+| AUTHORED / MENTIONS / DESCRIBES / ABOUT | Who wrote a source, and what it talks about. |
+| SOURCED_FROM | The receipt: the exact source a decision, fact or runbook came from. |
+| AFFECTED / CAUSED_BY / HAS_ROOT_CAUSE | What an incident hit, what caused it, and the pattern it belongs to. |
+| RESOLVED_BY / PERFORMED_BY | How an incident ended, and who did it. |
+| SIMILAR_TO | An agent written link between two incidents, with a score and a reason. |
+| SUPERSEDES | A new runbook version replacing an old one. |
+| FOR_INCIDENT / IN_SESSION | Ties an agent session and its steps to the incident it worked on. |
+
+Full property lists, constraints and the planted demo stories: [`docs/schema.md`](docs/schema.md).
+
+## Cypher queries and algorithms
+
+The agent picks from these 22 read tools. Each one is a fixed Cypher query with parameter slots, shown with its
+verified example output in [`docs/cypher.md`](docs/cypher.md). Ten write tools (page a person, open a ticket, record a
+learned dependency, flag a stale document, write a runbook and so on) are documented there too.
+
+| Tool | Algorithm used |
+|---|---|
+| `find_service` | plain Cypher |
+| `blast_radius` | plain Cypher |
+| `recent_changes_downstream` | `algo.SPpaths` |
+| `recent_changes` | plain Cypher |
+| `shared_dependency_changes` | plain Cypher |
+| `dependency_path` | `algo.SPpaths` |
+| `who_to_call` | plain Cypher |
+| `decisions_about` | plain Cypher |
+| `past_incidents` | plain Cypher |
+| `search_knowledge` | `db.idx.fulltext.queryNodes` |
+| `critical_services` | `algo.pageRank`, `algo.betweenness` |
+| `stale_knowledge` | plain Cypher |
+| `node_details` | plain Cypher |
+| `read_source` | plain Cypher |
+| `get_incident_state` | plain Cypher |
+| `memory_recall` | plain Cypher |
+| `industry_matches` | plain Cypher |
+| `rollback_safety` | plain Cypher |
+| `correlate_alerts` | `algo.BFS` and `algo.SPpaths` |
+| `connected_impact` | `algo.WCC` and `algo.BFS` |
+| `blast_tiers` | `algo.SSpaths` |
+| `failure_domains` | `algo.labelPropagation` (CDLP) |
+
+
 ## Does the graph actually help? We measured it
 
 Same agent, same loop, same report format, 15 hand written incident scenarios. The only thing that changes is which
